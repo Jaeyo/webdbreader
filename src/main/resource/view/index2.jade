@@ -1,0 +1,40 @@
+- menuClass = "nav nav-pills nav-stacked";
+- newScriptBtnClass = "btn btn-lg new-script-btn"
+
+doctype html
+html
+	head
+		include inc/head.jade
+		title SpDbReader
+		link(href="/css/index2.css", rel="stylesheet")
+	body
+		div.container
+			div.top-area
+				div.logo-area logo
+				div.title-area title
+			div.bottom-area
+				div.menu-area
+					div
+						button(type="button", class=newScriptBtnClass) new script
+					hr
+					div
+						ul(class=menuClass)
+							li: a(href="#") overview
+							li: hr
+							li: h5 Scripts
+							//DEBUG
+							pre !{scriptInfos}
+							if scriptInfos == null || scriptInfos.length == 0
+								//DEUBG
+								pre cp1
+								li: label: no scripts
+							else
+								//DEBUG
+								pre cp2
+								each scriptInfo in scriptInfos
+									//DEBUG
+									pre !{scriptInfo}
+									li: a(href="#") #{scriptInfo.SCRIPT_NAME}
+							li: h5 Labels
+							li: a(href="#") design
+				div.contents-area contents

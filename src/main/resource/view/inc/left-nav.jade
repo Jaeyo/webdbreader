@@ -1,0 +1,24 @@
+// - navButtonClass = [ 'btn', 'btn-default', 'form-control', 'nav-menu-button' ];
+- navButtonClass = "btn btn-default form-control nav-menu-button";
+
+div.left-nav
+	div(style="text-align: center; margin: 20px")
+		h4: b SpDbReader
+	div
+		div.row
+			div.col-xs-12
+				button(type="button", class=navButtonClass, onclick="window.location.href='/'") Overview
+		hr.divider-light
+
+		div(style="text-align: center;"): label scripts
+		div.row
+			div.col-xs-12
+				each scriptInfo in scriptInfos
+					button(class=navButtonClass, type="button") #{scriptInfo.SCRIPT_NAME}
+		hr.divider-light
+
+		div(style="text-align: center;"): label menu
+		div.row
+			div.col-xs-12
+				button(type="button", class=navButtonClass, onclick="window.location.href='/View/NewScript/';") new script
+				button(type="button", class=navButtonClass, onclick="window.location.href='/View/NewDb2File/';") new db2file script

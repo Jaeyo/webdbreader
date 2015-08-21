@@ -1,0 +1,109 @@
+#card-input-database {
+	width: 500px;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}
+#card-input-database div {
+	margin-bottom: 3px;
+}
+#card-input-database .left-label {
+	display: inline-block; 
+	width: 29%;
+}
+#card-input-database .right-value {
+	display: inline-block; 
+	width: 70%;
+}
+#card-input-database .right-value label {
+	margin-right: 5px;
+	cursor: pointer;
+}
+#card-input-database .right-value label input[type="radio"] {
+	margin-right: 3px;
+}
+#card-input-database #text-database-ip {
+	width: calc(100% - 170px);
+}
+#card-input-database #text-database-port {
+	width: 80px;
+}
+#card-input-database #text-database-port + button{
+	width: 80px;
+}
+#card-input-database #text-database-sid,
+#card-input-database #text-jdbc-driver,
+#card-input-database #text-jdbc-conn-url,
+#card-input-database #text-jdbc-username,
+#card-input-database #text-jdbc-password {
+	width: 100%;
+}
+
+/* ------------------------------------------------- */
+
+#card-set-table-for-query {
+	width: 350px;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}
+#card-set-table-for-query div input.input-text {
+	width: 100%;
+}
+
+/* ------------------------------------------------- */
+
+#card-set-column-for-query {
+	width: 350px;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}
+#card-set-column-for-query #div-columns {
+	max-height: 200px;
+	overflow-y: scroll;
+}
+
+/* ------------------------------------------------- */
+
+#card-set-binding-type {
+	width: 350px;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}
+#card-set-binding-type label {
+	cursor: pointer;
+}
+#card-set-binding-type label input[type="radio"]{
+	margin-right: 3px;
+}
+#card-set-binding-type #columns-for-date-condition {
+	padding-left: 15px;
+	display: none;
+	max-height: 200px;
+	overflow-y: auto;
+}
+#card-set-binding-type #columns-for-sequence-condition {
+	padding-left: 15px;
+	display: none;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+/* ------------------------------------------------- */
+
+#card-etc-parameter {
+	width: 400px;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}
+#card-etc-parameter .input-group .input-group-addon {
+	min-width: 80px;
+	max-width: 80px;
+}
+
+/* ------------------------------------------------- */
+
+#card-script {
+	width: 800px;
+	max-height: 100%;
+	padding: 20px;
+	background-color: rgb(49, 63, 77);
+}

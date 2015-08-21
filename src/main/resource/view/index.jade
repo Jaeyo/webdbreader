@@ -1,0 +1,31 @@
+extends base
+
+block head
+	link(href="/css/index.css", rel="stylesheet")
+
+block contents
+	div.row
+		div.col-md-6
+			div.card
+				h4 control panel
+				hr
+				div
+					each scriptInfo in scriptInfos
+						div.script-info(isselect="false", onclick="controller.view.toggleSelect($(this));")
+							if #{scriptInfo.IS_RUNNING} === true
+								span.green-label
+							else
+								span.red-label
+							span #{scriptInfo.SCRIPT_NAME}
+				div &nbsp;
+					button(type="button", class="btn btn-default btn-sm pull-right", onclick="controller.selectAllScript") select all
+		div.col-md-6
+			div.card
+	div.row
+		div.col-md-6
+			div.card
+		div.col-md-6
+			div.card
+
+block foot
+	script(src="js/index.js")

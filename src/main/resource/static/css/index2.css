@@ -1,0 +1,62 @@
+div.container {
+	height: 100%;
+}
+
+.top-area .logo-area {
+	padding: 10px;
+	background-color: #00a8b3;
+	width: 200px;
+	min-height: 80px;
+	float: left;
+}
+.top-area .title-area {
+	padding: 10px;
+	background-color: #41cac0;
+	width: calc(100% - 200px);
+	min-height: 80px;
+	float: left;
+}
+
+.bottom-area {
+	top: 80px;
+	height: 100%;
+}
+
+.bottom-area .menu-area {
+	padding: 10px;
+	background-color: #e5e8ef;
+	width: 200px;
+	min-height: calc(100% - 80px);
+	float: left;
+	overflow-y: auto;
+}
+
+.bottom-area .menu-area .new-script-btn {
+	width: 100%;
+	background-color: #ff6c60;
+	color: white;
+}
+.bottom-area .menu-area .new-script-btn:hover {
+	background-color: #ff8c80;
+}
+
+.bottom-area .menu-area hr {
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 1em 0;
+	padding: 0; 
+}
+
+.bottom-area .menu-area h5, .bottom-area .menu-area a {
+	color: gray;
+}
+
+.bottom-area .contents-area {
+	padding: 10px;
+	float: left;
+	width: calc(100% - 200px);
+	min-height: calc(100% - 80px);
+	overflow-y: auto;
+}
