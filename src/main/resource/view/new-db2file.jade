@@ -1,0 +1,65 @@
+extends base
+
+block header
+	link(href="/css/new-db2file.css", rel="stylesheet")
+
+block title-area
+	h3 DB to FILE script
+
+block contents-area
+	div.card.center-xy#card-input-database
+		h4 input database
+		hr
+		div
+			label.key-label database vendor
+			span.value-area
+				label
+					input(type="radio", name="dbVendor", value="oracle")
+					span oracle
+				label
+					input(type="radio", name="dbVendor", value="mysql")
+					span mysql
+				label
+					input(type="radio", name="dbVendor", value="mssql")
+					span mssql
+				label
+					input(type="radio", name="dbVendor", value="db2")
+					span db2
+				label
+					input(type="radio", name="dbVendor", value="tibero")
+					span tibero
+				label
+					input(type="radio", name="dbVendor", value="etc")
+					span etc
+		div
+			label.key-label database address
+			span.value-area
+				input.input-text#text-database-ip(type="text", placeholder="ip", onkeyup="controller.autoCompleteJdbcInfo()")
+				input.input-text#text-database-port(type="text", placeholder="port", onkeyup="controller.autoCompleteJdbcInfo()")
+				button(type="button", class="btn btn-default btn-sm") connect test
+
+block footer
+	script.
+		Model = function(){
+		}; //INIT
+		Model.prototype = {
+		}; //Model
+		
+		View = function(){
+		}; //INIT
+		View.prototype = {
+		};
+		
+		Controller = function(){
+		}; //INIT
+		Controller.prototype = {
+			autoCompleteJdbcInfo: function(){
+				//TODO IMME
+			} //autoCompleteJdbcInfo
+		}; //Controller
+		
+		$(function(){
+			model = new Model();
+			view = new View();
+			controller = new Controller();
+		});

@@ -25,15 +25,21 @@ public class Script extends JadeHttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
+		resp.setContentType("text/html; charset=UTF-8");
 
 		String pathInfo = req.getPathInfo();
 		if(pathInfo == null) pathInfo = "/";
 		Map<String, String> pathParams = new HashMap<String, String>();
-
+		
 		try{
-			if(new UriTemplate("/Script/Info/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/Info/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/NewDb2File/").match(pathInfo, pathParams)){
+				resp.getWriter().print(jade("new-db2file.jade", null));
+				resp.getWriter().flush();
+			} else if(new UriTemplate("/NewDb2Db/").match(pathInfo, pathParams)){
+				//TODO
 			} else{
 				resp.getWriter().print(jade("error.jade", null));
 				resp.getWriter().flush();
