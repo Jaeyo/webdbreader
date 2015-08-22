@@ -8,15 +8,19 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.json.JSONArray;
 
 import com.igloosec.webdbreader.common.Conf;
 import com.igloosec.webdbreader.common.Path;
+import com.igloosec.webdbreader.rdb.DerbySchemaCreator;
 import com.igloosec.webdbreader.servlet.EmbedDb;
 import com.igloosec.webdbreader.servlet.Index;
 import com.igloosec.webdbreader.servlet.Script;
 
 public class App {
 	public static void main(String[] args) throws Exception {
+		new DerbySchemaCreator().check();
+		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
 
 		Server server = new Server(threadPool);
@@ -34,7 +38,7 @@ public class App {
 	} // main
 
 	private static WebAppContext getWebAppContext() throws IOException{
-		WebAppContext context=new WebAppContext();
+		WebAppContext context = new WebAppContext();
 		context.setClassLoader(Thread.currentThread().getContextClassLoader());
 		context.setResourceBase(App.class.getClassLoader().getResource("./static").toExternalForm());
 		context.addServlet(EmbedDb.class, "/EmbedDb/*");

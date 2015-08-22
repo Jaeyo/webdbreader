@@ -1,12 +1,67 @@
+- menuClass = "nav nav-pills nav-stacked";
+- newScriptBtnClass = "btn btn-lg new-script-btn"
+
 doctype html
 html
 	head
 		include inc/head.jade
 		title SpDbReader
-		block head
-	body.bg-blue-black
-		include inc/left-nav.jade
-
-		div.main-container
-		block contents
-		block foot
+		link(href="/css/base.css", rel="stylesheet")
+		block header
+	body
+		div.container
+			div.top-area
+				div.logo-area: h3 SpDbReader
+				div.title-area
+					block title-area
+			div.bottom-area
+				div.menu-area
+					div
+						button(type="button", class=newScriptBtnClass, onclick="newScript();") new script
+					hr
+					div
+						ul(class=menuClass)
+							li: a(href="#") overview
+							li: hr
+							li: h5 Scripts
+							if scriptInfos == null || scriptInfos.length() == 0
+								li: div.well no script
+							else
+								each scriptInfo in scriptInfos
+									li: a(href="#") #{scriptInfo.SCRIPT_NAME}
+							li: hr
+							li: h5 Labels
+							li: a(href="#") design
+							li: hr
+				div.contents-area
+					block contents-area
+					
+		script#new-script(type="x-jade-tmpl")
+			:plain
+				div.row
+					div.col-md-6
+						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newDb2FileScript();") db2file
+						div blabla 여기는 설명입니다.
+					div.col-md-6
+						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newDb2DbScript();") db2db
+						div blabla 여기는 설명입ㅈ니다
+			
+		script.
+			function newScript(){
+				var msgJade = $('script#new-script[type="x-jade-tmpl"]').html();
+				bootbox.dialog({
+					title: 'new script',
+					message: jade.compile(msgJade)({})
+				});
+			}; //newScript
+			
+			function newDb2FileScript(){
+				//TODO IMME
+			}; //newDb2FileScript
+			
+			function newDb2DbScript(){
+				//TODO IMME
+			}; //new Db2DbScript
+			
+			
+		block footer

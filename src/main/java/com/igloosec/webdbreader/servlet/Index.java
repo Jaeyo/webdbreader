@@ -25,7 +25,7 @@ public class Index extends JadeHttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		req.setCharacterEncoding("UTF-8");
+//		req.setCharacterEncoding("UTF-8");
 		
 		String pathInfo = req.getPathInfo();
 		if(pathInfo == null) pathInfo = "/";
@@ -33,7 +33,7 @@ public class Index extends JadeHttpServlet {
 		
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
-				resp.getWriter().print(getIndex(req, resp, pathParams));
+				resp.getWriter().print(getIndex(req, resp, pathParams)); TODO why korean converted to ???
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/View/NewDb2File/").match(pathInfo, pathParams)){
 				resp.getWriter().print(jade("new-db2file.jade", null));
@@ -57,6 +57,6 @@ public class Index extends JadeHttpServlet {
 		
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("scriptInfos", scriptInfos);
-		return jade("index2.jade", model);
+		return jade("index.jade", model);
 	} //getIndex
 } //class

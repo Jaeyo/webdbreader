@@ -8,7 +8,10 @@ div.container {
 	width: 200px;
 	min-height: 80px;
 	float: left;
+	text-align: center;
+	color: white;
 }
+
 .top-area .title-area {
 	padding: 10px;
 	background-color: #41cac0;
@@ -31,12 +34,12 @@ div.container {
 	overflow-y: auto;
 }
 
-.bottom-area .menu-area .new-script-btn {
+.new-script-btn {
 	width: 100%;
 	background-color: #ff6c60;
 	color: white;
 }
-.bottom-area .menu-area .new-script-btn:hover {
+.new-script-btn:hover {
 	background-color: #ff8c80;
 }
 
@@ -49,12 +52,17 @@ div.container {
 	padding: 0; 
 }
 
-.bottom-area .menu-area h5, .bottom-area .menu-area a {
+.bottom-area .menu-area h5, .bottom-area .menu-area a, .bottom-area {
 	color: gray;
+}
+.bottom-area .menu-area div.well {
+	text-align: center;
+	color: gray;
+	font-size: 80%;
 }
 
 .bottom-area .contents-area {
-	padding: 10px;
+	padding: 20px;
 	float: left;
 	width: calc(100% - 200px);
 	min-height: calc(100% - 80px);
