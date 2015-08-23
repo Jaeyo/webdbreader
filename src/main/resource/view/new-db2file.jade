@@ -34,9 +34,33 @@ block contents-area
 		div
 			label.key-label database address
 			span.value-area
-				input.input-text#text-database-ip(type="text", placeholder="ip", onkeyup="controller.autoCompleteJdbcInfo()")
-				input.input-text#text-database-port(type="text", placeholder="port", onkeyup="controller.autoCompleteJdbcInfo()")
+				input.input-text#text-database-ip(type="text", placeholder="ip", onkeyup="controller.autoCompleteJdbcInfo();")
+				input.input-text#text-database-port(type="text", placeholder="port", onkeyup="controller.autoCompleteJdbcInfo();")
 				button(type="button", class="btn btn-default btn-sm") connect test
+		div
+			label.key-label database(sid)
+			span.value-area
+				input.input-text#text-database-sid(type="text", onkeyup="controller.autoCompleteJdbcInfo();")
+		div
+			label.key-label jdbc driver
+			span.value-area
+				input.input-text#text-jdbc-driver(type="text")
+		div
+			label.key-label jdbc connection url
+			span.value-area
+				input.input-text#text-jdbc-conn-url(type="text")
+		div
+			label.key-label jdbc username
+			span.value-area
+				input.input-text#text-jdbc-username(type="text")
+		div
+			label.key-label jdbc-password
+			span.value-area
+				input.input-text#text-jdbc-password(type="password")
+		hr
+		div
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('card-input-database', 'card-set-table-for-query');") next
+	//end of card of id: card-input-database
 
 block footer
 	script.

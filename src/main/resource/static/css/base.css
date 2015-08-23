@@ -27,6 +27,7 @@ div.container {
 	width: calc(100% - 200px);
 	min-height: 80px;
 	float: left;
+	color: white;
 }
 
 .bottom-area {

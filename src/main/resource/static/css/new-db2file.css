@@ -9,7 +9,7 @@
 }
 #card-input-database div { margin-bottom: 5px; }
 #card-input-database label.key-label {
-	width: 130px;
+	width: 150px;
 	margin-right: 10px;
 }
 #card-input-database span.value-area label{
@@ -18,3 +18,10 @@
 }
 #card-input-database input#text-database-ip { width: 150px; }
 #card-input-database input#text-database-port { width: 50px; }
+#card-input-database input#text-database-sid, 
+#card-input-database input#text-jdbc-driver,
+#card-input-database input#text-jdbc-conn-url,
+#card-input-database input#text-jdbc-username,
+#card-input-database input#text-jdbc-password {
+	TODO IMME
+}
