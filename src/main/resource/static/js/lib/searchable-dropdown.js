@@ -6,11 +6,11 @@ searchDropdown = {
 		if(params == null)
 			params = {};
 		if(params.selectionColor == null)
-			params.selectionColor = 'rgb(31, 37, 48)';
+			params.selectionColor = '#f5f5f5';
 		if(params.backgroundColor == null)
-			params.backgroundColor = 'rgb(51, 57, 68)';
+			params.backgroundColor = 'white';
 		if(params.borderColor == null)
-			params.borderColor = 'white';
+			params.borderColor = 'gray';
 		if(params.maxHeight == null)
 			params.maxHeight = '300px';
 		return params;

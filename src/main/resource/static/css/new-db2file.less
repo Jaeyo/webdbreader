@@ -1,0 +1,79 @@
+@card-background-color: #e5e8ef;
+
+.card {
+	padding: 20px;
+	margin: 5px;
+	background-color: @card-background-color;
+	display: none;
+	.card-head {
+	} //card-head
+	.card-body {
+		overflow-y: auto;
+	} //card-body
+	.card-foot {
+	} //card-foot
+}
+
+#card-input-database {
+	width: 500px;
+	div {
+		margin-bottom: 5px;
+		label.key-label {
+			width: 150px;
+			margin-right: 10px;
+		} //label-key-label
+		span.value-area {
+			label {
+				margin-right: 5px;
+				font-weight: normal;
+			} //labek
+			input#text-database-ip { width: 150px; }
+			input#text-database-port { width: 50px; }
+			input#text-database-sid,
+			input#text-jdbc-driver,
+			input#text-jdbc-conn-url,
+			input#text-jdbc-username,
+			input#text-jdbc-password {
+				width: 292px;
+			} 
+		} //value-area
+	} //div
+} //#card-input-database
+
+#card-set-column-for-query {
+	div.card-body {
+		max-height: 250px;
+		label {
+			font-weight: normal;
+		}
+	} //card-body
+} //#card-set-column-for-query
+
+
+#card-set-binding-type {
+	div.card-body {
+		max-height: 250px;
+		label {
+			font-weight: normal;
+		} //label
+		#columns-for-sequence-condition, 
+		#columns-for-date-condition {
+			max-height: 100px;
+			overflow-y: scroll;
+			padding-left: 10px;
+			background-color: lighten(@card-background-color, 5%);
+		} //columns-for-*-condition
+	} //card-body
+} //card-set-binding-type
+
+#card-etc-parameter {
+	min-width: 400px;
+	div.card-body {
+		div.input-group {
+			width: 100%;
+			span.input-group-addon {
+				width: 100px;
+			} //span.input-group-addon
+		} //div.input-group
+	} //div.card-body
+} //card-etc-parameter

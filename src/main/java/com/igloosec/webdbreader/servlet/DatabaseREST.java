@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.service.DatabaseService;
-import com.igloosec.webdbreader.util.JadeHttpServlet;
+import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
-public class Database extends JadeHttpServlet{
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+public class DatabaseREST extends JadeHttpServlet{
+	private static final Logger logger = LoggerFactory.getLogger(DatabaseREST.class);
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
 	
 	@Override
@@ -34,22 +34,23 @@ public class Database extends JadeHttpServlet{
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/Database/Tables/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/Tables/").match(pathInfo, pathParams)){
 				resp.getWriter().print(tables(req, resp, pathParams));
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/Database/Columns/{tableName}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/Columns/{tableName}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(columns(req, resp, pathParams));
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/Database/QuerySampleData/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/QuerySampleData/").match(pathInfo, pathParams)){
 				resp.getWriter().print(querySampleData(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
-				resp.getWriter().print(jade("error.jade", null));
+				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
 		} catch(Exception e){
-			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			resp.getWriter().print(jade("error.jade", null));
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(errmsg, e);
+			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
 		} //catch
 	} //doGet

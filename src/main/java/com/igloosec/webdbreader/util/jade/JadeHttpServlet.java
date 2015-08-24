@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.util;
+package com.igloosec.webdbreader.util.jade;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

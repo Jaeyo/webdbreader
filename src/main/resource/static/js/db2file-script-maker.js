@@ -11,7 +11,13 @@ Db2FileScriptMaker.prototype = {
 	
 	script: function(){
 		var helper = {
-			step1_initConf: function(id, model){
+			step1_availableVersion: function(model){
+				var script = '\n var availableVersion = "{}"; '.format(model.version);
+				script += '\n';
+				return script;
+			}, //step1_availableVersion
+
+			step2_initConf: function(id, model){
 				var script = '\n var conf = { ';
 				script += '\n 	id: "{}", '.format(id);
 				script += '\n 	period: {}, '.format(model.period);
@@ -32,15 +38,16 @@ Db2FileScriptMaker.prototype = {
 				script += '\n }; ';
 				script += '\n ';
 				return script;
-			}, //step1_initConf	
+			}, //step2_initConf	
 
-			step2_initConditionVar: function(model){
+			step3_initConditionVar: function(model){
 				if(model.condition.type === 'no-condition')
 					return '';
 				var script = '\n var condition = { ';
 				script += '\n 	smallValue: null, ';
 				script += '\n 	bigValue: null ';
 				script += '\n }; ';
+				script += '\n';
 				if(model.condition.type === 'date-condition'){
 					script += '\n condition.smallValue = simpleRepo.load(conf.id); ';
 					script += '\n if(condition.smallValue === null) ';
@@ -48,9 +55,9 @@ Db2FileScriptMaker.prototype = {
 				} //if
 				script += '\n ';
 				return script;
-			}, //step2_initConditionVar
+			}, //step3_initConditionVar
 
-			step3_mainFunction: function(model){
+			step4_mainFunction: function(model){
 				var script = '\n function main(){ ';
 				if(model.condition.type === 'date-condition'){
 					script += '\n 	condition.bigValue = dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss"); ';
@@ -78,7 +85,7 @@ Db2FileScriptMaker.prototype = {
 				
 				script += '\n 	var filename = outputPath + "output_" + dateUtil.format(dateUtil.currentTimeMillis(), "yyyyMMddHHmm") + ".txt"; ';
 				script += '\n 	dbHandler.selectAndAppend(JSON.stringify(conf.database), query, conf.delimiter, filename, conf.charset); ';
-				
+
 				if(model.condition.type !== 'no-condition'){
 					script += '\n 	condition.smallValue = condition.bigValue; ';
 					script += '\n 	simpleRepo.store(conf.id, condition.bigValue); ';
@@ -87,9 +94,9 @@ Db2FileScriptMaker.prototype = {
 				script += '\n } //main ';
 				script += '\n ';
 				return script;
-			}, //step3_mainFunction
+			}, //step4_mainFunction
 
-			step4_getTableNameFunction: function(){
+			step5_getTableNameFunction: function(){
 				var script = '\n function getTableName(originalTableName){ ';
 				script += '\n 	var currentTime = dateUtil.currentTimeMillis(); ';
 				script += '\n 	var yyyy = dateUtil.format(currentTime, "yyyy"); ';
@@ -105,26 +112,28 @@ Db2FileScriptMaker.prototype = {
 				script += '\n 		.replace("$mi", mi); ';
 				script += '\n } //getTableName ';
 				return script;
-			}, //step4_getTablenameFunction
+			}, //step5_getTablenameFunction
 			
-			step5_schedule: function(){
+			step6_schedule: function(){
 				var script = '\n scheduler.schedule(conf.period, new java.lang.Runnable(){ ';
 				script += '\n 	run: function() { ';
 				script += '\n 		try{ ';
 				script += '\n 			main(); ';
 				script += '\n 		} catch(e) {';
+				script += '\n 			logger.error(e); ';
 				script += '\n 		} //catch ';
 				script += '\n 	} //run ';
 				script += '\n }); ';
 				return script;
-			} //step5_schedule
+			} //step6_schedule
 		};
 
-		var script = helper.step1_initConf(this.id, this.model);
-		script += helper.step2_initConditionVar(this.model);
-		script += helper.step3_mainFunction(this.model);
-		script += helper.step4_getTableNameFunction();
-		script += helper.step5_schedule();
+		var script = helper.step1_availableVersion(this.model);
+		script += helper.step2_initConf(this.id, this.model);
+		script += helper.step3_initConditionVar(this.model);
+		script += helper.step4_mainFunction(this.model);
+		script += helper.step5_getTableNameFunction();
+		script += helper.step6_schedule();
 		return script;
 	} //script
 }; //Db2FileScriptMaker

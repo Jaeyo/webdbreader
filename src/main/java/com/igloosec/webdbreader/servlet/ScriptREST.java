@@ -14,14 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.service.EmbedDbService;
 import com.igloosec.webdbreader.service.ScriptService;
-import com.igloosec.webdbreader.util.JadeHttpServlet;
+import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
-public class EmbedDb extends JadeHttpServlet{
-	private static final Logger logger = LoggerFactory.getLogger(EmbedDb.class);
-	private EmbedDbService embedDbSerivce = SingletonInstanceRepo.getInstance(EmbedDbService.class);
+public class ScriptREST extends JadeHttpServlet{
+	private static final Logger logger = LoggerFactory.getLogger(ScriptREST.class);
+	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,26 +30,25 @@ public class EmbedDb extends JadeHttpServlet{
 		String pathInfo = req.getPathInfo();
 		if(pathInfo == null) pathInfo = "/";
 		Map<String, String> pathParams = new HashMap<String, String>();
-
+		
 		try{
-			if(new UriTemplate("/EmbedDb/Query/").match(pathInfo, pathParams)){
-				resp.getWriter().print(query(req, resp, pathParams));
+			if(new UriTemplate("/Info/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
-				resp.getWriter().print(jade("error.jade", null));
+				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
 		} catch(Exception e){
-			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			resp.getWriter().print(jade("error.jade", null));
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(errmsg, e);
+			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
 		} //catch
 	} //doGet
 
-	private String query(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String query = req.getParameter("query");
-
-		JSONArray queryResult = embedDbSerivce.runQuery(query);
-		return new JSONObject().put("success", 1).put("result", queryResult).toString();
-	} //query
+	private String getScriptInfo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		JSONArray scripts = scriptService.getScriptInfo();
+		return new JSONObject().put("success", 1).put("scriptInfos", scripts).toString();	
+	} //getScriptInfo
 } //class

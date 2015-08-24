@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.service.ScriptService;
-import com.igloosec.webdbreader.util.JadeHttpServlet;
+import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
@@ -35,12 +35,6 @@ public class Index extends JadeHttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getIndex(req, resp, pathParams));
-				resp.getWriter().flush();
-			} else if(new UriTemplate("/View/NewDb2File/").match(pathInfo, pathParams)){
-				resp.getWriter().print(jade("new-db2file.jade", null));
-				resp.getWriter().flush();
-			} else if(new UriTemplate("/View/EmbedDb/").match(pathInfo, pathParams)){
-				resp.getWriter().print(jade("embed-db.jade", null));
 				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(jade("error.jade", null));

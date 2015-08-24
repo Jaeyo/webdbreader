@@ -1,27 +1,64 @@
 .card {
-	padding: 20px;
-	margin: 5px;
-	background-color: #e5e8ef;
+  padding: 20px;
+  margin: 5px;
+  background-color: #e5e8ef;
+  display: none;
 }
-
+.card .card-body {
+  overflow-y: auto;
+}
 #card-input-database {
-	width: 500px;
+  width: 500px;
 }
-#card-input-database div { margin-bottom: 5px; }
-#card-input-database label.key-label {
-	width: 150px;
-	margin-right: 10px;
+#card-input-database div {
+  margin-bottom: 5px;
 }
-#card-input-database span.value-area label{
-	margin-right: 5px;
-	font-weight: normal;
+#card-input-database div label.key-label {
+  width: 150px;
+  margin-right: 10px;
 }
-#card-input-database input#text-database-ip { width: 150px; }
-#card-input-database input#text-database-port { width: 50px; }
-#card-input-database input#text-database-sid, 
-#card-input-database input#text-jdbc-driver,
-#card-input-database input#text-jdbc-conn-url,
-#card-input-database input#text-jdbc-username,
-#card-input-database input#text-jdbc-password {
-	TODO IMME
+#card-input-database div span.value-area label {
+  margin-right: 5px;
+  font-weight: normal;
+}
+#card-input-database div span.value-area input#text-database-ip {
+  width: 150px;
+}
+#card-input-database div span.value-area input#text-database-port {
+  width: 50px;
+}
+#card-input-database div span.value-area input#text-database-sid,
+#card-input-database div span.value-area input#text-jdbc-driver,
+#card-input-database div span.value-area input#text-jdbc-conn-url,
+#card-input-database div span.value-area input#text-jdbc-username,
+#card-input-database div span.value-area input#text-jdbc-password {
+  width: 292px;
+}
+#card-set-column-for-query div.card-body {
+  max-height: 250px;
+}
+#card-set-column-for-query div.card-body label {
+  font-weight: normal;
+}
+#card-set-binding-type div.card-body {
+  max-height: 250px;
+}
+#card-set-binding-type div.card-body label {
+  font-weight: normal;
+}
+#card-set-binding-type div.card-body #columns-for-sequence-condition,
+#card-set-binding-type div.card-body #columns-for-date-condition {
+  max-height: 100px;
+  overflow-y: scroll;
+  padding-left: 10px;
+  background-color: #f5f6f9;
+}
+#card-etc-parameter {
+  min-width: 400px;
+}
+#card-etc-parameter div.card-body div.input-group {
+  width: 100%;
+}
+#card-etc-parameter div.card-body div.input-group span.input-group-addon {
+  width: 100px;
 }

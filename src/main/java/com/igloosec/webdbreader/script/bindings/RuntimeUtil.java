@@ -11,6 +11,8 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.igloosec.webdbreader.Version;
+
 public class RuntimeUtil {
 	private static final Logger logger = LoggerFactory.getLogger(RuntimeUtil.class);
 
@@ -22,6 +24,10 @@ public class RuntimeUtil {
 			e.printStackTrace();
 		} //catch
 	} //sleep
+	
+	public String getVersion(){
+		return Version.getCurrentVersion();
+	} //getVersion
 	
 	public void shutdown(){
 		logger.info("shutdown");

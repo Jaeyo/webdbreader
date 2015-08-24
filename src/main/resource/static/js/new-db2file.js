@@ -99,7 +99,12 @@ Db2FileModel.prototype = {
 			this.database.password = database.password;
 		
 		return this;
-	} //setDatabase
+	}, //setDatabase
+
+	setVersion: function(version){
+		this.version = version;
+		return this;
+	} //setVersion
 }; //Db2FileModel
 
 
@@ -150,12 +155,12 @@ View.prototype = {
 		});
 		
 		editor.setSize(null, 400);
-		editor.setOption("theme", "base16-dark");
+		editor.setOption("theme", "base16-light");
 		
 		var originalHint = CodeMirror.hint.javascript;
 		CodeMirror.hint.javascript = function(cm){
 			var inner = originalHint(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
-			var customAutoComplete = controller.model.customAutoComplete;
+			var customAutoComplete = model.customAutoComplete;
 			for(var i=0; i<customAutoComplete.length; i++)
 				inner.list.push(customAutoComplete[i]);
 			return inner;
@@ -169,55 +174,12 @@ View.prototype = {
 			message: '<p style="text-align: center">loading...</p><div class="loading"></div>',
 			closeButton: false
 		});
-	}, //showLoadingDialog
-	
-	getColumnCheckBox: function(column){
-		var dom = '';
-		dom += '<div>';
-		dom += 		'<label>';
-		dom += 			'<input type="checkbox" value="{columnName}" />{columnName} ({columnType})'.format(column, column);
-		dom += 		'</label>';
-		dom += '</div>';
-		return dom;
-	}, //getColumnCheckBox
-	
-	getColumnRadioBox: function(column){
-		var dom = '';
-		dom += '<div>';
-		dom += 		'<label>';
-		dom += 			'<input type="radio" name="condition-column" value="{columnName}" />{columnName} ({columnType})'.format(column, column);
-		dom += 		'</label>';
-		dom += '</div>';
-		return dom;
-	} //getColumnRadioBox
+	} //showLoadingDialog
 }; //View
 
 Controller = function(){
-	this.model = new Model();
-	this.view = new View();
 }; //INIT
 Controller.prototype = {
-	selectDbVendor: function(dbVendor){
-		this.model.db2FileModel.setDatabase({
-			vendor: dbVendor
-		});
-		
-		$('#card-input-database #text-database-port').val(this.model.jdbcTmpl[dbVendor].port);
-	
-		if(dbVendor === 'etc')
-			return;
-		
-		$('#card-input-database #text-jdbc-driver').val(this.model.jdbcTmpl[dbVendor].driver);
-		var connUrl = this.model.jdbcTmpl[dbVendor].connUrl;
-		var connUrlParams = {
-			ip: $('#card-input-database #text-database-ip').val(),
-			port: $('#card-input-database #text-database-port').val(),
-			database: $('#card-input-database #text-database-sid').val()
-		};
-		connUrl = connUrl.format(connUrlParams);
-		$('#card-input-database #text-jdbc-conn-url').val(connUrl);
-	}, //autoCompleteJdbcInfo
-	
 	openPrevCard: function(toCardId){
 		$('.card').hide(300);
 		$('#' + toCardId).show(300);
@@ -242,7 +204,7 @@ Controller.prototype = {
 					return;
 				} //catch
 				
-				this.model.db2FileModel.setDatabase({
+				model.db2FileModel.setDatabase({
 					driver: driver,
 					connUrl: connUrl,
 					username: username,
@@ -251,7 +213,7 @@ Controller.prototype = {
 				break;
 				
 			case 'card-set-table-for-query':
-				this.model.db2FileModel.setTableName($('#card-set-table-for-query #dropdown-table').attr('value'));
+				model.db2FileModel.setTableName($('#card-set-table-for-query #dropdown-table').attr('value'));
 				break;
 				
 			case 'card-set-column-for-query':
@@ -259,7 +221,7 @@ Controller.prototype = {
 				$('#div-columns input[type="checkbox"]:checked').each(function(index, value){
 					columns.push($(value).val());
 				});
-				this.model.db2FileModel.setSelectColumn(columns);
+				model.db2FileModel.setSelectColumn(columns);
 				break;
 				
 			case 'card-set-binding-type':
@@ -271,13 +233,13 @@ Controller.prototype = {
 					conditionColumn = $('#card-set-binding-type #columns-for-sequence-condition input[type="radio"][name="condition-column"]:checked').val();
 				} //if
 				
-				this.model.db2FileModel.setCondition({
+				model.db2FileModel.setCondition({
 					type: conditionType,
 					column: conditionColumn
 				});
 			
 				if(conditionType !== 'no-condition'){
-					if(conditionColumn == null || conditinoColumn.trim().length == 0){
+					if(conditionColumn === null || conditionColumn.trim().length == 0){
 						bootbox.alert('invalid condition column');
 						return;
 					} //if
@@ -285,7 +247,7 @@ Controller.prototype = {
 				break;
 				
 			case 'card-etc-parameter':
-				this.model.db2FileModel
+				model.db2FileModel
 					.setPeriod($('#card-etc-parameter #text-period').val())
 					.setDelimiter($('#card-etc-parameter #text-delimiter').val())
 					.setOutputPath($('#card-etc-parameter #text-output-path').val())
@@ -298,48 +260,75 @@ Controller.prototype = {
 			
 			switch(toCardId){
 			case 'card-set-table-for-query':
-				this.loadTables();
+				this.loadTables('dropdown-table');
 				break;
 			case 'card-set-column-for-query':
 				this.loadColumns(function(columns){
-					var columnsRoot = $('#div-columns').empty();
-					for(var i=0; i<columns.length; i++)
-						columnsRoot.append(controller.view.getColumnCheckBox(columns[i]));
+					var dom = jade.compile($('script#column-check-box[type="text/x-jade"]').html())({ columns: columns });
+					$('#div-columns').empty().append(dom);
 				});
 				break;
 			case 'card-set-binding-type':
 				this.loadColumns(function(columns){
-					var columnsRoot4Date = $('#card-set-binding-type #columns-for-date-condition').empty();
-					var columnsRoot4Sequence = $('#card-set-binding-type #columns-for-sequence-condition').empty();
-					for(var i=0; i<columns.length; i++){
-						var dom = controller.view.getColumnRadioBox(columns[i]);
-						columnsRoot4Date.append(dom);
-						columnsRoot4Sequence.append(dom);
-					} //for i
+					var dom = jade.compile($('script#column-radio-box[type="text/x-jade"]').html())({ columns: columns });
+					$('#card-set-binding-type #columns-for-date-condition').empty().append(dom);
+					$('#card-set-binding-type #columns-for-sequence-condition').empty().append(dom);
 				});
 				break;
 			case 'card-etc-parameter':
 				break;
 			case 'card-script':
-				var script = new Db2FileScriptMaker().setModel(this.model.db2FileModel).script();
-				this.view.scriptEditor.setValue(script);
+			view.showLoadingDialog();
+				$.getJSON('/REST/Meta/Version/', {})
+				.fail(function(e){
+					bootbox.hideAll();
+					bootbox.alert(JSON.stringify(e));
+				}).done(function(resp){
+					bootbox.hideAll();
+					model.db2FileModel.setVersion(resp.version);
+					var script = new Db2FileScriptMaker().setModel(model.db2FileModel).script();
+					view.scriptEditor.setValue(script);
+				});
 				break;
 			} //switch
 		} catch(e){
+			console.log(e);
 			this.openPrevCard(fromCardId);
 			bootbox.alert(JSON.stringify(e));
 		} //catch
 	}, //openCard
 	
-	loadTables: function(){
-		this.view.showLoadingDialog();
-		$.getJSON('/Tables/', {
-			driver: this.model.db2FileModel.database.driver,
-			connUrl: this.model.db2FileModel.database.connUrl,
-			username: this.model.db2FileModel.database.username,
-			password: this.model.db2FileModel.database.password
+	selectDbVendor: function(dbVendor){
+		model.db2FileModel.setDatabase({
+			vendor: dbVendor
+		});
+		
+		$('#card-input-database #text-database-port').val(model.jdbcTmpl[dbVendor].port);
+	
+		if(dbVendor === 'etc')
+			return;
+		
+		$('#card-input-database #text-jdbc-driver').val(model.jdbcTmpl[dbVendor].driver);
+		var connUrl = model.jdbcTmpl[dbVendor].connUrl;
+		var connUrlParams = {
+			ip: $('#card-input-database #text-database-ip').val(),
+			port: $('#card-input-database #text-database-port').val(),
+			database: $('#card-input-database #text-database-sid').val()
+		};
+		connUrl = connUrl.format(connUrlParams);
+		$('#card-input-database #text-jdbc-conn-url').val(connUrl);
+	}, //selectDbVendor
+
+	loadTables: function(targetDOM){
+		view.showLoadingDialog();
+		$.getJSON('/REST/Database/Tables/', {
+			driver: model.db2FileModel.database.driver,
+			connUrl: model.db2FileModel.database.connUrl,
+			username: model.db2FileModel.database.username,
+			password: model.db2FileModel.database.password
 		})
 		.fail(function(e){
+			bootbox.hideAll();
 			bootbox.alert(JSON.stringify(e));
 		}).done(function(resp){
 			bootbox.hideAll();
@@ -353,17 +342,17 @@ Controller.prototype = {
 				return;
 			} //if
 			
-			searchDropdown.newSearchDropdown('dropdown-table', null, resp.tables);
+			searchDropdown.newSearchDropdown(targetDOM, null, resp.tables);
 		});
 	}, //loadTables
 	
 	loadColumns: function(callback){
-		this.view.showLoadingDialog();
-		$.getJSON('/Columns/{}/'.format(this.model.db2FileModel.tableName), {
-			driver: this.model.db2FileModel.database.driver,
-			connUrl: this.model.db2FileModel.database.connUrl,
-			username: this.model.db2FileModel.database.username,
-			password: this.model.db2FileModel.database.password
+		view.showLoadingDialog();
+		$.getJSON('/REST/Database/Columns/{}/'.format(model.db2FileModel.tableName), {
+			driver: model.db2FileModel.database.driver,
+			connUrl: model.db2FileModel.database.connUrl,
+			username: model.db2FileModel.database.username,
+			password: model.db2FileModel.database.password
 		})
 		.fail(function(e){
 			bootbox.alert(JSON.stringify(e));
@@ -393,8 +382,8 @@ Controller.prototype = {
 			return;
 		} //if
 		
-		var query = 'SELECT {} FROM {}'.format(columns.toString(), controller.model.tableName);
-		
+		var query = 'SELECT {} FROM {}'.format(columns.toString(), model.db2FileModel.tableName);
+
 		bootbox.prompt('QUERY: {}<br />how many rows?'.format(query), function(result){
 			if(result == null)
 				return;
@@ -404,11 +393,11 @@ Controller.prototype = {
 				return;
 			} //if
 			
-			$.getJSON('/QuerySampleData/', {
-				driver: controller.model.db2FileModel.database.driver,
-				connUrl: controller.model.db2FileModel.database.connUrl,
-				username: controller.model.db2FileModel.database.username,
-				password: controller.model.db2FileModel.database.password,
+			$.getJSON('/REST/Database/QuerySampleData/', {
+				driver: model.db2FileModel.database.driver,
+				connUrl: model.db2FileModel.database.connUrl,
+				username: model.db2FileModel.database.username,
+				password: model.db2FileModel.database.password,
 				query: query,
 				rowCount: rowCount
 			}).done(function(resp){
@@ -440,12 +429,22 @@ Controller.prototype = {
 			$('#card-set-binding-type #columns-for-sequence-condition').show(300);
 			break;
 		} //switch
-	} //setConditionType
+	}, //setConditionType
+	saveScript: function(){
+		var script = view.scriptEditor.getValue();
+		bootbox.alert(script); //DEBUG
+		//TODO IMME
+	} //saveScript
 }; //Controller
 
 $(function(){
+	model = new Model();
+	view = new View();
 	controller = new Controller();
-	
+
+
+	$('#card-input-database').show(300);
+
 	//DEBUG
 	$('#card-input-database input[type="radio"][name="dbVendor"][value="oracle"]').click();
 	$('#card-input-database #text-database-ip').val('192.168.10.101');

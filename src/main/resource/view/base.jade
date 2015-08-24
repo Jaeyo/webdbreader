@@ -36,7 +36,7 @@ html
 				div.contents-area
 					block contents-area
 					
-		script#new-script(type="x-jade-tmpl")
+		script#new-script(type="x-jade")
 			:plain
 				div.row
 					div.col-md-6
@@ -48,7 +48,7 @@ html
 			
 		script.
 			function newScript(){
-				var msgJade = $('script#new-script[type="x-jade-tmpl"]').html();
+				var msgJade = $('script#new-script[type="x-jade"]').html();
 				bootbox.dialog({
 					title: 'new script',
 					message: jade.compile(msgJade)({})
