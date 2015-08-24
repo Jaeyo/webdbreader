@@ -59,8 +59,16 @@ Db2FileScriptMaker.prototype = {
 
 			step4_mainFunction: function(model){
 				var script = '\n function main(){ ';
+
+				script += '\n 	var writer = fileWriterFactory.getWriter({ ';
+				script += '\n 		filename: outputPath + "output_$yyyy$mm$dd$hh$mi.txt", ';
+				script += '\n 		charset: conf.charset ';
+				script += '\n 	}); ';
+				script += '\n';
+
 				if(model.condition.type === 'date-condition'){
 					script += '\n 	condition.bigValue = dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss"); ';
+					script += '\n';
 					script += '\n 	var query = " SELECT " + conf.selectColumn + ';
 					script += '\n 				" FROM " + getTableName(conf.tableName) + ';
 					if(model.database.vendor === 'mysql'){
@@ -83,8 +91,14 @@ Db2FileScriptMaker.prototype = {
 					script += '\n 				" FROM " + getTableName(conf.tableName); ';
 				} //if
 				
-				script += '\n 	var filename = outputPath + "output_" + dateUtil.format(dateUtil.currentTimeMillis(), "yyyyMMddHHmm") + ".txt"; ';
-				script += '\n 	dbHandler.selectAndAppend(JSON.stringify(conf.database), query, conf.delimiter, filename, conf.charset); ';
+				script += '\n'
+				script += '\n 	dbHandler.selectAndAppend({ ';
+				script += '\n 		database: conf.database, ';
+				script += '\n 		query: query, ';
+				script += '\n 		delimiter: conf.delimiter, ';
+				script += '\n 		writer: writer ';
+				script += '\n 	}); ';
+				script += '\n';
 
 				if(model.condition.type !== 'no-condition'){
 					script += '\n 	condition.smallValue = condition.bigValue; ';
@@ -96,25 +110,7 @@ Db2FileScriptMaker.prototype = {
 				return script;
 			}, //step4_mainFunction
 
-			step5_getTableNameFunction: function(){
-				var script = '\n function getTableName(originalTableName){ ';
-				script += '\n 	var currentTime = dateUtil.currentTimeMillis(); ';
-				script += '\n 	var yyyy = dateUtil.format(currentTime, "yyyy"); ';
-				script += '\n 	var mm = dateUtil.format(currentTime, "MM"); ';
-				script += '\n 	var dd = dateUtil.format(currentTime, "dd"); ';
-				script += '\n 	var hh = dateUtil.format(currentTime, "HH"); ';
-				script += '\n 	var mi = dateUtil.format(currentTime, "mm"); ';
-				script += '\n 	return originalTableName ';
-				script += '\n 		.replace("$yyyy", yyyy) ';
-				script += '\n 		.replace("$mm", mm) ';
-				script += '\n 		.replace("$dd", dd) ';
-				script += '\n 		.replace("$hh", hh) ';
-				script += '\n 		.replace("$mi", mi); ';
-				script += '\n } //getTableName ';
-				return script;
-			}, //step5_getTablenameFunction
-			
-			step6_schedule: function(){
+			step5_schedule: function(){
 				var script = '\n scheduler.schedule(conf.period, new java.lang.Runnable(){ ';
 				script += '\n 	run: function() { ';
 				script += '\n 		try{ ';
@@ -125,15 +121,14 @@ Db2FileScriptMaker.prototype = {
 				script += '\n 	} //run ';
 				script += '\n }); ';
 				return script;
-			} //step6_schedule
+			} //step5_schedule
 		};
 
 		var script = helper.step1_availableVersion(this.model);
 		script += helper.step2_initConf(this.id, this.model);
 		script += helper.step3_initConditionVar(this.model);
 		script += helper.step4_mainFunction(this.model);
-		script += helper.step5_getTableNameFunction();
-		script += helper.step6_schedule();
+		script += helper.step5_schedule();
 		return script;
 	} //script
 }; //Db2FileScriptMaker
