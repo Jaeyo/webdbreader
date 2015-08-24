@@ -62,3 +62,6 @@
 #card-etc-parameter div.card-body div.input-group span.input-group-addon {
   width: 100px;
 }
+#card-script {
+  max-width: 700px;
+}

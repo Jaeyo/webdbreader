@@ -17,27 +17,27 @@ public class ScriptDAO {
 	
 	public JSONArray selectScriptInfo(){
 		logger.info("");
-		return ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate, memo from script");
+		return ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate from script");
 	} //selectScriptInfo
+	
+	public void save(String scriptName, String script){
+		logger.info("scriptName: {}", scriptName);
+		ds.getJdbcTmpl().update("insert into script (script_name, script, regdate) "
+				+ "values(?, ?, ?)", scriptName, script, new Date());
+	} //save
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	public void save(String scriptName, String script, String memo){
-		logger.info("scriptName: {}", scriptName);
-		ds.getJdbcTmpl().update("insert into script (script_name, script, memo, regdate) "
-				+ "values(next value for main_seq, ?, ?, ?, ?)", scriptName, script, memo, new Date());
-	} //save
-	
 	public void edit(String scriptName, String script, String memo){
 		logger.info("scriptName: {}", scriptName);
-		ds.getJdbcTmpl().update("update script set script_name = ?, script = ?, regdate = ?, memo = ? "
+		ds.getJdbcTmpl().update("update script set script_name = ?, script = ?, regdate = ? "
 				+ "where script_name = ?",
 				scriptName, script, new Date(), memo, scriptName);
 	} //edit
 	
 	public JSONObject loadScript(String scriptName) throws NotFoundException{
 		logger.info("scriptName: {}", scriptName);
-		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate, memo from script where script_name = ?", scriptName);
+		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate from script where script_name = ?", scriptName);
 		
 		if(result == null || result.length() == 0)
 			throw new NotFoundException("script not found : " + scriptName);

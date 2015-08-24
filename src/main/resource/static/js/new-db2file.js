@@ -247,10 +247,14 @@ Controller.prototype = {
 				break;
 				
 			case 'card-etc-parameter':
+				var outputPath = $('#card-etc-parameter #text-output-path').val();
+				if(outputPath.indexOf('/', outputPath.length - '/'.length) === -1 && outputPath.indexOf('\\', outputPath.length - '\\'.length) === -1)
+					outputPath += '/';
+
 				model.db2FileModel
 					.setPeriod($('#card-etc-parameter #text-period').val())
 					.setDelimiter($('#card-etc-parameter #text-delimiter').val())
-					.setOutputPath($('#card-etc-parameter #text-output-path').val())
+					.setOutputPath(outputPath)
 					.setCharset($('#card-etc-parameter #text-charset').val());
 				break;
 			} //switch
@@ -298,17 +302,19 @@ Controller.prototype = {
 		} //catch
 	}, //openCard
 	
-	selectDbVendor: function(dbVendor){
-		model.db2FileModel.setDatabase({
-			vendor: dbVendor
-		});
+	autoCompleteJdbcInfo: function(srcDOM){
+		var dbVendor = $('#card-input-database input[type="radio"][name="dbVendor"]:checked').val();
+
+		model.db2FileModel.setDatabase({ vendor: dbVendor });
+
+		var portDOM = $('#card-input-database #text-database-port');
+		if( ('text-database-port' !== srcDOM.id && '' === portDOM.val()) ||
+			('dbVendor' === srcDOM.name) )
+			portDOM.val(model.jdbcTmpl[dbVendor].port);
+
+		if('dbVendor' === srcDOM.name && 'etc' !== dbVendor)
+			$('#card-input-database #text-jdbc-driver').val(model.jdbcTmpl[dbVendor].driver);
 		
-		$('#card-input-database #text-database-port').val(model.jdbcTmpl[dbVendor].port);
-	
-		if(dbVendor === 'etc')
-			return;
-		
-		$('#card-input-database #text-jdbc-driver').val(model.jdbcTmpl[dbVendor].driver);
 		var connUrl = model.jdbcTmpl[dbVendor].connUrl;
 		var connUrlParams = {
 			ip: $('#card-input-database #text-database-ip').val(),
@@ -317,7 +323,7 @@ Controller.prototype = {
 		};
 		connUrl = connUrl.format(connUrlParams);
 		$('#card-input-database #text-jdbc-conn-url').val(connUrl);
-	}, //selectDbVendor
+	}, //autoCompleteJdbcInfo
 
 	loadTables: function(targetDOM){
 		view.showLoadingDialog();
@@ -372,6 +378,10 @@ Controller.prototype = {
 		});
 	}, //loadColumns
 	
+	selectAllColumns: function(){
+		$('input[type="checkbox"][name="select-column"]').attr('checked', true);
+	}, //selectAllColumns
+
 	querySampleData: function(){
 		var columns = [];
 		$('#card-set-column-for-query #div-columns input[type="checkbox"]:checked').each(function(index, value){
@@ -432,8 +442,18 @@ Controller.prototype = {
 	}, //setConditionType
 	saveScript: function(){
 		var script = view.scriptEditor.getValue();
-		bootbox.alert(script); //DEBUG
-		//TODO IMME
+		bootbox.prompt('input script title: ', function(title){
+			$.post('/REST/Script/', { title: title, script: script }, function(resp){
+				if(resp.success !== 1){
+					bootbox.alert(JSON.stringify(resp));
+					return;
+				} //if
+				bootbox.alert('script saved', function(){
+					window.location.href = '/';
+				});
+			}, 'json');
+			//TODO IMME
+		});
 	} //saveScript
 }; //Controller
 
@@ -446,12 +466,11 @@ $(function(){
 	$('#card-input-database').show(300);
 
 	//DEBUG
-	$('#card-input-database input[type="radio"][name="dbVendor"][value="oracle"]').click();
-	$('#card-input-database #text-database-ip').val('192.168.10.101');
-	$('#card-input-database #text-database-sid').val('spiderx');
-	$('#card-input-database #text-jdbc-username').val('admin');
-	$('#card-input-database #text-jdbc-password').val('admin');
-	controller.selectDbVendor('oracle');
+	$('#card-input-database input[type="radio"][name="dbVendor"][value="mysql"]').click();
+	$('#card-input-database #text-database-ip').val('localhost');
+	$('#card-input-database #text-database-sid').val('nawa');
+	$('#card-input-database #text-jdbc-username').val('nawa');
+	$('#card-input-database #text-jdbc-password').val('nawadkagh');
 	//DEBUG
 });
 

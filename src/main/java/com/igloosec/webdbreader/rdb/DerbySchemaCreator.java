@@ -45,7 +45,6 @@ public class DerbySchemaCreator {
 			jdbcTmpl.execute("create table script ( "
 					+ "script_name varchar(100) not null primary key, "
 					+ "script clob, "
-					+ "memo long varchar, "
 					+ "regdate timestamp not null )");
 		
 		if(existingTableNames.contains("FILEWRITE_STATISTICS") == false)

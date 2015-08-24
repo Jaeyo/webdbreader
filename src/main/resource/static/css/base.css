@@ -26,6 +26,10 @@ div.container .top-area .logo-area {
   width: 200px;
   text-align: center;
 }
+div.container .top-area .logo-area a {
+  color: white;
+  text-decoration: none;
+}
 div.container .top-area .title-area {
   padding: 10px;
   min-height: 80px;
