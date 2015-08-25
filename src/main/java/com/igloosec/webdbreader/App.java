@@ -25,8 +25,6 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		new DerbySchemaCreator().check();
 		
-		TODO view-script.jade 부터
-		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
 
 		Server server = new Server(threadPool);

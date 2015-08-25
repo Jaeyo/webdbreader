@@ -14,39 +14,28 @@ block contents-area
 		else
 			button(type="button", class="btn btn-success btn-sm") start
 			button(type="button", class="btn btn-warn btn-sm", disabled=true) stop
-		button(type="button", class="btn btn-info btn-sm", disabled=true, onclick="editScript();") edit script
+		button(type="button", class="btn btn-info btn-sm", onclick="editScript();") edit script
+		button(type="button", class="btn btn-info btn-sm") rename
+		button(type="button", class="btn btn-danger btn-sm") remove
 	hr
 	div.row
 		div.col-md-6
 			div.well
-				TODO IMME
-
-
-
-
-
-	div.row
-		div.col-md-6
-			div.well.script-operation
-				div.row
-					if script.IS_RUNNING == true
-						div.col-md-6: button(type="button", class="btn btn-success btn-lg script-btn", disabled=true) start
-						div.col-md-6: button(type="button", class="btn btn-warn btn-lg script-btn") stop
-					else
-						div.col-md-6: button(type="button", class="btn btn-success btn-lg script-btn") start
-						div.col-md-6: button(type="button", class="btn btn-warn btn-lg script-btn", disabled=true) stop
+				h4 info
 				hr
-				div.row
-					div.col-md-12: button(type="button", class="btn btn-info btn-lg script-btn", onclick="editScript();") edit script
-		div.col-md-6
-			div.well.script-info
-				div.input-group
-					span.input-group-addon regdate
-					input.input-text(type="text", readonly="true", value="#{script.REGDATE}")
+				ul
+					li regdate: #{script.REGDATE}
+					- isRunning = script.IS_RUNNING == true ? "running" : "not running";
+					li status: #{isRunning}
+					if operationHistories.length == null
+						li no operation history
+					else
+						li operation history
+						ul
+							each operationHistory in operationHistories
+								- status = operationHistory.IS_START == true ? "started" : "stopped";
+								li #{operationHistory.REGDATE} #{status}
 	hr
-	div.row
-		div.col-md-12
-			h4 blabla
 
 block footer
 	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")

@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.service.ConfigService;
+import com.igloosec.webdbreader.service.OperationHistoryService;
 import com.igloosec.webdbreader.service.ScriptService;
 import com.igloosec.webdbreader.util.Util;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
@@ -28,6 +29,7 @@ public class Script extends JadeHttpServlet{
 	private static final Logger logger = LoggerFactory.getLogger(Script.class);
 	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
+	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -87,6 +89,7 @@ public class Script extends JadeHttpServlet{
 		Map<String, Object> model = Maps.newHashMap();
 		model.put("script", scriptJSON);
 		model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+		model.put("operationHistories", Util.jsonArray2JsonObjectArray(operationHistoryService.loadHistory(title, 10)));
 		return jade("view-script.jade", model);
 	} //getViewScript
 	

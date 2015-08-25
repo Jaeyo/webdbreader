@@ -1,5 +1,6 @@
 package com.igloosec.webdbreader.service;
 
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,4 +18,8 @@ public class OperationHistoryService {
 	public void saveShutdownHistory(String scriptName){
 		operationHistoryDAO.saveHistory(scriptName, false);
 	} //saveShutdownHistory
+	
+	public JSONArray loadHistory(String scriptName, int count){
+		return operationHistoryDAO.loadHistory(scriptName, count);
+	} //loadHistory
 } //class
