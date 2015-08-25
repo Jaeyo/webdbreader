@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.service.DatabaseService;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
@@ -47,6 +48,11 @@ public class DatabaseREST extends JadeHttpServlet{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
+		} catch(IllegalArgumentException e){
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(errmsg);
+			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
+			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg, e);
@@ -62,6 +68,11 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("username", req.getParameter("username"))
 		.put("password", req.getParameter("password"));
 
+		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
+		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
+		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+		
 		JSONArray tables = databaseService.getTables(jdbcParams);
 		return new JSONObject().put("success", 1).put("tables", tables).toString();
 	} //tables
@@ -74,6 +85,12 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("password", req.getParameter("password"));
 		String tableName = pathParams.get("tableName");
 
+		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
+		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
+		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+		Preconditions.checkArgument(tableName != null, "tableName is null");
+		
 		JSONArray columns = databaseService.getColumns(jdbcParams, tableName);
 		return new JSONObject().put("success", 1).put("columns", columns).toString();
 	} //column
@@ -86,6 +103,13 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("password", req.getParameter("password"));
 		String query = req.getParameter("query");
 		int rowCount = Integer.parseInt(req.getParameter("rowCount"));
+	
+		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
+		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
+		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+		Preconditions.checkArgument(query != null, "query is null");
+		Preconditions.checkArgument(rowCount > 0, "invalid row count: " + rowCount);
 
 		JSONArray sampleData = databaseService.querySampleData(jdbcParams, query, rowCount);
 		return new JSONObject().put("success", 1).put("sampleData", sampleData).toString();

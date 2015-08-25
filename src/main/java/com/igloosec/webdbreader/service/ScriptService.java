@@ -3,20 +3,23 @@ package com.igloosec.webdbreader.service;
 import java.util.Set;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.dao.FileWriteStatisticsDAO;
+import com.igloosec.webdbreader.dao.ScriptScoreStatisticsDAO;
 import com.igloosec.webdbreader.dao.ScriptDAO;
+import com.igloosec.webdbreader.exception.AlreadyStartedException;
+import com.igloosec.webdbreader.exception.NotFoundException;
+import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.script.ScriptExecutor;
 
 public class ScriptService {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptService.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
-	private FileWriteStatisticsDAO fileWriteStatisticsDAO = SingletonInstanceRepo.getInstance(FileWriteStatisticsDAO.class);
 	
 	public JSONArray getScriptInfo(){
 		JSONArray scripts = scriptDAO.selectScriptInfo();
@@ -34,30 +37,39 @@ public class ScriptService {
 	} //loadScripts
 	
 	public void save(String scriptName, String script){
-		scriptDAO.save(scriptName, script);
+		if(scriptDAO.isExists(scriptName)){
+			scriptDAO.edit(scriptName, script);
+		} else{
+			scriptDAO.save(scriptName, script);
+		} //if
 	} //save
+	
+	public JSONObject load(String title) throws NotFoundException {
+		JSONObject scriptJson = scriptDAO.load(title);
+		Set<String> runningScriptNames = scriptExecutor.getRunningScripts();
+		
+		if(runningScriptNames.contains(scriptJson.getString("SCRIPT_NAME"))){
+			scriptJson.put("IS_RUNNING", true);
+		} else{
+			scriptJson.put("IS_RUNNING", false);
+		} //if
+		
+		return scriptJson;
+	} //load
+
+	public void startScript(String title) throws JSONException, NotFoundException, AlreadyStartedException {
+		logger.info("title: {}", title);
+		String script = load(title).getString("SCRIPT");
+		scriptExecutor.execute(title, script);
+	} //startScript
+	
+	public void stopScript(String title) throws ScriptNotRunningException {
+		logger.info("title: {}", title);
+		scriptExecutor.stop(title);
+	} //stopScript
 	
 	//---------------------------------------------------------------------------------------
 	
-//	
-//	public void edit(long sequence, String scriptName, String script, String memo){
-//		scriptDAO.edit(sequence, scriptName, script, memo);
-//	} //edit
-//	
-//	public JSONObject loadScript(long sequence) throws NotFoundException{
-//		return scriptDAO.loadScript(sequence);
-//	} //loadScript
-//	
-//	public void startScript(long sequence) throws AlreadyStartedException, JSONException, NotFoundException {
-//		logger.info("sequence: {}", sequence);
-//		String script = loadScript(sequence).getString("SCRIPT");
-//		scriptExecutor.execute(sequence, script);
-//	} //startScript
-//	
-//	public void stopScript(long sequence) throws ScriptNotRunningException{
-//		logger.info("sequence: {}", sequence);
-//		scriptExecutor.stop(sequence);
-//	} //stopScript
 //	
 //	public void removeScript(long sequence){
 //		logger.info("sequence: {}", sequence);

@@ -9,11 +9,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.exception.AlreadyStartedException;
+import com.igloosec.webdbreader.exception.NotFoundException;
+import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.service.ScriptService;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -39,6 +44,11 @@ public class ScriptREST extends JadeHttpServlet{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
+		} catch(IllegalArgumentException e){
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(errmsg);
+			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
+			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg, e);
@@ -65,10 +75,21 @@ public class ScriptREST extends JadeHttpServlet{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/Start/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(postStartScript(req, resp, pathParams));
+				resp.getWriter().flush();
+			} else if(new UriTemplate("/Stop/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(postStopScript(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
+		} catch(IllegalArgumentException e){
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			logger.error(errmsg);
+			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
+			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg, e);
@@ -80,7 +101,39 @@ public class ScriptREST extends JadeHttpServlet{
 	private String postScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		String title = req.getParameter("title");
 		String script = req.getParameter("script");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		Preconditions.checkArgument(script != null, "script is null");
+		Preconditions.checkArgument(title.contains("&") == false, "'&' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("%") == false, "'%' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("+") == false, "'+' shouldn't be in title");
+		Preconditions.checkArgument(title.contains(";") == false, "';' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("\'") == false, "'(\')' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("\"") == false, "'(\")' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("/") == false, "'/' shouldn't be in title");
+		
 		scriptService.save(title, script);
 		return new JSONObject().put("success", 1).toString();
 	} //postScript
+	
+	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException{
+		String title = pathParams.get("title");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		
+		scriptService.startScript(title);
+		
+		return new JSONObject().put("success", 1).toString();
+	} //postStartScript
+	
+	private String postStopScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ScriptNotRunningException {
+		String title = pathParams.get("title");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		
+		scriptService.stopScript(title);
+		
+		return new JSONObject().put("success", 1).toString();
+	} //postStartScript
+	
 } //class

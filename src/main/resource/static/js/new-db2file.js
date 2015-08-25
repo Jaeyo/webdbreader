@@ -145,17 +145,18 @@ Model.prototype = {
 }; //Model
 
 View = function(){
-	this.scriptEditor = this.codeMirror($('#textarea-script')[0]);
+	var theme = $('input#hidden-script-editor-theme').val();
+	this.scriptEditor = this.codeMirror($('#textarea-script')[0], theme);
 }; //INIT
 View.prototype = {
-	codeMirror: function(dom){
+	codeMirror: function(dom, theme){
 		var editor = CodeMirror.fromTextArea(dom, {
 			lineNumbers: true,
 			mode: {name: "javascript", globalVars: true}
 		});
 		
 		editor.setSize(null, 400);
-		editor.setOption("theme", "base16-light");
+		editor.setOption("theme", theme);
 		
 		var originalHint = CodeMirror.hint.javascript;
 		CodeMirror.hint.javascript = function(cm){

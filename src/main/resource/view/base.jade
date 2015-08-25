@@ -21,17 +21,16 @@ html
 					hr
 					div
 						ul(class=menuClass)
-							li: a(href="#") overview
+							li: a(href="/") overview
 							li: hr
 							li: h5 Scripts
-							if scriptInfos == null || scriptInfos.length() == 0
+							if scriptInfos == null || scriptInfos.length == 0
 								li: div.well no script
 							else
 								each scriptInfo in scriptInfos
-									li: a(href="#") #{scriptInfo.SCRIPT_NAME}
+									li: a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/") #{scriptInfo.SCRIPT_NAME}
 							li: hr
-							li: h5 Labels
-							li: a(href="#") design
+							li: a(href="/Config/") configuration
 							li: hr
 				div.contents-area
 					block contents-area

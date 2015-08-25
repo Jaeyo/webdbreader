@@ -5,22 +5,25 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONArray;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
+import com.google.common.collect.Sets;
+import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+
 public class DerbySchemaCreator {
+	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public void check(){
-		JdbcTemplate jdbcTmpl = new DerbyDataSource().getJdbcTmpl();
-		
-		checkSequence(jdbcTmpl);
-		checkTables(jdbcTmpl);
+		checkSequence();
+		checkTables();
+		checkConfig();
 	} //check
 	
-	private void checkSequence(JdbcTemplate jdbcTmpl){
+	private void checkSequence(){
 		final Set<String> existingSequences = new HashSet<String>();
 		
-		jdbcTmpl.query("select sequencename from sys.syssequences", new RowCallbackHandler() {
+		ds.getJdbcTmpl().query("SELECT sequencename FROM sys.syssequences", new RowCallbackHandler() {
 			@Override
 			public void processRow(ResultSet rs) throws SQLException {
 				existingSequences.add(rs.getString("sequencename"));
@@ -28,29 +31,47 @@ public class DerbySchemaCreator {
 		});
 		
 		if(existingSequences.contains("MAIN_SEQ") == false)
-			jdbcTmpl.execute("create sequence main_seq");
+			ds.getJdbcTmpl().execute("CREATE SEQUENCE main_seq");
 	} //checkSequence
 	
-	private void checkTables(JdbcTemplate jdbcTmpl){
-		final Set<String> existingTableNames = new HashSet<String>();
+	private void checkTables(){
+		Set<String> existingTableNames = Sets.newHashSet();
 
-		jdbcTmpl.query("select tablename from sys.systables where tabletype='T'", new RowCallbackHandler() {
-			@Override
-			public void processRow(ResultSet rs) throws SQLException {
-				existingTableNames.add(rs.getString("tablename"));
-			} //processRow
-		});	
+		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("SELECT tablename FROM sys.systables WHERE tabletype='T'");
+		for (int i = 0; i < result.length(); i++)
+			existingTableNames.add(result.getJSONObject(i).getString("TABLENAME"));
 		
 		if(existingTableNames.contains("SCRIPT") == false)
-			jdbcTmpl.execute("create table script ( "
-					+ "script_name varchar(100) not null primary key, "
-					+ "script clob, "
-					+ "regdate timestamp not null )");
+			ds.getJdbcTmpl().execute("CREATE TABLE script ( "
+					+ "script_name VARCHAR(100) NOT NULL PRIMARY KEY, "
+					+ "script CLOB, "
+					+ "regdate timestamp NOT NULL )");
 		
 		if(existingTableNames.contains("FILEWRITE_STATISTICS") == false)
-			jdbcTmpl.execute("create table filewrite_statistics ( "
-					+ "script_name varchar(100) not null, "
-					+ "count_timestamp timestamp not null, "
-					+ "count_value integer not null )");
+			ds.getJdbcTmpl().execute("CREATE TABLE script_score_statistics ( "
+					+ "script_name VARCHAR(100) NOT NULL, "
+					+ "count_timestamp TIMESTAMP NOT NULL, "
+					+ "count_value INTEGER NOT NULL )");
+		
+		if(existingTableNames.contains("CONFIG") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE config ( "
+					+ "config_key VARCHAR(50) NOT NULL PRIMARY KEY, "
+					+ "config_value VARCHAR(50) NOT NULL )");
+		
+		if(existingTableNames.contains("OPERATION_HISTORY") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE operation_history ( "
+					+ "regdate TIMESTAMP NOT NULL, "
+					+ "script_name VARCHAR(100) NOT NULL, "
+					+ "is_startup BOOLEAN NOT NULL )");
 	} //checkTables
+	
+	private void checkConfig() {
+		Set<String> existingConfigKeys = Sets.newHashSet();
+		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("SELECT config_key FROM config");
+		for (int i = 0; i < result.length(); i++)
+			existingConfigKeys.add(result.getJSONObject(i).getString("CONFIG_KEY"));
+		
+		if(existingConfigKeys.contains("script.editor.theme") == false)
+			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('script.editor.theme', 'cobalt')");
+	} //checkConfig
 } // class

@@ -7,10 +7,14 @@ import java.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.bindings.Scheduler;
+import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptThread extends Thread{
 	private static final Logger logger = LoggerFactory.getLogger(ScriptThread.class);
+	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
+	
 	private String scriptName;
 	private List<Timer> schedulerTimers = new ArrayList<Timer>();
 	private List<Thread> fileReaderMonitoringThreads = new ArrayList<Thread>();
@@ -40,6 +44,8 @@ public class ScriptThread extends Thread{
 	} //isFileReaderMonitoring
 	
 	public synchronized void stopScript(){
+		operationHistoryService.saveShutdownHistory(getScriptName());
+		
 		try{
 			super.interrupt();
 		} catch(Exception e){

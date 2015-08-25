@@ -17,39 +17,43 @@ public class ScriptDAO {
 	
 	public JSONArray selectScriptInfo(){
 		logger.info("");
-		return ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate from script");
+		return ds.getJdbcTmpl().queryForJsonArray("SELECT script_name, regdate FROM script");
 	} //selectScriptInfo
 	
 	public void save(String scriptName, String script){
 		logger.info("scriptName: {}", scriptName);
-		ds.getJdbcTmpl().update("insert into script (script_name, script, regdate) "
-				+ "values(?, ?, ?)", scriptName, script, new Date());
+		ds.getJdbcTmpl().update("INSERT INTO script (script_name, script, regdate) "
+				+ "VALUES(?, ?, ?)", scriptName, script, new Date());
 	} //save
 	
-	//-------------------------------------------------------------------------------------------------------------------
-	
-	public void edit(String scriptName, String script, String memo){
+	public void edit(String scriptName, String script){
 		logger.info("scriptName: {}", scriptName);
-		ds.getJdbcTmpl().update("update script set script_name = ?, script = ?, regdate = ? "
-				+ "where script_name = ?",
-				scriptName, script, new Date(), memo, scriptName);
+		ds.getJdbcTmpl().update("UPDATE script SET script_name = ?, script = ?, regdate = ? WHERE script_name = ?", 
+				scriptName, script, new Date(), scriptName);
 	} //edit
 	
-	public JSONObject loadScript(String scriptName) throws NotFoundException{
+	public JSONObject load(String scriptName) throws NotFoundException{
 		logger.info("scriptName: {}", scriptName);
-		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("select script_name, regdate from script where script_name = ?", scriptName);
+		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("SELECT script_name, regdate FROM script WHERE script_name = ?", scriptName);
 		
 		if(result == null || result.length() == 0)
 			throw new NotFoundException("script not found : " + scriptName);
 		
 		JSONObject row = result.getJSONObject(0);
-		String script = ds.getJdbcTmpl().queryForObject("select script from script where script_name= ?", new Object[]{scriptName}, String.class);
+		String script = ds.getJdbcTmpl().queryForObject("SELECT script FROM script WHERE script_name= ?", new Object[]{scriptName}, String.class);
 		row.put("SCRIPT", script);
 		return row;
-	} //loadScript
+	} //load
+	
+	public boolean isExists(String scriptName){
+		logger.info("scriptName: {}", scriptName);
+		return ds.getJdbcTmpl().queryForObject("SELECT count(*) FROM script WHERE script_name = ?", new Object[]{ scriptName }, Integer.class) >= 1;
+	} //isExists
+	
+	//-------------------------------------------------------------------------------------------------------------------
 	
 	public void removeScript(String scriptName){
 		logger.info("scriptName: {}", scriptName);
-		ds.getJdbcTmpl().update("delete from script where script_name = ?", scriptName);
+		ds.getJdbcTmpl().update("DELETE FROM script WHERE script_name = ?", scriptName);
 	} //removeScript
 } //class

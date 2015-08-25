@@ -57,15 +57,17 @@ Db2FileScriptMaker.prototype = {
 				return script;
 			}, //step3_initConditionVar
 
+			step4_initWriter: function(model){
+				var script = '\n var writer = fileWriterFactory.getWriter({ ';
+				script += '\n	filename: outputPath + "output_$yyyy$mm$dd$hh$mi.txt", ';
+				script += '\n	charset: conf.charset ';
+				script += '\n }); ';
+				script += '\n';
+				return script;
+			}, //step4_initWriter
+
 			step4_mainFunction: function(model){
 				var script = '\n function main(){ ';
-
-				script += '\n 	var writer = fileWriterFactory.getWriter({ ';
-				script += '\n 		filename: outputPath + "output_$yyyy$mm$dd$hh$mi.txt", ';
-				script += '\n 		charset: conf.charset ';
-				script += '\n 	}); ';
-				script += '\n';
-
 				if(model.condition.type === 'date-condition'){
 					script += '\n 	condition.bigValue = dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss"); ';
 					script += '\n';

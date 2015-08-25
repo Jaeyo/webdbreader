@@ -20,12 +20,12 @@ import com.google.common.base.Function;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
 import com.igloosec.webdbreader.service.DatabaseService;
-import com.igloosec.webdbreader.statistics.FileWriteStatistics;
+import com.igloosec.webdbreader.statistics.ScriptScoreStatics;
 
 public class DbHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
-	private FileWriteStatistics fileWriteStatistics = SingletonInstanceRepo.getInstance(FileWriteStatistics.class);
+	private ScriptScoreStatics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatics.class);
 
 	/**
 	 * @param args: {
@@ -53,6 +53,8 @@ public class DbHandler {
 			conn.setAutoCommit(true);
 			stmt = conn.createStatement();
 			stmt.executeUpdate(query);
+			
+			scriptScoreStatistics.incrementCount();
 		} finally {
 			close(conn, stmt, null);
 		} //finally
@@ -87,6 +89,8 @@ public class DbHandler {
 			for(String query : queries)
 				stmt.addBatch(query);
 			stmt.executeBatch();
+			
+			scriptScoreStatistics.incrementCount(queries.size());
 		} finally {
 			close(conn, stmt, null);
 		} //finally
@@ -146,9 +150,9 @@ public class DbHandler {
 					} //for i
 					writer.println(rowSb.toString());
 				} catch(SQLException e){
-					//TODO 
-				} finally{
-				} //finally
+					String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+					logger.error(errmsg, e);
+				} //catch
 				return null;
 			} //apply
 		});

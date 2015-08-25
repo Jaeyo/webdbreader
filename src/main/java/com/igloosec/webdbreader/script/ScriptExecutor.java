@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.Version;
+import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
+import com.igloosec.webdbreader.exception.NotFoundException;
+import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.exception.VersionException;
 import com.igloosec.webdbreader.script.bindings.DateUtil;
 import com.igloosec.webdbreader.script.bindings.DbHandler;
@@ -25,10 +28,12 @@ import com.igloosec.webdbreader.script.bindings.RuntimeUtil;
 import com.igloosec.webdbreader.script.bindings.Scheduler;
 import com.igloosec.webdbreader.script.bindings.SimpleRepo;
 import com.igloosec.webdbreader.script.bindings.StringUtil;
+import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptExecutor.class);
 	private Map<String, ScriptThread> runningScripts = new HashMap<String, ScriptThread>();
+	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 
 	public void execute(String scriptName, final String script) throws AlreadyStartedException {
 		if(runningScripts.containsKey(scriptName))
@@ -51,6 +56,8 @@ public class ScriptExecutor {
 			@Override
 			public void run() {
 				try{
+					operationHistoryService.saveStartupHistory(getScriptName());
+					
 					Bindings bindings = new SimpleBindings();
 					bindings.put("dateUtil", new DateUtil());
 					bindings.put("dbHandler", new DbHandler());
@@ -68,8 +75,10 @@ public class ScriptExecutor {
 						return;
 					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				} finally{
-					if(isScheduled() == false && isFileReaderMonitoring() == false)
+					if(isScheduled() == false && isFileReaderMonitoring() == false){
 						runningScripts.remove(getScriptName());
+						operationHistoryService.saveShutdownHistory(getScriptName());
+					} //if
 				} //finally
 			} //run
 		};
@@ -105,8 +114,10 @@ public class ScriptExecutor {
 		return true;
 	} //versionCheck
 	
-	public void stop(String scriptName) {
+	public void stop(String scriptName) throws ScriptNotRunningException {
 		ScriptThread thread = runningScripts.remove(scriptName);
+		if(thread == null)
+			throw new ScriptNotRunningException(scriptName);
 		thread.stopScript();
 	} //stop
 

@@ -8,15 +8,17 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.igloosec.webdbreader.service.FileWriteStatisticsService;
+import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.script.ScriptThread;
+import com.igloosec.webdbreader.service.ScriptScoreStatisticsService;
 
-public class FileWriteStatistics {
+public class ScriptScoreStatics {
 	private Map<String, TreeMap<Long, AtomicLong>> counters = new HashMap<String, TreeMap<Long,AtomicLong>>();
 	private Timer timer = new Timer();
 	
-	private FileWriteStatisticsService fileWriteStatisticsService;
+	private ScriptScoreStatisticsService scriptScoreStatisticsService = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsService.class);
 	
-	public FileWriteStatistics() {
+	public ScriptScoreStatics() {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -27,17 +29,24 @@ public class FileWriteStatistics {
 						while(counter.keySet().size() >= 2){
 							long oldCountTimestamp = counter.firstKey();
 							long oldCountValue = counter.remove(oldCountTimestamp).get();
-							fileWriteStatisticsService.insertStatistics(scriptName, oldCountTimestamp, oldCountValue);
+							scriptScoreStatisticsService.insertStatistics(scriptName, oldCountTimestamp, oldCountValue);
 						} //if
 					} //for counter
 				} //sync
 				
-				fileWriteStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
+				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
 			} //run
-		}, 60*1000, 60*1000);
+		}, 60 * 1000, 24 * 60 * 60 * 1000);
 	} //INIT
 
-	public void incrementCount(String scriptName){
+	public void incrementCount(){
+		incrementCount(1);
+	} //incrementCount
+	
+	public void incrementCount(int count){
+		ScriptThread scriptThread = (ScriptThread) Thread.currentThread();
+		String scriptName = scriptThread.getName();
+		
 		synchronized (counters) {
 			TreeMap<Long, AtomicLong> counter = counters.get(scriptName);
 			if(counter == null){

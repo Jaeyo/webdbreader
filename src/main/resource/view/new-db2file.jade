@@ -153,6 +153,7 @@ block contents-area
 	//end of card of id: card-script
 
 block footer
+	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
 	script#column-check-box(type="text/x-jade").
 		each column in columns
 			div

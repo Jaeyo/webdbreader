@@ -8,13 +8,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.service.ConfigService;
 import com.igloosec.webdbreader.service.ScriptService;
 import com.igloosec.webdbreader.util.Util;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
@@ -22,22 +21,23 @@ import com.sun.jersey.api.uri.UriTemplate;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 
-public class Index extends JadeHttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(Index.class);
+public class Config extends JadeHttpServlet{
+	private static final Logger logger = LoggerFactory.getLogger(Config.class);
 	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
-	
+	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
 		resp.setContentType("text/html; charset=UTF-8");
-		
+
 		String pathInfo = req.getPathInfo();
 		if(pathInfo == null) pathInfo = "/";
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
-				resp.getWriter().print(getIndex(req, resp, pathParams));
+				resp.getWriter().print(getConfig(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
 				Map<String, Object> model = Maps.newHashMap();
@@ -60,9 +60,10 @@ public class Index extends JadeHttpServlet {
 		} //catch
 	} //doGet
 	
-	private String getIndex(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
+	private String getConfig(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
 		Map<String, Object> model = Maps.newHashMap();
 		model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
-		return jade("index.jade", model);
-	} //getIndex
+		model.put("configs", configService.load());
+		return jade("config.jade", model);
+	} //getConfig
 } //class
