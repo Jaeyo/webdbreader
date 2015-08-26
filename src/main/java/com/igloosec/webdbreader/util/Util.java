@@ -1,7 +1,11 @@
 package com.igloosec.webdbreader.util;
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.google.common.collect.Lists;
 
 public class Util {
 	public static void sleep(long millis){
@@ -10,10 +14,10 @@ public class Util {
 		} catch (InterruptedException e) {}
 	} //sleep
 	
-	public static JSONObject[] jsonArray2JsonObjectArray(JSONArray jsonArr){
-		JSONObject[] objectArr = new JSONObject[jsonArr.length()];
+	public static List<JSONObject> jsonArray2JsonObjectList(JSONArray jsonArr){
+		List<JSONObject> list = Lists.newArrayList();
 		for (int i = 0; i < jsonArr.length(); i++)
-			objectArr[i] = jsonArr.getJSONObject(i);
-		return objectArr;
-	} //jsonArray2JsonObjectArray
+			list.add(jsonArr.getJSONObject(i));
+		return list;
+	} //jsonArray2JsonObjectList
 } //class

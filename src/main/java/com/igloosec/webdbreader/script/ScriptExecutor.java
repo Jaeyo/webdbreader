@@ -11,13 +11,13 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.Version;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
-import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.exception.VersionException;
 import com.igloosec.webdbreader.script.bindings.DateUtil;
@@ -28,29 +28,20 @@ import com.igloosec.webdbreader.script.bindings.RuntimeUtil;
 import com.igloosec.webdbreader.script.bindings.Scheduler;
 import com.igloosec.webdbreader.script.bindings.SimpleRepo;
 import com.igloosec.webdbreader.script.bindings.StringUtil;
+import com.igloosec.webdbreader.service.ConfigService;
 import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptExecutor.class);
 	private Map<String, ScriptThread> runningScripts = new HashMap<String, ScriptThread>();
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
+	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
 
-	public void execute(String scriptName, final String script) throws AlreadyStartedException {
+	public void execute(String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException {
 		if(runningScripts.containsKey(scriptName))
 			throw new AlreadyStartedException(scriptName);
 		
-		try {
-			if(versionCheck(script) == false){
-				logger.error("unable to execute script, not available version");
-				return;
-			} //if
-		} catch (ScriptException e) {
-			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			return;
-		} catch (VersionException e) {
-			logger.error("no available version variable in script");
-			return;
-		} //if
+		versionCheck(script);
 		
 		ScriptThread thread = new ScriptThread(scriptName){
 			@Override
@@ -67,6 +58,7 @@ public class ScriptExecutor {
 					bindings.put("scheduler", new Scheduler());
 					bindings.put("simpleRepo", new SimpleRepo());
 					bindings.put("stringUtil", new StringUtil());
+					bindings.put("logger", logger);
 					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 					scriptEngine.eval(script, bindings);
@@ -84,19 +76,31 @@ public class ScriptExecutor {
 		};
 	
 		thread.start();
+		logger.info("{} start to running", scriptName);
 		runningScripts.put(scriptName, thread);
 	} //execute
 	
-	private boolean versionCheck(String script) throws ScriptException, VersionException{
-		String version = null;
-		for(String line : script.split("\n")){
-			if(line.contains("var availableVersion")){
-				ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-				scriptEngine.eval(line);
-				version = (String) scriptEngine.get("availableVersion");
-				break;
-			} //if
-		} //for line
+	private void versionCheck(String script) throws ScriptException, VersionException{
+		if("false".equals(configService.load("version.check")) == true)
+			return;
+		
+		Bindings bindings = new SimpleBindings();
+		bindings.put("dateUtil", Mockito.mock(DateUtil.class));
+		bindings.put("dbHandler", Mockito.mock(DbHandler.class));
+		bindings.put("fileReaderFactory", Mockito.mock(FileReaderFactory.class));
+		bindings.put("fileWriterFactory", Mockito.mock(FileWriterFactory.class));
+		bindings.put("runtimeUtil", Mockito.mock(RuntimeUtil.class));
+		bindings.put("scheduler", Mockito.mock(Scheduler.class));
+		bindings.put("simpleRepo", Mockito.mock(SimpleRepo.class));
+		bindings.put("stringUtil", Mockito.mock(StringUtil.class));
+		bindings.put("logger", Mockito.mock(Logger.class));
+
+		ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+		try{
+			scriptEngine.eval(script, bindings);
+		} catch(Exception e){}
+		
+		String version = (String) bindings.get("version");
 		
 		if(version == null)
 			throw new VersionException("no availableVersion in script");
@@ -104,17 +108,16 @@ public class ScriptExecutor {
 		int majorVersion = Integer.parseInt(Version.getCurrentVersion().split("\\.")[0]);
 		int scriptMajorVersion = Integer.parseInt(version.split("\\.")[0]);
 		if(majorVersion != scriptMajorVersion)
-			return false;
+			throw new VersionException("unsupported major version: " + version);
 		
 		int minorVersion = Integer.parseInt(Version.getCurrentVersion().split("\\.")[1]);
 		int scriptMinorVersion = Integer.parseInt(version.split("\\.")[1]);
 		if(scriptMinorVersion > minorVersion)
-			return false;
-		
-		return true;
+			throw new VersionException("unsupported minor version: " + version);
 	} //versionCheck
 	
 	public void stop(String scriptName) throws ScriptNotRunningException {
+		logger.info("{} stop to running", scriptName);
 		ScriptThread thread = runningScripts.remove(scriptName);
 		if(thread == null)
 			throw new ScriptNotRunningException(scriptName);

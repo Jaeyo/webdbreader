@@ -4,15 +4,22 @@ block header
 	link(href="/css/edit-script.css", rel="stylesheet")
 
 block title-area
-	h3 #{script.SCRIPT_NAME}
+	if script != null
+		h3 #{script.SCRIPT_NAME}
 
 block contents-area
 	div
-		textarea#textarea-script(rows="50") #{script.SCRIPT}
+		if script != null
+			textarea#textarea-script(rows="50") #{script.SCRIPT}
+		else
+			textarea#textarea-script(rows="50")
 	hr
 	div: button(type="button", class="btn btn-primary pull-right", onclick="controller.save();") save
 
 block footer
-	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
+	if script != null
+		input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
+	- isNewScript = script == null;
+	input#is-new-script(type="hidden", value="#{isNewScript}")
 	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
 	script(src="/js/edit-script.js")

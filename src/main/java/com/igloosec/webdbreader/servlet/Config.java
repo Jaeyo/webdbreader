@@ -41,20 +41,20 @@ public class Config extends JadeHttpServlet{
 				resp.getWriter().flush();
 			} else{
 				Map<String, Object> model = Maps.newHashMap();
-				model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+				model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 				resp.getWriter().print(jade("error.jade", model));
 				resp.getWriter().flush();
 			} //if
 		} catch(IllegalArgumentException e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 			resp.getWriter().print(jade("error.jade", model));
 			resp.getWriter().flush();
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 			resp.getWriter().print(jade("error.jade", model));
 			resp.getWriter().flush();
 		} //catch
@@ -62,7 +62,7 @@ public class Config extends JadeHttpServlet{
 	
 	private String getConfig(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
 		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 		model.put("configs", configService.load());
 		return jade("config.jade", model);
 	} //getConfig

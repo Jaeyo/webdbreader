@@ -8,6 +8,18 @@ block title-area
 
 block contents-area
 	hr
+	h4 general
+	ul
+		li version check
+			label
+				input(type="radio", name="version-check", value="true")
+				span true
+			label
+				input(type="radio", name="version-check", value="false")
+				span false
+	div.div-save-btn: button(type="button", class="btn btn-primary", onclick="controller.saveGeneralConfig();") save
+	hr
+
 	h4 script editor
 	div
 		h5 theme
@@ -57,9 +69,17 @@ block contents-area
 	div.div-save-btn: button(type="button", class="btn btn-primary", onclick="controller.saveScriptEditorConfig();") save
 	hr
 
+	h4 derby database
+	button(type="button", class="btn btn-default", onclick="controller.queryDerbyDb();") query
+	hr
+
 block footer
 	- scriptEditorTheme = configs.getString("script.editor.theme");
+	- versionCheck = configs.getString("version.check");
 	script.
+		//version check
+		$('input[type="radio"][name="version-check"][value="#{versionCheck}"]').attr('checked', 'true');
+		//script editor theme
 		$('select#select-script-editor-theme option[value="#{scriptEditorTheme}"]').attr('selected', 'true');
 
 	script(src="/js/config.js")

@@ -2,6 +2,8 @@ package com.igloosec.webdbreader.service;
 
 import java.util.Set;
 
+import javax.script.ScriptException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +15,7 @@ import com.igloosec.webdbreader.dao.ScriptDAO;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
+import com.igloosec.webdbreader.exception.VersionException;
 import com.igloosec.webdbreader.script.ScriptExecutor;
 
 public class ScriptService {
@@ -56,7 +59,7 @@ public class ScriptService {
 		return scriptJson;
 	} //load
 
-	public void startScript(String title) throws JSONException, NotFoundException, AlreadyStartedException {
+	public void startScript(String title) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
 		logger.info("title: {}", title);
 		String script = load(title).getString("SCRIPT");
 		scriptExecutor.execute(title, script);

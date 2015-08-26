@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.json.JSONObject;
 
 import com.igloosec.webdbreader.common.Conf;
 import com.igloosec.webdbreader.common.Path;

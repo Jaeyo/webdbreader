@@ -47,8 +47,9 @@ public class DerbySchemaCreator {
 					+ "script CLOB, "
 					+ "regdate timestamp NOT NULL )");
 		
-		if(existingTableNames.contains("FILEWRITE_STATISTICS") == false)
+		if(existingTableNames.contains("SCRIPT_SCORE_STATISTICS") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE script_score_statistics ( "
+					+ "category VARCHAR(50) NOT NULL, "
 					+ "script_name VARCHAR(100) NOT NULL, "
 					+ "count_timestamp TIMESTAMP NOT NULL, "
 					+ "count_value INTEGER NOT NULL )");
@@ -73,5 +74,8 @@ public class DerbySchemaCreator {
 		
 		if(existingConfigKeys.contains("script.editor.theme") == false)
 			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('script.editor.theme', 'cobalt')");
+		
+		if(existingConfigKeys.contains("version.check") == false)
+			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('version.check', 'true')");
 	} //checkConfig
 } // class

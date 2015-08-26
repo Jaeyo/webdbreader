@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.script.ScriptException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
+import com.igloosec.webdbreader.exception.VersionException;
 import com.igloosec.webdbreader.service.ScriptService;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -85,7 +87,7 @@ public class ScriptREST extends JadeHttpServlet{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
-		} catch(IllegalArgumentException e){
+		} catch(IllegalArgumentException | VersionException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
@@ -116,7 +118,7 @@ public class ScriptREST extends JadeHttpServlet{
 		return new JSONObject().put("success", 1).toString();
 	} //postScript
 	
-	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException{
+	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException{
 		String title = pathParams.get("title");
 		
 		Preconditions.checkArgument(title != null, "title is null");

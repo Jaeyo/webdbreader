@@ -8,12 +8,23 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.collect.Maps;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.service.ScriptScoreStatisticsService;
 
 public class ScriptScoreStatics {
-	private Map<String, TreeMap<Long, AtomicLong>> counters = new HashMap<String, TreeMap<Long,AtomicLong>>();
+	//category
+	public static final String QUERY = "query";
+	public static final String UPDATE = "update";
+	public static final String FILE_WRITE = "file_write";
+	public static final String FILE_READ = "file_read";
+	
+	// <scriptName, <timestamp, count>>
+	private Map<String, TreeMap<Long, AtomicLong>> dbQueryCounter = new HashMap<String, TreeMap<Long,AtomicLong>>();
+	private Map<String, TreeMap<Long, AtomicLong>> dbUpdateCounter = new HashMap<String, TreeMap<Long,AtomicLong>>();
+	private Map<String, TreeMap<Long, AtomicLong>> fileWriteCounter = new HashMap<String, TreeMap<Long,AtomicLong>>();
+	private Map<String, TreeMap<Long, AtomicLong>> fileReadCounter = new HashMap<String, TreeMap<Long,AtomicLong>>();
 	private Timer timer = new Timer();
 	
 	private ScriptScoreStatisticsService scriptScoreStatisticsService = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsService.class);
@@ -22,18 +33,34 @@ public class ScriptScoreStatics {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				synchronized (counters) {
-					for(Entry<String, TreeMap<Long, AtomicLong>> counterEntry : counters.entrySet()){
-						String scriptName = counterEntry.getKey();
-						TreeMap<Long, AtomicLong> counter = counterEntry.getValue();
-						while(counter.keySet().size() >= 2){
-							long oldCountTimestamp = counter.firstKey();
-							long oldCountValue = counter.remove(oldCountTimestamp).get();
-							scriptScoreStatisticsService.insertStatistics(scriptName, oldCountTimestamp, oldCountValue);
-						} //if
-					} //for counter
+				synchronized (ScriptScoreStatics.class) {
+					
+					TODO IMME
+					
+					Map<String, Map<String, TreeMap<Long, AtomicLong>>> counters = Maps.newHashMap();
+					counters.put(QUERY, dbQueryCounter);
+					counters.put(UPDATE, dbUpdateCounter);
+					counters.put(FILE_WRITE, fileWriteCounter);
+					counters.put(FILE_READ, fileReadCounter);
+					
+					for(Entry<String, Map<String, TreeMap<Long, AtomicLong>>> countersEntry : counters.entrySet()){
+						String category = countersEntry.getKey();
+						Map<String, TreeMap<Long, AtomicLong>> counter = countersEntry.getValue();
+						
+						for(Entry<String, TreeMap<Long, AtomicLong>> counterEntry : counter.entrySet()){
+							String scriptName = counterEntry.getKey();
+							TreeMap<Long, AtomicLong> counter = counterEntry.getValue();
+							while(counter.keySet().size() >= 2){
+								long oldCountTimestamp = counter.firstKey();
+								long oldCountValue = counter.remove(oldCountTimestamp).get();
+								scriptScoreStatisticsService.insertStatistics(scriptName, oldCountTimestamp, oldCountValue);
+							} //if
+						} //for counter
+					} //for countersEntry
+
+
 				} //sync
-				
+
 				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
 			} //run
 		}, 60 * 1000, 24 * 60 * 60 * 1000);

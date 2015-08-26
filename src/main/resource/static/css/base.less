@@ -1,5 +1,7 @@
 @top-logo-background-color: #00a8b3;
 @top-title-background-color: #41cac0;
+@red-btn-color: #ff6c60;
+@red-btn-hover-color: #ff8c80;
 
 hr {
 	display: block;
@@ -10,13 +12,18 @@ hr {
 	padding: 0; 
 }
 
-.new-script-btn {
+//mixins
+.red-btn-mixins(@bg-color: @red-btn-color) {
 	width: 100%;
-	background-color: #ff6c60;
+	background-color: @bg-color;
 	color: white;
+} //red-btn
+
+.new-script-btn {
+	.red-btn-mixins;
 }
 .new-script-btn:hover {
-	background-color: #ff8c80;
+	.red-btn-mixins(@red-btn-hover-color);
 }
 
 div.container {

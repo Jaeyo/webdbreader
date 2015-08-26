@@ -30,7 +30,7 @@ public class FileReaderFactory {
 		String filename = (String) args.get("filename");
 		Boolean deleteExpiredFile = (Boolean) args.get("deleteExpiredFile");
 		String charset = (String) args.get("charset");
-		Integer timeAdjustSec = (Integer) args.get("timeAdjustSec");
+		Integer timeAdjustSec = ((Double) args.get("timeAdjustSec")).intValue();
 		
 		if(deleteExpiredFile == null) deleteExpiredFile = false;
 		if(charset == null) charset = "utf8";

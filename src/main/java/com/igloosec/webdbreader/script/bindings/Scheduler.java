@@ -30,8 +30,8 @@ public class Scheduler {
 	 * @param task: function(){ ... }
 	 */
 	public void schedule(Map<String, Object> args, final Function task){
-		Long delay = (Long) args.get("delay");
-		Long period = (Long) args.get("period");
+		Long delay = ((Double) args.get("delay")).longValue();
+		Long period = ((Double) args.get("period")).longValue();
 		
 		if(delay == null) delay = 0L;
 		

@@ -24,7 +24,7 @@ html
 							li: a(href="/") overview
 							li: hr
 							li: h5 Scripts
-							if scriptInfos == null || scriptInfos.length == 0
+							if scriptInfos.size() == 0
 								li: div.well no script
 							else
 								each scriptInfo in scriptInfos
@@ -38,11 +38,14 @@ html
 		script#new-script(type="x-jade")
 			:plain
 				div.row
-					div.col-md-6
+					div.col-md-4
 						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newDb2FileScript();") db2file
 						div blabla 여기는 설명입니다.
-					div.col-md-6
+					div.col-md-4
 						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newDb2DbScript();") db2db
+						div blabla 여기는 설명입ㅈ니다
+					div.col-md-4
+						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newScriptDirectly();") script directly
 						div blabla 여기는 설명입ㅈ니다
 			
 		script.
@@ -53,14 +56,14 @@ html
 					message: jade.compile(msgJade)({})
 				});
 			}; //newScript
-			
 			function newDb2FileScript(){
 				window.location.href = '/Script/NewDb2File/';
 			}; //newDb2FileScript
-			
 			function newDb2DbScript(){
 				window.location.href = '/Script/NewDb2Db/';
-			}; //new Db2DbScript
-			
-			
+			}; //newDb2DbScript
+			function newScriptDirectly(){
+				window.location.href = '/Script/Edit/';
+			}; //newScriptDirectly
+
 		block footer

@@ -13,19 +13,20 @@ public class ScriptScoreStatisticsDAO {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptScoreStatisticsDAO.class);
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
-	public void insertStatistics(String scriptName, long timestamp, long count){
-		ds.getJdbcTmpl().update("insert into script_score_statistics (script_name, count_timestamp, count_value) values(?,?,?)", 
+	public void insertStatistics(String scriptName, String category, long timestamp, long count){
+		ds.getJdbcTmpl().update("INSERT INTO script_score_statistics (script_name, count_timestamp, count_value) VALUES(?,?,?)", 
 				scriptName, new Date(timestamp), count);
 	} //insertStatistics
 	
 	public void deleteUnderTimestamp(long timestamp){
 		logger.info("timestamp: {}", timestamp);
-		ds.getJdbcTmpl().update("delete from script_score_statistics where count_timestamp < ?", new Date(timestamp));
+		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE count_timestamp < ?", new Date(timestamp));
 	} //deleteUnderTimestamp
 	
 	public JSONArray getScriptStatistics(String scriptName){
-		return ds.getJdbcTmpl().queryForJsonArray("select count_timestamp, count_value from script_score_statistics "
-				+ "where script_name = ? "
-				+ "order by count_timestamp", scriptName);
+		return ds.getJdbcTmpl().queryForJsonArray("SELECT category, count_timestamp, count_value "
+				+ "FROM script_score_statistics "
+				+ "WHERE script_name = ? "
+				+ "ORDER BY category, count_timestamp", scriptName);
 	} //getScriptStatistics
 }  //class

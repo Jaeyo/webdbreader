@@ -12,7 +12,9 @@ hr {
   color: white;
 }
 .new-script-btn:hover {
+  width: 100%;
   background-color: #ff8c80;
+  color: white;
 }
 div.container {
   height: 100%;

@@ -104,20 +104,28 @@
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.17</version>
 		</dependency>
-		
+
 		<!-- spring jdbc -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 			<version>4.0.1.RELEASE</version>
 		</dependency>
-		
+
 		<!-- jersey -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 			<version>1.19</version>
 		</dependency>
+
+		<!-- mockito -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

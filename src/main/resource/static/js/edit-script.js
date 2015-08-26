@@ -33,8 +33,18 @@ Controller = function(){
 }; //INIT
 Controller.prototype = {
 	save: function(){
-		var title = $('input#script-name[type="hidden"]').val();
 		var script = view.scriptEditor.getValue();
+		if($('input#is-new-script[type="hidden"]').val() === 'true'){
+			bootbox.prompt('title', function(title){
+				controller._save(title, script);
+			});
+		} else{
+			var title = $('input#script-name[type="hidden"]').val();
+			this._save(title, script);
+		} //if
+	}, //save
+
+	_save: function(title, script){
 		$.post('/REST/Script/', { title: title, script: script }, function(resp){
 			if(resp.success !== 1){
 				bootbox.alert(JSON.stringify(resp));
@@ -44,7 +54,7 @@ Controller.prototype = {
 				window.location.href = '/';
 			});
 		}, 'json');
-	} //save
+	} //_save
 }; //Controller
 
 $(function(){

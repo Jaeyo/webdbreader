@@ -8,8 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,20 +39,20 @@ public class Index extends JadeHttpServlet {
 				resp.getWriter().flush();
 			} else{
 				Map<String, Object> model = Maps.newHashMap();
-				model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+				model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 				resp.getWriter().print(jade("error.jade", model));
 				resp.getWriter().flush();
 			} //if
 		} catch(IllegalArgumentException e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 			resp.getWriter().print(jade("error.jade", model));
 			resp.getWriter().flush();
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 			resp.getWriter().print(jade("error.jade", model));
 			resp.getWriter().flush();
 		} //catch
@@ -62,7 +60,7 @@ public class Index extends JadeHttpServlet {
 	
 	private String getIndex(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
 		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectArray(scriptService.getScriptInfo()));
+		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 		return jade("index.jade", model);
 	} //getIndex
 } //class

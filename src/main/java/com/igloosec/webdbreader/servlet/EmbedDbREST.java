@@ -59,6 +59,6 @@ public class EmbedDbREST extends JadeHttpServlet{
 		Preconditions.checkArgument(query != null, "query is null");
 
 		JSONArray queryResult = embedDbSerivce.runQuery(query);
-		return new JSONObject().put("success", 1).put("result", queryResult).toString();
+		return new JSONObject().put("success", 1).put("result", queryResult.toString()).toString();
 	} //query
 } //class

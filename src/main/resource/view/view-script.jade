@@ -10,13 +10,13 @@ block contents-area
 	div.script-operation
 		if script.IS_RUNNING == true
 			button(type="button", class="btn btn-success btn-sm", disabled=true) start
-			button(type="button", class="btn btn-warn btn-sm") stop
+			button(type="button", class="btn btn-warning btn-sm", onclick="controller.stopScript();") stop
 		else
-			button(type="button", class="btn btn-success btn-sm") start
-			button(type="button", class="btn btn-warn btn-sm", disabled=true) stop
+			button(type="button", class="btn btn-success btn-sm", onclick="controller.startScript();") start
+			button(type="button", class="btn btn-warning btn-sm", disabled=true) stop
 		button(type="button", class="btn btn-info btn-sm", onclick="editScript();") edit script
-		button(type="button", class="btn btn-info btn-sm") rename
-		button(type="button", class="btn btn-danger btn-sm") remove
+		button(type="button", class="btn btn-info btn-sm", onclick="controller.rename();") rename
+		button(type="button", class="btn btn-danger btn-sm", onclick="controller.remove();") remove
 	hr
 	div.row
 		div.col-md-6
@@ -27,14 +27,14 @@ block contents-area
 					li regdate: #{script.REGDATE}
 					- isRunning = script.IS_RUNNING == true ? "running" : "not running";
 					li status: #{isRunning}
-					if operationHistories.length == null
+					if operationHistories.size() == 0
 						li no operation history
 					else
 						li operation history
-						ul
-							each operationHistory in operationHistories
-								- status = operationHistory.IS_START == true ? "started" : "stopped";
-								li #{operationHistory.REGDATE} #{status}
+							ul
+								each operationHistory in operationHistories
+									- status = operationHistory.IS_STARTUP == true ? "started" : "stopped";
+									li #{operationHistory.REGDATE} #{status}
 	hr
 
 block footer
