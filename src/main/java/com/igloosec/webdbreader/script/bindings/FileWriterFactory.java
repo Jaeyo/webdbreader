@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
-import com.igloosec.webdbreader.statistics.ScriptScoreStatics;
+import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class FileWriterFactory {
-	private ScriptScoreStatics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatics.class);
+	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private static final Logger logger = LoggerFactory.getLogger(FileWriterFactory.class);
 	/*
 	 * @param args: {
@@ -85,7 +85,7 @@ public class FileWriterFactory {
 				output.flush();
 				
 				if(msg.contains("\n"))
-					scriptScoreStatistics.incrementCount(msg.split("\n").length - 1);
+					scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, msg.split("\n").length - 1);
 			} finally{
 				lock.unlock();
 			} //finally

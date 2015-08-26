@@ -123,6 +123,17 @@ public class ScriptExecutor {
 			throw new ScriptNotRunningException(scriptName);
 		thread.stopScript();
 	} //stop
+	
+	public void stopAllScript(){
+		logger.info("stop all scripts");
+		for(String scriptName : runningScripts.keySet()){
+			try {
+				stop(scriptName);
+			} catch (ScriptNotRunningException e) {
+				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			} //catch
+		} //for scriptName
+	} //stopAllScript
 
 	public Set<String> getRunningScripts(){
 		Set<String> runningScriptNames = new HashSet<String>();

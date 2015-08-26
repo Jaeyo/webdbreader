@@ -20,12 +20,12 @@ import com.google.common.base.Function;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
 import com.igloosec.webdbreader.service.DatabaseService;
-import com.igloosec.webdbreader.statistics.ScriptScoreStatics;
+import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class DbHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
-	private ScriptScoreStatics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatics.class);
+	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 
 	/**
 	 * @param args: {
@@ -54,7 +54,7 @@ public class DbHandler {
 			stmt = conn.createStatement();
 			stmt.executeUpdate(query);
 			
-			scriptScoreStatistics.incrementCount();
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE);
 		} finally {
 			close(conn, stmt, null);
 		} //finally
@@ -90,7 +90,7 @@ public class DbHandler {
 				stmt.addBatch(query);
 			stmt.executeBatch();
 			
-			scriptScoreStatistics.incrementCount(queries.size());
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE, queries.size());
 		} finally {
 			close(conn, stmt, null);
 		} //finally
@@ -105,6 +105,8 @@ public class DbHandler {
 			
 			while(rs.next())
 				callback.apply(rs);
+			
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.QUERY);
 		} finally {
 			close(conn, stmt, rs);
 		} //finally

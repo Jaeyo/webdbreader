@@ -13,12 +13,12 @@ public class ScriptScoreStatisticsDAO {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptScoreStatisticsDAO.class);
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
-	public void insertStatistics(String scriptName, String category, long timestamp, long count){
+	public void insertStatistics(String scriptName, String category, Long timestamp, Long count){
 		ds.getJdbcTmpl().update("INSERT INTO script_score_statistics (script_name, count_timestamp, count_value) VALUES(?,?,?)", 
 				scriptName, new Date(timestamp), count);
 	} //insertStatistics
 	
-	public void deleteUnderTimestamp(long timestamp){
+	public void deleteUnderTimestamp(Long timestamp){
 		logger.info("timestamp: {}", timestamp);
 		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE count_timestamp < ?", new Date(timestamp));
 	} //deleteUnderTimestamp

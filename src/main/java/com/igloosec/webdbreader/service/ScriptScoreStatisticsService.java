@@ -12,11 +12,11 @@ public class ScriptScoreStatisticsService {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptScoreStatisticsService.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
 	
-	public void insertStatistics(String scriptName, String category, long timestamp, long count){
+	public void insertStatistics(String scriptName, String category, Long timestamp, Long count){
 		scriptScoreStatisticsDAO.insertStatistics(scriptName, category, timestamp, count);
 	} //insertStatistics
 	
-	public void deleteUnderTimestamp(long timestamp){
+	public void deleteUnderTimestamp(Long timestamp){
 		scriptScoreStatisticsDAO.deleteUnderTimestamp(timestamp);
 	} //deleteUnderTimestamp
 	

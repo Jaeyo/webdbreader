@@ -8,11 +8,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.json.JSONObject;
 
 import com.igloosec.webdbreader.common.Conf;
 import com.igloosec.webdbreader.common.Path;
+import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.rdb.DerbySchemaCreator;
+import com.igloosec.webdbreader.script.ScriptExecutor;
 import com.igloosec.webdbreader.servlet.Config;
 import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
@@ -24,6 +25,8 @@ import com.igloosec.webdbreader.servlet.ScriptREST;
 
 public class App {
 	public static void main(String[] args) throws Exception {
+		registerShutdownHook();
+		
 		new DerbySchemaCreator().check();
 		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
@@ -61,4 +64,13 @@ public class App {
 		context.setTempDirectory(workDir);
 		return context;
 	} //getWebAppContext
+	
+	private static void registerShutdownHook(){
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			@Override
+			public void run() {
+				SingletonInstanceRepo.getInstance(ScriptExecutor.class).stopAllScript();
+			} //run
+		});
+	} //registerShutdownHook
 } // class
