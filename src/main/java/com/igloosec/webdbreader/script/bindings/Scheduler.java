@@ -35,10 +35,13 @@ public class Scheduler {
 		
 		if(delay == null) delay = 0L;
 		
+		final String scriptName = ScriptThread.currentThread().getScriptName();
+		
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName(scriptName);
 				Context context = Context.enter();
 				ScriptableObject scope = context.initStandardObjects();
 				Scriptable that = context.newObject(scope);
@@ -46,8 +49,7 @@ public class Scheduler {
 			} // run
 		}, delay, period);
 		
-		ScriptThread thread = (ScriptThread) Thread.currentThread();
-		thread.addSchedulerTimer(timer);
+		ScriptThread.currentThread().addSchedulerTimer(timer);
 	} // schedule
 
 	/**

@@ -18,9 +18,11 @@ import sun.org.mozilla.javascript.internal.ScriptableObject;
 
 import com.google.common.base.Function;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
 import com.igloosec.webdbreader.service.DatabaseService;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
+import com.igloosec.webdbreader.util.SimpleCrypto;
 
 public class DbHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
@@ -39,8 +41,9 @@ public class DbHandler {
 	 * }
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
+	 * @throws CryptoException 
 	 */
-	public void update(Map<String, Object> args) throws SQLException, ClassNotFoundException{
+	public void update(Map<String, Object> args) throws SQLException, ClassNotFoundException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		
@@ -72,8 +75,9 @@ public class DbHandler {
 	 * }
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
+	 * @throws CryptoException 
 	 */
-	public void batch(Map<String, Object> args) throws SQLException, ClassNotFoundException {
+	public void batch(Map<String, Object> args) throws SQLException, ClassNotFoundException, CryptoException {
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		List<String> queries = (List<String>) args.get("queries");
 		
@@ -127,8 +131,9 @@ public class DbHandler {
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
 	 * @throws IOException 
+	 * @throws CryptoException 
 	 */
-	public void selectAndAppend(Map<String, Object> args) throws ClassNotFoundException, SQLException, IOException{
+	public void selectAndAppend(Map<String, Object> args) throws ClassNotFoundException, SQLException, IOException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		String delimiter = (String) args.get("delimiter");
@@ -143,7 +148,7 @@ public class DbHandler {
 				try{
 					int colCount = rs.getMetaData().getColumnCount();
 					StringBuilder rowSb = new StringBuilder();
-					for (int i = 0; i < colCount; i++) {
+					for (int i = 1; i <= colCount; i++) {
 						String value = rs.getString(i);
 						if(value != null) 
 							rowSb.append(value);
@@ -174,8 +179,9 @@ public class DbHandler {
 	 * }
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
+	 * @throws CryptoException 
 	 */
-	public String query(Map<String, Object> args) throws ClassNotFoundException, SQLException{
+	public String query(Map<String, Object> args) throws ClassNotFoundException, SQLException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		String delimiter = (String) args.get("delimiter");
@@ -193,7 +199,7 @@ public class DbHandler {
 				try {
 					int colCount = rs.getMetaData().getColumnCount();
 					StringBuilder rowSb = new StringBuilder();
-					for (int i = 0; i < colCount; i++) {
+					for (int i = 1; i <= colCount; i++) {
 						String value = rs.getString(i);
 						if(value != null) rowSb.append(value);
 						if(i < colCount) {
@@ -226,8 +232,9 @@ public class DbHandler {
 	 * @param callback: function(ResultSet){ ... }
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
+	 * @throws CryptoException 
 	 */
-	public void query(Map<String, Object> args, final sun.org.mozilla.javascript.internal.Function callback) throws ClassNotFoundException, SQLException{
+	public void query(Map<String, Object> args, final sun.org.mozilla.javascript.internal.Function callback) throws ClassNotFoundException, SQLException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		
@@ -243,11 +250,14 @@ public class DbHandler {
 		});
 	} //query
 	
-	private Connection getConnection(Map<String, Object> database) throws SQLException, ClassNotFoundException{
+	private Connection getConnection(Map<String, Object> database) throws SQLException, ClassNotFoundException, CryptoException{
 		Class.forName((String) database.get("driver"));
-		String username = (String) database.get("username");
-		String password = (String) database.get("password");
 		String connUrl = (String) database.get("connUrl");
+		String encryptedUsername = (String) database.get("encryptedUsername");
+		String encryptedPassword = (String) database.get("encryptedPassword");
+		
+		String username = SimpleCrypto.decrypt(encryptedUsername);
+		String password = SimpleCrypto.decrypt(encryptedPassword);
 		
 		return DriverManager.getConnection(connUrl, username, password);
 	} //getConnection

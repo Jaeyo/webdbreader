@@ -41,4 +41,12 @@ public class OperationHistoryDAO {
 				+ "OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
 		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName, count);
 	} //loadHistory
+	
+	public void renameScript(String scriptName, String newScriptName){
+		ds.getJdbcTmpl().update("UPDATE operation_history set script_name = ? where script_name = ?", newScriptName, scriptName);
+	} //renameScript
+	
+	public void remove(String scriptName){
+		ds.getJdbcTmpl().update("DELETE FROM operation_history WHERE script_name = ?", scriptName);
+	} //remove
 } //class

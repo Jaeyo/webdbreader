@@ -100,7 +100,7 @@ public class ScriptExecutor {
 			scriptEngine.eval(script, bindings);
 		} catch(Exception e){}
 		
-		String version = (String) bindings.get("version");
+		String version = (String) bindings.get("availableVersion");
 		
 		if(version == null)
 			throw new VersionException("no availableVersion in script");
@@ -141,4 +141,8 @@ public class ScriptExecutor {
 			runningScriptNames.add(scriptName);
 		return runningScriptNames;
 	} //getRunningScripts
+	
+	public ScriptThread getScriptThread(String scriptName){
+		return runningScripts.get(scriptName);
+	} //getScriptThread
 } //class

@@ -208,9 +208,18 @@ Controller.prototype = {
 				model.db2FileModel.setDatabase({
 					driver: driver,
 					connUrl: connUrl,
-					username: username,
-					password: password
+					username: null,
+					password: null
 				});
+
+				this.encrypt(username, function(encryptedUsername){
+					model.db2FileModel.setDatabase({ username: encryptedUsername });
+				});
+
+				this.encrypt(password, function(encryptedPassword){
+					model.db2FileModel.setDatabase({ password : encryptedPassword });
+				});
+				
 				break;
 				
 			case 'card-set-table-for-query':
@@ -327,6 +336,13 @@ Controller.prototype = {
 	}, //autoCompleteJdbcInfo
 
 	loadTables: function(targetDOM){
+		if(model.db2FileModel.database.username === null || model.db2FileModel.database.password === null){
+			setTimeout(function(){
+				controller.loadTables(targetDOM);
+			}, 100);
+			return;
+		} //if
+
 		view.showLoadingDialog();
 		$.getJSON('/REST/Database/Tables/', {
 			driver: model.db2FileModel.database.driver,
@@ -453,9 +469,19 @@ Controller.prototype = {
 					window.location.href = '/';
 				});
 			}, 'json');
-			//TODO IMME
 		});
-	} //saveScript
+	}, //saveScript
+	encrypt: function(value, callback){
+		$.getJSON('/REST/Meta/Encrypt/', { value: value }).fail(function(e){
+			bootbox.alert(JSON.stringify(e));
+		}).done(function(resp){
+			if(resp.success !== 1){
+				bootbox.alert(JSON.stringify(resp));
+				return;
+			} //if
+			callback(resp.value);
+		});
+	} //encrypt
 }; //Controller
 
 $(function(){

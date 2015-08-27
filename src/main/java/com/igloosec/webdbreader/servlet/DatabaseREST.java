@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.service.DatabaseService;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -61,7 +62,7 @@ public class DatabaseREST extends JadeHttpServlet{
 		} //catch
 	} //doGet
 
-	private String tables(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException{
+	private String tables(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException{
 		JSONObject jdbcParams = new JSONObject()
 		.put("driver", req.getParameter("driver"))
 		.put("connUrl", req.getParameter("connUrl"))
@@ -77,7 +78,7 @@ public class DatabaseREST extends JadeHttpServlet{
 		return new JSONObject().put("success", 1).put("tables", tables).toString();
 	} //tables
 
-	private String columns(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException {
+	private String columns(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException {
 		JSONObject jdbcParams = new JSONObject()
 		.put("driver", req.getParameter("driver"))
 		.put("connUrl", req.getParameter("connUrl"))
@@ -95,7 +96,7 @@ public class DatabaseREST extends JadeHttpServlet{
 		return new JSONObject().put("success", 1).put("columns", columns).toString();
 	} //column
 
-	private String querySampleData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, ClassNotFoundException, SQLException {
+	private String querySampleData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, ClassNotFoundException, SQLException, CryptoException {
 		JSONObject jdbcParams = new JSONObject()
 		.put("driver", req.getParameter("driver"))
 		.put("connUrl", req.getParameter("connUrl"))

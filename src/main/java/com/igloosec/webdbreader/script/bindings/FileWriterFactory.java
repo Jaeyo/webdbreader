@@ -54,7 +54,8 @@ public class FileWriterFactory {
 			
 			SimpleDateFormat yyyyMMddHHmm = new SimpleDateFormat("yyyyMMddHHmm");
 			long nextMinute = yyyyMMddHHmm.parse(yyyyMMddHHmm.format(new Date())).getTime() + (60 * 1000);
-			new Timer().scheduleAtFixedRate(new TimerTask() {
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
 					String newFilename = new DateUtil().formatReplace(originalFilename);
@@ -72,6 +73,8 @@ public class FileWriterFactory {
 					} //if
 				} //run
 			}, nextMinute - System.currentTimeMillis(), 60 * 1000);
+			
+			((ScriptThread) Thread.currentThread()).addSchedulerTimer(timer);
 		} //INIT
 		
 		public FileWriter println(String msg){

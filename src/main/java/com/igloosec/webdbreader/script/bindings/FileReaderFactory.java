@@ -55,10 +55,13 @@ public class FileReaderFactory {
 		 * @param callback: function( line(string) ){ ... }
 		 */
 		public void registerListener(final Function callback){
-			ScriptThread thread = new ScriptThread(Thread.currentThread().getName()){
+			final String scriptName = ScriptThread.currentThread().getScriptName();
+			Thread thread = new Thread(){
 				@Override
 				public void run() {
 					try{
+						Thread.currentThread().setName(scriptName);
+						
 						Context context = Context.enter();
 						ScriptableObject scope = context.initStandardObjects();
 						Scriptable that = context.newObject(scope);
@@ -78,6 +81,7 @@ public class FileReaderFactory {
 					} //catch
 				} //run
 			}; //thread
+			ScriptThread.currentThread().addFileReaderMonitoringThread(thread);
 			thread.start();
 		} //registerListener
 	} //class

@@ -2,10 +2,13 @@ package com.igloosec.webdbreader.dao;
 
 import java.util.Date;
 
+import org.apache.derby.iapi.store.access.conglomerate.TransactionManager;
+import org.apache.derby.impl.store.access.RAMTransaction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.NotFoundException;
@@ -50,9 +53,13 @@ public class ScriptDAO {
 		return ds.getJdbcTmpl().queryForObject("SELECT count(*) FROM script WHERE script_name = ?", new Object[]{ scriptName }, Integer.class) >= 1;
 	} //isExists
 	
-	//-------------------------------------------------------------------------------------------------------------------
+	public void rename(String scriptName, String newScriptName){
+		logger.info("scriptName: {}, newScriptName: {}", scriptName, newScriptName);
+		String query = "update script set script_name = ? where script_name = ?";
+		ds.getJdbcTmpl().update(query, newScriptName, scriptName);
+	} //rename
 	
-	public void removeScript(String scriptName){
+	public void remove(String scriptName){
 		logger.info("scriptName: {}", scriptName);
 		ds.getJdbcTmpl().update("DELETE FROM script WHERE script_name = ?", scriptName);
 	} //removeScript

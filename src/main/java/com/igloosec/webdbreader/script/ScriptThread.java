@@ -13,6 +13,7 @@ import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptThread extends Thread{
 	private static final Logger logger = LoggerFactory.getLogger(ScriptThread.class);
+	private static ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 	
 	private String scriptName;
@@ -66,4 +67,13 @@ public class ScriptThread extends Thread{
 			logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
 		} //catch
 	} //stop
+	
+	public static ScriptThread currentThread(){
+		Thread thread = Thread.currentThread();
+		if(thread instanceof ScriptThread)
+			return (ScriptThread) thread;
+		
+		String scriptName = thread.getName();
+		return scriptExecutor.getScriptThread(scriptName);
+	} //currentThrad
 } //class

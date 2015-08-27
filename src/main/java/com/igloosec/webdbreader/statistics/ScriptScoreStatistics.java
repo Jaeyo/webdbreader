@@ -53,8 +53,7 @@ public class ScriptScoreStatistics {
 	} //incrementCount
 	
 	public void incrementCount(String category, Integer count){
-		ScriptThread scriptThread = (ScriptThread) Thread.currentThread();
-		String scriptName = scriptThread.getName();
+		String scriptName = ScriptThread.currentThread().getScriptName();
 		
 		synchronized (ScriptScoreStatistics.class) {
 			counters.incrementCount(category, scriptName, System.currentTimeMillis(), count);
@@ -120,9 +119,10 @@ public class ScriptScoreStatistics {
 		private Map<Long, AtomicLong> counters = Maps.newHashMap();
 		
 		void incrementCount(Long timestamp, Integer count){
+			timestamp = timestamp - (timestamp % (60*1000) );
 			AtomicLong counter = counters.get(timestamp);
 			if(counter == null) {
-				counter = new AtomicLong(0L);
+				counter = new AtomicLong(1L);
 				counters.put(timestamp, counter);
 			} //if
 			counter.addAndGet(count);

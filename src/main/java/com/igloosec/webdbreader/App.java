@@ -36,7 +36,7 @@ public class App {
 		server.setStopTimeout(5000);
 
 		ServerConnector connector = new ServerConnector(server);
-		connector.setPort(Conf.getAs(Conf.PORT, 1234));
+		connector.setPort(Conf.getAs(Conf.PORT, 1235));
 		connector.setIdleTimeout(30000);
 		server.setConnectors(new ServerConnector[] { connector });
 

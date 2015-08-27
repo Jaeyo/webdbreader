@@ -11,7 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.dao.OperationHistoryDAO;
 import com.igloosec.webdbreader.dao.ScriptDAO;
+import com.igloosec.webdbreader.dao.ScriptScoreStatisticsDAO;
+import com.igloosec.webdbreader.exception.AlreadyExistsException;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
@@ -21,6 +24,8 @@ import com.igloosec.webdbreader.script.ScriptExecutor;
 public class ScriptService {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptService.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
+	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
+	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
 	
 	public JSONArray getScriptInfo(){
@@ -37,6 +42,10 @@ public class ScriptService {
 		
 		return scripts;
 	} //loadScripts
+	
+	public boolean isExists(String scriptName){
+		return scriptDAO.isExists(scriptName);
+	} //isExists
 	
 	public void save(String scriptName, String script){
 		if(scriptDAO.isExists(scriptName)){
@@ -59,28 +68,33 @@ public class ScriptService {
 		return scriptJson;
 	} //load
 
-	public void startScript(String title) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
-		logger.info("title: {}", title);
-		String script = load(title).getString("SCRIPT");
-		scriptExecutor.execute(title, script);
+	public void startScript(String scriptName) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
+		logger.info("scriptName: {}", scriptName);
+		String script = load(scriptName).getString("SCRIPT");
+		scriptExecutor.execute(scriptName, script);
 	} //startScript
 	
-	public void stopScript(String title) throws ScriptNotRunningException {
-		logger.info("title: {}", title);
-		scriptExecutor.stop(title);
+	public void stopScript(String scriptName) throws ScriptNotRunningException {
+		logger.info("scriptName: {}", scriptName);
+		scriptExecutor.stop(scriptName);
 	} //stopScript
 	
-	//---------------------------------------------------------------------------------------
+	public void rename(String scriptName, String newScriptName) throws AlreadyExistsException{
+		logger.info("scriptName: {}, newScriptName: {}", scriptName, newScriptName);
 	
-//	
-//	public void removeScript(long sequence){
-//		logger.info("sequence: {}", sequence);
-//		scriptDAO.removeScript(sequence);
-//	} //removeScript
-//	
-//	public JSONArray loadDoc() throws IOException{
-//		InputStream docInput = this.getClass().getClassLoader().getResourceAsStream("spdbreader-doc.json");
-//		String doc = IOUtils.toString(docInput, "utf8");
-//		return new JSONArray(doc);
-//	} //loadDoc
+		if(isExists(newScriptName))
+			throw new AlreadyExistsException(newScriptName);
+		
+		scriptDAO.rename(scriptName, newScriptName);
+		scriptScoreStatisticsDAO.renameScript(scriptName, newScriptName);
+		operationHistoryDAO.renameScript(scriptName, newScriptName);
+	} //rename
+	
+	public void remove(String scriptName){
+		logger.info("scriptName: {}", scriptName);
+		
+		scriptDAO.remove(scriptName);
+		scriptScoreStatisticsDAO.remove(scriptName);
+		operationHistoryDAO.remove(scriptName);
+	} //remove
 } //class

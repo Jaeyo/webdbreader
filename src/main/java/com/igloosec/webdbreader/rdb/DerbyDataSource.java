@@ -10,8 +10,8 @@ import com.igloosec.webdbreader.common.Conf;
 
 public class DerbyDataSource {
 	private static Logger logger = LoggerFactory.getLogger(DerbyDataSource.class);
-	private JsonJdbcTemplate jdbcTmpl = null;
-	
+	private EmbeddedConnectionPoolDataSource ds;
+		
 	public DerbyDataSource(){
 		String derbyPath = Conf.get(Conf.DERBY_PATH);
 		if(derbyPath == null){
@@ -19,15 +19,14 @@ public class DerbyDataSource {
 			logger.warn("derby.path is null, set to {}", derbyPath);
 		} //if
 		
-		EmbeddedConnectionPoolDataSource ds = new EmbeddedConnectionPoolDataSource();
-		ds.setDatabaseName(derbyPath);
-		ds.setCreateDatabase("create");
-		ds.setUser("");
-		ds.setPassword("");
-		this.jdbcTmpl = new JsonJdbcTemplate(ds);
+		this.ds = new EmbeddedConnectionPoolDataSource();
+		this.ds.setDatabaseName(derbyPath);
+		this.ds.setCreateDatabase("create");
+		this.ds.setUser("");
+		this.ds.setPassword("");
 	} //INIT
 	
 	public JsonJdbcTemplate getJdbcTmpl(){
-		return this.jdbcTmpl;
+		return new JsonJdbcTemplate(this.ds);
 	} //getJdbcTmpl
 } //class

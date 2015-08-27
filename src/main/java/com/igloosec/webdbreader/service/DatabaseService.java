@@ -16,23 +16,28 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.google.common.base.Function;
+import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.rdb.JsonJdbcTemplate;
 import com.igloosec.webdbreader.rdb.SingleConnectionDataSource;
 import com.igloosec.webdbreader.util.JdbcUtil;
+import com.igloosec.webdbreader.util.SimpleCrypto;
 
 public class DatabaseService {
 	private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
 	
-	public JSONArray getTables(JSONObject jdbcParams) throws ClassNotFoundException, JSONException, SQLException{
+	public JSONArray getTables(JSONObject jdbcParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException{
 		Connection conn = null;
 		ResultSet rs = null;
 		
+		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
+		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		
 		try{
 			Class.forName(jdbcParams.getString("driver"));
-			conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), jdbcParams.getString("username"), jdbcParams.getString("password"));
+			conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), username, password);
 			DatabaseMetaData meta = conn.getMetaData();
 			
-			rs = meta.getTables(null, jdbcParams.getString("username"), "%", new String[]{ "TABLE" });
+			rs = meta.getTables(null, username, "%", new String[]{ "TABLE" });
 			JSONArray result = new JSONArray();
 			while(rs.next())
 				result.put(rs.getString(3));
@@ -41,7 +46,7 @@ public class DatabaseService {
 				return result;
 			
 			rs.close();
-			rs = meta.getTables(null, jdbcParams.getString("username").toLowerCase(), "%", new String[]{ "TABLE" });
+			rs = meta.getTables(null, username.toLowerCase(), "%", new String[]{ "TABLE" });
 			while(rs.next())
 				result.put(rs.getString(3));
 	
@@ -49,7 +54,7 @@ public class DatabaseService {
 				return result;
 			
 			rs.close();
-			rs = meta.getTables(null, jdbcParams.getString("username").toUpperCase(), "%", new String[]{ "TABLE" });
+			rs = meta.getTables(null, username.toUpperCase(), "%", new String[]{ "TABLE" });
 			while(rs.next())
 				result.put(rs.getString(3));
 			
@@ -62,13 +67,16 @@ public class DatabaseService {
 		} //finally
 	} //getTables
 
-	public JSONArray getColumns(JSONObject jdbcParams, String tableName) throws ClassNotFoundException, JSONException, SQLException{
+	public JSONArray getColumns(JSONObject jdbcParams, String tableName) throws ClassNotFoundException, JSONException, SQLException, CryptoException{
 		Connection conn = null;
 		ResultSet rs = null;
 		
+		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
+		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		
 		try{
 			Class.forName(jdbcParams.getString("driver"));
-			conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), jdbcParams.getString("username"), jdbcParams.getString("password"));
+			conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), username, password);
 			DatabaseMetaData meta = conn.getMetaData();
 			
 			Function<ResultSet, JSONArray> handleResultSetFunction = new Function<ResultSet, JSONArray>() {
@@ -92,21 +100,21 @@ public class DatabaseService {
 			
 			JSONArray result = null;
 			
-			rs = meta.getColumns(null, jdbcParams.getString("username"), tableName, null);
+			rs = meta.getColumns(null, username, tableName, null);
 			result = handleResultSetFunction.apply(rs);
 			
 			if(result.length() != 0) 
 				return result;
 			
 			rs.close();
-			rs = meta.getColumns(null, jdbcParams.getString("username").toLowerCase(), tableName.toLowerCase(), null);
+			rs = meta.getColumns(null, username.toLowerCase(), tableName.toLowerCase(), null);
 			result = handleResultSetFunction.apply(rs);
 	
 			if(result.length() != 0)
 				return result;
 			
 			rs.close();
-			rs = meta.getColumns(null, jdbcParams.getString("username").toUpperCase(), tableName.toUpperCase(), null);
+			rs = meta.getColumns(null, username.toUpperCase(), tableName.toUpperCase(), null);
 			result = handleResultSetFunction.apply(rs);
 			return result;
 		} finally{
@@ -117,9 +125,13 @@ public class DatabaseService {
 		} //finally
 	} //getColumns
 	
-	public JSONArray querySampleData(JSONObject jdbcParams, String query, final int rowCount) throws JSONException, SQLException, ClassNotFoundException{
+	public JSONArray querySampleData(JSONObject jdbcParams, String query, final int rowCount) throws JSONException, SQLException, ClassNotFoundException, CryptoException{
 		Class.forName(jdbcParams.getString("driver"));
-		Connection conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), jdbcParams.getString("username"), jdbcParams.getString("password"));
+		
+		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
+		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		
+		Connection conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), username, password);
 		try{
 			JsonJdbcTemplate jdbcTmpl = new JsonJdbcTemplate(new SingleConnectionDataSource(conn));
 			return jdbcTmpl.query(query, new ResultSetExtractor<JSONArray>() {

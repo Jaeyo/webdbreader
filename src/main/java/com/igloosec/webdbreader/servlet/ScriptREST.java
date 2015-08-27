@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.exception.AlreadyExistsException;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
@@ -83,6 +84,12 @@ public class ScriptREST extends JadeHttpServlet{
 			} else if(new UriTemplate("/Stop/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postStopScript(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/Rename/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(postRename(req, resp, pathParams));
+				resp.getWriter().flush();
+			} else if(new UriTemplate("/Remove/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(postRemove(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
@@ -106,6 +113,7 @@ public class ScriptREST extends JadeHttpServlet{
 		
 		Preconditions.checkArgument(title != null, "title is null");
 		Preconditions.checkArgument(script != null, "script is null");
+		Preconditions.checkArgument(title.trim().length() != 0, "title's length shouldn't be zero");
 		Preconditions.checkArgument(title.contains("&") == false, "'&' shouldn't be in title");
 		Preconditions.checkArgument(title.contains("%") == false, "'%' shouldn't be in title");
 		Preconditions.checkArgument(title.contains("+") == false, "'+' shouldn't be in title");
@@ -138,4 +146,34 @@ public class ScriptREST extends JadeHttpServlet{
 		return new JSONObject().put("success", 1).toString();
 	} //postStartScript
 	
+	private String postRename(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException {
+		String title = pathParams.get("title");
+		String newTitle = req.getParameter("newTitle");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		Preconditions.checkArgument(newTitle != null, "newTitle is null");
+		Preconditions.checkArgument(newTitle.equals(title) == false, "same title");
+		Preconditions.checkArgument(newTitle.trim().length() != 0, "newTitle's length shouldn't be zero");
+		Preconditions.checkArgument(newTitle.contains("&") == false, "'&' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains("%") == false, "'%' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains("+") == false, "'+' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains(";") == false, "';' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains("\'") == false, "'(\')' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains("\"") == false, "'(\")' shouldn't be in title");
+		Preconditions.checkArgument(newTitle.contains("/") == false, "'/' shouldn't be in title");
+		
+		scriptService.rename(title, newTitle);
+		
+		return new JSONObject().put("success", 1).toString();
+	} //postRename
+	
+	private String postRemove(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		String title = pathParams.get("title");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		
+		scriptService.remove(title);
+		
+		return new JSONObject().put("success", 1).toString();
+	} //postDelete
 } //class

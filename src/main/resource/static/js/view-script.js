@@ -39,13 +39,39 @@ Controller.prototype = {
 	}, //stopScript
 
 	rename: function(){
-		alert('not implemented')
-		//TODO IMME
+		bootbox.prompt('new title: ', function(newTitle){
+			if(newTitle === null)
+				return;
+
+			$.post('/REST/Script/Rename/{}/'.format(model.scriptName), { newTitle: newTitle }, function(resp){
+				if(resp.success !== 1){
+					bootbox.alert(JSON.stringify(resp));
+					return;
+				} //if
+
+				bootbox.alert('script renamed', function(){
+					location.href = '/Script/View/{}/'.format(newTitle);
+				});
+			});
+		});
 	}, //rename
 
 	remove: function(){
-		alert('not implemented')
-		//TODO IMME
+		bootbox.confirm('remove', function(result){
+			if(result === false)
+				return;
+
+			$.post('/REST/Script/Remove/{}/'.format(model.scriptName), {}, function(resp){
+				if(resp.success !== 1){
+					bootbox.alert(JSON.stringify(resp));
+					return;
+				} //if
+
+				bootbox.alert('script removed', function(){
+					location.href = '/';
+				});
+			});
+		});
 	} //remove
 }; //Controller
 

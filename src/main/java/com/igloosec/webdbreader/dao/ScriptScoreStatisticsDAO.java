@@ -14,8 +14,8 @@ public class ScriptScoreStatisticsDAO {
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public void insertStatistics(String scriptName, String category, Long timestamp, Long count){
-		ds.getJdbcTmpl().update("INSERT INTO script_score_statistics (script_name, count_timestamp, count_value) VALUES(?,?,?)", 
-				scriptName, new Date(timestamp), count);
+		ds.getJdbcTmpl().update("INSERT INTO script_score_statistics (category, script_name, count_timestamp, count_value) VALUES(?,?,?,?)", 
+				category, scriptName, new Date(timestamp), count);
 	} //insertStatistics
 	
 	public void deleteUnderTimestamp(Long timestamp){
@@ -29,4 +29,12 @@ public class ScriptScoreStatisticsDAO {
 				+ "WHERE script_name = ? "
 				+ "ORDER BY category, count_timestamp", scriptName);
 	} //getScriptStatistics
+	
+	public void renameScript(String scriptName, String newScriptName){
+		ds.getJdbcTmpl().update("UPDATE script_score_statistics SET script_name = ? WHERE script_name = ?", newScriptName, scriptName);
+	} //renameScript
+	
+	public void remove(String scriptName){
+		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE script_name = ?", scriptName);
+	} //remove
 }  //class
