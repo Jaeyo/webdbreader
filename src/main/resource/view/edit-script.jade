@@ -14,7 +14,13 @@ block contents-area
 		else
 			textarea#textarea-script(rows="50")
 	hr
-	div: button(type="button", class="btn btn-primary pull-right", onclick="controller.save();") save
+	div.oper-btns
+		- isNewScript = script == null;
+		if isNewScript == false
+			button(type="button", class="btn btn-primary", onclick="controller.export();") export
+		button(type="button", class="btn btn-info", onclick="controller.save();") save
+
+
 
 block footer
 	if script != null

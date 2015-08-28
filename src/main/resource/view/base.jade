@@ -21,16 +21,25 @@ html
 					hr
 					div
 						ul(class=menuClass)
-							li: a(href="/") overview
+							li: a(href="/") 
+								span.glyphicon.glyphicon-cloud.pull-left
+								span.pull-right overview
+								div.clearfix
 							li: hr
 							li: h5 Scripts
 							if scriptInfos.size() == 0
 								li: div.well no script
 							else
 								each scriptInfo in scriptInfos
-									li: a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/") #{scriptInfo.SCRIPT_NAME}
+									li: a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/") 
+										span.glyphicon.glyphicon-console.pull-left
+										span.pull-right #{scriptInfo.SCRIPT_NAME}
+										div.clearfix
 							li: hr
-							li: a(href="/Config/") configuration
+							li: a(href="/Config/") 
+								span.glyphicon.glyphicon-cog.pull-left
+								span.pull-right configuration
+								div.clearfix
 							li: hr
 				div.contents-area
 					block contents-area
@@ -45,7 +54,7 @@ html
 						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newDb2DbScript();") db2db
 						div blabla 여기는 설명입ㅈ니다
 					div.col-md-4
-						div: button(type="button", class="btn btn-lg new-script-btn", onclick="newScriptDirectly();") script directly
+						div: button(type="button", class="btn btn-lg new-script-btn", onclick="importScript();") import script
 						div blabla 여기는 설명입ㅈ니다
 			
 		script.
@@ -62,8 +71,8 @@ html
 			function newDb2DbScript(){
 				window.location.href = '/Script/NewDb2Db/';
 			}; //newDb2DbScript
-			function newScriptDirectly(){
+			function importScript(){
 				window.location.href = '/Script/Edit/';
-			}; //newScriptDirectly
+			}; //importScript
 
 		block footer

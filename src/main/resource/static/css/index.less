@@ -1,23 +1,60 @@
-div.script-info {
-	cursor: pointer;
-}
+@red-color: #ff6c60;
+@startup-color: rgb(220, 246, 245);
+@shutdown-color: rgb(250, 222, 222);
 
-div.script-info:hover {
-	background-color: rgb(31, 37, 48);
-}
+div.contents-area {
+	div.script-panel {
+		div.panel-heading {
+			font-size: 170%;
+			font-weight: 140%;
+		} //div.panel-heading
+	} //div.script-panel
+	div.total-chart-panel {
+		div.panel-heading {
+			span.glyphicon {
+				margin-right: 10px;
+			} //span
+		} //div.panel-heading
+		div.panel-body {
+			div#totalStatisticsChart {
+				height: 250px;
+			} //div#totalStatisticsChart
+		} //div.panel-body
+	} //div.total-chart-panel
+	div.operation-history-panel {
+		div.panel-heading {
+			span.glyphicon {
+				margin-right: 10px;
+			} //span.glyphicon
+		} //div.panel-heading
+		div.panel-body {
+			a.list-group-item {
+				font-size: 83%;
+				span.glyphicon {
+					margin-right: 6px;
+				}
+			} //a.list-group-item
+			a.startup-history {
+				background-color: @startup-color;
+			} //a.startup-history
+			a.shutdown-history {
+				background-color: @shutdown-color;
+			} //a.shutdown-history
+		} //div.panel-body
+	} //operation-history-panel
+} //div.contents-area
 
-span.green-label {
-	display: inline-block;
-	width: 5px;
-	height: 20px;
-	background-color: rgb(0, 204, 0);
-	margin-right: 3px;
-}
-
-span.red-label {
-	display: inline-block;
-	width: 5px;
-	height: 20px;
-	background-color: rgb(255, 0, 0);
-	margin-right: 3px;
-}
+.panel-red {
+    border-color: @red-color;
+    .panel-heading {
+		border-color: @red-color;
+    	color: #fff;
+    	background-color: @red-color;
+    } //.panel-heading
+    a {
+    	color: @red-color;
+    } //a
+    a:hover {
+    	color: darken(@red-color, 30%);
+    } //a:hover
+} //.panel-red

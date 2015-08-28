@@ -1,8 +1,8 @@
-ul li {
-  margin-left: 20px;
+div.contents-area span.config-key {
+  margin-right: 10px;
 }
-div.contents-area div.div-save-btn {
-  text-align: right;
+div.contents-area div.panel-heading span.glyphicon {
+  margin-right: 10px;
 }
 div.contents-area label {
   font-weight: normal;

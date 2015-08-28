@@ -40,21 +40,18 @@ Controller.prototype = {
 	}, //postConfig
 
 	queryDerbyDb: function(){
-		bootbox.prompt('query: ', function(query){
-			view.showLoadingDialog();
-			$.getJSON('/REST/EmbedDb/Query/', {query: query})
-			.fail(function(e){
-				bootbox.hideAll();
-				bootbox.alert(JSON.stringify(e));
-			}).done(function(resp){
-				bootbox.hideAll();
-				if(resp.success !== 1){
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
+		var query = $('input[type="text"]#derby-query').val();
 
-				bootbox.alert('<pre>' + resp.result + '</pre>');
-			});
+		$.getJSON('/REST/EmbedDb/Query/', {query: query})
+		.fail(function(e){
+			bootbox.alert(JSON.stringify(e));
+		}).done(function(resp){
+			if(resp.success !== 1){
+				bootbox.alert(JSON.stringify(resp));
+				return;
+			} //if
+
+			bootbox.alert('<textarea style="width: 100%;" rows="30">' + resp.result + '</textarea>');
 		});
 	} //queryDerbyDb
 }; //Controller

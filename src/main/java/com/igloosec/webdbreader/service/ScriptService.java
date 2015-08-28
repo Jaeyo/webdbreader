@@ -1,5 +1,6 @@
 package com.igloosec.webdbreader.service;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.script.ScriptException;
@@ -7,6 +8,7 @@ import javax.script.ScriptException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +49,17 @@ public class ScriptService {
 		return scriptDAO.isExists(scriptName);
 	} //isExists
 	
-	public void save(String scriptName, String script){
+	public void save(String scriptName, String script) throws AlreadyExistsException{
 		if(scriptDAO.isExists(scriptName)){
-			scriptDAO.edit(scriptName, script);
+			throw new AlreadyExistsException(scriptName);
 		} else{
 			scriptDAO.save(scriptName, script);
 		} //if
 	} //save
+	
+	public void edit(String scriptName, String script){
+		scriptDAO.edit(scriptName, script);
+	} //edit
 	
 	public JSONObject load(String title) throws NotFoundException {
 		JSONObject scriptJson = scriptDAO.load(title);
@@ -64,6 +70,9 @@ public class ScriptService {
 		} else{
 			scriptJson.put("IS_RUNNING", false);
 		} //if
+		
+		Date regdate = (Date) scriptJson.get("REGDATE");
+		scriptJson.put("PRETTY_REGDATE", new PrettyTime().format(regdate));
 		
 		return scriptJson;
 	} //load

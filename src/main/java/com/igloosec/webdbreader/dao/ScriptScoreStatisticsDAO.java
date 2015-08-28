@@ -23,12 +23,27 @@ public class ScriptScoreStatisticsDAO {
 		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE count_timestamp < ?", new Date(timestamp));
 	} //deleteUnderTimestamp
 	
-	public JSONArray getScriptStatistics(String scriptName){
-		return ds.getJdbcTmpl().queryForJsonArray("SELECT category, count_timestamp, count_value "
-				+ "FROM script_score_statistics "
-				+ "WHERE script_name = ? "
-				+ "ORDER BY category, count_timestamp", scriptName);
-	} //getScriptStatistics
+//	public JSONArray getScriptStatisticsByScriptName(String scriptName){
+//		String query = "SELECT category, count_timestamp, count_value "
+//				+ "FROM script_score_statistics "
+//				+ "WHERE script_name = ? "
+//				+ "ORDER BY category, count_timestamp";
+//		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName);
+//	} //getScriptStatistics
+//	
+//	public JSONArray getScriptStatisticsByCategory(String category){
+//		String query = "SELECT count_timestamp, script_name, count_value "
+//				+ "FROM script_score_statistics "
+//				+ "WHERE category = ? "
+//				+ "ORDER BY count_timestamp, script_name";
+//		return ds.getJdbcTmpl().queryForJsonArray(query, category);
+//	} //getScriptStatisticsByCategory
+	
+	public JSONArray getTotal(){
+		String query = "SELECT count_timestamp, category, script_name, count_value "
+				+ "FROM script_score_statistics ";
+		return ds.getJdbcTmpl().queryForJsonArray(query);
+	} //getTotal
 	
 	public void renameScript(String scriptName, String newScriptName){
 		ds.getJdbcTmpl().update("UPDATE script_score_statistics SET script_name = ? WHERE script_name = ?", newScriptName, scriptName);

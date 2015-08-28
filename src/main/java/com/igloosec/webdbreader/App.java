@@ -14,6 +14,7 @@ import com.igloosec.webdbreader.common.Path;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.rdb.DerbySchemaCreator;
 import com.igloosec.webdbreader.script.ScriptExecutor;
+import com.igloosec.webdbreader.servlet.ChartREST;
 import com.igloosec.webdbreader.servlet.Config;
 import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
@@ -36,7 +37,7 @@ public class App {
 		server.setStopTimeout(5000);
 
 		ServerConnector connector = new ServerConnector(server);
-		connector.setPort(Conf.getAs(Conf.PORT, 1235));
+		connector.setPort(Conf.getAs(Conf.PORT, 1234));
 		connector.setIdleTimeout(30000);
 		server.setConnectors(new ServerConnector[] { connector });
 
@@ -56,6 +57,7 @@ public class App {
 		context.addServlet(MetaREST.class, "/REST/Meta/*");
 		context.addServlet(Config.class, "/Config/*");
 		context.addServlet(ConfigREST.class, "/REST/Config/*");
+		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(Index.class, "");
 		context.setContextPath("/");
 		

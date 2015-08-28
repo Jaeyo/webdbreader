@@ -42,6 +42,14 @@ public class OperationHistoryDAO {
 		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName, count);
 	} //loadHistory
 	
+	public JSONArray loadHistory(int count){
+		String query = "SELECT regdate, script_name, is_startup "
+				+ "FROM operation_history "
+				+ "ORDER BY regdate DESC "
+				+ "OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
+		return ds.getJdbcTmpl().queryForJsonArray(query, count);
+	} //loadHistory
+	
 	public void renameScript(String scriptName, String newScriptName){
 		ds.getJdbcTmpl().update("UPDATE operation_history set script_name = ? where script_name = ?", newScriptName, scriptName);
 	} //renameScript

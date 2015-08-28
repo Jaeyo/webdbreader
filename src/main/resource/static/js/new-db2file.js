@@ -460,7 +460,9 @@ Controller.prototype = {
 	saveScript: function(){
 		var script = view.scriptEditor.getValue();
 		bootbox.prompt('input script title: ', function(title){
-			$.post('/REST/Script/', { title: title, script: script }, function(resp){
+			if(title === null) 
+				return;
+			$.post('/REST/Script/New/{}/'.format(title), { script: script }, function(resp){
 				if(resp.success !== 1){
 					bootbox.alert(JSON.stringify(resp));
 					return;

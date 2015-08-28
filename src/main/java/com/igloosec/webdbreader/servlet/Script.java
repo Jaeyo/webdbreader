@@ -88,9 +88,8 @@ public class Script extends JadeHttpServlet{
 		
 		Preconditions.checkNotNull(title, "title is null");
 		
-		JSONObject scriptJSON = scriptService.load(title);
 		Map<String, Object> model = Maps.newHashMap();
-		model.put("script", scriptJSON);
+		model.put("script", scriptService.load(title));
 		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 		model.put("operationHistories", Util.jsonArray2JsonObjectList(operationHistoryService.loadHistory(title, 10)));
 		return jade("view-script.jade", model);

@@ -18,6 +18,13 @@
 	</properties>
 
 	<dependencies>
+		<!-- prettytime -->
+		<dependency>
+			<groupId>org.ocpsoft.prettytime</groupId>
+			<artifactId>prettytime</artifactId>
+			<version>4.0.0.Final</version>
+		</dependency>
+
 		<!-- derby db -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>

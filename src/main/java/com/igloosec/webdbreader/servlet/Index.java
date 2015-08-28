@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.service.OperationHistoryService;
+import com.igloosec.webdbreader.service.ScriptScoreStatisticsService;
 import com.igloosec.webdbreader.service.ScriptService;
+import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 import com.igloosec.webdbreader.util.Util;
 import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -23,6 +26,8 @@ import de.neuland.jade4j.exceptions.JadeCompilerException;
 public class Index extends JadeHttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(Index.class);
 	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
+	private ScriptScoreStatisticsService scriptScoreStatisticsService = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsService.class);
+	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -61,6 +66,7 @@ public class Index extends JadeHttpServlet {
 	private String getIndex(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
 		Map<String, Object> model = Maps.newHashMap();
 		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
+		model.put("operationHistories", Util.jsonArray2JsonObjectList(operationHistoryService.loadHistory(7)));
 		return jade("index.jade", model);
 	} //getIndex
 } //class

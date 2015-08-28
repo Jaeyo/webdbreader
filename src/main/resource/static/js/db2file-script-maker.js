@@ -43,17 +43,25 @@ Db2FileScriptMaker.prototype = {
 			step3_initConditionVar: function(model){
 				if(model.condition.type === 'no-condition')
 					return '';
-				var script = '\n var condition = { ';
-				script += '\n 	smallValue: null, ';
-				script += '\n 	bigValue: null ';
-				script += '\n }; ';
-				script += '\n';
+				var script = '';
 				if(model.condition.type === 'date-condition'){
-					script += '\n condition.smallValue = simpleRepo.load(conf.id); ';
+					script += '\n var condition = { ';
+					script += '\n 	smallValue: simpleRepo.load(conf.id), ';
+					script += '\n 	bigValue: dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") ';
+					script += '\n }; ';
+					script += '\n';
 					script += '\n if(condition.smallValue === null) ';
 					script += '\n 	condition.smallValue = dateUtil.format(0, "yyyy-MM-dd HH:mm:ss"); ';
 				} else if(model.condition.type === 'sequence-condition'){
-					script += '\n condition.smallValue = simpleRepo.load(conf.id); ';
+					script += '\n var condition = { ';
+					script += '\n 	smallValue: simpleRepo.load(conf.id), ';
+					script += '\n 	bigValue: dbHandler.query({ ';
+					script += '\n 		database: conf.database, '
+					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName), ';
+					script += '\n 		delimiter: "", '
+					script += '\n 		lineDelimiter: "" '
+					script += '\n 	}) ';
+					script += '\n }; ';
 					script += '\n if(condition.smallValue === null) ';
 					script += '\n 	condition.smallValue = 0; ';
 				} //if
@@ -88,6 +96,13 @@ Db2FileScriptMaker.prototype = {
 						script += '\n 				" AND " + conf.conditionColumn + " <= to_date(\'" + condition.bigValue + "\', \'YYYY-MM-DD HH24:MI:SS\') ";';
 					} //if
 				} else if(model.condition.type === 'sequence-condition'){
+					script += '\n 	condition.bigValue = dbHandler.query({ ';
+					script += '\n 		database: conf.database, ';
+					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName), ';
+					script += '\n 		delimiter: "", ';
+					script += '\n 		lineDelimiter: "" ';
+					script += '\n 	}); ';
+					script += '\n ';
 					script += '\n 	var query = " SELECT " + conf.selectColumn + ';
 					script += '\n 				" FROM " + dateUtil.formatReplace(conf.tableName) + ';
 					script += '\n 				" WHERE " + conf.conditionColumn + " > " + condition.smallValue + ';

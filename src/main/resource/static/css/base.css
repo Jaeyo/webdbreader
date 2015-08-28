@@ -46,7 +46,7 @@ div.container .bottom-area {
   color: gray;
 }
 div.container .bottom-area .menu-area {
-  min-height: calc(100% - 80px);
+  height: calc(100% - 80px);
   float: left;
   padding: 10px;
   background-color: #e5e8ef;
@@ -58,8 +58,11 @@ div.container .bottom-area .menu-area div.well {
   color: gray;
   font-size: 80%;
 }
+div.container .bottom-area .menu-area ul li span.glyphicon {
+  font-size: 90%;
+}
 div.container .bottom-area .contents-area {
-  min-height: calc(100% - 80px);
+  height: calc(100% - 80px);
   float: left;
   padding: 20px;
   width: calc(100% - 200px);

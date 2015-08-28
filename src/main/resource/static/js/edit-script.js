@@ -36,25 +36,30 @@ Controller.prototype = {
 		var script = view.scriptEditor.getValue();
 		if($('input#is-new-script[type="hidden"]').val() === 'true'){
 			bootbox.prompt('title', function(title){
-				controller._save(title, script);
+				$.post('/REST/Script/New/{}/'.format(title), {script: script}, function(resp){
+					if(resp.success !== 1){
+						bootbox.alert(JSON.stringify(resp));
+						return;
+					} //if
+					bootbox.alert('script saved', function(){ window.location.href = '/Script/View/{}/'.format(title); });
+				}, 'json');
 			});
 		} else{
 			var title = $('input#script-name[type="hidden"]').val();
-			this._save(title, script);
+			$.post('/REST/Script/Edit/{}/'.format(title), {script: script}, function(resp){
+				if(resp.success !== 1){
+					bootbox.alert(JSON.stringify(resp));
+					return;
+				} //if
+				bootbox.alert('script saved', function(){ window.location.href = '/Script/View/{}/'.format(title); });
+			}, 'json');
 		} //if
 	}, //save
 
-	_save: function(title, script){
-		$.post('/REST/Script/', { title: title, script: script }, function(resp){
-			if(resp.success !== 1){
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
-			bootbox.alert('script saved', function(){
-				window.location.href = '/';
-			});
-		}, 'json');
-	} //_save
+	export: function(){
+		var title = $('input#script-name[type="hidden"]').val();
+		alert('not implemented');
+	} //export
 }; //Controller
 
 $(function(){

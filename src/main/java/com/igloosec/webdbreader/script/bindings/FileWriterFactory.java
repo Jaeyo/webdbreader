@@ -34,7 +34,9 @@ public class FileWriterFactory {
 	public FileWriter getWriter(Map<String, Object> args) throws ParseException, IOException{
 		String filename = (String) args.get("filename");
 		String charset = (String) args.get("charset");
-		return new FileWriter(filename, charset);
+		FileWriter writer = new FileWriter(filename, charset);
+		ScriptThread.currentThread().addFileWriter(writer);
+		return writer;
 	} //getWriter
 	
 	public class FileWriter {
@@ -84,6 +86,7 @@ public class FileWriterFactory {
 		public FileWriter print(String msg){
 			lock.lock();
 			try{
+				System.out.println("###DEBUG, print: " + msg); //DEBUG
 				output.append(msg);
 				output.flush();
 				
@@ -94,5 +97,9 @@ public class FileWriterFactory {
 			} //finally
 			return this;
 		} //print
+		
+		public void close(){
+			output.close();
+		} //close
 	} //class
 } //class

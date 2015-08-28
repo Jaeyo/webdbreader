@@ -68,8 +68,8 @@ public class ScriptExecutor {
 					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				} finally{
 					if(isScheduled() == false && isFileReaderMonitoring() == false){
-						runningScripts.remove(getScriptName());
 						operationHistoryService.saveShutdownHistory(getScriptName());
+						runningScripts.remove(getScriptName()).stopScript();
 					} //if
 				} //finally
 			} //run

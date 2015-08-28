@@ -1,17 +1,36 @@
-ul li {
-	margin-left: 15px;
-}
+@startup-color: rgb(220, 246, 245);
+@shutdown-color: rgb(250, 222, 222);
 
 div.contents-area {
-	div.script-operation {
-		text-align: right;
-		button {
-			margin-left: 3px;
-		}
-	} //div.script-operation
-	div.script-info {
-		input.input-text {
-			width: 100%;
-		} //input.input-text
-	} //div.script-info
+	div.panel-heading {
+		span.glyphicon {
+			margin-right: 10px;
+		} //span.glyphicon
+	} //div.panel-heading
+
+	span.glyphicon-upload, span.glyphicon-download {
+		margin-right: 10px;
+	}
+
+	div.command-panel {
+		div.panel-body {
+			button {
+				width: 100%;
+				margin-top: 3px;
+			} //button
+		}  //div.panel-body
+	} //div.command-panel
+
+	div.operation-history-panel {
+		div.panel-body {
+			ul.list-group {
+				li.list-group-item.startup-history {
+					background-color: @startup-color;
+				} //startup-history
+				li.list-group-item.shutdown-history {
+					background-color: @shutdown-color;
+				} //shutdown-history
+			} //list-group
+		} //panel-body
+	} //operation-history-panel
 } //div.contents-area

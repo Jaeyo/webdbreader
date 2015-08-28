@@ -75,8 +75,11 @@ public class ScriptREST extends JadeHttpServlet{
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/New/{title}").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
+				resp.getWriter().flush();
+			} else if(new UriTemplate("/Edit/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(postEditScript(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Start/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postStartScript(req, resp, pathParams));
@@ -107,8 +110,8 @@ public class ScriptREST extends JadeHttpServlet{
 		} //catch
 	} //doPost
 	
-	private String postScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String title = req.getParameter("title");
+	private String postScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException{
+		String title = pathParams.get("title");
 		String script = req.getParameter("script");
 		
 		Preconditions.checkArgument(title != null, "title is null");
@@ -125,6 +128,17 @@ public class ScriptREST extends JadeHttpServlet{
 		scriptService.save(title, script);
 		return new JSONObject().put("success", 1).toString();
 	} //postScript
+	
+	private String postEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String title = pathParams.get("title");
+		String script = req.getParameter("script");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		Preconditions.checkArgument(script != null, "script is null");
+		
+		scriptService.edit(title, script);
+		return new JSONObject().put("success", 1).toString();
+	} //postEditScript
 	
 	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException{
 		String title = pathParams.get("title");

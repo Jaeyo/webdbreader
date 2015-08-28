@@ -6,10 +6,58 @@ block header
 block title-area
 
 block contents-area
+	if scriptInfos.size() != 0
+		div.row
+			each scriptInfo in scriptInfos
+				div.col-lg-3.col-md-6.col-sm-6
+					- runningClass = scriptInfo.IS_RUNNING == true ? "panel-primary" : "panel-red"
+					div.panel.script-panel(class=runningClass)
+						div.panel-heading.align-right
+							span.pull-left.glyphicon.glyphicon-console
+							span.pull-right #{scriptInfo.SCRIPT_NAME}
+							div.clearfix
+						a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/")
+							div.panel-footer
+								span.pull-left view details
+								span.pull-right
+									span.glyphicon.glyphicon-chevron-right
+								div.clearfix
+		div.row
+			div.col-lg-9.col-md-12.col-sm-12
+				div.panel.panel-default.total-chart-panel
+					div.panel-heading
+						span.glyphicon.glyphicon-stats
+						span total chart
+					div.panel-body
+						div#totalStatisticsChart
+			div.col-lg-3.col-md-12.col-sm-12
+				div.panel.panel-default.operation-history-panel
+					div.panel-heading
+						span.glyphicon.glyphicon-time
+						span operation history
+					div.panel-body
+						div.list-group
+							each operationHistory in operationHistories
+								if operationHistory.IS_STARTUP == true
+									a.list-group-item.startup-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
+										span.glyphicon.glyphicon-upload.pull-left
+										span.pull-left #{operationHistory.SCRIPT_NAME}
+										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
+										div.clearfix
+								else
+									a.list-group-item.shutdown-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
+										span.glyphicon.glyphicon-download.pull-left
+										span.pull-left #{operationHistory.SCRIPT_NAME}
+										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
+										div.clearfix
+
+
+
 	div.well 
 		span index page
-		div script-history table 생성후 dashboard 에 최근 실행 기록(10개) 표시
 		div 도움말 기능
+		div script export 기능
+		div http call 기능
 
 block footer
 	script(src="/js/index.js")
