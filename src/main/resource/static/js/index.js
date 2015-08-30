@@ -16,13 +16,18 @@ View.prototype = {
 				return;
 			} //if
 
-			new Morris.Line({
-				element: 'totalStatisticsChart',
-				data: resp.data,
-				xkey: 'timestamp',
-				ykeys: resp.yKeys,
-				labels: resp.yKeys
-			});
+			if(resp.data.length === 0){
+				var dom = jade.compile($('script#chart-when-no-data[type="text/x-jade"]').html())({});
+				$('#totalStatisticsChart').empty().append(dom);
+			} else {
+				new Morris.Line({
+					element: 'totalStatisticsChart',
+					data: resp.data,
+					xkey: 'timestamp',
+					ykeys: resp.yKeys,
+					labels: resp.yKeys
+				});
+			} //if
 		});
 	} //initCharts
 }; //View
