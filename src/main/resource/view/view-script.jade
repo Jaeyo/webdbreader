@@ -56,15 +56,26 @@ block contents-area
 					span command
 				div.panel-body
 					if script.IS_RUNNING == true
-						div: button(type="button", class="btn btn-success btn-sm", disabled=true) start
-						div: button(type="button", class="btn btn-warning btn-sm", onclick="controller.stopScript();") stop
+						div: button.btn.btn-success.btn-sm(type="button", disabled=true) start
+						div: button.btn.btn-warning.btn-sm(type="button", onclick="controller.stopScript();") stop
 					else
-						div: button(type="button", class="btn btn-success btn-sm", onclick="controller.startScript();") start
-						div: button(type="button", class="btn btn-warning btn-sm", disabled=true) stop
+						div: button.btn.btn-success.btn-sm(type="button", onclick="controller.startScript();") start
+						div: button.btn.btn-warning.btn-sm(type="button", disabled=true) stop
 					hr
-					div: button(type="button", class="btn btn-info btn-sm", onclick="editScript();") edit script
-					div: button(type="button", class="btn btn-info btn-sm", onclick="controller.rename();") rename
-					div: button(type="button", class="btn btn-danger btn-sm", onclick="controller.remove();") remove
+					div: button.btn.btn-info.btn-sm(type="button", onclick="editScript();") edit script
+					div: button.btn.btn-info.btn-sm(type="button", onclick="controller.rename();") rename
+					div: button.btn.btn-danger.btn-sm(type="button", onclick="controller.remove();") remove
+					hr
+					div: button.btn.btn-success.btn-sm(type="button", onclick="controller.viewLog();") view log
+	div.row
+		div.col-lg-12
+			div.panel.panel-default.log-monitoring-panel
+				div.panel-heading
+					span.glyphicon.glyphicon-time
+					span operation log monitoring ...
+				div.panel-body
+					ul.list-group
+						//TODO IMME
 
 block footer
 	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")

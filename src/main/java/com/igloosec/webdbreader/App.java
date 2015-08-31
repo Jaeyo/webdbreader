@@ -30,7 +30,7 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
 		
-		TODO monitoring script log
+//		TODO monitoring script log
 		
 		new DerbySchemaCreator().check();
 		

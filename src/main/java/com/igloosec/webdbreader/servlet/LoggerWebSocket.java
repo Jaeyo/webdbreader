@@ -1,7 +1,6 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
-import java.util.Timer;
 import java.util.UUID;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.NotExistsException;
-import com.igloosec.webdbreader.script.bindings.ScriptLoggerMessageQueueRepo;
+import com.igloosec.webdbreader.script.ScriptLoggerMessageQueueRepo;
 
 @WebSocket
 public class LoggerWebSocket {

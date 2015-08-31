@@ -72,7 +72,11 @@ Controller.prototype = {
 				});
 			});
 		});
-	} //remove
+	}, //remove
+
+	viewLog: function() {
+		//TODO IMME
+	}; //viweLog
 }; //Controller
 
 $(function(){
