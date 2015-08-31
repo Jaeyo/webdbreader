@@ -43,17 +43,43 @@ Controller.prototype = {
 		var query = $('input[type="text"]#derby-query').val();
 
 		$.getJSON('/REST/EmbedDb/Query/', {query: query})
-		.fail(function(e){
-			bootbox.alert(JSON.stringify(e));
+		.fail(function(err){
+			bootbox.alert(JSON.stringify(err));
 		}).done(function(resp){
 			if(resp.success !== 1){
 				bootbox.alert(JSON.stringify(resp));
 				return;
 			} //if
 
-			bootbox.alert('<textarea style="width: 100%;" rows="30">' + resp.result + '</textarea>');
+			bootbox.alert('<textarea style="width: 100%;" rows="10">' + resp.result + '</textarea>');
 		});
-	} //queryDerbyDb
+	}, //queryDerbyDb
+
+	crypto: function(option){
+		var text = $('input[type="text"]#crypto-text').val();
+
+		var url = null;
+		if(option.type === 'encrypt'){
+			url = '/REST/Meta/Encrypt/';
+		} else if(option.type === 'decrypt'){
+			url = '/REST/Meta/Decrypt/';
+		} else {
+			bootbox.alert('unknown crypto option -> ' + JSON.stringify(option));
+			return;
+		} //if
+
+		$.getJSON(url, {value: text})
+		.fail(function(err){
+			bootbox.alert(JSON.stringify(err));
+		}).done(function(resp){
+			if(resp.success !== 1){
+				bootbox.alert(JSON.stringify(resp));
+				return;
+			} //if
+
+			bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
+		});
+	} //encrypt
 }; //Controller
 
 $(function(){

@@ -26,6 +26,7 @@ import com.igloosec.webdbreader.script.bindings.FileReaderFactory;
 import com.igloosec.webdbreader.script.bindings.FileWriterFactory;
 import com.igloosec.webdbreader.script.bindings.RuntimeUtil;
 import com.igloosec.webdbreader.script.bindings.Scheduler;
+import com.igloosec.webdbreader.script.bindings.ScriptLogger;
 import com.igloosec.webdbreader.script.bindings.SimpleRepo;
 import com.igloosec.webdbreader.script.bindings.StringUtil;
 import com.igloosec.webdbreader.service.ConfigService;
@@ -37,7 +38,7 @@ public class ScriptExecutor {
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
 
-	public void execute(String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException {
+	public void execute(final String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException {
 		if(runningScripts.containsKey(scriptName))
 			throw new AlreadyStartedException(scriptName);
 		
@@ -58,7 +59,7 @@ public class ScriptExecutor {
 					bindings.put("scheduler", new Scheduler());
 					bindings.put("simpleRepo", new SimpleRepo());
 					bindings.put("stringUtil", new StringUtil());
-					bindings.put("logger", logger);
+					bindings.put("logger", new ScriptLogger(scriptName));
 					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 					scriptEngine.eval(script, bindings);

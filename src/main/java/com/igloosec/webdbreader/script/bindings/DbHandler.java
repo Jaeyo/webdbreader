@@ -152,7 +152,7 @@ public class DbHandler {
 						String value = rs.getString(i);
 						if(value != null) 
 							rowSb.append(value);
-						if(i != 1)
+						if(i != colCount)
 							rowSb.append(finalDelimiter);
 					} //for i
 					writer.println(rowSb.toString());

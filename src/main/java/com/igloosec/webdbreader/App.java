@@ -20,13 +20,17 @@ import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
 import com.igloosec.webdbreader.servlet.EmbedDbREST;
 import com.igloosec.webdbreader.servlet.Index;
+import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
 import com.igloosec.webdbreader.servlet.Script;
 import com.igloosec.webdbreader.servlet.ScriptREST;
+import com.igloosec.webdbreader.servlet.Test;
 
 public class App {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
+		
+		TODO monitoring script log
 		
 		new DerbySchemaCreator().check();
 		
@@ -41,7 +45,9 @@ public class App {
 		connector.setIdleTimeout(30000);
 		server.setConnectors(new ServerConnector[] { connector });
 
-		server.setHandler(getWebAppContext());
+		WebAppContext context = getWebAppContext();
+		server.setHandler(context);
+		
 		server.start();
 		server.join();
 	} // main
@@ -58,6 +64,8 @@ public class App {
 		context.addServlet(Config.class, "/Config/*");
 		context.addServlet(ConfigREST.class, "/REST/Config/*");
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
+		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
+		context.addServlet(Test.class, "/Test/*");
 		context.addServlet(Index.class, "");
 		context.setContextPath("/");
 		

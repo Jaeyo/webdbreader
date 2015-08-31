@@ -1,0 +1,46 @@
+extends base
+
+block header
+
+block title-area
+	h3 test
+
+block contents-area
+	div.row
+		div.col-sm-6
+			div#result
+		div.col-sm-6
+			div input: 
+			div: input.form-control#text(type="text")
+			button.btn.btn-primary.pull-right(type="button", onclick="connect()") connect
+			button.btn.btn-primary.pull-right(type="button", onclick="disconnect()") disconnect
+
+block footer
+	script.
+		var ws;
+		function connect(){
+			var scriptName = $('#text').val();
+
+			ws = new WebSocket('ws://{}/WebSocket/Logger/'.format(window.location.host));
+			ws.onopen = function() {
+				console.log('web socket opened');
+				ws.send(JSON.stringify({
+					type: 'listen',
+					scriptName: scriptName
+				}));
+			}; //onOpen
+			ws.onmessage = function(evt) {
+				console.log(evt);
+			}; //onmessage
+			ws.onclose = function() {
+				console.log('web socket closed');
+			}; //onclose
+			ws.onerror = function(err){
+				console.log('web socket error');
+				console.log(err);
+			}; //onerror
+		}; //connect
+
+		function disconnect() {
+			ws.close();
+		}; //disconnect

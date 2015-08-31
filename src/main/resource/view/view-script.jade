@@ -7,16 +7,6 @@ block title-area
 	h3 #{script.SCRIPT_NAME}
 
 block contents-area
-	//- div.script-operation
-	//- 	if script.IS_RUNNING == true
-	//- 		button(type="button", class="btn btn-success btn-sm", disabled=true) start
-	//- 		button(type="button", class="btn btn-warning btn-sm", onclick="controller.stopScript();") stop
-	//- 	else
-	//- 		button(type="button", class="btn btn-success btn-sm", onclick="controller.startScript();") start
-	//- 		button(type="button", class="btn btn-warning btn-sm", disabled=true) stop
-	//- 	button(type="button", class="btn btn-info btn-sm", onclick="editScript();") edit script
-	//- 	button(type="button", class="btn btn-info btn-sm", onclick="controller.rename();") rename
-	//- 	button(type="button", class="btn btn-danger btn-sm", onclick="controller.remove();") remove
 	div.row
 		div.col-lg-3.col-md-3.col-sm-12
 			div.panel.panel-default.infomation-panel
@@ -43,19 +33,22 @@ block contents-area
 					span operation history
 				div.panel-body
 					ul.list-group
-						each operationHistory in operationHistories
-							if operationHistory.IS_STARTUP == true
-								li.list-group-item.startup-history
-									span.glyphicon.glyphicon-upload.pull-left
-									span.pull-left #{operationHistory.REGDATE}
-									span.pull-right #{operationHistory.PRETTY_REGDATE}
-									div.clearfix
-							else
-								li.list-group-item.shutdown-history
-									span.glyphicon.glyphicon-download.pull-left
-									span.pull-left #{operationHistory.REGDATE}
-									span.pull-right #{operationHistory.PRETTY_REGDATE}
-									div.clearfix
+						if(operationHistories.size() == 0)
+							span.center-xy no data
+						else
+							each operationHistory in operationHistories
+								if operationHistory.IS_STARTUP == true
+									li.list-group-item.startup-history
+										span.glyphicon.glyphicon-upload.pull-left
+										span.pull-left #{operationHistory.REGDATE}
+										span.pull-right #{operationHistory.PRETTY_REGDATE}
+										div.clearfix
+								else
+									li.list-group-item.shutdown-history
+										span.glyphicon.glyphicon-download.pull-left
+										span.pull-left #{operationHistory.REGDATE}
+										span.pull-right #{operationHistory.PRETTY_REGDATE}
+										div.clearfix
 		div.col-lg-2.col-md-2.col-sm-12
 			div.panel.panel-default.command-panel
 				div.panel-heading

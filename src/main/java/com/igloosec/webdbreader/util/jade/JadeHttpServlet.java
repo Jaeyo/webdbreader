@@ -37,7 +37,6 @@ public class JadeHttpServlet extends HttpServlet{
 	
 	protected String jade(String view, Map<String, Object> model) throws JadeCompilerException, IOException{
 		if(model == null) model = new HashMap<String, Object>();
-//		String html = Jade4J.render(JadeHttpServlet.class.getClassLoader().getResource("view/" + view), model);
 		JadeTemplate tmpl = jadeConfig.getTemplate(view);
 		return jadeConfig.renderTemplate(tmpl, model);
 	} //jade

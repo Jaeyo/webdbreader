@@ -86,7 +86,6 @@ public class FileWriterFactory {
 		public FileWriter print(String msg){
 			lock.lock();
 			try{
-				System.out.println("###DEBUG, print: " + msg); //DEBUG
 				output.append(msg);
 				output.flush();
 				

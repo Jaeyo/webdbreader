@@ -8,6 +8,7 @@ public class Conf{
 	public static final String PORT = "port";
 	public static final String DERBY_PATH= "derby.path";
 	public static final String JETTY_THREAD_POOL_SIZE = "jetty.thread.pool.size";
+	public static final String SCRIPT_LOGGER_WEBSOCKET_QUEUE_SIZE = "script.logger.websocket.queue.size";
 	
 	private static Map<String, Object> props = Maps.newHashMap();
 

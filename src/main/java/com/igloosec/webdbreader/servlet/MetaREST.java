@@ -44,6 +44,9 @@ public class MetaREST extends JadeHttpServlet {
 			} else if(new UriTemplate("/Encrypt/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getEncrypt(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/Decrypt/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getDecrypt(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
@@ -69,4 +72,13 @@ public class MetaREST extends JadeHttpServlet {
 		
 		return new JSONObject().put("success", 1).put("value", SimpleCrypto.encrypt(value)).toString();
 	} //getEncrypt
+	
+	private String getDecrypt(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, CryptoException {
+		String value = req.getParameter("value");
+		
+		Preconditions.checkArgument(value != null, "value shouldn't be null");
+		Preconditions.checkArgument(value.trim().length() != 0, "value shouldn't be zero length");
+		
+		return new JSONObject().put("success", 1).put("value", SimpleCrypto.decrypt(value)).toString();
+	} //getDecrypt
 } //class

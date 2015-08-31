@@ -75,7 +75,7 @@ public class ScriptREST extends JadeHttpServlet{
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/New/{title}").match(pathInfo, pathParams)){
+			if(new UriTemplate("/New/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Edit/{title}/").match(pathInfo, pathParams)){

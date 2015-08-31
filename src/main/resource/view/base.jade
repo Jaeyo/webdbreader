@@ -27,7 +27,9 @@ html
 								div.clearfix
 							li: hr
 							li: h5 Scripts
-							if scriptInfos.size() == 0
+							if scriptInfos == null
+								li: div.well unable to read script info
+							else if scriptInfos.size() == 0
 								li: div.well no script
 							else
 								each scriptInfo in scriptInfos
@@ -41,6 +43,10 @@ html
 								span.pull-right configuration
 								div.clearfix
 							li: hr
+							li: a(href="/Test/") 
+								span.glyphicon.glyphicon-cog.pull-left
+								span.pull-right test
+								div.clearfix
 				div.contents-area
 					block contents-area
 					

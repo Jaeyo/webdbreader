@@ -36,6 +36,8 @@ Controller.prototype = {
 		var script = view.scriptEditor.getValue();
 		if($('input#is-new-script[type="hidden"]').val() === 'true'){
 			bootbox.prompt('title', function(title){
+				if(title === null) return;
+				
 				$.post('/REST/Script/New/{}/'.format(title), {script: script}, function(resp){
 					if(resp.success !== 1){
 						bootbox.alert(JSON.stringify(resp));
