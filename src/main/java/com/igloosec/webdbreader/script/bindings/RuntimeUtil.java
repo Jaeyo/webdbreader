@@ -1,13 +1,14 @@
 package com.igloosec.webdbreader.script.bindings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.igloosec.webdbreader.Version;
 
 public class RuntimeUtil {
-	private static final Logger logger = LoggerFactory.getLogger(RuntimeUtil.class);
+	private ScriptLogger logger;
 
+	public RuntimeUtil(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
+	
 	public void sleep(long timeMillis){
 		try {
 			Thread.sleep(timeMillis);

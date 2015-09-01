@@ -20,7 +20,11 @@ import sun.org.mozilla.javascript.internal.ScriptableObject;
 import com.igloosec.webdbreader.script.ScriptThread;
 
 public class Scheduler {
-	private static final Logger logger = LoggerFactory.getLogger(Scheduler.class);
+	private ScriptLogger logger;
+	
+	public Scheduler(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
 	
 	/**
 	 * @param args: {
@@ -79,6 +83,7 @@ public class Scheduler {
 				schedule(scheduleArgs, task);
 			} catch (ParseException e) {
 				logger.error(String.format("%s, errmsg : %s, hhMMs : %s", e.getClass().getSimpleName(), e.getMessage(), hhMMs), e);
+				e.printStackTrace();
 			} //catch
 		} //for hhMM
 	} //scheduleAtFixedTime

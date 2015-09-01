@@ -12,16 +12,18 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class FileWriterFactory {
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
-	private static final Logger logger = LoggerFactory.getLogger(FileWriterFactory.class);
+	private ScriptLogger logger;
+	
+	public FileWriterFactory(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
+	
 	/*
 	 * @param args: {
 	 * 		filename: (string)(required)
@@ -36,6 +38,9 @@ public class FileWriterFactory {
 		String charset = (String) args.get("charset");
 		FileWriter writer = new FileWriter(filename, charset);
 		ScriptThread.currentThread().addFileWriter(writer);
+		
+		logger.info(String.format("fileWriter created: %s, %s", filename, charset));
+		
 		return writer;
 	} //getWriter
 	
@@ -49,7 +54,7 @@ public class FileWriterFactory {
 		public FileWriter(String filename, String charsetName) throws ParseException, IOException {
 			this.originalFilename = filename;
 			this.charset = charsetName;
-			this.file = new File(new DateUtil().formatReplace(filename));
+			this.file = new File(new DateUtil(logger).formatReplace(filename));
 			if(file.exists() == false)
 				file.createNewFile();
 			this.output = new PrintWriter(this.file, charsetName);
@@ -60,7 +65,7 @@ public class FileWriterFactory {
 			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					String newFilename = new DateUtil().formatReplace(originalFilename);
+					String newFilename = new DateUtil(logger).formatReplace(originalFilename);
 					if(newFilename.equals(file.getName()) == false){
 						lock.lock();
 						try{
@@ -68,6 +73,7 @@ public class FileWriterFactory {
 							output.close();
 							output = new PrintWriter(file, charset);
 						} catch (Exception e) {
+							e.printStackTrace();
 							logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 						} finally{
 							lock.unlock();

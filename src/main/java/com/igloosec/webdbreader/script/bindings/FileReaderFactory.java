@@ -3,9 +3,6 @@ package com.igloosec.webdbreader.script.bindings;
 import java.io.IOException;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import sun.org.mozilla.javascript.internal.Context;
 import sun.org.mozilla.javascript.internal.Function;
 import sun.org.mozilla.javascript.internal.Scriptable;
@@ -16,6 +13,12 @@ import com.igloosec.webdbreader.util.ContinuousFile;
 import com.igloosec.webdbreader.util.Util;
 
 public class FileReaderFactory {
+	private ScriptLogger logger;
+	
+	public FileReaderFactory(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
+	
 	/**
 	 * @param args: {
 	 * 		filename: (string)(required)
@@ -36,11 +39,12 @@ public class FileReaderFactory {
 		if(charset == null) charset = "utf8";
 		if(timeAdjustSec == null) timeAdjustSec = 0;
 	
+		logger.info(String.format("fileReader created, filename: %s, deleteExpiredFile: %s, charset: %s, timeAdjustSec: %s",
+				filename, deleteExpiredFile, charset, timeAdjustSec));
 		return new FileReader(filename, deleteExpiredFile, charset, timeAdjustSec);
 	} //getReader
 	
-	public static class FileReader {
-		private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
+	public class FileReader {
 		private ContinuousFile file;
 		
 		public FileReader(String originalFilename, boolean deleteExpiredFile, String charset, int timeAdjustSec) throws IOException {
@@ -77,6 +81,7 @@ public class FileReaderFactory {
 							callback.call(context, that, scope, new Object[]{ line });
 						} //for ;;
 					} catch(Exception e){
+						e.printStackTrace();
 						logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 					} //catch
 				} //run

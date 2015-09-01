@@ -1,5 +1,5 @@
-@startup-color: rgb(220, 246, 245);
-@shutdown-color: rgb(250, 222, 222);
+@startup-color: #EFF5FF;
+@shutdown-color: #FFEBEB;
 
 div.contents-area {
 	div.panel-heading {
@@ -33,4 +33,27 @@ div.contents-area {
 			} //list-group
 		} //panel-body
 	} //operation-history-panel
+
+	div.log-monitoring-panel {
+		div.panel-body {
+			ul li {
+				border-bottom: 1px dotted #b9b9b9;
+				list-style: none;
+				padding: 3px;
+				span.timestamp {
+					font-size: 80%;
+					color: #5d5d5d;
+					margin-right: 8px;
+					span.glyphicon {
+						margin-right: 3px;
+					} //span.glyphicon
+				} //div.timestamp
+				span.level {
+					margin-right: 5px;
+					color: #5d5d5d;
+					font-size: 90%;
+				}
+			} //ul li
+		} //div.panel-body
+	} //div.log-monitoring-panel
 } //div.contents-area

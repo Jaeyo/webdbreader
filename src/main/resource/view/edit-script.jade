@@ -20,8 +20,6 @@ block contents-area
 			button(type="button", class="btn btn-primary", onclick="controller.export();") export
 		button(type="button", class="btn btn-info", onclick="controller.save();") save
 
-
-
 block footer
 	if script != null
 		input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")

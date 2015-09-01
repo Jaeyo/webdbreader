@@ -30,8 +30,6 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
 		
-//		TODO monitoring script log
-		
 		new DerbySchemaCreator().check();
 		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));

@@ -7,18 +7,17 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.igloosec.webdbreader.common.Path;
 
 public class SimpleRepo {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleRepo.class);
+	private ScriptLogger logger;
 
 	private Properties props = new Properties();
 	private File repoFile = null;
 
-	public SimpleRepo() {
+	public SimpleRepo(ScriptLogger logger) {
+		this.logger = logger;
+		
 		File confPath=new File(Path.getPackagePath(), "conf");
 		if(!confPath.exists())
 			confPath.mkdirs();
@@ -28,6 +27,7 @@ public class SimpleRepo {
 				repoFile.createNewFile();
 			} catch (IOException e) {
 				logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
+				e.printStackTrace();
 			} // catch
 		} // if
 
@@ -35,6 +35,7 @@ public class SimpleRepo {
 			props.load(new FileInputStream(repoFile));
 		} catch (IOException e) {
 			logger.error(String.format("failed to load simple_repo, %s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			e.printStackTrace();
 		} // catch
 	} // INIT
 
@@ -61,6 +62,7 @@ public class SimpleRepo {
 			props.store(new FileOutputStream(repoFile), null);
 		} catch (IOException e) {
 			logger.error(String.format("failed to store simple_repo, %s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			e.printStackTrace();
 		} // catch
 	} // storeProps2File
 
@@ -71,6 +73,7 @@ public class SimpleRepo {
 			props.store(output, null);
 		} catch (IOException e) {
 			logger.error(String.format("failed to convert simple_repo to string, %s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			e.printStackTrace();
 		} // catch
 		return output.toString();
 	} // toString

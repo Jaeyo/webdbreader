@@ -9,9 +9,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import sun.org.mozilla.javascript.internal.Context;
 import sun.org.mozilla.javascript.internal.Scriptable;
 import sun.org.mozilla.javascript.internal.ScriptableObject;
@@ -25,10 +22,14 @@ import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 import com.igloosec.webdbreader.util.SimpleCrypto;
 
 public class DbHandler {
-	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
+	private ScriptLogger logger;
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 
+	public DbHandler(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
+	
 	/**
 	 * @param args: {
 	 * 		database: {
@@ -47,7 +48,7 @@ public class DbHandler {
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		
-		logger.info("query: {}", query);
+		logger.info(String.format("query: %s", query));
 		
 		Connection conn = null;
 		Statement stmt = null;
@@ -82,7 +83,7 @@ public class DbHandler {
 		List<String> queries = (List<String>) args.get("queries");
 		
 		if(queries.size() != 0)
-			logger.info("queries count: {}", queries.size());
+			logger.info(String.format("queries count: {}", queries.size()));
 		
 		Connection conn = null;
 		Statement stmt = null;
@@ -159,6 +160,7 @@ public class DbHandler {
 				} catch(SQLException e){
 					String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 					logger.error(errmsg, e);
+					e.printStackTrace();
 				} //catch
 				return null;
 			} //apply

@@ -1,19 +1,46 @@
 extends base
 
 block header
+	style.
+		.log_monitoring .timestamp {
+			border-right: 1px dashed #b9b9b9;
+			border-bottom: 1px dashed #b9b9b9;
+		}
+		.log_monitoring .log {
+			border-bottom: 1px dashed #b9b9b9;
+		}
 
 block title-area
 	h3 test
 
 block contents-area
-	div.row
-		div.col-sm-6
-			div#result
-		div.col-sm-6
-			div input: 
-			div: input.form-control#text(type="text")
-			button.btn.btn-primary.pull-right(type="button", onclick="connect()") connect
-			button.btn.btn-primary.pull-right(type="button", onclick="disconnect()") disconnect
+	hr
+	div.log_monitoring
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 POST /1weww/wwwwwwwwwwwww
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/w8wwwww
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/awowowwiwi/woijef
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/w8wwwww
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 POST /1weww/wwwwwwwwwwwww
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/w8wwwww
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/awowowwiwi/woijef
+		div.row
+			div.col-sm-3.timestamp 05/29/15 04:26:46
+			div.col-sm-9.log api:logs 200 GET /1/users/w8wwwww
+	hr
 
 block footer
 	script.
@@ -24,10 +51,7 @@ block footer
 			ws = new WebSocket('ws://{}/WebSocket/Logger/'.format(window.location.host));
 			ws.onopen = function() {
 				console.log('web socket opened');
-				ws.send(JSON.stringify({
-					type: 'listen',
-					scriptName: scriptName
-				}));
+				ws.send(JSON.stringify({ scriptName: scriptName }));
 			}; //onOpen
 			ws.onmessage = function(evt) {
 				console.log(evt);

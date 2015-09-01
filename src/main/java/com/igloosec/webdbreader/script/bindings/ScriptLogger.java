@@ -1,5 +1,9 @@
 package com.igloosec.webdbreader.script.bindings;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,21 +21,51 @@ public class ScriptLogger {
 	
 	public void info(String msg) {
 		logger.info(msg);
-		mq.pushMsg(scriptName, msg);
+		mq.pushLogMsg(scriptName, 
+			new JSONObject()
+			.put("timestamp", new Date())
+			.put("level", "info")
+			.put("msg", msg));
 	} //info
 	
 	public void debug(String msg) {
 		logger.debug(msg);
-		mq.pushMsg(scriptName, msg);
+		mq.pushLogMsg(scriptName, 
+			new JSONObject()
+			.put("timestamp", new Date())
+			.put("level", "info")
+			.put("msg", msg));
 	} //debug
 	
 	public void warn(String msg) {
 		logger.warn(msg);
-		mq.pushMsg(scriptName, msg);
+		mq.pushLogMsg(scriptName, 
+				new JSONObject()
+				.put("timestamp", new Date())
+				.put("level", "info")
+				.put("msg", msg));
 	} //warn
 	
 	public void error(String msg) {
 		logger.error(msg);
-		mq.pushMsg(scriptName, msg);
+		mq.pushLogMsg(scriptName, 
+				new JSONObject()
+				.put("timestamp", new Date())
+				.put("level", "info")
+				.put("msg", msg));
+	} //error
+	
+	public void error(String msg, Throwable e) {
+		logger.error(msg, e);
+		mq.pushLogMsg(scriptName, 
+				new JSONObject()
+				.put("timestamp", new Date())
+				.put("level", "info")
+				.put("msg", msg));
+		mq.pushLogMsg(scriptName, 
+				new JSONObject()
+				.put("timestamp", new Date())
+				.put("level", "info")
+				.put("msg", ExceptionUtils.getStackTrace(e)));
 	} //error
 } //class

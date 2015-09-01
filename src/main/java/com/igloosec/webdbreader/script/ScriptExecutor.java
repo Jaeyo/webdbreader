@@ -47,26 +47,27 @@ public class ScriptExecutor {
 		ScriptThread thread = new ScriptThread(scriptName){
 			@Override
 			public void run() {
+				ScriptLogger scriptLogger = new ScriptLogger(scriptName);
 				try{
 					operationHistoryService.saveStartupHistory(getScriptName());
 					
 					Bindings bindings = new SimpleBindings();
-					bindings.put("dateUtil", new DateUtil());
-					bindings.put("dbHandler", new DbHandler());
-					bindings.put("fileReaderFactory", new FileReaderFactory());
-					bindings.put("fileWriterFactory", new FileWriterFactory());
-					bindings.put("runtimeUtil", new RuntimeUtil());
-					bindings.put("scheduler", new Scheduler());
-					bindings.put("simpleRepo", new SimpleRepo());
+					bindings.put("dateUtil", new DateUtil(scriptLogger));
+					bindings.put("dbHandler", new DbHandler(scriptLogger));
+					bindings.put("fileReaderFactory", new FileReaderFactory(scriptLogger));
+					bindings.put("fileWriterFactory", new FileWriterFactory(scriptLogger));
+					bindings.put("runtimeUtil", new RuntimeUtil(scriptLogger));
+					bindings.put("scheduler", new Scheduler(scriptLogger));
+					bindings.put("simpleRepo", new SimpleRepo(scriptLogger));
 					bindings.put("stringUtil", new StringUtil());
-					bindings.put("logger", new ScriptLogger(scriptName));
+					bindings.put("logger", scriptLogger);
 					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 					scriptEngine.eval(script, bindings);
 				} catch(Exception e){
 					if(e.getClass().equals(InterruptedException.class) == true)
 						return;
-					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+					scriptLogger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				} finally{
 					if(isScheduled() == false && isFileReaderMonitoring() == false){
 						operationHistoryService.saveShutdownHistory(getScriptName());

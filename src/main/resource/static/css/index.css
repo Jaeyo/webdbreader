@@ -18,10 +18,10 @@ div.contents-area div.operation-history-panel div.panel-body a.list-group-item s
   margin-right: 6px;
 }
 div.contents-area div.operation-history-panel div.panel-body a.startup-history {
-  background-color: #dcf6f5;
+  background-color: #eff5ff;
 }
 div.contents-area div.operation-history-panel div.panel-body a.shutdown-history {
-  background-color: #fadede;
+  background-color: #ffebeb;
 }
 .panel-red {
   border-color: #ff6c60;

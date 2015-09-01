@@ -10,8 +10,26 @@ div.contents-area div.command-panel div.panel-body button {
   margin-top: 3px;
 }
 div.contents-area div.operation-history-panel div.panel-body ul.list-group li.list-group-item.startup-history {
-  background-color: #dcf6f5;
+  background-color: #eff5ff;
 }
 div.contents-area div.operation-history-panel div.panel-body ul.list-group li.list-group-item.shutdown-history {
-  background-color: #fadede;
+  background-color: #ffebeb;
+}
+div.contents-area div.log-monitoring-panel div.panel-body ul li {
+  border-bottom: 1px dotted #b9b9b9;
+  list-style: none;
+  padding: 3px;
+}
+div.contents-area div.log-monitoring-panel div.panel-body ul li span.timestamp {
+  font-size: 80%;
+  color: #5d5d5d;
+  margin-right: 8px;
+}
+div.contents-area div.log-monitoring-panel div.panel-body ul li span.timestamp span.glyphicon {
+  margin-right: 3px;
+}
+div.contents-area div.log-monitoring-panel div.panel-body ul li span.level {
+  margin-right: 5px;
+  color: #5d5d5d;
+  font-size: 90%;
 }

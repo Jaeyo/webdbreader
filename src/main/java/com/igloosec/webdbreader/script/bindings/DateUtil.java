@@ -8,7 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DateUtil{
-	private static final Logger logger=LoggerFactory.getLogger(DateUtil.class);
+	private ScriptLogger logger;
+	
+	public DateUtil(ScriptLogger logger) {
+		this.logger = logger;
+	} //INIT
 	
 	public String format(long date, String format){
 		return new SimpleDateFormat(format).format(new Date(date));
@@ -28,7 +32,7 @@ public class DateUtil{
 		try {
 			return new SimpleDateFormat(format).parse(dateStr).getTime();
 		} catch (ParseException e) {
-			logger.warn("failed to parse {}, format:{}", dateStr, format);
+			logger.warn(String.format("failed to parse %s, format:%s", dateStr, format));
 			return -1;
 		} //catch
 	} //parse

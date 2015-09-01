@@ -26,6 +26,7 @@ block contents-area
 							span.pull-left regdate
 							span.pull-right #{script.PRETTY_REGDATE}
 							div.clearfix
+
 		div.col-lg-7.col-md-7.col-sm-12
 			div.panel.panel-default.operation-history-panel
 				div.panel-heading
@@ -49,6 +50,7 @@ block contents-area
 										span.pull-left #{operationHistory.REGDATE}
 										span.pull-right #{operationHistory.PRETTY_REGDATE}
 										div.clearfix
+
 		div.col-lg-2.col-md-2.col-sm-12
 			div.panel.panel-default.command-panel
 				div.panel-heading
@@ -65,8 +67,7 @@ block contents-area
 					div: button.btn.btn-info.btn-sm(type="button", onclick="editScript();") edit script
 					div: button.btn.btn-info.btn-sm(type="button", onclick="controller.rename();") rename
 					div: button.btn.btn-danger.btn-sm(type="button", onclick="controller.remove();") remove
-					hr
-					div: button.btn.btn-success.btn-sm(type="button", onclick="controller.viewLog();") view log
+
 	div.row
 		div.col-lg-12
 			div.panel.panel-default.log-monitoring-panel
@@ -74,8 +75,7 @@ block contents-area
 					span.glyphicon.glyphicon-time
 					span operation log monitoring ...
 				div.panel-body
-					ul.list-group
-						//TODO IMME
+					ul
 
 block footer
 	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
@@ -84,4 +84,13 @@ block footer
 			var scriptName = $('input#script-name[type="hidden"]').val();
 			window.location.href = '/Script/Edit/' + scriptName + '/';
 		} //editScript
+	script#log-monitoring-item(type="x-jade")
+		:plain
+			li
+				span.timestamp
+					span.glyphicon.glyphicon-time
+					span \#{timestamp}
+				span.level \#{level} :
+				span.msg \#{msg}
+
 	script(src="/js/view-script.js")

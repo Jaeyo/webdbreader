@@ -1,6 +1,9 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -22,10 +25,9 @@ import com.igloosec.webdbreader.script.ScriptLoggerMessageQueueRepo;
 @WebSocket
 public class LoggerWebSocket {
 	private static final Logger logger = LoggerFactory.getLogger(LoggerWebSocket.class);
-	private ScriptLoggerMessageQueueRepo mq = SingletonInstanceRepo.getInstance(ScriptLoggerMessageQueueRepo.class);
+	private ScriptLoggerMessageQueueRepo logQueues = SingletonInstanceRepo.getInstance(ScriptLoggerMessageQueueRepo.class);
 	private Session session;
-	private UUID uuid;
-	private String scriptName;
+	private Timer pollingTimer = new Timer();
 	
 	@OnWebSocketConnect
 	public void handleConnect(Session session) {
@@ -35,38 +37,39 @@ public class LoggerWebSocket {
 	@OnWebSocketClose
 	public void handleClose(int statusCode, String reason) {
 		logger.info("statusCode: {}, reason: {}", statusCode, reason);
-		if(this.scriptName != null && this.uuid != null) {
-			try {
-				mq.unlisten(this.scriptName, this.uuid);
-			} catch (NotExistsException e) {
-				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			} //catch
-		} //if
+		pollingTimer.cancel();
 	} //handleClose
 	
 	@OnWebSocketMessage
 	public void handleMessage(String msg) {
 		JSONObject msgObj = new JSONObject(msg);
 		
-		String type = msgObj.getString("type");
-		logger.info("type: {}", type);
-		if("listen".equals(type)) {
-			this.scriptName = msgObj.getString("scriptName");
-			this.uuid = mq.listen(scriptName, new SendFunction());
-		} else {
-			logger.error("unknown type: {}", type);
-		} //if
+		final String scriptName = msgObj.getString("scriptName");
+	
+		pollingTimer.schedule(new TimerTask() {
+			private Iterator<JSONObject> iter;
+			
+			@Override
+			public void run() {
+				if(iter == null)
+					iter = logQueues.getLogQueueIterator(scriptName);
+				if(iter == null)
+					return;
+				
+				while(iter.hasNext()) {
+					JSONObject logMsg = iter.next();
+					sendMsg(logMsg.toString());
+				} //while
+			} //run
+		}, 1000, 1000);
 	} //handleMessage
 	
 	@OnWebSocketError
 	public void handleError(Throwable e) {
 		logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-		
-		try {
-			mq.unlisten(this.scriptName, this.uuid);
-		} catch (NotExistsException e1) {
-			logger.error(String.format("%s, errmsg: %s",  e.getClass().getSimpleName(), e.getMessage()), e);
-		} //catch
+		pollingTimer.cancel();
+		if(session.isOpen())
+			session.close();
 	} //handleError
 	
 	private void sendMsg(String msg) {
@@ -83,11 +86,5 @@ public class LoggerWebSocket {
 		public void configure(WebSocketServletFactory factory) {
 			factory.register(LoggerWebSocket.class);
 		} //configure
-	} //class
-	
-	public class SendFunction {
-		public void send(String msg) {
-			sendMsg(msg);
-		} //send
 	} //class
 } //class
