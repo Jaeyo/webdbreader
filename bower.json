@@ -1,0 +1,32 @@
+{
+  "name": "webdbreader",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Jaeyo/webdbreader",
+  "authors": [
+    "leejy <lastiverse@gmail.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/main/resource/static/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootbox": "~4.4.0",
+    "bootstrap": "~3.3.5",
+    "codemirror": "~5.6.0",
+    "jade": "~1.11.0",
+    "jade-query": "~0.3.3",
+    "jquery": "~2.1.4",
+    "js_cols": "~1.0.1",
+    "less": "~2.5.1",
+    "morris.js": "https://github.com/morrisjs/morris.js.git#~0.5.1",
+    "Waves": "waves#~0.7.2"
+  }
+}

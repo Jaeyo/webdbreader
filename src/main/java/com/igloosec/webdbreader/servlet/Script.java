@@ -52,6 +52,9 @@ public class Script extends JadeHttpServlet{
 			} else if(new UriTemplate("/Edit/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getEditScript(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/EditNew/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getNewScript(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else if(new UriTemplate("/Edit/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getEditNewScript(req, resp, pathParams));
 				resp.getWriter().flush();
@@ -107,6 +110,13 @@ public class Script extends JadeHttpServlet{
 		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
 		return jade("edit-script.jade", model);
 	} //getEditScript
+	
+	private String getNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
+		Map<String, Object> model = Maps.newHashMap();
+		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
+		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
+		return jade("new-script.jade", model);
+	} //getNewScript
 	
 	private String getEditNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
 		Map<String, Object> model = Maps.newHashMap();

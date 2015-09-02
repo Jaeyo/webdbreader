@@ -1,0 +1,9 @@
+div.contents-area textarea#textarea-script {
+  width: 100%;
+}
+div.contents-area div.oper-btns {
+  text-align: right;
+}
+div.contents-area div.oper-btns button {
+  margin-left: 3px;
+}

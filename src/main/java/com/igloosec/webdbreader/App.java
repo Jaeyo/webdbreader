@@ -53,7 +53,7 @@ public class App {
 	private static WebAppContext getWebAppContext() throws IOException{
 		WebAppContext context = new WebAppContext();
 		context.setClassLoader(Thread.currentThread().getContextClassLoader());
-		context.setResourceBase(App.class.getClassLoader().getResource("./static").toExternalForm());
+		context.setResourceBase(App.class.getClassLoader().getResource("resource/static").toExternalForm());
 		context.addServlet(EmbedDbREST.class, "/REST/EmbedDb/*");
 		context.addServlet(Script.class, "/Script/*");
 		context.addServlet(ScriptREST.class, "/REST/Script/*");

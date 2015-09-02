@@ -1,0 +1,39 @@
+div.contents-area div.script-panel div.panel-heading {
+  font-size: 170%;
+  font-weight: 140%;
+}
+div.contents-area div.total-chart-panel div.panel-heading span.glyphicon {
+  margin-right: 10px;
+}
+div.contents-area div.total-chart-panel div.panel-body div#totalStatisticsChart {
+  height: 250px;
+}
+div.contents-area div.operation-history-panel div.panel-heading span.glyphicon {
+  margin-right: 10px;
+}
+div.contents-area div.operation-history-panel div.panel-body a.list-group-item {
+  font-size: 83%;
+}
+div.contents-area div.operation-history-panel div.panel-body a.list-group-item span.glyphicon {
+  margin-right: 6px;
+}
+div.contents-area div.operation-history-panel div.panel-body a.startup-history {
+  background-color: #eff5ff;
+}
+div.contents-area div.operation-history-panel div.panel-body a.shutdown-history {
+  background-color: #ffebeb;
+}
+.panel-red {
+  border-color: #ff6c60;
+}
+.panel-red .panel-heading {
+  border-color: #ff6c60;
+  color: #fff;
+  background-color: #ff6c60;
+}
+.panel-red a {
+  color: #ff6c60;
+}
+.panel-red a:hover {
+  color: #c60f00;
+}
