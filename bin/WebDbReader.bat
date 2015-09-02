@@ -23,8 +23,8 @@ if "%1" == "start" (
 ) else if "%1" == "version" (
   "%JAVA_EXE%" -cp "%CLASSPATH%" -Dfile.encoding=UTF8 "%VERSION_MAIN_CLASS%"
 ) else (
-  echo "usage : "
-  echo "\tstart server    : WebDbReader.bat start"
-  echo "\tshutdown server : WebDbReader.bat shutdown"
-  echo "\tversion         : WebDbReader.bat version"
+  echo usage : 
+  echo \tstart server    : WebDbReader.bat start
+  echo \tshutdown server : WebDbReader.bat shutdown
+  echo \tversion         : WebDbReader.bat version
 )
