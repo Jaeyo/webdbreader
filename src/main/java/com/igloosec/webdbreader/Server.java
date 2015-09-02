@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -20,13 +19,13 @@ import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
 import com.igloosec.webdbreader.servlet.EmbedDbREST;
 import com.igloosec.webdbreader.servlet.Index;
+import com.igloosec.webdbreader.servlet.ShutdownREST;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
 import com.igloosec.webdbreader.servlet.Script;
 import com.igloosec.webdbreader.servlet.ScriptREST;
-import com.igloosec.webdbreader.servlet.Test;
 
-public class App {
+public class Server {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
 		
@@ -34,7 +33,7 @@ public class App {
 		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
 
-		Server server = new Server(threadPool);
+		org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(threadPool);
 		server.setStopAtShutdown(true);
 		server.setStopTimeout(5000);
 
@@ -53,7 +52,7 @@ public class App {
 	private static WebAppContext getWebAppContext() throws IOException{
 		WebAppContext context = new WebAppContext();
 		context.setClassLoader(Thread.currentThread().getContextClassLoader());
-		context.setResourceBase(App.class.getClassLoader().getResource("resource/static").toExternalForm());
+		context.setResourceBase(Server.class.getClassLoader().getResource("resource/static").toExternalForm());
 		context.addServlet(EmbedDbREST.class, "/REST/EmbedDb/*");
 		context.addServlet(Script.class, "/Script/*");
 		context.addServlet(ScriptREST.class, "/REST/Script/*");
@@ -63,7 +62,7 @@ public class App {
 		context.addServlet(ConfigREST.class, "/REST/Config/*");
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
-		context.addServlet(Test.class, "/Test/*");
+		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
 		context.addServlet(Index.class, "");
 		context.setContextPath("/");
 		

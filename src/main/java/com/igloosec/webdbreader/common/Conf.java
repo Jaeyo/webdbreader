@@ -45,4 +45,11 @@ public class Conf{
 	public static void set(String key, Object value){
 		props.put(key, value);
 	} //set
+	
+	public static boolean isOpenJdk(){
+		String vmName = System.getProperty("java.vm.name").toLowerCase();
+		if (vmName.startsWith("openjdk"))
+			return true;
+		return false;
+	} //isOpenJdk
 } // class

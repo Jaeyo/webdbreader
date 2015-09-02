@@ -7,6 +7,10 @@ public class Version {
 	private static String currentVersion;
 	private static List<History> histories=new ArrayList<History>();
 	
+	public static void main(String[] args) {
+		System.out.println(String.format("WebDbReader (%s)", currentVersion));
+	} //main
+	
 	static{
 		currentVersion="2.0.0";
 		
