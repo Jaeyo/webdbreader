@@ -59,6 +59,12 @@ public class DerbySchemaCreator {
 					+ "config_key VARCHAR(50) NOT NULL PRIMARY KEY, "
 					+ "config_value VARCHAR(50) NOT NULL )");
 		
+		if(existingTableNames.contains("SIMPLE_REPO") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE simple_repo ( "
+					+ "script_name VARCHAR(100) NOT NULL , "
+					+ "simple_repo_key VARCHAR(255) NOT NULL , "
+					+ "simple_repo_value VARCHAR(255) NOT NULL )");
+		
 		if(existingTableNames.contains("OPERATION_HISTORY") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE operation_history ( "
 					+ "regdate TIMESTAMP NOT NULL, "
