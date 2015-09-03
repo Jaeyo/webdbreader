@@ -3,7 +3,9 @@ package com.igloosec.webdbreader.script.bindings;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -14,6 +16,7 @@ import sun.org.mozilla.javascript.internal.Scriptable;
 import sun.org.mozilla.javascript.internal.ScriptableObject;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
@@ -47,6 +50,9 @@ public class DbHandler {
 	public void update(Map<String, Object> args) throws SQLException, ClassNotFoundException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
+	
+		Preconditions.checkArgument(database != null, "database is null");
+		Preconditions.checkArgument(query != null, "query is null");
 		
 		logger.info(String.format("query: %s", query));
 		
@@ -81,6 +87,9 @@ public class DbHandler {
 	public void batch(Map<String, Object> args) throws SQLException, ClassNotFoundException, CryptoException {
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		List<String> queries = (List<String>) args.get("queries");
+		
+		Preconditions.checkArgument(database != null, "database is null");
+		Preconditions.checkArgument(queries != null, "queries is null");
 		
 		if(queries.size() != 0)
 			logger.info(String.format("queries count: {}", queries.size()));
@@ -140,7 +149,13 @@ public class DbHandler {
 		String delimiter = (String) args.get("delimiter");
 		final FileWriter writer = (FileWriter) args.get("writer");
 		
+		Preconditions.checkArgument(database != null, "database is null");
+		Preconditions.checkArgument(query != null, "query is null");
+		Preconditions.checkArgument(writer != null, "writer is null");
+		
 		if(delimiter == null) delimiter = "|";
+		
+		logger.info(String.format("selectAndAppend, query: %s", query));
 		
 		final String finalDelimiter = delimiter;
 		query(getConnection(database), query, new Function<ResultSet, Void>() {
@@ -169,6 +184,65 @@ public class DbHandler {
 
 	/**
 	 * @param args: {
+	 * 		srcDatabase: {
+	 * 			driver: (string)(required)
+	 * 			connUrl : (string)(required)
+	 * 			username: (string)(required)(encrypted)
+	 * 			password: (string)(required)(encrypted)
+	 * 		},
+	 * 		selectQuery: (string)(required),
+	 * 		destDatabase: {
+	 * 			driver: (string)(required)
+	 * 			connUrl : (string)(required)
+	 * 			username: (string)(required)(encrypted)
+	 * 			password: (string)(required)(encrypted)
+	 * 		},
+	 * 		insertQuery: (string)(required)
+	 * }
+	 * @throws CryptoException 
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
+	 */
+	public void selectAndInsert(Map<String, Object> args) throws ClassNotFoundException, SQLException, CryptoException {
+		Map<String, Object> srcDatabase = (Map<String, Object>) args.get("srcDatabase");
+		final Map<String, Object> destDatabase = (Map<String, Object>) args.get("destDatabase");
+		String selectQuery = (String) args.get("selectQuery");
+		final String insertQuery = (String) args.get("insertQuery");
+		
+		Preconditions.checkArgument(srcDatabase != null, "srcDatabase is null");
+		Preconditions.checkArgument(destDatabase != null, "destDatabase is null");
+		Preconditions.checkArgument(selectQuery != null, "selectQuery is null");
+		Preconditions.checkArgument(insertQuery != null, "insertQuery is null");
+		
+		logger.info(String.format("selectAndInsert, selectQuery: %s, insertQuery: %s", selectQuery, insertQuery));
+		
+		query(getConnection(srcDatabase), selectQuery, new Function<ResultSet, Void>() {
+			@Override
+			public Void apply(ResultSet rs) {
+				Connection conn = null;
+				PreparedStatement pstmt = null;
+				try{
+					ResultSetMetaData meta = rs.getMetaData();
+					int colCount = meta.getColumnCount();
+					
+					conn = getConnection(destDatabase);
+					pstmt = conn.prepareStatement(insertQuery);
+					
+					for (int i = 1; i <= colCount; i++) 
+						pstmt.setObject(i, rs.getObject(i));
+					pstmt.execute();
+				} catch(SQLException | CryptoException | ClassNotFoundException e) {
+					String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+					logger.error(errmsg, e);
+					e.printStackTrace();
+				} //catch
+				return null;
+			} //apply
+		});
+	} //selectAndInsert
+
+	/**
+	 * @param args: {
 	 * 		database: {
 	 * 			driver: (string)(required)
 	 * 			connUrl: (string)(required)
@@ -189,8 +263,13 @@ public class DbHandler {
 		String delimiter = (String) args.get("delimiter");
 		String lineDelimiter = (String) args.get("lineDelimiter");
 		
+		Preconditions.checkArgument(database != null, "database is null");
+		Preconditions.checkArgument(query != null, "query is null");
+		
 		if(delimiter == null) delimiter = "|";
 		if(lineDelimiter == null) lineDelimiter = "\n";
+		
+		logger.info(String.format("query: %s", query));
 		
 		final String finalDelimiter = delimiter;
 		final String finalLineDelimiter = lineDelimiter;
@@ -240,6 +319,11 @@ public class DbHandler {
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
 		
+		Preconditions.checkArgument(database != null, "database is null");
+		Preconditions.checkArgument(query != null, "query is null");
+		
+		logger.info(String.format("query: %s", query));
+		
 		final Context context = Context.enter();
 		final ScriptableObject scope = context.initStandardObjects();
 		final Scriptable that = context.newObject(scope);
@@ -253,10 +337,17 @@ public class DbHandler {
 	} //query
 	
 	private Connection getConnection(Map<String, Object> database) throws SQLException, ClassNotFoundException, CryptoException{
-		Class.forName((String) database.get("driver"));
+		String driver = (String) database.get("driver");
 		String connUrl = (String) database.get("connUrl");
 		String encryptedUsername = (String) database.get("encryptedUsername");
 		String encryptedPassword = (String) database.get("encryptedPassword");
+		
+		Preconditions.checkArgument(driver != null, "driver is null");
+		Preconditions.checkArgument(connUrl != null, "connUrl is null");
+		Preconditions.checkArgument(encryptedUsername != null, "encryptedUsername is null");
+		Preconditions.checkArgument(encryptedPassword!= null, "encryptedPassword is null");
+		
+		Class.forName(driver);
 		
 		String username = SimpleCrypto.decrypt(encryptedUsername);
 		String password = SimpleCrypto.decrypt(encryptedPassword);

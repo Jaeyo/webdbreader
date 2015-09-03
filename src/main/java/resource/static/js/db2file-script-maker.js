@@ -45,22 +45,18 @@ Db2FileScriptMaker.prototype = {
 				var script = '';
 				if(model.condition.type === 'date-condition'){
 					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load("small-value"), ';
+					script += '\n 	smallValue: simpleRepo.load("small-value", dateUtil.format(0, "yyyy-MM-dd HH:mm:ss")), ';
 					script += '\n 	bigValue: dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") ';
 					script += '\n }; ';
 					script += '\n';
-					script += '\n if(condition.smallValue === null) ';
-					script += '\n 	condition.smallValue = dateUtil.format(0, "yyyy-MM-dd HH:mm:ss"); ';
 				} else if(model.condition.type === 'sequence-condition'){
 					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load("small-value"), ';
+					script += '\n 	smallValue: simpleRepo.load("small-value", 0), ';
 					script += '\n 	bigValue: dbHandler.query({ ';
 					script += '\n 		database: conf.database, '
 					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName) ';
 					script += '\n 	}) ';
 					script += '\n }; ';
-					script += '\n if(condition.smallValue === null) ';
-					script += '\n 	condition.smallValue = 0; ';
 				} //if
 				script += '\n ';
 				return script;

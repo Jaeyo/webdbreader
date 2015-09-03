@@ -168,14 +168,7 @@ View.prototype = {
 		};
 		
 		return editor;
-	}, //codeMirror
-	
-	showLoadingDialog: function(){
-		bootbox.dialog({
-			message: '<p style="text-align: center">loading...</p><div class="loading"></div>',
-			closeButton: false
-		});
-	} //showLoadingDialog
+	} //codeMirror
 }; //View
 
 Controller = function(){
@@ -292,13 +285,13 @@ Controller.prototype = {
 			case 'panel-etc-parameter':
 				break;
 			case 'panel-script':
-			view.showLoadingDialog();
+			showLoading();
 				$.getJSON('/REST/Meta/Version/', {})
 				.fail(function(e){
-					bootbox.hideAll();
+					closeLoading();
 					bootbox.alert(JSON.stringify(e));
 				}).done(function(resp){
-					bootbox.hideAll();
+					closeLoading();
 					model.db2FileModel.setVersion(resp.version);
 					var script = new Db2FileScriptMaker().setModel(model.db2FileModel).script();
 					view.scriptEditor.setValue(script);
@@ -343,7 +336,7 @@ Controller.prototype = {
 			return;
 		} //if
 
-		view.showLoadingDialog();
+		showLoading();
 		$.getJSON('/REST/Database/Tables/', {
 			driver: model.db2FileModel.database.driver,
 			connUrl: model.db2FileModel.database.connUrl,
@@ -351,10 +344,10 @@ Controller.prototype = {
 			password: model.db2FileModel.database.password
 		})
 		.fail(function(e){
-			bootbox.hideAll();
+			closeLoading();
 			bootbox.alert(JSON.stringify(e));
 		}).done(function(resp){
-			bootbox.hideAll();
+			closeLoading();
 			if(resp.success != 1){
 				bootbox.alert(resp.errmsg);
 				return;
@@ -370,7 +363,7 @@ Controller.prototype = {
 	}, //loadTables
 	
 	loadColumns: function(callback){
-		view.showLoadingDialog();
+		showLoading();
 		$.getJSON('/REST/Database/Columns/{}/'.format(model.db2FileModel.tableName), {
 			driver: model.db2FileModel.database.driver,
 			connUrl: model.db2FileModel.database.connUrl,
@@ -378,9 +371,10 @@ Controller.prototype = {
 			password: model.db2FileModel.database.password
 		})
 		.fail(function(e){
+			closeLoading();
 			bootbox.alert(JSON.stringify(e));
 		}).done(function(resp){
-			bootbox.hideAll();
+			closeLoading();
 			if(resp.success != 1){
 				bootbox.alert(resp.errmsg);
 				return;
