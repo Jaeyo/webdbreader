@@ -19,7 +19,6 @@ Db2FileScriptMaker.prototype = {
 
 			step2_initConf: function(id, model){
 				var script = '\n var conf = { ';
-				script += '\n 	id: "{}", '.format(id);
 				script += '\n 	period: {}, '.format(model.period);
 				script += '\n 	selectColumn: "{}", '.format(model.selectColumn.toString());
 				script += '\n 	tableName: "{}", '.format(model.tableName);
@@ -46,7 +45,7 @@ Db2FileScriptMaker.prototype = {
 				var script = '';
 				if(model.condition.type === 'date-condition'){
 					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load(conf.id), ';
+					script += '\n 	smallValue: simpleRepo.load("small-value"), ';
 					script += '\n 	bigValue: dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") ';
 					script += '\n }; ';
 					script += '\n';
@@ -54,7 +53,7 @@ Db2FileScriptMaker.prototype = {
 					script += '\n 	condition.smallValue = dateUtil.format(0, "yyyy-MM-dd HH:mm:ss"); ';
 				} else if(model.condition.type === 'sequence-condition'){
 					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load(conf.id), ';
+					script += '\n 	smallValue: simpleRepo.load("small-value"), ';
 					script += '\n 	bigValue: dbHandler.query({ ';
 					script += '\n 		database: conf.database, '
 					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName), ';
@@ -123,7 +122,7 @@ Db2FileScriptMaker.prototype = {
 
 				if(model.condition.type !== 'no-condition'){
 					script += '\n 	condition.smallValue = condition.bigValue; ';
-					script += '\n 	simpleRepo.store(conf.id, condition.bigValue); ';
+					script += '\n 	simpleRepo.store("small-value", condition.bigValue); ';
 				} //if
 
 				script += '\n } //main ';

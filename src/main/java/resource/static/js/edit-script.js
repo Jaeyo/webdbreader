@@ -10,8 +10,7 @@ View = function(){
 View.prototype = {
 	codeMirror: function(dom, theme){
 		var editor = CodeMirror.fromTextArea(dom, {
-			lineNumbers: true,
-			mode: {name: "javascript", globalVars: true}
+			mode: "javascript"
 		});
 		
 		editor.setSize(null, 500);
