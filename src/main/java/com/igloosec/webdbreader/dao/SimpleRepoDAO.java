@@ -38,4 +38,8 @@ public class SimpleRepoDAO {
 	public void delete(String scriptName) {
 		ds.getJdbcTmpl().update("DELETE FROM simple_repo WHERE script_name = ?", scriptName);
 	} //delete
+	
+	public void renameScript(String scriptName, String newScriptName) {
+		ds.getJdbcTmpl().update("UPDATE simple_repo SET script_name = ? WHERE script_name = ?", newScriptName, scriptName);
+	} //rename
 } //class

@@ -56,9 +56,7 @@ Db2FileScriptMaker.prototype = {
 					script += '\n 	smallValue: simpleRepo.load("small-value"), ';
 					script += '\n 	bigValue: dbHandler.query({ ';
 					script += '\n 		database: conf.database, '
-					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName), ';
-					script += '\n 		delimiter: "", '
-					script += '\n 		lineDelimiter: "" '
+					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName) ';
 					script += '\n 	}) ';
 					script += '\n }; ';
 					script += '\n if(condition.smallValue === null) ';

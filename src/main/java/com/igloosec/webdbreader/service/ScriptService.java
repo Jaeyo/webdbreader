@@ -16,6 +16,7 @@ import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.dao.OperationHistoryDAO;
 import com.igloosec.webdbreader.dao.ScriptDAO;
 import com.igloosec.webdbreader.dao.ScriptScoreStatisticsDAO;
+import com.igloosec.webdbreader.dao.SimpleRepoDAO;
 import com.igloosec.webdbreader.exception.AlreadyExistsException;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.NotFoundException;
@@ -28,6 +29,7 @@ public class ScriptService {
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
 	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
+	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
 	
 	public JSONArray getScriptInfo(){
@@ -97,6 +99,7 @@ public class ScriptService {
 		scriptDAO.rename(scriptName, newScriptName);
 		scriptScoreStatisticsDAO.renameScript(scriptName, newScriptName);
 		operationHistoryDAO.renameScript(scriptName, newScriptName);
+		simpleRepoDAO.renameScript(scriptName, newScriptName);
 	} //rename
 	
 	public void remove(String scriptName){
