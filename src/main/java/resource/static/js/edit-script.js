@@ -10,7 +10,8 @@ View = function(){
 View.prototype = {
 	codeMirror: function(dom, theme){
 		var editor = CodeMirror.fromTextArea(dom, {
-			mode: "javascript"
+			mode: "javascript",
+			indentWithTabs: true
 		});
 		
 		editor.setSize(null, 500);
