@@ -46,3 +46,21 @@ html, body{
 	left: 50%;
 	margin: -28px 0 0 -25px;
 } //.loading
+
+.sm-ball(@color) {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: @color;
+    border-radius: 100%;
+    opacity: 0.5;
+    margin: 0 2px 0 2px;
+} //circular
+
+.gray-sm-ball {
+	.sm-ball(gray);
+} //gray-sm-ball
+
+.black-sm-ball {
+	.sm-ball(black);
+}

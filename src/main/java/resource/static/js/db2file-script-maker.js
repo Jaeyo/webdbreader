@@ -44,18 +44,22 @@ Db2FileScriptMaker.prototype = {
 					return '';
 				var script = '';
 				if(model.condition.type === 'date-condition'){
-					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load("small-value", dateUtil.format(0, "yyyy-MM-dd HH:mm:ss")), ';
-					script += '\n 	bigValue: dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") ';
+					script += '\n function getCondition() { ';
+					script += '\n 	return {';
+					script += '\n 		smallValue: simpleRepo.load("small-value", dateUtil.format(0, "yyyy-MM-dd HH:mm:ss")), ';
+					script += '\n 		bigValue: dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") ';
+					script += '\n 	}; ';
 					script += '\n }; ';
 					script += '\n';
 				} else if(model.condition.type === 'sequence-condition'){
-					script += '\n var condition = { ';
-					script += '\n 	smallValue: simpleRepo.load("small-value", 0), ';
-					script += '\n 	bigValue: dbHandler.query({ ';
-					script += '\n 		database: conf.database, '
-					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName) ';
-					script += '\n 	}) ';
+					script += '\n function getCondition() {';
+					script += '\n 	return {';
+					script += '\n 		smallValue: simpleRepo.load("small-value", 0), ';
+					script += '\n 		bigValue: dbHandler.query({ ';
+					script += '\n 			database: conf.database, '
+					script += '\n 			query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName) ';
+					script += '\n 		}) ';
+					script += '\n 	}; ';
 					script += '\n }; ';
 				} //if
 				script += '\n ';
@@ -74,7 +78,7 @@ Db2FileScriptMaker.prototype = {
 			step5_mainFunction: function(model){
 				var script = '\n function main(){ ';
 				if(model.condition.type === 'date-condition'){
-					script += '\n 	condition.bigValue = dateUtil.format(dateUtil.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss"); ';
+					script += '\n 	var condition = getCondition();';
 					script += '\n';
 					script += '\n 	var query = " SELECT " + conf.selectColumn + ';
 					script += '\n 				" FROM " + dateUtil.formatReplace(conf.tableName) + ';
@@ -116,7 +120,7 @@ Db2FileScriptMaker.prototype = {
 
 				if(model.condition.type !== 'no-condition'){
 					script += '\n 	condition.smallValue = condition.bigValue; ';
-					script += '\n 	simpleRepo.store("small-value", condition.bigValue); ';
+					script += '\n 	simpleRepo.store("small-value", condition.smallValue); ';
 				} //if
 
 				script += '\n } //main ';

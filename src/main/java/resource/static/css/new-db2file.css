@@ -1,26 +1,8 @@
 .glyphicon {
   margin-right: 4px;
 }
-.gray-sm-ball {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background: gray;
-  border-radius: 100%;
-  opacity: 0.5;
-  margin: 0 2px 0 2px;
-}
-.black-sm-ball {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background: black;
-  border-radius: 100%;
-  opacity: 0.5;
-  margin: 0 2px 0 2px;
-}
 #panel-input-database {
-  width: 500px;
+  width: 700px;
 }
 #panel-input-database div.panel-body div {
   margin-bottom: 5px;

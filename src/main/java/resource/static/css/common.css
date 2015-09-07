@@ -42,3 +42,21 @@ body {
   left: 50%;
   margin: -28px 0 0 -25px;
 }
+.gray-sm-ball {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: gray;
+  border-radius: 100%;
+  opacity: 0.5;
+  margin: 0 2px 0 2px;
+}
+.black-sm-ball {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: black;
+  border-radius: 100%;
+  opacity: 0.5;
+  margin: 0 2px 0 2px;
+}

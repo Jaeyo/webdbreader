@@ -1,0 +1,14 @@
+extends base
+
+block header
+
+block title-area
+	h3 test
+
+block contents-area
+	- arr = [ 'asdf', 'wef' ];
+	each item in arr
+		div #{item}
+		div #{item == 'asdf'}
+
+block footer

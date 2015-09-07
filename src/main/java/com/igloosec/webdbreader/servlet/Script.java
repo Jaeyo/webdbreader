@@ -45,7 +45,8 @@ public class Script extends JadeHttpServlet{
 				resp.getWriter().print(getNewDb2File(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/NewDb2Db/").match(pathInfo, pathParams)){
-				//TODO
+				resp.getWriter().print(getNewDb2Db(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else if(new UriTemplate("/View/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getViewScript(req, resp, pathParams));
 				resp.getWriter().flush();
@@ -84,6 +85,13 @@ public class Script extends JadeHttpServlet{
 		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
 		return jade("new-db2file.jade", model);
+	} //getNewDb2File
+	
+	private String getNewDb2Db(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException {
+		Map<String, Object> model = Maps.newHashMap();
+		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
+		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
+		return jade("new-db2db.jade", model);
 	} //getNewDb2File
 	
 	private String getViewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException{

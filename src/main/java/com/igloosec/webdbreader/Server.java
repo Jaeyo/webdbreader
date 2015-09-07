@@ -29,6 +29,8 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
 		
+		TODO: new-db2db.js
+		
 		new DerbySchemaCreator().check();
 		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
