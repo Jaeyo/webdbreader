@@ -172,6 +172,7 @@ View = function(){
 	this.scriptEditor = codeMirror($('#textarea-script')[0], theme);
 
 	this.panelViewInputDatabase = new PanelViewInputDatabase();
+	this.panelViewSetTableForQuery = new PanelViewSetTableForQuery();
 }; //View
 
 PanelViewInputDatabase = function() {
@@ -223,23 +224,71 @@ PanelViewInputDatabase = function() {
 			$.getJSON('/REST/Meta/Encrypt/', { value: params.destDatabase.username }),
 			$.getJSON('/REST/Meta/Encrypt/', { value: params.destDatabase.password })
 		];
-		$.when(whens).done(function(encSrcUsername, encSrcPassword, encDestUsername, encDestPassword){
-			params.srcDatabase.username = encSrcUsername;
-			params.srcDatabase.password = encSrcPassword;
-			params.destDatabase.username = destSrcUsername;
-			params.destDatabase.password = destSrcPassword;
+		// $.when(whens).done(function(encSrcUsername, encSrcPassword, encDestUsername, encDestPassword){
+		$.when(whens).done(function(resp1, resp2, resp3, resp4){
+			//TODO IMME success check
+
+			params.srcDatabase.username = resp1.value;
+			params.srcDatabase.password = resp2.value;
+			params.destDatabase.username = resp3.value;
+			params.destDatabase.password = resp4.value;
 
 			closeLoading();
 			model.db2DbModel.setSrcDatabase(params.srcDatabase);
 			model.db2DbModel.setDestDatabase(params.destDatabase);
+
+			$('#panel-input-database').hide(300);
+			view.panelViewSetTableForQuery.init();
 		}).fail(function(err){
 			closeLoading();
 			bootbox.alert(JSON.stringify(err));
 		});
-		//TODO IMME
-
 	}; //next
 }; //PanelViewInputDatabase
+
+PanelViewSetTableForQuery = function() {
+	this.init = function() {
+		$('#panel-set-table-for-query').show(300);
+
+			var whens = [
+				$.getJSON('/REST/Database/Tables/', model.db2DbModel.srcDatabase),
+				$.getJSON('/REST/Database/Tables/', model.db2DbModel.destDatabase)
+			];
+			$.when(whens).done(function())
+
+
+			$.getJSON('/REST/Database/Tables/', {
+				driver: model.db2DbModel.srcDatabase.driver,
+				connUrl: model.db2DbModel.srcDatabase.connUrl,
+				username: model.db2DbModel.srcDatabase.username,
+				password: model.db2DbModel.srcDatabase.password
+			})
+			.fail(function(e){
+				closeLoading();
+				bootbox.alert(JSON.stringify(e));
+			}).done(function(resp){
+				closeLoadingWhenThisIsZero--;
+				if(closeLoadingWhenThisIsZero === 0)
+					closeLoading();
+
+				if(resp.success != 1){
+					bootbox.alert(resp.errmsg);
+					return;
+				} //if
+				
+				if(resp.tables.length == 0){
+					bootbox.alert('no tables exists');
+					return;
+				} //if
+				
+				searchDropdown.newSearchDropdown(targetDOM, null, resp.tables);
+			});
+
+
+
+		//TODO IMME
+	}; //init
+}; //PanelViewSetTableForQuery
 
 
 

@@ -107,7 +107,11 @@ block contents-area
 				span.gray-sm-ball
 				span.gray-sm-ball
 		div.panel-body
-			div#dropdown-table
+			h4 source database table
+			div#dropdown-src-table
+			hr
+			h4 destination database table
+			div#dropdown-dest-table
 		div.panel-footer
 			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="controller.openPrevCard('panel-input-database');") prev
 			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-set-table-for-query', 'panel-set-column-for-query');") next
