@@ -44,11 +44,6 @@
 #panel-set-column-for-query {
   width: 600px;
 }
-#panel-set-column-for-query div.panel-body div#src-columns,
-#panel-set-column-for-query div.panel-body div#dest-columns {
-  max-height: 250px;
-  overflow: auto;
-}
 #panel-set-column-for-query div.panel-body div#src-columns label,
 #panel-set-column-for-query div.panel-body div#dest-columns label {
   font-weight: normal;

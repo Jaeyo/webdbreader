@@ -68,7 +68,7 @@ searchDropdown = {
 									})
 									.click({domId: domId, option: option}, searchDropdown.select)
 									.append(option);
-		$('#' + domId).find('#search-dropdown-options').append(optionDOM);
+		$(domId).find('#search-dropdown-options').append(optionDOM);
 	}, //addOption
 	getCaret: function(){
 		return $('<div class="pull-right"><span class="caret"></span></div>');
@@ -76,7 +76,7 @@ searchDropdown = {
 	toggleOptionMenu: function(event){
 		var domId = event.data.domId;
 		
-		var optionMenu = $('#' + domId).find('#search-dropdown-option-menu');
+		var optionMenu = $(domId).find('#search-dropdown-option-menu');
 		if(optionMenu.css('display') == 'none'){
 			optionMenu.show(100);
 		} else{
@@ -85,7 +85,7 @@ searchDropdown = {
 	}, //toggleOptionMenu
 	search: function(event){
 		var domId = event.data.domId;
-		var dom = $('#' + domId);
+		var dom = $(domId);
 		var keyword = dom.find('input[type="text"]').val();
 		
 		dom.find('#search-dropdown-options').children().each(function(index, value){
@@ -106,7 +106,7 @@ searchDropdown = {
 		var domId = event.data.domId;
 		var selectedOption = event.data.option;
 		
-		var dom = $('#' + domId);
+		var dom = $(domId);
 		dom.find('#search-dropdown-selection').empty().append(selectedOption).append(searchDropdown.getCaret());
 		dom.find('#search-dropdown-option-menu').hide(100);
 		

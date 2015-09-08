@@ -191,7 +191,7 @@ View = function(){
 
 PanelViewInputDatabase = function() {
 	this.hide = function() {
-		$('panel-input-database').hide(300);
+		$('#panel-input-database').hide(300);
 	}; //hide
 
 	//private
@@ -199,7 +199,7 @@ PanelViewInputDatabase = function() {
 	}; //init
 
 	this.show = function() {
-		$('panel-input-database').show(300);
+		$('#panel-input-database').show(300);
 		init();
 	}; //show
 
@@ -417,9 +417,11 @@ function PanelViewSetColumnForQuery() {
 			var srcColumns = [], destColumns = [];
 			resps[0].columns.every(function(colObj){
 				srcColumns.push('{}({})'.format(colObj.columnName, colObj.columnType));
+				return true;
 			});
 			resps[1].columns.every(function(colObj){
 				destColumns.push('{}({})'.format(colObj.columnName, colObj.columnType));
+				return true;
 			});
 
 			searchDropdown.newSearchDropdown('#panel-set-column-for-query #src-columns', null, srcColumns);
@@ -436,16 +438,17 @@ function PanelViewSetColumnForQuery() {
 	}; //show
 
 	this.addColumnPair = function() {
-		var srcColumn = $('#panel-set-column-for-query #src-columns').attr('value');
-		var destColumn = $('#panel-set-column-for-query #dest-columns').attr('value');
+		var srcColumn = $('#panel-set-column-for-query #src-columns').attr('value').split('(')[0];
+		var destColumn = $('#panel-set-column-for-query #dest-columns').attr('value').split('(')[0];
 
 		this.selectedColumnPairs.push([ srcColumn, destColumn ]);
 
-		var tagTokenDOM = $('<span class="tag-token"><span>{}</span><a href="#"></a>'.format(srcColumn + '-' + destColumn));
+		var tagTokenDOM = $('<span class="tag-token"><span>{}</span><a href="#">x</a>'.format(srcColumn + '-' + destColumn));
 		tagTokenDOM.find('a').click(function(){
 			view.panelViewSetColumnForQuery.removeColumnPair(srcColumn, destColumn);
 			tagTokenDOM.remove();
-		}).appendTo($('#selected-column-pairs'));
+		});
+		tagTokenDOM.appendTo($('#selected-column-pairs'));
 	}; //addColumnpair
 
 	this.removeColumnPair = function(srcColumn, destColumn) {
