@@ -2,7 +2,7 @@
   margin-right: 4px;
 }
 #panel-input-database {
-  width: 700px;
+  width: 500px;
 }
 #panel-input-database div.panel-body div {
   margin-bottom: 5px;
@@ -70,5 +70,5 @@
   width: 100px;
 }
 #panel-script {
-  max-width: 700px;
+  max-width: 800px;
 }

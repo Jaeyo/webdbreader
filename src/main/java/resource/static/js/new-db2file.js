@@ -267,7 +267,7 @@ Controller.prototype = {
 			
 			switch(toCardId){
 			case 'panel-set-table-for-query':
-				this.loadTables('dropdown-table');
+				this.loadTables('#dropdown-table');
 				break;
 			case 'panel-set-column-for-query':
 				this.loadColumns(function(columns){

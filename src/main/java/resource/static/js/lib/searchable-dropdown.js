@@ -16,7 +16,7 @@ searchDropdown = {
 		return params;
 	}, //initParams
 	createDOM: function(domId, params, optionArr){
-		var dom = $('#' + domId).empty();
+		var dom = $(domId).empty();
 		dom.attr('value', optionArr[0]);
 		var searchDropdownSelection = $('<div />')
 										.attr('id', 'search-dropdown-selection')

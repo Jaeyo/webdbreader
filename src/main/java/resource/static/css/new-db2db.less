@@ -19,13 +19,13 @@
 					margin-right: 5px;
 					font-weight: normal;
 				} //labek
-				input#text-database-ip { width: 150px; }
-				input#text-database-port { width: 50px; }
-				input#text-database-sid,
-				input#text-jdbc-driver,
-				input#text-jdbc-conn-url,
-				input#text-jdbc-username,
-				input#text-jdbc-password {
+				input#text-src-database-ip, input#text-dest-database-ip { width: 150px; }
+				input#text-src-database-port, input#text-dest-database-port { width: 50px; }
+				input#text-src-database-sid, input#text-dest-database-sid,
+				input#text-src-jdbc-driver, input#text-dest-jdbc-driver,
+				input#text-src-jdbc-conn-url, input#text-dest-jdbc-conn-url,
+				input#text-src-jdbc-username, input#text-dest-jdbc-username,
+				input#text-src-jdbc-password, input#text-dest-jdbc-password {
 					width: 292px;
 				} 
 			} //value-area
@@ -38,9 +38,9 @@
 } //#panel-set-table-for-query
 
 #panel-set-column-for-query {
-	width: 300px;
+	width: 600px;
 	div.panel-body {
-		div#div-columns {
+		div#src-columns, div#dest-columns {
 			max-height: 250px;
 			overflow: auto;
 			label {
@@ -80,5 +80,5 @@
 } //panel-etc-parameter
 
 #panel-script {
-	max-width: 700px;
+	max-width: 800px;
 } //panel-script

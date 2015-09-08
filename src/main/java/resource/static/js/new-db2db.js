@@ -56,12 +56,22 @@ Db2DbModel = function(){
 		return this;
 	}; //setSrcSelectColumn
 
+	this.setDestInsertColumn = function(insertColumn) {
+		if((insertColumn instanceof Array) === false)
+			throw new Error('invalid insertCOlumn type');
+		this.dest.insertColumn = insertColumn;
+		return this;
+	}; //setDestInsertColumn
 
 	this.setSrcTableName = function(tableName) {
 		this.src.tableName = tableName;
 		return this;
 	}; //setSrcTableName
 
+	this.setDestTableName = function(tableName) {
+		this.dest.tableName = tableName;
+		return this;
+	}; //setDestTableName
 
 	this.setCondition = function(condition){
 		if(condition.type !== undefined){
@@ -173,11 +183,64 @@ View = function(){
 
 	this.panelViewInputDatabase = new PanelViewInputDatabase();
 	this.panelViewSetTableForQuery = new PanelViewSetTableForQuery();
+	this.panelViewSetColumnForQuery = new PanelViewSetColumnForQuery();
+	this.panelViewSetBindingType = new PanelViewSetBindingType();
+	this.panelViewEtcParameter = new PanelViewEtcParameter();
+	this.panelViewScript = new PanelViewScript();
 }; //View
 
 PanelViewInputDatabase = function() {
-	this.init = function() {
+	this.hide = function() {
+		$('panel-input-database').hide(300);
+	}; //hide
+
+	//private
+	var init = function() {
 	}; //init
+
+	this.show = function() {
+		$('panel-input-database').show(300);
+		init();
+	}; //show
+
+	//private
+	var autoCompleteJdbcConnUrl = function(srcOrDest) {
+		var jdbcTmpl = model.jdbcTmpl[model.db2DbModel.src.database.vendor];
+
+		if(srcOrDest === 'src') {
+			$('#text-src-jdbc-conn-url').val(jdbcTmpl.connUrl.format({
+				ip: $('#panel-input-database #text-src-database-ip').val(),
+				port: $('#panel-input-database #text-src-database-port').val(),
+				database: $('#panel-input-database #text-src-database-sid').val()
+			}));
+		} else if(srcOrDest === 'dest') {
+			$('#text-dest-jdbc-conn-url').val(jdbcTmpl.connUrl.format({
+				ip: $('#panel-input-database #text-dest-database-ip').val(),
+				port: $('#panel-input-database #text-dest-database-port').val(),
+				database: $('#panel-input-database #text-dest-database-sid').val()
+			}));
+		} //if
+	}; //autoCompleteJdbcConnUrl
+
+	this.autoCompleteJdbcInfo = function(dom) {
+		if(dom.name === 'srcDbVendor') {
+			model.db2DbModel.setSrcDatabase({ vendor: dom.value });
+			var jdbcTmpl = model.jdbcTmpl[dom.value];
+			$('#text-src-database-port').val(jdbcTmpl.port);
+			$('#text-src-jdbc-driver').val(jdbcTmpl.driver);
+			autoCompleteJdbcConnUrl('src');
+		} else if(dom.name === 'destDbVendor') {
+			model.db2DbModel.setDestDatabase({ vendor: dom.value });
+			var jdbcTmpl = model.jdbcTmpl[dom.value];
+			$('#text-dest-database-port').val(jdbcTmpl.port);
+			$('#text-dest-jdbc-driver').val(jdbcTmpl.driver);
+			autoCompleteJdbcConnUrl('dest');
+		} else if(dom.id === 'text-src-database-ip' || dom.id === 'text-src-database-port' || dom.id === 'text-src-database-sid') {
+			autoCompleteJdbcConnUrl('src');
+		} else if(dom.id === 'text-dest-database-ip' || dom.id === 'text-dest-database-port' || dom.id === 'text-dest-database-sid') {
+			autoCompleteJdbcConnUrl('dest');
+		} //if
+	}; //autoCompleteJdbcInfo
 
 	//private
 	var getParameter = function() {
@@ -224,22 +287,30 @@ PanelViewInputDatabase = function() {
 			$.getJSON('/REST/Meta/Encrypt/', { value: params.destDatabase.username }),
 			$.getJSON('/REST/Meta/Encrypt/', { value: params.destDatabase.password })
 		];
-		// $.when(whens).done(function(encSrcUsername, encSrcPassword, encDestUsername, encDestPassword){
-		$.when(whens).done(function(resp1, resp2, resp3, resp4){
-			//TODO IMME success check
-
-			params.srcDatabase.username = resp1.value;
-			params.srcDatabase.password = resp2.value;
-			params.destDatabase.username = resp3.value;
-			params.destDatabase.password = resp4.value;
-
+		$.when.apply($, whens).done(function(respObj1, respObj2, respObj3, respObj4){
 			closeLoading();
+
+			var resps = [ respObj1[0], respObj2[0], respObj3[0], respObj4[0] ];
+
+			[ resps[0], resps[1], resps[2], resps[3] ].every(function(resp){
+				if(resp.success !== 1) {
+					bootbox.alert(JSON.stringify(resp));
+					return false;
+				} //if
+				return true;
+			});
+
+			params.srcDatabase.username = resps[0].value;
+			params.srcDatabase.password = resps[1].value;
+			params.destDatabase.username = resps[2].value;
+			params.destDatabase.password = resps[3].value;
+
 			model.db2DbModel.setSrcDatabase(params.srcDatabase);
 			model.db2DbModel.setDestDatabase(params.destDatabase);
 
-			$('#panel-input-database').hide(300);
-			view.panelViewSetTableForQuery.init();
-		}).fail(function(err){
+			this.hide();
+			view.panelViewSetTableForQuery.show();
+		}.bind(this)).fail(function(err){
 			closeLoading();
 			bootbox.alert(JSON.stringify(err));
 		});
@@ -247,48 +318,344 @@ PanelViewInputDatabase = function() {
 }; //PanelViewInputDatabase
 
 PanelViewSetTableForQuery = function() {
-	this.init = function() {
-		$('#panel-set-table-for-query').show(300);
+	this.hide = function() {
+		$('#panel-set-table-for-query').hide(300);
+	}; //hide
+	
+	//private
+	var init = function() {
+		showLoading();
+		var whens = [
+			$.getJSON('/REST/Database/Tables/', model.db2DbModel.src.database),
+			$.getJSON('/REST/Database/Tables/', model.db2DbModel.dest.database)
+		];
+		$.when.apply($, whens).done(function(respObj1, respObj2) {
+			var resps = [ respObj1[0], respObj2[0] ];
 
-			var whens = [
-				$.getJSON('/REST/Database/Tables/', model.db2DbModel.srcDatabase),
-				$.getJSON('/REST/Database/Tables/', model.db2DbModel.destDatabase)
-			];
-			$.when(whens).done(function())
+			closeLoading();
 
-
-			$.getJSON('/REST/Database/Tables/', {
-				driver: model.db2DbModel.srcDatabase.driver,
-				connUrl: model.db2DbModel.srcDatabase.connUrl,
-				username: model.db2DbModel.srcDatabase.username,
-				password: model.db2DbModel.srcDatabase.password
-			})
-			.fail(function(e){
-				closeLoading();
-				bootbox.alert(JSON.stringify(e));
-			}).done(function(resp){
-				closeLoadingWhenThisIsZero--;
-				if(closeLoadingWhenThisIsZero === 0)
-					closeLoading();
-
-				if(resp.success != 1){
-					bootbox.alert(resp.errmsg);
-					return;
-				} //if
-				
-				if(resp.tables.length == 0){
-					bootbox.alert('no tables exists');
-					return;
-				} //if
-				
-				searchDropdown.newSearchDropdown(targetDOM, null, resp.tables);
+			[ resps[0], resps[1] ].every(function(resp) {
+				if(resp.success !== 1) {
+					bootbox.alert(JSON.stringify(resp));
+					return false;
+				} //if 
+				return true;
 			});
 
-
-
-		//TODO IMME
+			searchDropdown.newSearchDropdown('#dropdown-src-table', null, resps[0].tables);
+			searchDropdown.newSearchDropdown('#dropdown-dest-table', null, resps[1].tables);
+		}).fail(function(err){
+			closeLoading();
+			bootbox.alert(JSON.stringify(err));
+		});
 	}; //init
+
+	this.show = function() {
+		init();
+		$('#panel-set-table-for-query').show(300);
+	}; //show
+
+	var getParameter = function() {
+		return {
+			srcTable: $('#panel-set-table-for-query #dropdown-src-table').attr('value'),
+			destTable: $('#panel-set-table-for-query #dropdown-dest-table').attr('value')
+		};
+	}; //inputCheck
+
+	this.prev = function() {
+		this.hide();
+		view.panelViewInputDatabase.show();
+	}; //prev
+
+	this.next = function() {
+		var params = getParameter();
+		if(params.srcTable == null || params.destTable == null) {
+			bootbox.alert('select table');
+			return;
+		} //if
+
+		model.db2DbModel.setSrcTableName(params.srcTable);
+		model.db2DbModel.setDestTableName(params.destTable);
+
+		this.hide();
+		view.panelViewSetColumnForQuery.show();
+	}; //next
 }; //PanelViewSetTableForQuery
+
+function PanelViewSetColumnForQuery() {
+	this.selectedColumnPairs = [];
+
+	this.hide = function() {
+		$('#panel-set-column-for-query').hide(300);
+	}; //hide
+
+	//private
+	var init = function() {
+		this.selectedColumnPairs = [];
+		$('#selected-column-pairs').empty();
+
+		showLoading();
+
+		var whens = [
+			$.getJSON('/REST/Database/Columns/{}/'.format(model.db2DbModel.src.tableName), model.db2DbModel.src.database),
+			$.getJSON('/REST/Database/Columns/{}/'.format(model.db2DbModel.dest.tableName), model.db2DbModel.dest.database)
+		];
+
+		$.when.apply($, whens).done(function(respObj1, respObj2){
+			var resps = [ respObj1[0], respObj2[0] ];
+
+			closeLoading();
+
+			[ resps[0], resps[1] ].every(function(resp){
+				if(resp.success !== 1) {
+					bootbox.alert(JSON.stringify(resp));
+					return false;
+				} //if
+				return true;
+			});
+
+			var srcColumns = [], destColumns = [];
+			resps[0].columns.every(function(colObj){
+				srcColumns.push('{}({})'.format(colObj.columnName, colObj.columnType));
+			});
+			resps[1].columns.every(function(colObj){
+				destColumns.push('{}({})'.format(colObj.columnName, colObj.columnType));
+			});
+
+			searchDropdown.newSearchDropdown('#panel-set-column-for-query #src-columns', null, srcColumns);
+			searchDropdown.newSearchDropdown('#panel-set-column-for-query #dest-columns', null, destColumns);
+		}).fail(function(err) {
+			closeLoading();
+			bootbox.alert(JSON.stringify(err));
+		});
+	}; //init
+
+	this.show = function() {
+		$('#panel-set-column-for-query').show(300);
+		init();
+	}; //show
+
+	this.addColumnPair = function() {
+		var srcColumn = $('#panel-set-column-for-query #src-columns').attr('value');
+		var destColumn = $('#panel-set-column-for-query #dest-columns').attr('value');
+
+		this.selectedColumnPairs.push([ srcColumn, destColumn ]);
+
+		var tagTokenDOM = $('<span class="tag-token"><span>{}</span><a href="#"></a>'.format(srcColumn + '-' + destColumn));
+		tagTokenDOM.find('a').click(function(){
+			view.panelViewSetColumnForQuery.removeColumnPair(srcColumn, destColumn);
+			tagTokenDOM.remove();
+		}).appendTo($('#selected-column-pairs'));
+	}; //addColumnpair
+
+	this.removeColumnPair = function(srcColumn, destColumn) {
+		this.selectedColumnPairs.every(function(columnPair, index){
+			if(columnPair === [ srcColumn, destColumn ]) {
+				this.selectedColumnPairs.splice(index, 1);
+				return false;
+			} //if
+			return true;
+		});
+	}; //removeColumnPair
+
+	this.prev = function() {
+		this.hide();
+		view.panelViewSetTableForQuery.show();
+	}; //prev
+
+	this.next = function() {
+		var srcColumns = [], destColumns = [];
+		this.selectedColumnPairs.every(function(columnPair){
+			srcColumns.push(columnPair[0]);
+			destColumns.push(columnPair[1]);
+			return true;
+		});
+
+		model.db2DbModel.setSrcSelectColumn(srcColumns);
+		model.db2DbModel.setDestInsertColumn(destColumns);
+
+		this.hide();
+		view.PanelViewSetBindingType.next();
+	}; //next
+} //PanelViewSetColumnForQuery
+
+function PanelViewSetBindingType() {
+	this.hide = function() {
+		$('#panel-set-set-binding-type').hide(300);
+	}; //hide
+
+	//private
+	var init = function() {
+		showLoading();
+		$.getJSON('/REST/Database/Columns/{}/'.format(model.db2DbModel.src.tableName), model.db2DbModel.src.database)
+		.done(function(resp){
+			closeLoading();
+			if(resp.success !== 1) {
+				bootbox.alert(JSON.stringify(resp));
+				return;
+			} //if
+
+			var dom = jade.compile($('script#column-radio-box[type="text/x-jade"]').html())({ columns: resp.columns });
+			$('#panel-set-binding-type #columns-for-date-condition').empty().append(dom);
+			$('#panel-set-binding-type #columns-for-sequence-condition').empty().append(dom);
+
+		}).fail(function(err){
+			closeLoading();
+			bootbox.alert(JSON.stringify(err));
+		});
+	}; //init
+
+	this.show = function() {
+		$('panel-set-binding-type').show(300);
+		init();
+	}; //show
+
+	this.setBindingType = function(condition) {
+		switch(condition){
+		case 'no-condition':
+			$('#panel-set-binding-type #columns-for-date-condition').hide(300);
+			$('#panel-set-binding-type #columns-for-sequence-condition').hide(300);
+			break;
+		case 'date-condition':
+			$('#panel-set-binding-type #columns-for-date-condition').show(300);
+			$('#panel-set-binding-type #columns-for-sequence-condition').hide(300);
+			break;
+		case 'sequence-condition':
+			$('#panel-set-binding-type #columns-for-date-condition').hide(300);
+			$('#panel-set-binding-type #columns-for-sequence-condition').show(300);
+			break;
+		} //switch
+	}; //setBindingType
+
+	this.prev = function() {
+		this.hide();
+		view.panelViewSetColumnForQuery.show();
+	}; //prev
+
+	//private
+	var getParameter = function() {
+		var conditionType = $('#panel-set-binding-type input[type="radio"][name="condition"]:checked').val();
+		var conditionColumn = null;
+		if(conditionType === 'date-condition'){
+			conditionColumn = $('#panel-set-binding-type #columns-for-date-condition input[type="radio"][name="condition-column"]:checked').val();
+		} else if(conditionType === 'sequence-condition'){
+			conditionColumn = $('#panel-set-binding-type #columns-for-sequence-condition input[type="radio"][name="condition-column"]:checked').val();
+		} //if
+
+		if(conditionType !== 'no-condition'){
+			if(conditionColumn === null || conditionColumn.trim().length == 0){
+				bootbox.alert('invalid condition column');
+				return null;
+			} //if
+		} //if
+
+		return {
+			type: conditionType,
+			column: conditionColumn
+		};
+	}; //getParameter
+
+	this.next = function() {
+		var params = getParameter();
+		if(params === null)
+			return;
+
+		model.db2DbModel.setCondition(params);
+				
+		this.hide();
+		view.panelViewEtcParameter.show();
+	}; //next
+} //PanelViewSetBindingType
+
+function PanelViewEtcParameter() {
+	this.hide = function() {
+		$('#panel-etc-parameter').hide(300);
+	}; //hide
+
+	//private
+	var init = function() {
+	}; //init
+
+	this.show = function() {
+		$('#panel-etc-parameter').show(300);
+		init();
+	}; //show
+
+	this.prev = function() {
+		this.hide();
+		view.panelViewSetBindingType.show();
+	}; //prev
+
+	var getParameter = function() {
+		return {
+			period: $('#panel-etc-parameter input#text-period').val()
+		};
+
+	}; //getParameter
+
+	this.next = function() {
+		var params = getParameter();
+		model.db2DbModel.setPeriod(params.period);
+
+		this.hide();
+		//TODO IMME
+	}; //next
+} //PanelViewEtcParameter
+
+function PanelViewScript() {
+	this.hide = function() {
+		$('#panel-script').hide(300);
+	}; //hide
+
+	//private
+	var init = function() {
+		showLoading();
+		$.getJSON('/REST/Meta/Version/', {})
+		.fail(function(e){
+			closeLoading();
+			bootbox.alert(JSON.stringify(e));
+		}).done(function(resp){
+			closeLoading();
+			model.db2DbModel.setVersion(resp.version);
+
+			var script = new Db2DbScriptMaker().setModel(model.db2DbModel).script();
+			view.scriptEditor.setValue(script);
+		});
+	}; //init
+
+	this.show = function() {
+		$('#panel-script').show(300);
+		init();
+	}; //show
+
+	//private
+	var getParameter = function() {
+		var script = view.scriptEditor.getValue();
+
+		return { script: script };
+	}; //getParameter
+
+	this.save = function() {
+		var script = getParameter().script;
+
+		bootbox.prompt('input script title: ', function(title){
+			if(title === null) 
+				return;
+
+			$.post('/REST/Script/New/{}/'.format(title), { script: script }, function(resp){
+				if(resp.success !== 1){
+					bootbox.alert(JSON.stringify(resp));
+					return;
+				} //if
+
+				bootbox.alert('script saved', function(){
+					window.location.href = '/';
+				});
+			}, 'json');
+		});
+	}; //save
+} //PanelViewScript
+
 
 
 
@@ -300,203 +667,8 @@ PanelViewSetTableForQuery = function() {
 
 
 Controller = function(){
-	this.openPrevCard = function(toCardId) {
-		$('.panel').hide(300);
-		$('#' + toCardId).show(300);
-	};
-
-	this.openCard = function(fromCardId, toCardId){
-		try{
-			switch(fromCardId){
-			case 'panel-input-database':
-				openCard_fromInputDatabase();				
-				break;
-				
-			case 'panel-set-table-for-query':
-				model.db2FileModel.setTableName($('#panel-set-table-for-query #dropdown-table').attr('value'));
-				break;
-				
-			case 'panel-set-column-for-query':
-				var columns = [];
-				$('#div-columns input[type="checkbox"]:checked').each(function(index, value){
-					columns.push($(value).val());
-				});
-				model.db2FileModel.setSelectColumn(columns);
-				break;
-				
-			case 'panel-set-binding-type':
-				var conditionType = $('#panel-set-binding-type input[type="radio"][name="condition"]:checked').val();
-				var conditionColumn = null;
-				if(conditionType === 'date-condition'){
-					conditionColumn = $('#panel-set-binding-type #columns-for-date-condition input[type="radio"][name="condition-column"]:checked').val();
-				} else if(conditionType === 'sequence-condition'){
-					conditionColumn = $('#panel-set-binding-type #columns-for-sequence-condition input[type="radio"][name="condition-column"]:checked').val();
-				} //if
-				
-				model.db2FileModel.setCondition({
-					type: conditionType,
-					column: conditionColumn
-				});
-			
-				if(conditionType !== 'no-condition'){
-					if(conditionColumn === null || conditionColumn.trim().length == 0){
-						bootbox.alert('invalid condition column');
-						return;
-					} //if
-				} //if
-				break;
-				
-			case 'panel-etc-parameter':
-				var outputPath = $('#panel-etc-parameter #text-output-path').val();
-				if(outputPath.indexOf('/', outputPath.length - '/'.length) === -1 && outputPath.indexOf('\\', outputPath.length - '\\'.length) === -1)
-					outputPath += '/';
-
-				model.db2FileModel
-					.setPeriod($('#panel-etc-parameter #text-period').val())
-					.setDelimiter($('#panel-etc-parameter #text-delimiter').val())
-					.setOutputPath(outputPath)
-					.setCharset($('#panel-etc-parameter #text-charset').val());
-				break;
-			} //switch
-				
-			$('.panel').hide(300);
-			$('#' + toCardId).show(300);
-			
-			switch(toCardId){
-			case 'panel-set-table-for-query':
-				this.loadTables('dropdown-table');
-				break;
-			case 'panel-set-column-for-query':
-				this.loadColumns(function(columns){
-					var dom = jade.compile($('script#column-check-box[type="text/x-jade"]').html())({ columns: columns });
-					$('#div-columns').empty().append(dom);
-				});
-				break;
-			case 'panel-set-binding-type':
-				this.loadColumns(function(columns){
-					var dom = jade.compile($('script#column-radio-box[type="text/x-jade"]').html())({ columns: columns });
-					$('#panel-set-binding-type #columns-for-date-condition').empty().append(dom);
-					$('#panel-set-binding-type #columns-for-sequence-condition').empty().append(dom);
-				});
-				break;
-			case 'panel-etc-parameter':
-				break;
-			case 'panel-script':
-			showLoading();
-				$.getJSON('/REST/Meta/Version/', {})
-				.fail(function(e){
-					closeLoading();
-					bootbox.alert(JSON.stringify(e));
-				}).done(function(resp){
-					closeLoading();
-					model.db2FileModel.setVersion(resp.version);
-					var script = new Db2FileScriptMaker().setModel(model.db2FileModel).script();
-					view.scriptEditor.setValue(script);
-				});
-				break;
-			} //switch
-		} catch(e){
-			console.log(e);
-			this.openPrevCard(fromCardId);
-			bootbox.alert(JSON.stringify(e));
-		} //catch
-	}; //openCard	
 }; //INIT
 Controller.prototype = {
-	
-	
-	autoCompleteJdbcInfo: function(srcDOM){
-		var dbVendor = $('#panel-input-database input[type="radio"][name="dbVendor"]:checked').val();
-
-		model.db2FileModel.setDatabase({ vendor: dbVendor });
-
-		var portDOM = $('#panel-input-database #text-database-port');
-		if( ('text-database-port' !== srcDOM.id && '' === portDOM.val()) ||
-			('dbVendor' === srcDOM.name) )
-			portDOM.val(model.jdbcTmpl[dbVendor].port);
-
-		if('dbVendor' === srcDOM.name && 'etc' !== dbVendor)
-			$('#panel-input-database #text-jdbc-driver').val(model.jdbcTmpl[dbVendor].driver);
-		
-		var connUrl = model.jdbcTmpl[dbVendor].connUrl;
-		var connUrlParams = {
-			ip: $('#panel-input-database #text-database-ip').val(),
-			port: $('#panel-input-database #text-database-port').val(),
-			database: $('#panel-input-database #text-database-sid').val()
-		};
-		connUrl = connUrl.format(connUrlParams);
-		$('#panel-input-database #text-jdbc-conn-url').val(connUrl);
-	}, //autoCompleteJdbcInfo
-
-	loadTables: function(targetDOM){
-		if(model.db2DbModel.srcDatabase.username === null || 
-			model.db2DbModel.srcDatabase.password === null ||
-			model.db2DbModel.destDatabase.username === null ||
-			model.db2DbModel.destDatabase.password === null){
-			setTimeout(function(){
-				controller.loadTables(targetDOM);
-			}, 100);
-			return;
-		} //if
-
-		showLoading();
-		var closeLoadingWhenThisIsZero = 2;
-		//TODO IMME
-		$.getJSON('/REST/Database/Tables/', {
-			driver: model.db2DbModel.srcDatabase.driver,
-			connUrl: model.db2DbModel.srcDatabase.connUrl,
-			username: model.db2DbModel.srcDatabase.username,
-			password: model.db2DbModel.srcDatabase.password
-		})
-		.fail(function(e){
-			closeLoading();
-			bootbox.alert(JSON.stringify(e));
-		}).done(function(resp){
-			closeLoadingWhenThisIsZero--;
-			if(closeLoadingWhenThisIsZero === 0)
-				closeLoading();
-
-			if(resp.success != 1){
-				bootbox.alert(resp.errmsg);
-				return;
-			} //if
-			
-			if(resp.tables.length == 0){
-				bootbox.alert('no tables exists');
-				return;
-			} //if
-			
-			searchDropdown.newSearchDropdown(targetDOM, null, resp.tables);
-		});
-	}, //loadTables
-	
-	loadColumns: function(callback){
-		showLoading();
-		$.getJSON('/REST/Database/Columns/{}/'.format(model.db2FileModel.tableName), {
-			driver: model.db2FileModel.database.driver,
-			connUrl: model.db2FileModel.database.connUrl,
-			username: model.db2FileModel.database.username,
-			password: model.db2FileModel.database.password
-		})
-		.fail(function(e){
-			closeLoading();
-			bootbox.alert(JSON.stringify(e));
-		}).done(function(resp){
-			closeLoading();
-			if(resp.success != 1){
-				bootbox.alert(resp.errmsg);
-				return;
-			} //if
-			
-			if(resp.columns.length == 0){
-				bootbox.alert('no columns exists');
-				return;
-			} //if
-			
-			callback(resp.columns);
-		});
-	}, //loadColumns
-	
 	selectAllColumns: function(){
 		$('input[type="checkbox"][name="select-column"]').attr('checked', true);
 	}, //selectAllColumns
@@ -541,51 +713,7 @@ Controller.prototype = {
 				});
 			});
 		});
-	}, //querySampleData
-	
-	setConditionType: function(condition){
-		switch(condition){
-		case 'no-condition':
-			$('#panel-set-binding-type #columns-for-date-condition').hide(300);
-			$('#panel-set-binding-type #columns-for-sequence-condition').hide(300);
-			break;
-		case 'date-condition':
-			$('#panel-set-binding-type #columns-for-date-condition').show(300);
-			$('#panel-set-binding-type #columns-for-sequence-condition').hide(300);
-			break;
-		case 'sequence-condition':
-			$('#panel-set-binding-type #columns-for-date-condition').hide(300);
-			$('#panel-set-binding-type #columns-for-sequence-condition').show(300);
-			break;
-		} //switch
-	}, //setConditionType
-	saveScript: function(){
-		var script = view.scriptEditor.getValue();
-		bootbox.prompt('input script title: ', function(title){
-			if(title === null) 
-				return;
-			$.post('/REST/Script/New/{}/'.format(title), { script: script }, function(resp){
-				if(resp.success !== 1){
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-				bootbox.alert('script saved', function(){
-					window.location.href = '/';
-				});
-			}, 'json');
-		});
-	}, //saveScript
-	encrypt: function(value, callback){
-		$.getJSON('/REST/Meta/Encrypt/', { value: value }).fail(function(e){
-			bootbox.alert(JSON.stringify(e));
-		}).done(function(resp){
-			if(resp.success !== 1){
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
-			callback(resp.value);
-		});
-	} //encrypt
+	} //querySampleData
 }; //Controller
 
 $(function(){
@@ -596,13 +724,8 @@ $(function(){
 	$('.panel').hide();
 	$('#panel-input-database').show(300);
 
-	//DEBUG
-	$('#panel-input-database input[type="radio"][name="dbVendor"][value="mysql"]').click();
-	$('#panel-input-database #text-database-ip').val('localhost');
-	$('#panel-input-database #text-database-sid').val('nawa');
-	$('#panel-input-database #text-jdbc-username').val('nawa');
-	$('#panel-input-database #text-jdbc-password').val('nawadkagh');
-	//DEBUG
+	$('input[type="radio"][name="srcDbVendor"][value="oracle"]').click();
+	$('input[type="radio"][name="destDbVendor"][value="oracle"]').click();
 });
 
 function precondition(expression, msg){

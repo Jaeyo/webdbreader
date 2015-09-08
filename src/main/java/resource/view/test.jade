@@ -1,14 +1,30 @@
 extends base
 
 block header
+	style.
+		.token {
+			margin: 3px;
+			padding: 1px 3px;
+			background-color: #eff2f7;
+			color: #000;
+			cursor: default;
+			border: 1px solid #ccd5e4;
+			font-size: 11px;
+			float: left;
+			white-space: nowrap;
+		}
 
 block title-area
 	h3 test
 
 block contents-area
-	- arr = [ 'asdf', 'wef' ];
-	each item in arr
-		div #{item}
-		div #{item == 'asdf'}
+	span.token
+		span blabla
+		a(href="#") x
+	
 
 block footer
+	script.
+		$(function(){
+			$('#myTags').tagit();
+		});

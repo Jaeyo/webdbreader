@@ -1,5 +1,4 @@
 Db2FileScriptMaker= function(){
-	this.id = new Date().getTime();
 	this.model = null; //Db2FileModel
 }; //INIT
 
@@ -17,7 +16,7 @@ Db2FileScriptMaker.prototype = {
 				return script;
 			}, //step1_availableVersion
 
-			step2_initConf: function(id, model){
+			step2_initConf: function(model){
 				var script = '\n var conf = { ';
 				script += '\n 	period: {}, '.format(model.period);
 				script += '\n 	selectColumn: "{}", '.format(model.selectColumn.toString());
@@ -144,7 +143,7 @@ Db2FileScriptMaker.prototype = {
 		};
 
 		var script = helper.step1_availableVersion(this.model);
-		script += helper.step2_initConf(this.id, this.model);
+		script += helper.step2_initConf(this.model);
 		script += helper.step3_initConditionVar(this.model);
 		script += helper.step4_initWriter(this.model)
 		script += helper.step5_mainFunction(this.model);
