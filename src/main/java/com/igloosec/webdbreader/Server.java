@@ -29,7 +29,7 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		registerShutdownHook();
 		
-		TODO test db2db
+//		TODO test db2db
 		
 		new DerbySchemaCreator().check();
 		
