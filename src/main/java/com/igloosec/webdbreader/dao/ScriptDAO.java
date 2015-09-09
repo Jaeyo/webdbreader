@@ -20,7 +20,7 @@ public class ScriptDAO {
 	
 	public JSONArray selectScriptInfo(){
 		logger.info("");
-		return ds.getJdbcTmpl().queryForJsonArray("SELECT script_name, regdate FROM script");
+		return ds.getJdbcTmpl().queryForJsonArray("SELECT script_name, regdate FROM script ORDER BY script_name");
 	} //selectScriptInfo
 	
 	public void save(String scriptName, String script){

@@ -62,8 +62,8 @@ Db2DbScriptMaker.prototype = {
 					script += '\n	return {';
 					script += '\n		smallValue: simpleRepo.load("small-value", 0), ';
 					script += '\n		bigValue: dbHandler.query({ ';
-					script += '\n			database: conf.database, '
-					script += '\n			query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName) ';
+					script += '\n			database: conf.src.database, '
+					script += '\n			query: "SELECT MAX(" + conf.src.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.src.tableName) ';
 					script += '\n		}) ';
 					script += '\n	}; ';
 					script += '\n}; //getCondition ';
@@ -80,28 +80,28 @@ Db2DbScriptMaker.prototype = {
 
 				if(model.src.condition.type === 'no-condition') {
 					script += '\n	var selectQuery = ';
-					script += '\n		"SELECT " + conf.src.selectColumn + ';
-					script += '\n		"FROM " + dateUtil.formatReplace(conf.src.tableName);\n';
+					script += '\n		" SELECT " + conf.src.selectColumn + ';
+					script += '\n		" FROM " + dateUtil.formatReplace(conf.src.tableName);\n';
 				} else if (model.src.condition.type === 'date-condition') {
 					script += '\n	var selectQuery = ';
-					script += '\n		"SELECT " + conf.src.selectColumn + ';
-					script += '\n		"FROM " + dateUtil.formatReplace(conf.src.tableName) +';
+					script += '\n		" SELECT " + conf.src.selectColumn + ';
+					script += '\n		" FROM " + dateUtil.formatReplace(conf.src.tableName) +';
 					if(model.src.database.vendor === 'mysql') {
-						script += '\n		"WHERE " + conf.src.conditionColumn + " > str_to_date(\'" + condition.smallValue + "\', \'%Y-%m-%d %H:%i:%s\')" + ';
-						script += '\n		"AND " + conf.src.conditionColumn + " <= str_to_date(\'" + condition.bigValue + "\', \'%Y-%m-%d %H:%i:%s\')";\n';
+						script += '\n		" WHERE " + conf.src.conditionColumn + " > str_to_date(\'" + condition.smallValue + "\', \'%Y-%m-%d %H:%i:%s\')" + ';
+						script += '\n		" AND " + conf.src.conditionColumn + " <= str_to_date(\'" + condition.bigValue + "\', \'%Y-%m-%d %H:%i:%s\')";\n';
 					} else if(model.src.database.vendor === 'mssql') {
-						script += '\n		" WHERE " + conf.conditionColumn + " > \'" + condition.smallValue + "\'" + ';
-						script += '\n		" AND " + conf.conditionColumn + " <= \'" + condition.smallValue + "\'";\n ';
+						script += '\n		" WHERE " + conf.src.conditionColumn + " > \'" + condition.smallValue + "\'" + ';
+						script += '\n		" AND " + conf.src.conditionColumn + " <= \'" + condition.smallValue + "\'";\n ';
 					} else {
-						script += '\n		" WHERE " + conf.conditionColumn + " > to_date(\'" + condition.smallValue + "\', \'YYYY-MM-DD HH24:MI:SS\') " + ';
-						script += '\n		" AND " + conf.conditionColumn + " <= to_date(\'" + condition.bigValue + "\', \'YYYY-MM-DD HH24:MI:SS\') ";\n';
+						script += '\n		" WHERE " + conf.src.conditionColumn + " > to_date(\'" + condition.smallValue + "\', \'YYYY-MM-DD HH24:MI:SS\') " + ';
+						script += '\n		" AND " + conf.src.conditionColumn + " <= to_date(\'" + condition.bigValue + "\', \'YYYY-MM-DD HH24:MI:SS\') ";\n';
 					} //if
 				} else if(model.src.condition.type === 'sequence-condition') {
 					script += '\n	var selectQuery = ';
-					script += '\n		" SELECT " + conf.selectColumn + ';
-					script += '\n		" FROM " + dateUtil.formatReplace(conf.tableName) + ';
-					script += '\n		" WHERE " + conf.conditionColumn + " > " + condition.smallValue + ';
-					script += '\n		" AND " + conf.conditionColumn + " <= " + condition.bigValue;\n ';
+					script += '\n		" SELECT " + conf.src.selectColumn + ';
+					script += '\n		" FROM " + dateUtil.formatReplace(conf.src.tableName) + ';
+					script += '\n		" WHERE " + conf.src.conditionColumn + " > " + condition.smallValue + ';
+					script += '\n		" AND " + conf.src.conditionColumn + " <= " + condition.bigValue;\n ';
 				} //if
 
 				script += '\n	var insertQuery = ';
