@@ -1,9 +1,9 @@
-Db2FileScriptMaker= function(){
+Db2DbScriptMaker= function(){
 	this.id = new Date().getTime();
 	this.model = null; //Db2DbModel
 }; //INIT
 
-Db2FileScriptMaker.prototype = {
+Db2DbScriptMaker.prototype = {
 	setModel: function(model){
 		this.model = model;
 		return this;
@@ -86,10 +86,10 @@ Db2FileScriptMaker.prototype = {
 					script += '\n	var selectQuery = ';
 					script += '\n		"SELECT " + conf.src.selectColumn + ';
 					script += '\n		"FROM " + dateUtil.formatReplace(conf.src.tableName) +';
-					if(model.database.vendor === 'mysql') {
+					if(model.src.database.vendor === 'mysql') {
 						script += '\n		"WHERE " + conf.src.conditionColumn + " > str_to_date(\'" + condition.smallValue + "\', \'%Y-%m-%d %H:%i:%s\')" + ';
 						script += '\n		"AND " + conf.src.conditionColumn + " <= str_to_date(\'" + condition.bigValue + "\', \'%Y-%m-%d %H:%i:%s\')";\n';
-					} else if(model.database.vendor === 'mssql') {
+					} else if(model.src.database.vendor === 'mssql') {
 						script += '\n		" WHERE " + conf.conditionColumn + " > \'" + condition.smallValue + "\'" + ';
 						script += '\n		" AND " + conf.conditionColumn + " <= \'" + condition.smallValue + "\'";\n ';
 					} else {
@@ -123,7 +123,7 @@ Db2FileScriptMaker.prototype = {
 					script += '\n	simpleRepo.store("small-value", condition.smallValue);';
 				} //if
 
-				script += '}; //main';
+				script += '\n}; //main\n';
 
 				return script;
 			}, //step4_mainFunction
@@ -144,10 +144,10 @@ Db2FileScriptMaker.prototype = {
 		};
 
 		var script = helper.step1_availableVersion(this.model);
-		script += helper.step2_initConf(this.id, this.model);
+		script += helper.step2_initConf(this.model);
 		script += helper.step3_getConditionFunction(this.model)
 		script += helper.step4_mainFunction(this.model);
 		script += helper.step5_schedule();
 		return script;
 	} //script
-}; //Db2FileScriptMaker
+}; //Db2DbScriptMaker

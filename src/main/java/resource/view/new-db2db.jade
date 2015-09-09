@@ -130,7 +130,8 @@ block contents-area
 				span.gray-sm-ball
 				span.gray-sm-ball
 		div.panel-body
-			div#selected-column-pairs
+			div
+				div#selected-column-pairs
 				div.clearfix
 			hr
 			div.rows
@@ -158,16 +159,16 @@ block contents-area
 		div.panel-body
 			div
 				label
-					input(type="radio", name="condition", value="no-condition", checked=true, onclick="view.panelViewSetBindingType.setConditionType(this.value);")
+					input(type="radio", name="condition", value="no-condition", checked=true, onclick="view.panelViewSetBindingType.setBindingType(this.value);")
 					span no condition
 			div
 				label
-					input(type="radio", name="condition", value="date-condition", onclick="view.panelViewSetBindingType.setConditionType(this.value);")
+					input(type="radio", name="condition", value="date-condition", onclick="view.panelViewSetBindingType.setBindingType(this.value);")
 					span date condition
 			div#columns-for-date-condition(style="display: none;")
 			div
 				label
-					input(type="radio", name="condition", value="sequence-condition", onclick="view.panelViewSetBindingType.setConditionType(this.value);")
+					input(type="radio", name="condition", value="sequence-condition", onclick="view.panelViewSetBindingType.setBindingType(this.value);")
 					span sequence condition
 			div#columns-for-sequence-condition(style="display: none;")
 		div.panel-footer

@@ -430,7 +430,7 @@ function PanelViewSetColumnForQuery() {
 			closeLoading();
 			bootbox.alert(JSON.stringify(err));
 		});
-	}; //init
+	}.bind(this); //init
 
 	this.show = function() {
 		$('#panel-set-column-for-query').show(300);
@@ -443,7 +443,7 @@ function PanelViewSetColumnForQuery() {
 
 		this.selectedColumnPairs.push([ srcColumn, destColumn ]);
 
-		var tagTokenDOM = $('<span class="tag-token"><span>{}</span><a href="#">x</a>'.format(srcColumn + '-' + destColumn));
+		var tagTokenDOM = $('<span class="tag-token"><span>{}</span><a href="#">x</a>'.format(srcColumn + ' - ' + destColumn));
 		tagTokenDOM.find('a').click(function(){
 			view.panelViewSetColumnForQuery.removeColumnPair(srcColumn, destColumn);
 			tagTokenDOM.remove();
@@ -478,13 +478,13 @@ function PanelViewSetColumnForQuery() {
 		model.db2DbModel.setDestInsertColumn(destColumns);
 
 		this.hide();
-		view.PanelViewSetBindingType.next();
+		view.panelViewSetBindingType.show();
 	}; //next
 } //PanelViewSetColumnForQuery
 
 function PanelViewSetBindingType() {
 	this.hide = function() {
-		$('#panel-set-set-binding-type').hide(300);
+		$('#panel-set-binding-type').hide(300);
 	}; //hide
 
 	//private
@@ -509,7 +509,7 @@ function PanelViewSetBindingType() {
 	}; //init
 
 	this.show = function() {
-		$('panel-set-binding-type').show(300);
+		$('#panel-set-binding-type').show(300);
 		init();
 	}; //show
 
@@ -593,7 +593,6 @@ function PanelViewEtcParameter() {
 		return {
 			period: $('#panel-etc-parameter input#text-period').val()
 		};
-
 	}; //getParameter
 
 	this.next = function() {
@@ -601,7 +600,7 @@ function PanelViewEtcParameter() {
 		model.db2DbModel.setPeriod(params.period);
 
 		this.hide();
-		//TODO IMME
+		view.panelViewScript.show();
 	}; //next
 } //PanelViewEtcParameter
 
@@ -729,6 +728,17 @@ $(function(){
 
 	$('input[type="radio"][name="srcDbVendor"][value="oracle"]').click();
 	$('input[type="radio"][name="destDbVendor"][value="oracle"]').click();
+
+	//DEBUG
+	$('#text-src-database-ip').val('192.168.10.101').keyup();
+	$('#text-src-database-sid').val('spiderx').keyup();
+	$('#text-src-jdbc-username').val('admin_test').keyup();
+	$('#text-src-jdbc-password').val('admin_test').keyup();
+
+	$('#text-dest-database-ip').val('192.168.10.101').keyup();
+	$('#text-dest-database-sid').val('spiderx').keyup();
+	$('#text-dest-jdbc-username').val('admin_test').keyup();
+	$('#text-dest-jdbc-password').val('admin_test').keyup();
 });
 
 function precondition(expression, msg){
