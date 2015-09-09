@@ -294,7 +294,9 @@ Controller.prototype = {
 					closeLoading();
 					model.db2FileModel.setVersion(resp.version);
 					var script = new Db2FileScriptMaker().setModel(model.db2FileModel).script();
-					view.scriptEditor.setValue(script);
+					setTimeout(function(){
+						view.scriptEditor.setValue(script);
+					}, 400);
 				});
 				break;
 			} //switch

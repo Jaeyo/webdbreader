@@ -467,6 +467,11 @@ function PanelViewSetColumnForQuery() {
 	}; //prev
 
 	this.next = function() {
+		if(this.selectedColumnPairs.length === 0) {
+			bootbox.alert('select columns');
+			return;
+		} //if
+
 		var srcColumns = [], destColumns = [];
 		this.selectedColumnPairs.every(function(columnPair){
 			srcColumns.push(columnPair[0]);
@@ -627,7 +632,7 @@ function PanelViewScript() {
 
 	this.show = function() {
 		$('#panel-script').show(300);
-		init();
+		setTimeout(init, 400);
 	}; //show
 
 	//private
