@@ -24,6 +24,7 @@ import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
 import com.igloosec.webdbreader.servlet.Script;
 import com.igloosec.webdbreader.servlet.ScriptREST;
+import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class Server {
 	public static void main(String[] args) throws Exception {
@@ -32,6 +33,8 @@ public class Server {
 		TODO test db2db
 		
 		new DerbySchemaCreator().check();
+		
+		SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 		
 		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
 
