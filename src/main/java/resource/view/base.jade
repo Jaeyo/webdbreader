@@ -9,7 +9,7 @@ html
 		link(href="/css/base.css", rel="stylesheet")
 		block header
 	body
-		div.container
+		div.container-fluid
 			div.top-area
 				div.logo-area: h3: a(href="/") SpDbReader
 				div.title-area
@@ -35,7 +35,7 @@ html
 								each scriptInfo in scriptInfos
 									li: a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/") 
 										span.glyphicon.glyphicon-console.pull-left
-										span.pull-right #{scriptInfo.SCRIPT_NAME}
+										span.pull-right.script-name #{scriptInfo.SCRIPT_NAME}
 										div.clearfix
 							li: hr
 							li: a(href="/Config/") 

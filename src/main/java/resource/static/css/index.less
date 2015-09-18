@@ -4,12 +4,27 @@
 
 
 div.contents-area {
-	div.script-panel {
-		div.panel-heading {
-			font-size: 170%;
-			font-weight: 140%;
-		} //div.panel-heading
-	} //div.script-panel
+	.script-infos {
+		margin-bottom: 17px;
+
+		div.script-panel {
+			display: inline-block;
+			float: left;
+			margin: 5px;
+
+			.panel-heading {
+				font-size: 170%;
+				font-weight: 140%;
+				.script-name {
+					margin-right: 13px;
+				} //.script-name
+			} //.panel-heading
+			.panel-footer {
+				.pull-right { margin-left: 10px; }
+			} //.panel-footer
+		} //div.script-panel
+	} //.script-infos
+	
 	div.total-chart-panel {
 		div.panel-heading {
 			span.glyphicon {

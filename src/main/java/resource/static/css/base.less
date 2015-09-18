@@ -26,8 +26,10 @@ hr {
 	.red-btn-mixins(@red-btn-hover-color);
 }
 
-div.container {
+div.container-fluid {
 	height: 100%;
+	padding-left: 0;
+	padding-right: 0;
 	.top-area {
 		.top-area-common(){
 			padding: 10px;
@@ -70,6 +72,16 @@ div.container {
 				color: gray;
 				font-size: 80%;
 			} //div.well
+			ul li {
+				span.glyphicon {
+					font-size: 90%;
+				} //span.glyphicon
+				.pull-right.script-name {
+					width: 126px;
+					word-break: break-all;
+					text-align: right;
+				} //.script-name
+			} //ul li
 			ul li span.glyphicon {
 				font-size: 90%;
 			}

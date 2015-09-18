@@ -1,6 +1,20 @@
-div.contents-area div.script-panel div.panel-heading {
+div.contents-area .script-infos {
+  margin-bottom: 17px;
+}
+div.contents-area .script-infos div.script-panel {
+  display: inline-block;
+  float: left;
+  margin: 5px;
+}
+div.contents-area .script-infos div.script-panel .panel-heading {
   font-size: 170%;
   font-weight: 140%;
+}
+div.contents-area .script-infos div.script-panel .panel-heading .script-name {
+  margin-right: 13px;
+}
+div.contents-area .script-infos div.script-panel .panel-footer .pull-right {
+  margin-left: 10px;
 }
 div.contents-area div.total-chart-panel div.panel-heading span.glyphicon {
   margin-right: 10px;

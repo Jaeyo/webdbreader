@@ -342,6 +342,8 @@ public class DbHandler {
 		String encryptedUsername = (String) database.get("encryptedUsername");
 		String encryptedPassword = (String) database.get("encryptedPassword");
 		
+		connUrl = new DateUtil(this.logger).formatReplace(connUrl);
+		
 		Preconditions.checkArgument(driver != null, "driver is null");
 		Preconditions.checkArgument(connUrl != null, "connUrl is null");
 		Preconditions.checkArgument(encryptedUsername != null, "encryptedUsername is null");

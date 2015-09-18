@@ -6,21 +6,21 @@ block header
 block title-area
 
 block contents-area
-	div.row
+	div.script-infos
 		each scriptInfo in scriptInfos
-			div.col-lg-3.col-md-6.col-sm-6
-				- runningClass = scriptInfo.IS_RUNNING == true ? "panel-primary" : "panel-red"
-				div.panel.script-panel(class=runningClass)
-					div.panel-heading.align-right
-						span.pull-left.glyphicon.glyphicon-console
-						span.pull-right #{scriptInfo.SCRIPT_NAME}
+			- runningClass = scriptInfo.IS_RUNNING == true ? "panel-primary" : "panel-red"
+			div.panel.script-panel(class=runningClass)
+				div.panel-heading.align-right
+					span.pull-left.glyphicon.glyphicon-console
+					span.pull-right.script-name #{scriptInfo.SCRIPT_NAME}
+					div.clearfix
+				a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/")
+					div.panel-footer
+						span.pull-left view details
+						span.pull-right
+							span.glyphicon.glyphicon-chevron-right
 						div.clearfix
-					a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/")
-						div.panel-footer
-							span.pull-left view details
-							span.pull-right
-								span.glyphicon.glyphicon-chevron-right
-							div.clearfix
+		div.clearfix
 	div.row
 		div.col-lg-9.col-md-12.col-sm-12
 			div.panel.panel-default.total-chart-panel
