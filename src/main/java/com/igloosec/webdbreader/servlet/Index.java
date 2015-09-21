@@ -67,6 +67,6 @@ public class Index extends JadeHttpServlet {
 		Map<String, Object> model = Maps.newHashMap();
 		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
 		model.put("operationHistories", Util.jsonArray2JsonObjectList(operationHistoryService.loadHistory(7)));
-		return jade("test.jade", model);
+		return jade("index.jade", model);
 	} //getIndex
 } //class

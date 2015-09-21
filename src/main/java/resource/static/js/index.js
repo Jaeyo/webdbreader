@@ -57,7 +57,7 @@ var ScriptInfoPanel = function(scriptInfo) {
 					div.clearfix'
 	)({ scriptInfo: scriptInfo }));
 }; //ScriptInfoPanel
-ScriptInfoPanel.prototype {
+ScriptInfoPanel.prototype = {
 	getDOM: function() {
 		return this.dom;
 	} //getDOM
@@ -86,6 +86,11 @@ var OperationHistoryListGroup = function(histories) {
 		)({ histories: histories }));
 	} //if
 }; //OperationHistoryListGroup
+OperationHistoryListGroup.prototype = {
+	getDOM: function() {
+		return this.dom;
+	} //getDOM
+}; //OperationHistoryListGroup
 
 
 $(function() {
@@ -113,10 +118,10 @@ $(function() {
 		} else {
 			new Morris.Line({
 				element: 'totalStatisticsChart',
-				data: resp.data,
+				data: data.data,
 				xkey: 'timestamp',
-				ykeys: resp.yKeys,
-				labels: resp.yKeys
+				ykeys: data.yKeys,
+				labels: data.yKeys
 			});
 		} //if
 	});
