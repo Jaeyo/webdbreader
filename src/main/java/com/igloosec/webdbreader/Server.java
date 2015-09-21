@@ -19,6 +19,7 @@ import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
 import com.igloosec.webdbreader.servlet.EmbedDbREST;
 import com.igloosec.webdbreader.servlet.Index;
+import com.igloosec.webdbreader.servlet.OperationHistoryREST;
 import com.igloosec.webdbreader.servlet.ShutdownREST;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
@@ -68,6 +69,7 @@ public class Server {
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
 		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
+		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
 		context.addServlet(Index.class, "");
 		context.setContextPath("/");
 		

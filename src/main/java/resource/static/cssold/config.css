@@ -1,0 +1,10 @@
+div.contents-area span.config-key {
+  margin-right: 10px;
+}
+div.contents-area div.panel-heading span.glyphicon {
+  margin-right: 10px;
+}
+div.contents-area label {
+  font-weight: normal;
+  margin-left: 5px;
+}

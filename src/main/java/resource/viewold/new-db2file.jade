@@ -1,0 +1,212 @@
+extends base
+
+block header
+	link(href="/css/new-db2file.css", rel="stylesheet")
+
+block title-area
+	h3 DB to FILE script
+
+block contents-area
+	div.panel.panel-default.center-xy#panel-input-database(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span input database
+			div.pull-right
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div
+				label.key-label database vendor
+				span.value-area
+					label
+						input(type="radio", name="dbVendor", value="oracle", onclick="controller.autoCompleteJdbcInfo(this);", checked=true)
+						span oracle
+					label
+						input(type="radio", name="dbVendor", value="mysql", onclick="controller.autoCompleteJdbcInfo(this);")
+						span mysql
+					label
+						input(type="radio", name="dbVendor", value="mssql", onclick="controller.autoCompleteJdbcInfo(this);")
+						span mssql
+					label
+						input(type="radio", name="dbVendor", value="db2", onclick="controller.autoCompleteJdbcInfo(this);")
+						span db2
+					label
+						input(type="radio", name="dbVendor", value="tibero", onclick="controller.autoCompleteJdbcInfo(this);")
+						span tibero
+					label
+						input(type="radio", name="dbVendor", value="etc", onclick="controller.autoCompleteJdbcInfo(this);")
+						span etc
+			div
+				label.key-label database address
+				span.value-area
+					input.input-text#text-database-ip(type="text", placeholder="ip", onkeyup="controller.autoCompleteJdbcInfo(this);")
+					input.input-text#text-database-port(type="text", placeholder="port", onkeyup="controller.autoCompleteJdbcInfo(this);")
+					button(type="button", class="btn btn-default btn-sm") connect test
+			div
+				label.key-label database(sid)
+				span.value-area
+					input.input-text#text-database-sid(type="text", onkeyup="controller.autoCompleteJdbcInfo(this);")
+			div
+				label.key-label jdbc driver
+				span.value-area
+					input.input-text#text-jdbc-driver(type="text")
+			div
+				label.key-label jdbc connection url
+				span.value-area
+					input.input-text#text-jdbc-conn-url(type="text")
+			div
+				label.key-label jdbc username
+				span.value-area
+					input.input-text#text-jdbc-username(type="text")
+			div
+				label.key-label jdbc-password
+				span.value-area
+					input.input-text#text-jdbc-password(type="password")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-input-database', 'panel-set-table-for-query');") next
+			div.clearfix
+	//end of card of id: card-input-database
+
+	div.panel.panel-default.center-xy#panel-set-table-for-query(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span select table
+			div.pull-right
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div#dropdown-table
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="controller.openPrevCard('panel-input-database');") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-set-table-for-query', 'panel-set-column-for-query');") next
+			div.clearfix
+	//end of card of id: card-set-table-for-query
+
+	div.panel.panel-default.center-xy#panel-set-column-for-query(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span select column
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div
+				button.btn.btn-default.btn-xs.pull-right(type="button", onclick="controller.selectAllColumns();") select all columns(*)
+				div.clearfix
+			div#div-columns
+			div
+				button.btn.btn-default.btn-xs.pull-right(type="button", onclick="controller.querySampleData();") select sample data
+				div.clearfix
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="controller.openPrevCard('panel-set-table-for-query');") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-set-column-for-query', 'panel-set-binding-type');") next
+			div.clearfix
+	//end of card of id: card-set-column-for-query
+
+	div.panel.panel-default.center-xy#panel-set-binding-type(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span binding type
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div
+				label
+					input(type="radio", name="condition", value="no-condition", checked=true, onclick="controller.setConditionType(this.value);")
+					span no condition
+			div
+				label
+					input(type="radio", name="condition", value="date-condition", onclick="controller.setConditionType(this.value);")
+					span date condition
+			div#columns-for-date-condition(style="display: none;")
+			div
+				label
+					input(type="radio", name="condition", value="sequence-condition", onclick="controller.setConditionType(this.value);")
+					span sequence condition
+			div#columns-for-sequence-condition(style="display: none;")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="controller.openPrevCard('panel-set-column-for-query');") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-set-binding-type', 'panel-etc-parameter');") next
+			div.clearfix
+	//end of card of id: card-set-binding-type
+
+	div.panel.panel-default.center-xy#panel-etc-parameter(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span etc parameter
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div.input-group.input-group-sm
+				span.input-group-addon period
+				input.form-control#text-period(type="text", value="60 * 1000")
+			div.input-group.input-group-sm
+				span.input-group-addon delimiter
+				input.form-control#text-delimiter(type="text", value="|")
+			div.input-group.input-group-sm
+				span.input-group-addon output path
+				input.form-control#text-output-path(type="text", value="")
+			div.input-group.input-group-sm
+				span.input-group-addon charset
+				input.form-control#text-charset(type="text", value="UTF-8")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="controller.openPrevCard('panel-set-binding-type');") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="controller.openCard('panel-etc-parameter', 'panel-script');") next
+			div.clearfix
+	//end of card of id: card-etc-parameter
+
+	div.panel.panel-default.center-xy#panel-script(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span script
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+		div.panel-body
+			textarea#textarea-script(row="30")
+		div.panel-footer
+			button(type="button", class="btn btn-primary form-control", onclick="controller.saveScript();") save
+	//end of card of id: card-script
+
+block footer
+	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
+	script#column-check-box(type="text/x-jade").
+		each column in columns
+			div
+				label
+					input(type="checkbox", name="select-column" value="\#{column.columnName}")
+					span \#{column.columnName} (\#{column.columnType})
+	script#column-radio-box(type="text/x-jade").
+		each column in columns
+			div
+				label
+					input(type="radio", name="condition-column", value="\#{column.columnName}")
+					span \#{column.columnName} (\#{column.columnType})
+	script(src="/js/db2file-script-maker.js")
+	script(src="/js/new-db2file.js")

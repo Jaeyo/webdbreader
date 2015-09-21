@@ -1,81 +1,49 @@
-hr {
+.dropdown-menu {
+  background-color: white;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  padding: 7px;
+}
+.dropdown-menu a {
   display: block;
-  height: 1px;
-  border: 0;
-  border-top: 1px solid #ccc;
-  margin: 1em 0;
-  padding: 0;
+  color: gray;
+  text-decoration: none;
+  padding: 5px;
 }
-.new-script-btn {
-  width: 100%;
-  background-color: #ff6c60;
-  color: white;
+.dropdown-menu a:hover {
+  background-color: #e1e1e1;
 }
-.new-script-btn:hover {
-  width: 100%;
-  background-color: #ff8c80;
-  color: white;
-}
-div.container-fluid {
+.container-fluid {
   height: 100%;
   padding-left: 0;
   padding-right: 0;
 }
-div.container-fluid .top-area .logo-area {
-  padding: 10px;
-  min-height: 80px;
-  float: left;
-  color: white;
-  background-color: #00a8b3;
-  width: 200px;
-  text-align: center;
+.container-fluid .header {
+  background-color: black;
+  height: 45px;
 }
-div.container-fluid .top-area .logo-area a {
+.container-fluid .header .logo {
+  float: left;
+  font-weight: bolder;
+  font-size: 20px;
+  padding: 9px;
   color: white;
+}
+.container-fluid .header .menu-area {
+  float: right;
+}
+.container-fluid .header .menu-area a {
+  color: gray;
   text-decoration: none;
+  margin-left: 10px;
 }
-div.container-fluid .top-area .title-area {
-  padding: 10px;
-  min-height: 80px;
-  float: left;
-  color: white;
-  background-color: #41cac0;
-  width: calc(100% - 200px);
+.container-fluid .sub-header {
+  background-color: gray;
+  height: 40px;
 }
-div.container-fluid .bottom-area {
-  top: 80px;
-  height: 100%;
-  color: gray;
-}
-div.container-fluid .bottom-area .menu-area {
-  height: calc(100% - 80px);
-  float: left;
-  padding: 10px;
-  background-color: #e5e8ef;
-  width: 200px;
+.container-fluid .contents {
+  width: 100%;
+  height: calc(100% - 45px - 40px);
+  background-color: #e1e1e1;
   overflow-y: auto;
-}
-div.container-fluid .bottom-area .menu-area div.well {
-  text-align: center;
-  color: gray;
-  font-size: 80%;
-}
-div.container-fluid .bottom-area .menu-area ul li span.glyphicon {
-  font-size: 90%;
-}
-div.container-fluid .bottom-area .menu-area ul li .pull-right.script-name {
-  width: 126px;
-  word-break: break-all;
-  text-align: right;
-}
-div.container-fluid .bottom-area .menu-area ul li span.glyphicon {
-  font-size: 90%;
-}
-div.container-fluid .bottom-area .contents-area {
-  height: calc(100% - 80px);
-  float: left;
-  padding: 20px;
-  width: calc(100% - 200px);
-  overflow: auto;
-  position: relative;
 }

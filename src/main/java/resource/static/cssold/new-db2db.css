@@ -1,0 +1,78 @@
+.glyphicon {
+  margin-right: 4px;
+}
+#panel-input-database {
+  width: 500px;
+}
+#panel-input-database div.panel-body div {
+  margin-bottom: 5px;
+}
+#panel-input-database div.panel-body div label.key-label {
+  width: 150px;
+  margin-right: 10px;
+}
+#panel-input-database div.panel-body div span.value-area {
+  margin-bottom: 5px;
+}
+#panel-input-database div.panel-body div span.value-area label {
+  margin-right: 5px;
+  font-weight: normal;
+}
+#panel-input-database div.panel-body div span.value-area input#text-src-database-ip,
+#panel-input-database div.panel-body div span.value-area input#text-dest-database-ip {
+  width: 150px;
+}
+#panel-input-database div.panel-body div span.value-area input#text-src-database-port,
+#panel-input-database div.panel-body div span.value-area input#text-dest-database-port {
+  width: 50px;
+}
+#panel-input-database div.panel-body div span.value-area input#text-src-database-sid,
+#panel-input-database div.panel-body div span.value-area input#text-dest-database-sid,
+#panel-input-database div.panel-body div span.value-area input#text-src-jdbc-driver,
+#panel-input-database div.panel-body div span.value-area input#text-dest-jdbc-driver,
+#panel-input-database div.panel-body div span.value-area input#text-src-jdbc-conn-url,
+#panel-input-database div.panel-body div span.value-area input#text-dest-jdbc-conn-url,
+#panel-input-database div.panel-body div span.value-area input#text-src-jdbc-username,
+#panel-input-database div.panel-body div span.value-area input#text-dest-jdbc-username,
+#panel-input-database div.panel-body div span.value-area input#text-src-jdbc-password,
+#panel-input-database div.panel-body div span.value-area input#text-dest-jdbc-password {
+  width: 292px;
+}
+#panel-set-table-for-query {
+  width: 300px;
+}
+#panel-set-column-for-query {
+  width: 600px;
+}
+#panel-set-column-for-query div.panel-body div#src-columns label,
+#panel-set-column-for-query div.panel-body div#dest-columns label {
+  font-weight: normal;
+}
+#panel-set-binding-type {
+  width: 300px;
+}
+#panel-set-binding-type div.panel-body {
+  max-height: 250px;
+}
+#panel-set-binding-type div.panel-body label {
+  font-weight: normal;
+}
+#panel-set-binding-type div.panel-body #columns-for-sequence-condition,
+#panel-set-binding-type div.panel-body #columns-for-date-condition {
+  max-height: 100px;
+  overflow-y: scroll;
+  padding-left: 10px;
+  background-color: #f5f6f9;
+}
+#panel-etc-parameter {
+  min-width: 400px;
+}
+#panel-etc-parameter div.panel-body div.input-group {
+  width: 100%;
+}
+#panel-etc-parameter div.panel-body div.input-group span.input-group-addon {
+  width: 100px;
+}
+#panel-script {
+  max-width: 800px;
+}

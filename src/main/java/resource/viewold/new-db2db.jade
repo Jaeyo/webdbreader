@@ -1,0 +1,233 @@
+extends base
+
+block header
+	link(href="/css/new-db2db.css", rel="stylesheet")
+
+block title-area
+	h3 DB to DB script
+
+block contents-area
+	div.panel.panel-default.center-xy#panel-input-database(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span input database
+			div.pull-right
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			h4 source database
+			div
+				label.key-label database vendor
+				span.value-area
+					- dbVendors = [ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ];
+					each dbVendor in dbVendors
+						label
+							input(type="radio", name="srcDbVendor", value="#{dbVendor}", onclick="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+							span #{dbVendor}
+			div
+				label.key-label database address
+				span.value-area
+					input.input-text#text-src-database-ip(type="text", placeholder="ip", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+					input.input-text#text-src-database-port(type="text", placeholder="port", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+					button(type="button", class="btn btn-default btn-sm") connect test
+			div
+				label.key-label database(sid)
+				span.value-area
+					input.input-text#text-src-database-sid(type="text", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+			div
+				label.key-label jdbc driver
+				span.value-area
+					input.input-text#text-src-jdbc-driver(type="text")
+			div
+				label.key-label jdbc connection url
+				span.value-area
+					input.input-text#text-src-jdbc-conn-url(type="text")
+			div
+				label.key-label jdbc username
+				span.value-area
+					input.input-text#text-src-jdbc-username(type="text")
+			div
+				label.key-label jdbc-password
+				span.value-area
+					input.input-text#text-src-jdbc-password(type="password")
+			hr
+			h4 destination database
+			div
+				label.key-label database vendor
+				span.value-area
+					- dbVendors = [ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ];
+					each dbVendor in dbVendors
+						label
+							input(type="radio", name="destDbVendor", value="#{dbVendor}", onclick="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+							span #{dbVendor}
+			div
+				label.key-label database address
+				span.value-area
+					input.input-text#text-dest-database-ip(type="text", placeholder="ip", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+					input.input-text#text-dest-database-port(type="text", placeholder="port", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+					button(type="button", class="btn btn-default btn-sm") connect test
+			div
+				label.key-label database(sid)
+				span.value-area
+					input.input-text#text-dest-database-sid(type="text", onkeyup="view.panelViewInputDatabase.autoCompleteJdbcInfo(this);")
+			div
+				label.key-label jdbc driver
+				span.value-area
+					input.input-text#text-dest-jdbc-driver(type="text")
+			div
+				label.key-label jdbc connection url
+				span.value-area
+					input.input-text#text-dest-jdbc-conn-url(type="text")
+			div
+				label.key-label jdbc username
+				span.value-area
+					input.input-text#text-dest-jdbc-username(type="text")
+			div
+				label.key-label jdbc-password
+				span.value-area
+					input.input-text#text-dest-jdbc-password(type="password")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="view.panelViewInputDatabase.next();") next
+			div.clearfix
+	//end of card of id: card-input-database
+
+	div.panel.panel-default.center-xy#panel-set-table-for-query(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span select table
+			div.pull-right
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			h4 source database table
+			div#dropdown-src-table
+			hr
+			h4 destination database table
+			div#dropdown-dest-table
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="view.panelViewSetTableForQuery.prev();") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="view.panelViewSetTableForQuery.next();") next
+			div.clearfix
+	//end of card of id: card-set-table-for-query
+
+	div.panel.panel-default.center-xy#panel-set-column-for-query(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span select column
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div
+				div#selected-column-pairs
+				div.clearfix
+			hr
+			div.rows
+				div.col-sm-5#src-columns
+				div.col-sm-5#dest-columns
+				div.col-sm-2
+					button.btn.btn-info.btn.sm(type="button", onclick="view.panelViewSetColumnForQuery.addColumnPair();") add
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="view.panelViewSetColumnForQuery.prev();") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="view.panelViewSetColumnForQuery.next();") next
+			div.clearfix
+	//end of card of id: card-set-column-for-query
+
+	div.panel.panel-default.center-xy#panel-set-binding-type(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span binding type
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div
+				label
+					input(type="radio", name="condition", value="no-condition", checked=true, onclick="view.panelViewSetBindingType.setBindingType(this.value);")
+					span no condition
+			div
+				label
+					input(type="radio", name="condition", value="date-condition", onclick="view.panelViewSetBindingType.setBindingType(this.value);")
+					span date condition
+			div#columns-for-date-condition(style="display: none;")
+			div
+				label
+					input(type="radio", name="condition", value="sequence-condition", onclick="view.panelViewSetBindingType.setBindingType(this.value);")
+					span sequence condition
+			div#columns-for-sequence-condition(style="display: none;")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="view.panelViewSetBindingType.prev();") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="view.panelViewSetBindingType.next();") next
+			div.clearfix
+	//end of card of id: card-set-binding-type
+
+	div.panel.panel-default.center-xy#panel-etc-parameter(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span etc parameter
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+				span.gray-sm-ball
+		div.panel-body
+			div.input-group.input-group-sm
+				span.input-group-addon period
+				input.form-control#text-period(type="text", value="60 * 1000")
+		div.panel-footer
+			button(type="button", class="btn btn-primary btn-sm pull-left", onclick="view.panelViewEtcParameter.prev();") prev
+			button(type="button", class="btn btn-primary btn-sm pull-right", onclick="view.panelViewEtcParameter.next();") next
+			div.clearfix
+	//end of card of id: card-etc-parameter
+
+	div.panel.panel-default.center-xy#panel-script(style="display: none;")
+		div.panel-heading
+			span.glyphicon.glyphicon-console
+			span script
+			div.pull-right
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.gray-sm-ball
+				span.black-sm-ball
+		div.panel-body
+			textarea#textarea-script(row="30")
+		div.panel-footer
+			button(type="button", class="btn btn-primary form-control", onclick="view.panelViewScript.save();") save
+	//end of card of id: card-script
+
+block footer
+	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
+	script#column-check-box(type="text/x-jade").
+		each column in columns
+			div
+				label
+					input(type="checkbox", name="select-column" value="\#{column.columnName}")
+					span \#{column.columnName} (\#{column.columnType})
+	script#column-radio-box(type="text/x-jade").
+		each column in columns
+			div
+				label
+					input(type="radio", name="condition-column", value="\#{column.columnName}")
+					span \#{column.columnName} (\#{column.columnType})
+	script(src="/js/db2db-script-maker.js")
+	script(src="/js/new-db2db.js")
