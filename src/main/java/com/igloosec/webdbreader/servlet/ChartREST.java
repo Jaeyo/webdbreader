@@ -54,6 +54,6 @@ public class ChartREST extends JadeHttpServlet{
 	
 	private String getTotalChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParmas){
 		JSONObject totalStatistics = scriptScoreStatisticsService.getTotalScriptStatistics();
-		return totalStatistics.put("success", 1).put("data", totalStatistics).toString();
+		return new JSONObject().put("success", 1).put("data", totalStatistics).toString();
 	} //getCategoryChart
 } //class
