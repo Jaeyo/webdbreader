@@ -2,6 +2,7 @@
 @top-title-background-color: #41cac0;
 @red-btn-color: #ff6c60;
 @red-btn-hover-color: #ff8c80;
+@blue-color: #337ab7;
 
 hr {
 	display: block;
@@ -72,7 +73,7 @@ div.container-fluid {
 				color: gray;
 				font-size: 80%;
 			} //div.well
-			ul li {
+			ul li a {
 				span.glyphicon {
 					font-size: 90%;
 				} //span.glyphicon
@@ -81,7 +82,11 @@ div.container-fluid {
 					word-break: break-all;
 					text-align: right;
 				} //.script-name
-			} //ul li
+			} //ul li a
+			ul li a:hover {
+				background-color: @blue-color;
+				color: white;
+			} //ul li a:hover
 			ul li span.glyphicon {
 				font-size: 90%;
 			}

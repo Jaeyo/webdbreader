@@ -1,55 +1,27 @@
-Model = function(){
-}; //INIT
-Model.prototype = {
-}; //Model
+var editor = null;
 
-View = function(){
-	var theme = $('input#hidden-script-editor-theme').val();
-	this.scriptEditor = this.codeMirror($('#textarea-script')[0], theme);
-}; //INIT
-View.prototype = {
-	codeMirror: function(dom, theme){
-		var editor = CodeMirror.fromTextArea(dom, {
-			lineNumbers: true,
-			mode: {name: "javascript", globalVars: true}
+function save() {
+	var script = editor.getValue();
+	bootbox.prompt('script name', function(title) {
+		if(title == null)
+			return;
+
+		$.post('/REST/Script/New/{}/'.format(title), { script: script }, function(resp) {
+			if(resp.success !== 1) {
+				bootbox.alert(JSON.stringify(resp));
+				return;
+			} //if
+
+			bootbox.alert('script saved', function() {
+				window.location.href = '/Script/View/{}/'.format(title);
+			});
 		});
-		
-		editor.setSize(null, 500);
-		editor.setOption("theme", theme);
-		
-		var originalHint = CodeMirror.hint.javascript;
-		CodeMirror.hint.javascript = function(cm){
-			var inner = originalHint(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
-			var customAutoComplete = model.customAutoComplete;
-			for(var i=0; i<customAutoComplete.length; i++)
-				inner.list.push(customAutoComplete[i]);
-			return inner;
-		};
-		return editor;
-	} //codeMirror
-}; //View
+	});
+} //save
 
-Controller = function(){
-}; //INIT
-Controller.prototype = {
-	save: function(){
-		var script = view.scriptEditor.getValue();
-		bootbox.prompt('title', function(title){
-			if(title === null) return;
-			
-			$.post('/REST/Script/New/{}/'.format(title), {script: script}, function(resp){
-				if(resp.success !== 1){
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-				bootbox.alert('script saved', function(){ window.location.href = '/Script/View/{}/'.format(title); });
-			}, 'json');
-		});
-	} //save
-}; //Controller
-
-$(function(){
-	model = new Model();
-	view = new View();
-	controller = new Controller();
+$(function() {
+	editor = ace.edit('editor');
+	editor.setTheme('ace/theme/kuroir');
+	editor.getSession().setMode('ace/mode/javascript');
+	editor.setKeyboardHandler('ace/keyboard/vim');
 });

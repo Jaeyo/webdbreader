@@ -7,11 +7,14 @@ div.contents-area .script-infos div.script-panel {
   margin: 5px;
 }
 div.contents-area .script-infos div.script-panel .panel-heading {
-  font-size: 170%;
-  font-weight: 140%;
+  padding: 9px 13px;
 }
 div.contents-area .script-infos div.script-panel .panel-heading .script-name {
-  margin-right: 13px;
+  margin-left: 13px;
+}
+div.contents-area .script-infos div.script-panel .panel-footer {
+  padding: 6px 12px;
+  font-size: 90%;
 }
 div.contents-area .script-infos div.script-panel .panel-footer .pull-right {
   margin-left: 10px;

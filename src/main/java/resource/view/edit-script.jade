@@ -8,11 +8,10 @@ block title-area
 
 block contents-area
 	div
-		textarea#textarea-script(rows="50") #{script.SCRIPT}
-	hr
+		pre#editor #{script.SCRIPT}
 	div.oper-btns
-		button(type="button", class="btn btn-primary", onclick="controller.export();") export
-		button(type="button", class="btn btn-info", onclick="controller.save();") save
+		button(type="button", class="btn btn-primary", onclick="exportScript();") export
+		button(type="button", class="btn btn-info", onclick="save();") save
 
 block footer
 	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")

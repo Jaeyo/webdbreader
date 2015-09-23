@@ -8,10 +8,9 @@ block title-area
 
 block contents-area
 	div
-		textarea#textarea-script(rows="50")
-	hr
+		pre#editor
 	div.oper-btns
-		button(type="button", class="btn btn-info", onclick="controller.save();") save
+		button(type="button", class="btn btn-info", onclick="save();") save
 
 block footer
 	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
