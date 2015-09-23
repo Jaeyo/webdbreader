@@ -1,3 +1,5 @@
+var editor = null;
+
 Model = function(){
 	this.scriptName = $('input#script-name[type="hidden"]').val();
 }; //INIT
@@ -112,4 +114,10 @@ $(function(){
 	logMonitoringWS = new LogMonitoringWS();
 
 	logMonitoringWS.start();
+
+	editor = ace.edit('editor');
+	editor.setTheme('ace/theme/kuroir');
+	editor.getSession().setMode('ace/mode/javascript');
+	editor.setKeyboardHandler('ace/keyboard/vim');
+	editor.setReadOnly(true);
 });

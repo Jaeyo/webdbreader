@@ -12,27 +12,31 @@ div.contents-area {
 		margin-right: 10px;
 	}
 
-	div.command-panel {
-		div.panel-body {
-			button {
-				width: 100%;
-				margin-top: 3px;
-			} //button
-		}  //div.panel-body
-	} //div.command-panel
+	.infomation-panel {
+		width: 200px;
+		height: 200px;
+		float: left;
+	} //.infomation-panel
 
-	div.operation-history-panel {
-		div.panel-body {
-			ul.list-group {
-				li.list-group-item.startup-history {
-					background-color: @startup-color;
-				} //startup-history
-				li.list-group-item.shutdown-history {
-					background-color: @shutdown-color;
-				} //shutdown-history
-			} //list-group
-		} //panel-body
-	} //operation-history-panel
+	.script-panel {
+		width: 880px;
+		height: 200px;
+		width: ~"calc(100% - 200px)";
+		float: left;
+
+		.panel-body {
+			position: relative;
+			height: ~"calc(100% - 30px)";
+			overflow: hidden;
+			#editor {
+				position: absolute;
+				top: 10px;
+				bottom: 10px;
+				right: 10px;
+				left: 10px;
+			} //#editor
+		} //.panel-body
+	} //.script-panel
 
 	div.log-monitoring-panel {
 		div.panel-body {

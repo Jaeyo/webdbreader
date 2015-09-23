@@ -5,15 +5,28 @@ div.contents-area span.glyphicon-upload,
 div.contents-area span.glyphicon-download {
   margin-right: 10px;
 }
-div.contents-area div.command-panel div.panel-body button {
-  width: 100%;
-  margin-top: 3px;
+div.contents-area .infomation-panel {
+  width: 200px;
+  height: 200px;
+  float: left;
 }
-div.contents-area div.operation-history-panel div.panel-body ul.list-group li.list-group-item.startup-history {
-  background-color: #eff5ff;
+div.contents-area .script-panel {
+  width: 880px;
+  height: 200px;
+  width: calc(100% - 200px);
+  float: left;
 }
-div.contents-area div.operation-history-panel div.panel-body ul.list-group li.list-group-item.shutdown-history {
-  background-color: #ffebeb;
+div.contents-area .script-panel .panel-body {
+  position: relative;
+  height: calc(100% - 30px);
+  overflow: hidden;
+}
+div.contents-area .script-panel .panel-body #editor {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  right: 10px;
+  left: 10px;
 }
 div.contents-area div.log-monitoring-panel div.panel-body ul li {
   border-bottom: 1px dotted #b9b9b9;
