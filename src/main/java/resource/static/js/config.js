@@ -22,11 +22,6 @@ Controller.prototype = {
 		this.postConfig([{ configKey: 'version.check', configValue: versionCheckValue }]);
 	}, //saveGeneralConfig
 
-	saveScriptEditorConfig: function(){
-		var selectedTheme = $('select#select-script-editor-theme option:selected').val();
-		this.postConfig([{ configKey: 'script.editor.theme', configValue: selectedTheme }]);
-	}, //saveScriptEditorConfig
-
 	postConfig: function(configKeyValueArr){
 		$.post('/REST/Config/', { 
 			jsonParam: JSON.stringify(configKeyValueArr)

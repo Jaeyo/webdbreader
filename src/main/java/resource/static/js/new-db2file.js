@@ -1,3 +1,5 @@
+var editor;
+
 Db2FileModel = function(){
 	/*
 	 * {
@@ -145,30 +147,8 @@ Model.prototype = {
 }; //Model
 
 View = function(){
-	var theme = $('input#hidden-script-editor-theme').val();
-	this.scriptEditor = this.codeMirror($('#textarea-script')[0], theme);
 }; //INIT
 View.prototype = {
-	codeMirror: function(dom, theme){
-		var editor = CodeMirror.fromTextArea(dom, {
-			mode: "javascript",
-			indentWithTabs: true
-		});
-		
-		editor.setSize(null, 400);
-		editor.setOption("theme", theme);
-		
-		var originalHint = CodeMirror.hint.javascript;
-		CodeMirror.hint.javascript = function(cm){
-			var inner = originalHint(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
-			var customAutoComplete = model.customAutoComplete;
-			for(var i=0; i<customAutoComplete.length; i++)
-				inner.list.push(customAutoComplete[i]);
-			return inner;
-		};
-		
-		return editor;
-	} //codeMirror
 }; //View
 
 Controller = function(){
@@ -295,7 +275,7 @@ Controller.prototype = {
 					model.db2FileModel.setVersion(resp.version);
 					var script = new Db2FileScriptMaker().setModel(model.db2FileModel).script();
 					setTimeout(function(){
-						view.scriptEditor.setValue(script);
+						editor.setValue(script);
 					}, 400);
 				});
 				break;
@@ -454,7 +434,7 @@ Controller.prototype = {
 		} //switch
 	}, //setConditionType
 	saveScript: function(){
-		var script = view.scriptEditor.getValue();
+		var script = editor.getValue();
 		bootbox.prompt('input script title: ', function(title){
 			if(title === null) 
 				return;
@@ -490,6 +470,11 @@ $(function(){
 	$('.panel').hide();
 	$('#panel-input-database').show(300);
 
+	editor = ace.edit('editor');
+	editor.setTheme('ace/theme/kuroir');
+	editor.getSession().setMode('ace/mode/javascript');
+	editor.setKeyboardHandler('ace/keyboard/vim');
+
 	//DEBUG
 	$('#panel-input-database input[type="radio"][name="dbVendor"][value="mysql"]').click();
 	$('#panel-input-database #text-database-ip').val('localhost');
@@ -497,6 +482,7 @@ $(function(){
 	$('#panel-input-database #text-jdbc-username').val('nawa');
 	$('#panel-input-database #text-jdbc-password').val('nawadkagh');
 	//DEBUG
+
 });
 
 function precondition(expression, msg){

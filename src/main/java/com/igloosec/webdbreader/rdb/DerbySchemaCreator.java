@@ -78,9 +78,6 @@ public class DerbySchemaCreator {
 		for (int i = 0; i < result.length(); i++)
 			existingConfigKeys.add(result.getJSONObject(i).getString("CONFIG_KEY"));
 		
-		if(existingConfigKeys.contains("script.editor.theme") == false)
-			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('script.editor.theme', 'cobalt')");
-		
 		if(existingConfigKeys.contains("version.check") == false)
 			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('version.check', 'true')");
 	} //checkConfig

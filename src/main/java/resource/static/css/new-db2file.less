@@ -5,7 +5,7 @@
 }
 
 #panel-input-database {
-	width: 500px;
+	width: 550px;
 	div.panel-body {
 		div {
 			margin-bottom: 5px;
@@ -19,14 +19,23 @@
 					margin-right: 5px;
 					font-weight: normal;
 				} //labek
-				input#text-database-ip { width: 150px; }
-				input#text-database-port { width: 50px; }
+				input#text-database-ip { 
+					width: 170px; 
+					margin-right: 5px;
+				} //#text-database-ip
+				input#text-database-port { 
+					width: 50px; 
+					margin-right: 5px;
+				} //#text-database-port
+				button#connect-test-btn {
+					width: 126px;
+				}
 				input#text-database-sid,
 				input#text-jdbc-driver,
 				input#text-jdbc-conn-url,
 				input#text-jdbc-username,
 				input#text-jdbc-password {
-					width: 292px;
+					width: 356px;
 				} 
 			} //value-area
 		} //div
@@ -80,5 +89,18 @@
 } //panel-etc-parameter
 
 #panel-script {
-	max-width: 800px;
+	.panel-body {
+		width: 800px;
+		height: 300px;
+		position: relative;
+
+		pre#editor {
+			margin: 0;
+			position: absolute;
+			top: 10px;
+			bottom: 10px;
+			left: 10px;
+			right: 10px;
+		} //#editor
+	} //.panel-body
 } //panel-script

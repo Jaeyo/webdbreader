@@ -45,7 +45,7 @@ block contents-area
 				span.value-area
 					input.input-text#text-database-ip(type="text", placeholder="ip", onkeyup="controller.autoCompleteJdbcInfo(this);")
 					input.input-text#text-database-port(type="text", placeholder="port", onkeyup="controller.autoCompleteJdbcInfo(this);")
-					button(type="button", class="btn btn-default btn-sm") connect test
+					button(type="button", class="btn btn-default btn-sm")#connect-test-btn connect test
 			div
 				label.key-label database(sid)
 				span.value-area
@@ -189,7 +189,8 @@ block contents-area
 				span.gray-sm-ball
 				span.black-sm-ball
 		div.panel-body
-			textarea#textarea-script(row="30")
+			pre#editor
+			//- textarea#textarea-script(row="30")
 		div.panel-footer
 			button(type="button", class="btn btn-primary form-control", onclick="controller.saveScript();") save
 	//end of card of id: card-script

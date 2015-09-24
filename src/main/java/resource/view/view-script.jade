@@ -7,14 +7,14 @@ block title-area
 	h3 #{script.SCRIPT_NAME}
 
 block contents-area
-	div
+	div.btn-area
 		if script.IS_RUNNING == true
 			button.btn.btn-primary.btn-sm(type="button", disabled=true) start
 			button.btn.btn-primary.btn-sm(type="button", onclick="controller.stopScript();") stop
 		else
 			button.btn.btn-primary.btn-sm(type="button", onclick="controller.startScript();") start
 			button.btn.btn-primary.btn-sm(type="button", disabled=true) stop
-		span |
+		span.divider
 		button.btn.btn-default.btn-sm(type="button", onclick="editScript();") edit script
 		button.btn.btn-default.btn-sm(type="button", onclick="controller.rename();") rename
 		button.btn.btn-danger.btn-sm(type="button", onclick="controller.remove();") remove
@@ -43,7 +43,7 @@ block contents-area
 				span script
 			div.panel-body
 				pre#editor #{script.SCRIPT}
-	hr
+		div.clearfix
 	div
 		div.panel.panel-default.log-monitoring-panel
 			div.panel-heading
