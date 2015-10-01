@@ -24,7 +24,6 @@
     "jsx-loader": "^0.13.2",
     "moment": "^2.10.6",
     "react": "^0.13.3",
-    "react-bootstrap": "^0.25.2",
     "style-loader": "^0.12.4",
     "webpack": "^1.12.2"
   }
