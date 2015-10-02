@@ -1,3 +1,5 @@
+var editor;
+
 Db2DbModel = function(){
 	/*
 		{
@@ -156,31 +158,6 @@ Model = function(){
 }; //INIT
 
 View = function(){
-	var theme = $('input#hidden-script-editor-theme').val();
-
-	var codeMirror = function(dom, theme){
-		var editor = CodeMirror.fromTextArea(dom, {
-			mode: "javascript",
-			indentWithTabs: true
-		});
-		
-		editor.setSize(null, 400);
-		editor.setOption("theme", theme);
-		
-		var originalHint = CodeMirror.hint.javascript;
-		CodeMirror.hint.javascript = function(cm){
-			var inner = originalHint(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
-			var customAutoComplete = model.customAutoComplete;
-			for(var i=0; i<customAutoComplete.length; i++)
-				inner.list.push(customAutoComplete[i]);
-			return inner;
-		};
-		
-		return editor;
-	}; //codeMirror
-
-	this.scriptEditor = codeMirror($('#textarea-script')[0], theme);
-
 	this.panelViewInputDatabase = new PanelViewInputDatabase();
 	this.panelViewSetTableForQuery = new PanelViewSetTableForQuery();
 	this.panelViewSetColumnForQuery = new PanelViewSetColumnForQuery();
@@ -626,7 +603,7 @@ function PanelViewScript() {
 			model.db2DbModel.setVersion(resp.version);
 
 			var script = new Db2DbScriptMaker().setModel(model.db2DbModel).script();
-			view.scriptEditor.setValue(script);
+			editor.setValue(script);
 		});
 	}; //init
 
@@ -637,7 +614,7 @@ function PanelViewScript() {
 
 	//private
 	var getParameter = function() {
-		var script = view.scriptEditor.getValue();
+		var script = editor.getValue();
 
 		return { script: script };
 	}; //getParameter
@@ -730,6 +707,11 @@ $(function(){
 
 	$('.panel').hide();
 	$('#panel-input-database').show(300);
+
+	editor = ace.edit('editor');
+	editor.setTheme('ace/theme/kuroir');
+	editor.getSession().setMode('ace/mode/javascript');
+	editor.setKeyboardHandler('ace/keyboard/vim');
 
 	$('input[type="radio"][name="srcDbVendor"][value="oracle"]').click();
 	$('input[type="radio"][name="destDbVendor"][value="oracle"]').click();

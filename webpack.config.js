@@ -2,10 +2,11 @@ var webpack = require('webpack');
 
 module.exports = {
 	entry: {
-		base: [ './src/main/java/resource/jsx/base.jsx' ]
+		base: [ './src/main/java/resource/jsx/base.jsx' ],
+		config: [ './src/main/java/resource/jsx/config.jsx' ]
 	},
 	output: {
-		path: './src/main/java/resource/js/',
+		path: './src/main/java/resource/static/js/bundle/',
 		filename: '[name].bundle.js'
 	},
 	resolve: {

@@ -1,8 +1,12 @@
+- menuClass = "nav nav-pills nav-stacked";
+
 doctype html
 html
 	head
 		include inc/head.jade
 		title SpDbReader
+		link(href="/css/base.css", rel="stylesheet")
+		block header
 	body
 		div.container-fluid
 			div.top-area
@@ -14,29 +18,7 @@ html
 					div
 						button.btn.new-script-btn(type="button", onclick="newScript();") new script
 					hr
-					div
-						ul(class=menuClass)
-							li: a(href="/") 
-								span.glyphicon.glyphicon-cloud.pull-left
-								span.pull-right overview
-								div.clearfix
-							li: hr
-							li: h5 Scripts
-							if scriptInfos == null
-								li: div.well unable to read script info
-							else if scriptInfos.size() == 0
-								li: div.well no script
-							else
-								each scriptInfo in scriptInfos
-									li: a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/") 
-										span.glyphicon.glyphicon-console.pull-left
-										span.pull-right.script-name #{scriptInfo.SCRIPT_NAME}
-										div.clearfix
-							li: hr
-							li: a(href="/Config/") 
-								span.glyphicon.glyphicon-cog.pull-left
-								span.pull-right configuration
-								div.clearfix
+					div#menu-items
 				div.contents-area
 					block contents-area
 					
@@ -54,6 +36,7 @@ html
 						div blabla 여기는 설명입ㅈ니다
 			
 		script(src="/js/common.js")
+		script(src="/js/bundle/base.bundle.js")
 		script.
 			function newScript(){
 				var msgJade = $('script#new-script[type="x-jade"]').html();
@@ -71,7 +54,5 @@ html
 			function importScript(){
 				window.location.href = '/Script/EditNew/';
 			}; //importScript
-		script.
-			Waves.attach('button[type="button"]', ['waves-float']);
 
 		block footer

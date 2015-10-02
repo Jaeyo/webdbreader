@@ -1,471 +1,451 @@
 var React = require('react'),
-	util  require('util');
+	util  require('util'),
+	precond = require('precond'),
+	Promise = require('promise');
+
+var jdbcTmpl = {
+	oracle: {
+		driver: 'oracle.jdbc.driver.OracleDriver',
+		connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
+		port: 1521
+	},
+	mysql: {
+		driver: 'com.mysql.jdbc.Driver',
+		connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
+		port: 3306
+	},
+	mssql: {
+		driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+		connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
+		port: 1433
+	},
+	db2: {
+		driver: 'com.ibm.db2.jcc.DB2Driver',
+		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+		port: 50000
+	},
+	tibero: {
+		driver: 'com.ibm.db2.jcc.DB2Driver',
+		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+		port: 8629
+	}
+};
+
+Db2FileModel = function(){
+	/*
+	 * {
+	 * 		period: (string),
+	 * 		selectColumn: [ (string) ],
+	 * 		tableName: (string),
+	 * 		outputPath: (string),
+	 * 		delimiter: (string),
+	 * 		charset: (string),
+	 * 		condition: {
+	 * 			type: (string)('no-condition' | 'date-condition' | 'sequence-condition'),
+	 * 			column: (string)
+	 * 		},
+	 * 		database: {
+	 * 			vendor: (string, lower case only),
+	 * 			driver: (string),
+	 * 			connUrl: (string),
+	 * 			username: (string),
+	 * 			password: (string)
+	 * 		}
+	 * }
+	 */
+}; //INIT
+Db2FileModel.prototype = {
+	setPeriod: function(period){
+		try{
+			eval(period);
+		} catch(e){
+			throw new Error('invalid period value');
+		} //catch
+		
+		this.period = period;
+		return this;
+	}, //setPeriod
+
+	setSelectColumn: function(selectColumn){
+		if((selectColumn instanceof Array) === false)
+			throw new Error('invalid selectColumn type');
+		this.selectColumn = selectColumn;
+		return this;
+	}, //setSelectColumn
+	
+	setTableName: function(tableName){
+		this.tableName = tableName;
+		return this;
+	}, //setTableName
+	
+	setOutputPath: function(outputPath){
+		this.outputPath = outputPath;
+		return this;
+	}, //setOutputPath
+	
+	setDelimiter: function(delimiter){
+		this.delimiter = delimiter;
+		return this;
+	}, //setDelimiter
+	
+	setCharset: function(charset){
+		this.charset = charset;
+		return this;
+	}, //setCharset
+	
+	setCondition: function(condition){
+		if(this.condition === undefined) 
+			this.condition = {};
+		
+		if(condition.type !== undefined){
+			precondition(condition.type === 'no-condition' || 
+				condition.type === 'date-condition' || 
+				condition.type === 'sequence-condition', 
+				'invalid condition type');
+			
+			this.condition.type = condition.type;
+		} //if
+		
+		if(condition.column !== undefined)
+			this.condition.column = condition.column;
+		
+		return this;
+	}, //setCondition
+	
+	setDatabase: function(database){
+		if(this.database === undefined) 
+			this.database = {};
+		
+		if(database.vendor !== undefined)
+			this.database.vendor = database.vendor;
+		
+		if(database.driver !== undefined)
+			this.database.driver = database.driver;
+		
+		if(database.connUrl !== undefined)
+			this.database.connUrl = database.connUrl;
+	
+		if(database.username !== undefined)
+			this.database.username = database.username;
+		
+		if(database.password !== undefined)
+			this.database.password = database.password;
+		
+		return this;
+	}, //setDatabase
+
+	setVersion: function(version){
+		this.version = version;
+		return this;
+	} //setVersion
+}; //Db2FileModel
+var db2FileModel = new Db2FileModel();
 
 var Db2FileView = React.createClass({
+	// 1. input-database
+	// 2. set-table-for-query
 	getInitialState() {
 		return {
-			period: '',
-			selectColumn: [], // [ (string) ]
-			tableName: '',
-			outputPath: '',
-			delimiter: ''
-			charset: '',
-			condition: {
-				type: 'no-condition', //('no-condition' | 'date-condition' | 'sequence-condition')
-				column: ''
-			},
-			database: {
-				vender: 'oracle', //(lower case only)
-				driver: '',
-				connUrl: '',
-				username: '',
-				password: ''
-			}
+			currentPanel: 'input-database'
 		};
-	}, //getInitialState
-	valueCallback(args) {
-		var updateStateFn = function(state, args) {
-			for(var key in args) {
-				var value = args[key];
-				if(typeof value === 'object') {
-					state[key] = updateStateFn(state[key], value);
-				} else {
-					state[key] = value;
-				} //if
-			} //for key
-			return state;
-		}; //updateStateFn
+	},
 
-		var state = JSON.parse(JSON.stringify(this.state));
-		this.setState(updateStateFn(state, args));
-	}, //valueCallback
+	onInputDatabasePanelNext() {
+		this.setState({ currentPanel: 'set-table-for-query' });
+	},
+
 	render() {
-		return (
-			<div>
-				<PanelInputDatabase 
-					show={true}
-					valueCllback={this.valueCallback}
-					nextCallback={TODO}
-					dbVendor={this.state.database.vender} />
-			</div>
-		);
-	} //render
-}); //Db2FileView
+		switch(this.state.currentPanel) {
+			case 'input-database':
+				return (<InputDatabasePanel onNext={this.onInputDatabasePanelNext} />);
+			case 'set-table-for-query':
+				return (<SetTableForQuery />); //TODO IMME
+			default: 
+				bootbox.alert('invalid panel name: ' + this.state.currentPanel);
+				return;
+		} //switch
+	}
+});
 
-var PanelInputDatabase = React.createClass({
+var InputDatabasePanel = React.createClass({
 	getDefaultProps() {
 		return {
-			show: false,
-			valueCallback: null,
-			nextCallback: null,
-			dbVendor: 'oracle',
-			jdbcDriver: '',
-			jdbcConnUrl: ''
+			onNext: null
 		};
-	}, //getDefaultProps
-	getInitialState() {
-		return {
-			dbIp: '',
-			dbPort: '',
-			dbSid: ''
+	},
+
+	encrypt(text) {
+		return new Promise(function(resolve, reject) {
+			$.getJSON('/REST/Meta/Encrypt/', { value: text })
+			.fail(function(err) {
+				reject(err);
+			}).done(function(resp) {
+				if(resp.success !== 1) {
+					resolve(resp);
+					return;
+				} //if
+				resolve(resp.value);
+			});
+		});
+	},
+
+	next(evt) {
+		var params = {
+			jdbcDriver: this.refs.body.state.jdbcDriver,
+			jdbcConnUrl: this.refs.body.state.jdbcConnUrl,
+			jdbcUsername: this.refs.body.state.jdbcUsername,
+			jdbcPassword: this.refs.body.state.jdbcPassword
+		};
+
+		try {
+			precond.checkArgument(
+				params.jdbcDriver != null && 
+				params.jdbcDriver.trim().length > 0,
+				'invalid jdbc driver');
+			precond.checkArgument(
+				params.jdbcConnUrl != null && 
+				params.jdbcConnUrl.trim().length > 0,
+				'invalid jdbc connection url');
+			precond.checkArgument(
+				params.jdbcUsername != null && 
+				params.jdbcUsername.trim().length > 0,
+				'invalid jdbc username');
+			precond.checkArgument(
+				params.jdbcPassword != null && 
+				params.jdbcPassword.trim().length > 0,
+				'invalid jdbc password');
+		} catch(err) {
+			bootbox.alert(err.message);
+			return;
 		}
-	}, //getInitialState
-	makeConnUrl() {
- 		switch(vendor) {
-			case 'oracle': 
-				return util.format('jdbc:oracle:thin:@%s:%s:%s', this.state.dbIp, this.state.dbPort, this.state.dbSid);
-			case 'mysql': 
-				return util.format('jdbc:mysql://%s:%s/%s', this.state.dbIp, this.state.dbPort, this.state.dbSid);
-			case 'mssql': 
-				return util.format('jdbc:sqlserver://%s:%s;databaseName=%s', this.state.dbIp, this.state.dbPort, this.state.dbSid);
-			case 'db2': 
-				return util.format('jdbc:db2://%s:%s/%s', this.state.dbIp, this.state.dbPort, this.state.dbSid);
-			case 'tibero': 
-				return util.format('jdbc:db2://%s:%s/%s', this.state.dbIp, this.state.dbPort, this.state.dbSid);
-			default:
-				return null;
-		} //switch
-	}, //makeConnUrl
-	makeDriver() {
-		switch(vendor) {
-			case 'oracle': 
-				return 'oracle.jdbc.driver.OracleDriver';
-			case 'mysql': 
-				return 'com.mysql.jdbc.Driver';
-			case 'mssql': 
-				return 'com.microsoft.sqlserver.jdbc.SQLServerDriver';
-			case 'db2': 
-				return 'com.ibm.db2.jcc.DB2Driver';
-			case 'tibero': 
-				return 'com.ibm.db2.jcc.DB2Driver';
-			default:
-				return null;
-		} //switch
-	}, //makeDriver
-	onDbVendorChange(evt) {
-		var args = {
-			database: {
-				vendor: evt.target.value
-			}
-		};
 
-		var connUrl = this.makeConnUrl(),
-			driver = this.makeDriver();
-		if(connUrl !== null) args.database.connUrl = connUrl;
-		if(driver !== null) args.database.driver = driver;
-
-		this.props.valueCallback(args);
-	}, //onDbVendorChange
-	onDbIpChange(evt) {
-		var state = JSON.parse(JSON.stringify(this.state));
-		state.dbIp = evt.target.value;
-		this.setState(state);
-
-		var connUrl = this.makeConnUrl();
-		if(connUrl != null) {
-			this.valueCallback({
-				database: {
-					connUrl: connUrl
-				}
-			});
-		} //if
-	}, //onDbIpChange
-	onDbPortChange(evt) {
-		var state = JSON.parse(JSON.stringify(this.state));
-		state.dbPort = evt.target.value;
-		this.setState(state);
-
-		var connUrl = this.makeConnUrl();
-		if(connUrl != null) {
-			this.valueCallback({
-				database: {
-					connUrl: connUrl
-				}
-			});
-		} //if
-	}, //onDbPortChange
-	onSidChange(evt) {
-		var state = JSON.parse(JSON.stringify(this.state));
-		state.dbSid = evt.target.value;
-		this.setState(state);
-
-		var connUrl = this.makeConnUrl();
-		if(connUrl != null) {
-			this.valueCallback({
-				database: {
-					connUrl: connUrl
-				}
-			});
-		} //if
-	}, //onSidChange
-	onJdbcDriverChange(evt) {
-		this.props.valueCallback({
-			database: {
-				driver: evt.target.value
-			}
+		db2FileModel.setDatabase({
+			driver: params.jdbcDriver,
+			connUrl: params.jdbcConnUrl,
+			username: null, password: null
 		});
-	}, //onJdbcDriverChange
-	onJdbcConnUrlChange(evt) {
-		this.props.valueCallback({
-			database: {
-				connUrl: evt.target.value
-			}
+
+		showLoading();
+		this.encrypt(params.jdbcUsername).then(function(encryptedUsername) {
+			db2FileModel.setDatabase({ username: encryptedUsername });
+			return this.encrypt(params.jdbcPassword);
+		}).then(function(encryptedPassword) {
+			db2FileModel.setDatabase({ password: encryptedPassword });
+			closeLoading();
+
+			this.props.onNext();
+		}).catch(function(err) {
+			closeLoading();
+			if(typeof err === 'object') err = JSON.stringify(err);
+			bootbox.alert(err);
 		});
-	}, //onJdbcConnUrlChange
-	onJdbcUsernameChange(evt) {
-		this.props.valueCallback({
-			database: {
-				username: evt.target.value
-			}
-		});
-	}, //onJdbcUsernameChange
-	onJdbcPasswordChange(evt) {
-		this.props.valueCallback({
-			database: {
-				password: evt.target.value
-			}
-		});
-	}, //onJdbcPasswordChange
+	},
+
 	render() {
-		var panelProps = {
-			className: 'panel panel-default center-xy',
-			id: 'panel-input-datbase'
-		};
-		if(this.props.show === false)
-			panelProps.style = { display: 'none' };
-
 		return (
-			<div {...panelProps}>
+			<div className="panel panel-default center-xy" id="panel-input-database">
 				<div className="panel-heading">
 					<span className="glyphicon glyphicon-console" />
 					<span>input database</span>
-					<StateDots total={6} current={1} />
+					<StageDots total={6} current={1} />
 				</div>
 				<div className="panel-body">
-					<PanelInputDatabase.DbVendorBox 
-						vendor={this.props.dbVendor}
-						onDbVendorChange={this.props.onDbVendorChange} />
-					<PanelInputDatabase.DbAddressBox 
-						port={this.state.dbPort}
-						onDbIpChange={this.onDbIpChange}
-						onDbPortChange={this.onDbPortChange} />
-					<PanelInputDatabase.DbSidBox 
-						onSidChange={this.onSidChange} />
-					<PanelInputDatabase.JdbcDriverBox 
-						jdbcDriver={this.props.jdbcDriver}
-						onJdbcDriverChange={this.onJdbcDriverChange} />
-					<PanelInputDatabase.JdbcConnUrlBox 
-						connUrl={this.props.connUrl}
-						onJdbcConnUrlChange={this.onJdbcConnUrlChange} />
-					<PanelInputDatabase.JdbcUsernameBox
-						onJdbcUsernameChange={this.onJdbcUsernameChange} />
-					<PanelInputDatabase.JdbcPasswordBox 
-						onJdbcPasswordChange={this.onJdbcPasswordChange} />
+					<InputDatabasePanel.Body ref="body" />
 				</div>
 				<div className="panel-footer">
-					<button 
-						type="button" 
-						className="btn btn-primary btn-sm pull-right" 
-						onClick={this.props.nextCallback}>next</button>
+					<button type="button" className="btn btn-primary btn-sm pull-right"
+						onClick={this.next}>next</button>
 					<div className="clearfix" />
 				</div>
 			</div>
 		);
-	} //render
-}); //PanelInputDatabase
+	}
+});
 
-PanelInputDatabase.DbVendorBox = React.createClass({
-	getDefaultProps() {
+InputDatabasePanel.Body = React.createClass({
+	getInitialState() {
 		return {
-			vendor: 'oracle',
-			onDbVendorChange: null
-		};
-	}, //getDefaultProps
-	render() {
-		return (
-			<div>
-				<label className="key-label">database vendor</label>
-				<span className="value-area">
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor" 
-							value="oracle" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'oracle'}>
-							<span>oracle</span>
-						</input>
-					</label>
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor" 
-							value="mysql" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'mysql'}>
-							<span>mysql</span>
-						</input>
-					</label>
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor" 
-							value="mssql" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'mssql'}>
-							<span>mssql</span>
-						</input>
-					</label>
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor" 
-							value="db2" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'db2'}>
-							<span>db2</span>
-						</input>
-					</label>
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor" 
-							value="tibero" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'tibero'}>
-							<span>tibero</span>
-						</input>
-					</label>
-					<label>
-						<input 
-							type="radio" 
-							name="dbVendor"
-							value="etc" 
-							onChange={this.onDbVendorChange} 
-							checked={this.props.dbVendor === 'etc'}>
-							<span>etc</span>
-						</input>
-					</label>
-				</span>
-			</div>
-		);
-	} //render
-}); //DbVendorBox
+			dbVendor: 'oracle',
+			dbIp: '',
+			dbPort: '',
+			dbSid: '',
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: ''
+		}
+	},
 
-PanelInputDatabase.DbAddressBox = React.createClass({
-	getDefaultProps() {
-		return {
-			port: '',
-			onDbIpChange: null,
-			onDbPortChange: null
-		};
-	}, //getDefaultProps
+	onDbVendorChange(evt) {
+		var dbVendor = evt.target.value;
+		var newState = { dbVendor: dbVendor };
+
+		if(dbVendor !== 'etc') {
+			newState.jdbcDriver = jdbcTmpl[dbVendor].driver;
+			newState.dbPort = jdbcTmpl[dbVendor].port;
+			newState.jdbcConnUrl = jdbcTmpl[dbVendor].connUrl
+				.replace('{ip}', this.state.dbIp)
+				.replace('{port}', newState.dbPort)
+				.replace('{database}', this.state.dbSid);
+		} //if
+
+		this.setState(newState);
+	},
+
+	onDbIpChange(evt) {
+		var dbIp = evt.target.value;
+		var newState = { dbIp: dbIp };
+
+		if(this.state.dbVendor !== 'etc') {
+			newState.jdbcConnUrl = jdbcTmpl[dbVendor].connUrl
+				.replace('{ip}', dbIp)
+				.replace('{port}', this.state.dbPort)
+				.replace('{database}', this.state.dbSid);
+
+		} //if
+
+		this.setState(newState);
+	},
+
+	onDbPortChange(evt) {
+		var dbPort = evt.target.value;
+		var newState = { dbPort: dbPort };
+
+		if(this.state.dbVendor !== 'etc') {
+			newState.jdbcConnUrl = jdbcTmpl[dbVendor].connUrl
+				.replace('{ip}', this.state.dbIp)
+				.replace('{port}', dbPort)
+				.replace('{database}', this.state.dbSid);
+
+		} //if
+
+		this.setState(newState);
+	},
+
+	onDbSidChange(evt) {
+		var dbSid= evt.target.value;
+		var newState = { dbSid: dbSid };
+
+		if(this.state.dbVendor !== 'etc') {
+			newState.jdbcConnUrl = jdbcTmpl[dbVendor].connUrl
+				.replace('{ip}', this.state.dbIp)
+				.replace('{port}', this.state.dbPort)
+				.replace('{database}', dbSid);
+
+		} //if
+
+		this.setState(newState);
+	},
+
+	onJdbcDriverChange(evt) {
+		this.setState({ jdbcDriver: evt.target.value });
+	},
+
+	onJdbcConnUrlChange(evt) {
+		this.setState({ jdbcConnUrl: evt.target.value });
+	},
+
+	onJdbcUsernameChange(evt) {
+		this.setState({ jdbcUsername: evt.target.value });
+	},
+
+	onJdbcPasswordChange(evt) {
+		this.setState({ jdbcPassword: evt.target.value });
+	},
+
 	connectTest() {
 		//TODO IMME
-	}, //connectTest
+	},
+
 	render() {
 		return (
 			<div>
-				<label className="key-label">database address</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-database-ip" 
-						type="text" 
-						placeholder="ip" 
-						onChange={this.props.onDbIpChange} />
-					<input 
-						className="input-text" 
-						id="text-database-port" 
-						type="text" 
-						placeholder="port" 
-						value={this.props.port} 
-						onChange={this.props.onDbPortChange} />
-					<button 
-						type="button" 
-						className="btn btn-default btn-sm" 
-						id="connect-test-btn"
-						onClick={this.connectTest}>connect test</button>
-				</span>
+				<div>
+					<label className="key-label">database vendor</label>
+					<span className="value-area">
+						<label>
+							<input type="radio" name="dbVendor" value="oracle" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'oracle'} />
+							<span>oracle</span>
+						</label>
+						<label>
+							<input type="radio" name="dbVendor" value="mysql" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'mysql'} />
+							<span>mysql</span>
+						</label>
+						<label>
+							<input type="radio" name="dbVendor" value="mssql" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'mssql'} />
+							<span>mssql</span>
+						</label>
+						<label>
+							<input type="radio" name="dbVendor" value="db2" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'db2'} />
+							<span>db2</span>
+						</label>
+						<label>
+							<input type="radio" name="dbVendor" value="tibero" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'tibero'} />
+							<span>tibero</span>
+						</label>
+						<label>
+							<input type="radio" name="dbVendor" value="etc" onChange={this.onDbVendorChange} checked={this.state.dbVendor === 'etc'} />
+							<span>etc</span>
+						</label>
+					</span>
+				</div>
+				<div>
+					<label className="key-label">database address</label>
+					<span className="value-area">
+						<input id="text-database-ip" type="text" placeholder="ip" className="input-text" onChange={this.onDbIpChange} />
+						<input id="text-database-port" type="text" placeholder="port" className="input-text" onChange={this.onDbPortChange} />
+						<button type="button" id="connect-test-btn" className="btn btn-default btn-sm" onClick={this.connectTest}>connect test</button>
+					</span>
+				</div>
+				<div>
+					<label className="key-label">database(sid)</label>
+					<span className="value-area">
+						<input id="text-database-sid" type="text" className="input-text" onChange={this.onDbSidChange} />
+					</span>
+				</div>
+				<div>
+					<label className="key-label">jdbc driver</label>
+					<span className="value-area">
+						<input id="text-jdbc-driver" type="text" className="input-text" onChange={this.onJdbcDriverChange} />
+					</span>
+				</div>
+				<div>
+					<label className="key-label">jdbc connection url</label>
+					<span className="value-area">
+						<input id="text-jdbc-conn-url" type="text" className="input-text" onChange={this.onJdbcConnUrlChange} />
+					</span>
+				</div>
+				<div>
+					<label className="key-label">jdbc username</label>
+					<span className="value-area">
+						<input id="text-jdbc-username" type="text" className="input-text" onChange={this.onJdbcUsernameChange} />
+					</span>
+				</div>
+				<div>
+					<label className="key-label">jdbc-password</label>
+					<span className="value-area">
+						<input id="text-jdbc-password" type="password" className="input-text" onChange={this.onJdbcPasswordChange} />
+					</span>
+				</div>
 			</div>
 		);
-	} //render
-}); //DbAddressBox
-
-PanelInputDatabase.DbSidBox = React.createClass({
-	getDefaultProps() {
-		return {
-			onSidChange: null
-		};
-	}, //getDefaultProps
-	render() {
-		return (
-			<div>
-				<label className="key-label">database(sid)</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-database-sid" 
-						type="text" 
-						onChange={this.props.onSidChange} />
-				</span>
-			</div>
-		);
-	} //render
-}); //DbSidBox
-
-PanelInputDatabase.JdbcDriverBox = React.createClass({
-	getDefaultProps() {
-		return {
-			jdbcDriver: '',
-			onJdbcDriverChange: null
-		};
-	}, //getDefaultProps
-	render() {
-		return (
-			<div>
-				<label className="key-label">jdbc driver</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-jdbc-driver" 
-						type="text" 
-						value={this.props.jdbcDriver}
-						onChange={this.props.onJdbcDriverChange} />
-				</span>
-			</div>	
-		);
-	} //render
-}); //JdbcDriverBox
-
-PanelInputDatabase.JdbcConnUrlBox = React.createClass({
-	getDefaultProps() {
-		return {
-			connUrl: '',
-			onJdbcConnUrlChange: null
-		};
-	}, //getDefaultProps
-	render() {
-		return (
-			<div>
-				<label className="key-label">jdbc connection url</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-jdbc-conn-url" 
-						type="text" 
-						value={this.props.connUrl}
-						onChange={this.props.onJdbcConnUrlChange} />
-				</span>
-			</div>		
-		);
-	} //render
+	}
 });
 
-PanelInputDatabase.JdbcUsernameBox = React.createClass({
-	getDefaultProps() {
-		return {
-			onJdbcUsernameChange: null
-		};
-	}, //getDefaultProps
+var SetTableForQuery = React.createClass({
 	render() {
 		return (
-			<div>
-				<label className="key-label">jdbc username</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-jdbc-username" 
-						type="text" 
-						onChange={this.onJdbcUsernameChange} />
-				</span>
+			<div className="panel panel-default center-xy" id="panel-set-table-for-query">
+				<div className="panel-heading">
+					<span className="glyphicon glyphicon-console" />
+					<span>select table</span>
+				</div>
 			</div>
 		);
-	} //render
+	}
 });
 
-PanelInputDatabase.JdbcPasswordBox = React.createClass({
-	getDefaultProps() {
-		return {
-			onJdbcPasswordChange: null
-		};
-	}, //getDefaultProps
-	render() {
-		return (
-			<div>
-				<label className="key-label">jdbc password</label>
-				<span className="value-area">
-					<input 
-						className="input-text" 
-						id="text-jdbc-password" 
-						type="password" 
-						onChange={this.onJdbcPasswordChange} />
-				</span>
-			</div>
-		);
-	} //render
-});
-
+//TODO IMME
 
 var StageDots = React.createClass({
 	getDefaultProps() {
@@ -473,21 +453,29 @@ var StageDots = React.createClass({
 			total: 0,
 			current: 0
 		};
-	}, //getDefaultProps
+	},
+
 	render() {
 		var dotsDOM = [];
-		for(var i=0; i<this.props.total; i++) {
+		for(var i=1; i<=this.props.total; i++) {
 			if(i === this.props.current) {
 				dotsDOM.push(<span className="black-sm-ball" />);
 			} else {
 				dotsDOM.push(<span className="gray-sm-ball" />);
-			} //if
-		} //for i
+			}
+		}
 
 		return (
 			<div className="pull-right">
 				{dotsDOM}
 			</div>
 		);
-	} //render
-}); //StateDots
+	}
+});
+
+
+
+
+
+
+

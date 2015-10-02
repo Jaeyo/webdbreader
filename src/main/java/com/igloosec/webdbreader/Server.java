@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -19,19 +20,18 @@ import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
 import com.igloosec.webdbreader.servlet.EmbedDbREST;
 import com.igloosec.webdbreader.servlet.Index;
-import com.igloosec.webdbreader.servlet.OperationHistoryREST;
-import com.igloosec.webdbreader.servlet.ShutdownREST;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
+import com.igloosec.webdbreader.servlet.OperationHistoryREST;
 import com.igloosec.webdbreader.servlet.Script;
 import com.igloosec.webdbreader.servlet.ScriptREST;
+import com.igloosec.webdbreader.servlet.ShutdownREST;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class Server {
 	public static void main(String[] args) throws Exception {
+		configureLog4j();
 		registerShutdownHook();
-		
-//		TODO test db2db
 		
 		new DerbySchemaCreator().check();
 		
@@ -54,6 +54,15 @@ public class Server {
 		server.start();
 		server.join();
 	} // main
+	
+	private static void configureLog4j() {
+		System.setProperty("home.path", Path.getPackagePath().getAbsolutePath());
+		
+		File log4jXml = new File(Path.getPackagePath(), "conf/log4j.xml");
+		if(log4jXml.exists() == false) return;
+		
+		DOMConfigurator.configure(log4jXml.getAbsolutePath());
+	} //configureLog4j
 
 	private static WebAppContext getWebAppContext() throws IOException{
 		WebAppContext context = new WebAppContext();
