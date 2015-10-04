@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react'),
+	Panel = require('./components/panel.jsx').Panel;
 
 function postConfig(configKeyValueArr) {
 	$.post('/REST/Config/', { 
@@ -19,14 +20,38 @@ var GeneralConfigPanel = React.createClass({
 			isLoaded: false
 		};
 	},
-	//TODO componenetDidMount
+
+	componentDidMount() {
+		$.getJSON('/REST/Config/', {})
+		.fail(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			bootbox.alert(err);
+		}).done(function(resp) {
+			if(resp.success !== 1) {
+				bootbox.alert(resp.errmsg);
+				return;
+			} 
+
+			if(resp.configs['version.check']) {
+				this.setState({ 
+					isLoaded: true, 
+					versionCheck: JSON.parse(resp.configs['version.check']) 
+				});
+			} else {
+				this.setState({ isLoaded: true, versionCheck: false }); 
+			}
+		}.bind(this));
+	},
+
 	onVersionCheckChange(evt) {
 		var value = JSON.parse(evt.target.value);
 		this.setState({ versionCheck: value });
 	},
+
 	save() {
-		postConfig([{ configKey: 'version.check', configValue: this.state.versionCheck }]);
+		postConfig([{ configKey: 'version.check', configValue: this.state.versionCheck+"" }]);
 	},
+
 	render() {
 		var body = (
 			this.state.isLoaded === false ? 
@@ -65,15 +90,11 @@ var GeneralConfigPanel = React.createClass({
 		);
 		
 		return (
-			<div className="panel panel-default general-config-panel">
-				<div className="panel-heading">
-					<span className="glyphicon glyphicon-cog" />
-					<span>general</span>
-				</div>
-				<div className="panel-body">
-					{body}
-				</div>
-			</div>
+			<Panel
+				panelClassName="general-config-panel"
+				headerGlyphicon="cog"
+				headerTitle="general"
+				body={body} />
 		);
 	}
 });
@@ -96,27 +117,27 @@ var DerbySqlPanel = React.createClass({
 	},
 	render() {
 		return (
-			<div className="panel panel-default derby-sql-panel">
-				<div className="panel-heading">
-					<span className="glyphicon glyphicon-cog" />
-					<span>derby database</span>
-				</div>
-				<div className="panel-body">
-					<div className="input-group">
-						<span className="input-group-addon">sql</span>
-						<input 
-							className="form-control" 
-							id="derby-query" 
-							type="text"
-							ref="queryInput" />
+			<Panel
+				panelClassName="derby-sql-panel"
+				headerGlyphicon="cog"
+				headerTitle="derby database"
+				body={(
+					<div>
+						<div className="input-group">
+							<span className="input-group-addon">sql</span>
+							<input 
+								className="form-control" 
+								id="derby-query" 
+								type="text"
+								ref="queryInput" />
+						</div>
+						<hr />
+						<button 
+							type="button" 
+							className="btn btn-default pull-right" 
+							onClick={this.query}>query</button>
 					</div>
-					<hr />
-					<button 
-						type="button" 
-						className="btn btn-default pull-right" 
-						onClick={this.query}>query</button>
-				</div>
-			</div>
+				)} />
 		);
 	}
 });
@@ -150,32 +171,31 @@ var CryptoPanel = React.createClass({
 	},
 	render() {
 		return (
-			<div className="panel panel-default crypto-panel">
-				<div className="panel-heading">
-					<span className="glyphicon glyphicon-cog" />
-					<span>crypto</span>
-				</div>
-				<div className="panel-body">
-					<div className="input-group">
-						<span className="input-group-addon">text</span>
-						<input 
-							type="text" 
-							className="form-control" 
-							id="crypto-text"
-							ref="cryptoInput" />
+			<Panel
+				panelClassName="crypto-panel"
+				headerGlyphicon="cog"
+				headerTitle="crypto"
+				body={(
+					<div>
+						<div className="input-group">
+							<span className="input-group-addon">text</span>
+							<input 
+								type="text" 
+								className="form-control" 
+								id="crypto-text"
+								ref="cryptoInput" />
+						</div>
+						<hr />
+						<button 
+							type="button"
+							className="btn btn-default pull-right"
+							onClick={this.encrypt}>encrypt</button>
+						<button 
+							type="button"
+							className="btn btn-default pull-right"
+							onClick={this.decrypt}>decrypt</button>
 					</div>
-					<hr />
-					<button 
-						type="button"
-						className="btn btn-default pull-right"
-						onClick={this.encrypt}>encrypt</button>
-					<button 
-						type="button"
-						className="btn btn-default pull-right"
-						onClick={this.decrypt}>decrypt</button>
-				</div>
-				</div>
-			</div>
+				)} />
 		);
 	}
 });
