@@ -47,6 +47,8 @@ public class ScriptExecutor {
 		ScriptThread thread = new ScriptThread(scriptName){
 			@Override
 			public void run() {
+				System.out.println("############DEBUG, ScriptThread run start"); //DEBUG
+				
 				ScriptLogger scriptLogger = new ScriptLogger(scriptName);
 				try{
 					operationHistoryService.saveStartupHistory(getScriptName());

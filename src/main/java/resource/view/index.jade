@@ -6,64 +6,72 @@ block header
 block title-area
 
 block contents-area
-	div.script-infos
-		each scriptInfo in scriptInfos
-			- runningClass = scriptInfo.IS_RUNNING == true ? "panel-primary" : "panel-red"
-			div.panel.script-panel(class=runningClass)
-				div.panel-heading.align-right
-					span.pull-left.glyphicon.glyphicon-console
-					span.pull-right.script-name #{scriptInfo.SCRIPT_NAME}
-					div.clearfix
-				a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/")
-					div.panel-footer
-						span.pull-left view details
-						span.pull-right
-							span.glyphicon.glyphicon-chevron-right
-						div.clearfix
-		div.clearfix
-	div.row
-		div.col-lg-9.col-md-12.col-sm-12
-			div.panel.panel-default.total-chart-panel
-				div.panel-heading
-					span.glyphicon.glyphicon-stats
-					span total chart
-				div.panel-body
-					div#totalStatisticsChart
-		div.col-lg-3.col-md-12.col-sm-12
-			div.panel.panel-default.operation-history-panel
-				div.panel-heading
-					span.glyphicon.glyphicon-time
-					span operation history
-				div.panel-body
-					div.list-group
-						if operationHistories.size() == 0
-							span.center-xy no data
-						else
-							each operationHistory in operationHistories
-								if operationHistory.IS_STARTUP == true
-									a.list-group-item.startup-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
-										span.glyphicon.glyphicon-upload.pull-left
-										span.pull-left #{operationHistory.SCRIPT_NAME}
-										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
-										div.clearfix
-								else
-									a.list-group-item.shutdown-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
-										span.glyphicon.glyphicon-download.pull-left
-										span.pull-left #{operationHistory.SCRIPT_NAME}
-										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
-										div.clearfix
-	div.well 
-		span index page
-		div 도움말 기능
-		div script export 기능
-		div http call 기능
-		div
-			div tooltip https://formstone.it/components/tooltip/
-		div
-			div notice http://stephanwagner.me/jBox
-
 
 block footer
-	script#chart-when-no-data(type="text/x-jade")
-		span.center-xy no data
-	script(src="/js/index.js")
+	script(src="/js/bundle/index.bundle.js")
+
+
+
+
+
+//- 	div.script-infos
+//- 		each scriptInfo in scriptInfos
+//- 			- runningClass = scriptInfo.IS_RUNNING == true ? "panel-primary" : "panel-red"
+//- 			div.panel.script-panel(class=runningClass)
+//- 				div.panel-heading.align-right
+//- 					span.pull-left.glyphicon.glyphicon-console
+//- 					span.pull-right.script-name #{scriptInfo.SCRIPT_NAME}
+//- 					div.clearfix
+//- 				a(href="/Script/View/#{scriptInfo.SCRIPT_NAME}/")
+//- 					div.panel-footer
+//- 						span.pull-left view details
+//- 						span.pull-right
+//- 							span.glyphicon.glyphicon-chevron-right
+//- 						div.clearfix
+//- 		div.clearfix
+//- 	div.row
+//- 		div.col-lg-9.col-md-12.col-sm-12
+//- 			div.panel.panel-default.total-chart-panel
+//- 				div.panel-heading
+//- 					span.glyphicon.glyphicon-stats
+//- 					span total chart
+//- 				div.panel-body
+//- 					div#totalStatisticsChart
+//- 		div.col-lg-3.col-md-12.col-sm-12
+//- 			div.panel.panel-default.operation-history-panel
+//- 				div.panel-heading
+//- 					span.glyphicon.glyphicon-time
+//- 					span operation history
+//- 				div.panel-body
+//- 					div.list-group
+//- 						if operationHistories.size() == 0
+//- 							span.center-xy no data
+//- 						else
+//- 							each operationHistory in operationHistories
+//- 								if operationHistory.IS_STARTUP == true
+//- 									a.list-group-item.startup-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
+//- 										span.glyphicon.glyphicon-upload.pull-left
+//- 										span.pull-left #{operationHistory.SCRIPT_NAME}
+//- 										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
+//- 										div.clearfix
+//- 								else
+//- 									a.list-group-item.shutdown-history(href="/Script/View/#{operationHistory.SCRIPT_NAME}/")
+//- 										span.glyphicon.glyphicon-download.pull-left
+//- 										span.pull-left #{operationHistory.SCRIPT_NAME}
+//- 										span.pull-right.pretty-date #{operationHistory.PRETTY_REGDATE}
+//- 										div.clearfix
+//- 	div.well 
+//- 		span index page
+//- 		div 도움말 기능
+//- 		div script export 기능
+//- 		div http call 기능
+//- 		div
+//- 			div tooltip https://formstone.it/components/tooltip/
+//- 		div
+//- 			div notice http://stephanwagner.me/jBox
+
+
+//- block footer
+//- 	script#chart-when-no-data(type="text/x-jade")
+//- 		span.center-xy no data
+//- 	script(src="/js/index.js")

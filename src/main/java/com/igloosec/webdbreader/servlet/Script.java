@@ -60,38 +60,26 @@ public class Script extends JadeHttpServlet{
 				resp.getWriter().print(getEditNewScript(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
-				Map<String, Object> model = Maps.newHashMap();
-				model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-				resp.getWriter().print(jade("error.jade", model));
+				resp.getWriter().print(jade("error.jade", null));
 				resp.getWriter().flush();
 			} //if
 		} catch(IllegalArgumentException e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
-			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-			resp.getWriter().print(jade("error.jade", model));
+			resp.getWriter().print(jade("error.jade", null));
 			resp.getWriter().flush();
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			Map<String, Object> model = Maps.newHashMap();
-			model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-			resp.getWriter().print(jade("error.jade", model));
+			resp.getWriter().print(jade("error.jade", null));
 			resp.getWriter().flush();
 		} //catch
 	} //doGet
 	
 	private String getNewDb2File(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException {
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
-		return jade("new-db2file.jade", model);
+		return jade("new-db2file.jade", null);
 	} //getNewDb2File
 	
 	private String getNewDb2Db(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException {
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
-		return jade("new-db2db.jade", model);
+		return jade("new-db2db.jade", null);
 	} //getNewDb2File
 	
 	private String getViewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException{
@@ -99,11 +87,7 @@ public class Script extends JadeHttpServlet{
 		
 		Preconditions.checkNotNull(title, "title is null");
 		
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("script", scriptService.load(title));
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("operationHistories", Util.jsonArray2JsonObjectList(operationHistoryService.loadHistory(title, 10)));
-		return jade("view-script.jade", model);
+		return jade("view-script.jade", null);
 	} //getViewScript
 	
 	private String getEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
@@ -114,22 +98,14 @@ public class Script extends JadeHttpServlet{
 		JSONObject scriptJSON = scriptService.load(title);
 		Map<String, Object> model = Maps.newHashMap();
 		model.put("script", scriptJSON);
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
 		return jade("edit-script.jade", model);
 	} //getEditScript
 	
 	private String getNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
-		return jade("new-script.jade", model);
+		return jade("new-script.jade", null);
 	} //getNewScript
 	
 	private String getEditNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("scriptInfos", Util.jsonArray2JsonObjectList(scriptService.getScriptInfo()));
-		model.put("scriptEditorTheme", configService.load("script.editor.theme"));
-		return jade("edit-script.jade", model);
+		return jade("edit-script.jade", null);
 	} //getEditScript
 } //class

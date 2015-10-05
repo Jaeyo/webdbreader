@@ -1,16 +1,17 @@
 var React = require('react'),
-	Panel = require('./components/panel.jsx').Panel;
+	Panel = require('./components/panel.jsx').Panel,
+	jsUtil = require('./util/util.js'),
+	handleError = jsUtil.handleError,
+	handleResp = jsUtil.handleResp;
 
 function postConfig(configKeyValueArr) {
 	$.post('/REST/Config/', { 
 		jsonParam: JSON.stringify(configKeyValueArr)
-	}, function(resp){
-		if(resp.success !== 1){
-			bootbox.alert(JSON.stringify(resp));
-			return;
-		}
+	}, 'json')
+	.fail(handleError)
+	.done(handleResp(function(resp) {
 		bootbox.alert('config saved');
-	}, 'json');
+	}));
 }
 
 var GeneralConfigPanel = React.createClass({
@@ -23,15 +24,8 @@ var GeneralConfigPanel = React.createClass({
 
 	componentDidMount() {
 		$.getJSON('/REST/Config/', {})
-		.fail(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
-			bootbox.alert(err);
-		}).done(function(resp) {
-			if(resp.success !== 1) {
-				bootbox.alert(resp.errmsg);
-				return;
-			} 
-
+		.fail(handleError)
+		.done(handleResp(function(resp) {
 			if(resp.configs['version.check']) {
 				this.setState({ 
 					isLoaded: true, 
@@ -40,7 +34,7 @@ var GeneralConfigPanel = React.createClass({
 			} else {
 				this.setState({ isLoaded: true, versionCheck: false }); 
 			}
-		}.bind(this));
+		}.bind(this)));
 	},
 
 	onVersionCheckChange(evt) {
@@ -103,16 +97,10 @@ var DerbySqlPanel = React.createClass({
 		var query = React.findDOMNode(this.refs.queryInput).value;
 
 		$.getJSON('/REST/EmbedDb/Query/', {query: query})
-		.fail(function(err){
-			bootbox.alert(JSON.stringify(err));
-		}).done(function(resp){
-			if(resp.success !== 1){
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
-
+		.fail(handleError)
+		.done(handleResp(function(resp){
 			bootbox.alert('<textarea style="width: 100%;" rows="10">' + resp.result + '</textarea>');
-		});
+		}));
 	},
 	render() {
 		return (
@@ -142,28 +130,18 @@ var CryptoPanel = React.createClass({
 	encrypt() {
 		var text = React.findDOMNode(this.refs.cryptoInput).value;
 		$.getJSON('/REST/Meta/Encrypt/', {value: text})
-		.fail(function(err) {
-			bootbox.alert(JSON.stringify(err));
-		}).done(function(resp) {
-			if(resp.success !== 1) {
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
+		.fail(handleError)
+		.done(handleResp(function(resp) {
 			bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-		});
+		}));
 	}, 
 	decrypt() {
 		var text = React.findDOMNode(this.refs.cryptoInput).value;
 		$.getJSON('/REST/Meta/Decrypt/', {value: text})
-		.fail(function(err) {
-			bootbox.alert(JSON.stringify(err));
-		}).done(function(resp) {
-			if(resp.success !== 1) {
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
+		.fail(handleError)
+		.done(handleResp(function(resp) {
 			bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-		});
+		}));
 	},
 	render() {
 		return (

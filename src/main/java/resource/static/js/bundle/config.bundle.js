@@ -20435,18 +20435,17 @@
 	'use strict';
 
 	var React = __webpack_require__(2),
-	    Panel = __webpack_require__(163).Panel;
+	    Panel = __webpack_require__(163).Panel,
+	    jsUtil = __webpack_require__(170),
+	    handleError = jsUtil.handleError,
+	    handleResp = jsUtil.handleResp;
 
 	function postConfig(configKeyValueArr) {
 		$.post('/REST/Config/', {
 			jsonParam: JSON.stringify(configKeyValueArr)
-		}, function (resp) {
-			if (resp.success !== 1) {
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			}
+		}, 'json').fail(handleError).done(handleResp(function (resp) {
 			bootbox.alert('config saved');
-		}, 'json');
+		}));
 	}
 
 	var GeneralConfigPanel = React.createClass({
@@ -20460,15 +20459,7 @@
 		},
 
 		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Config/', {}).fail(function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				bootbox.alert(err);
-			}).done((function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(resp.errmsg);
-					return;
-				}
-
+			$.getJSON('/REST/Config/', {}).fail(handleError).done(handleResp((function (resp) {
 				if (resp.configs['version.check']) {
 					this.setState({
 						isLoaded: true,
@@ -20477,7 +20468,7 @@
 				} else {
 					this.setState({ isLoaded: true, versionCheck: false });
 				}
-			}).bind(this));
+			}).bind(this)));
 		},
 
 		onVersionCheckChange: function onVersionCheckChange(evt) {
@@ -20575,16 +20566,9 @@
 		query: function query() {
 			var query = React.findDOMNode(this.refs.queryInput).value;
 
-			$.getJSON('/REST/EmbedDb/Query/', { query: query }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-
+			$.getJSON('/REST/EmbedDb/Query/', { query: query }).fail(handleError).done(handleResp(function (resp) {
 				bootbox.alert('<textarea style="width: 100%;" rows="10">' + resp.result + '</textarea>');
-			});
+			}));
 		},
 		render: function render() {
 			return React.createElement(
@@ -20631,27 +20615,15 @@
 
 		encrypt: function encrypt() {
 			var text = React.findDOMNode(this.refs.cryptoInput).value;
-			$.getJSON('/REST/Meta/Encrypt/', { value: text }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
+			$.getJSON('/REST/Meta/Encrypt/', { value: text }).fail(handleError).done(handleResp(function (resp) {
 				bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-			});
+			}));
 		},
 		decrypt: function decrypt() {
 			var text = React.findDOMNode(this.refs.cryptoInput).value;
-			$.getJSON('/REST/Meta/Decrypt/', { value: text }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
+			$.getJSON('/REST/Meta/Decrypt/', { value: text }).fail(handleError).done(handleResp(function (resp) {
 				bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-			});
+			}));
 		},
 		render: function render() {
 			return React.createElement(
@@ -20771,6 +20743,33 @@
 	});
 
 	exports.Panel = Panel;
+
+/***/ },
+/* 164 */,
+/* 165 */,
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */,
+/* 170 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.handleError = function (err) {
+		if (typeof err === 'object') err = JSON.stringify(err);
+		bootbox.alert(err);
+	};
+
+	exports.handleResp = function (onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleError(resp.errmsg);
+				return;
+			}
+			onSuccess(resp);
+		};
+	};
 
 /***/ }
 /******/ ]);

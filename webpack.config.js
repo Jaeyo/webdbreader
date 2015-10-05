@@ -4,7 +4,8 @@ module.exports = {
 	entry: {
 		base: [ './src/main/java/resource/jsx/base.jsx' ],
 		config: [ './src/main/java/resource/jsx/config.jsx' ],
-		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ]
+		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ],
+		index: [ './src/main/java/resource/jsx/index.jsx' ]
 	},
 	output: {
 		path: './src/main/java/resource/static/js/bundle/',

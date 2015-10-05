@@ -21,7 +21,7 @@ function exportScript() {
 
 $(function() {
 	editor = ace.edit('editor');
-	editor.setTheme('ace/theme/kuroir');
+	editor.setTheme('ace/theme/github');
 	editor.getSession().setMode('ace/mode/javascript');
 	editor.setKeyboardHandler('ace/keyboard/vim');
 });

@@ -1,5 +1,8 @@
 var React = require('react'),
-	util = require('util');
+	util = require('util'),
+	jsUtil = require('../util/util.js'),
+	handleError = jsUtil.handleError,
+	handleResp = jsUtil.handleResp;
 
 var LeftNavMenu = React.createClass({
 	getInitialState() {
@@ -10,22 +13,15 @@ var LeftNavMenu = React.createClass({
 
 	componentDidMount() {
 		$.getJSON('/REST/Script/Info/', {})
-		.done(function(resp) {
-			if(resp.success !== 1) {
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			} //if
-
+		.fail(handleError)
+		.done(handleResp(function(resp) {
 			var scriptNames = [];
 			resp.scriptInfos.forEach(function(scriptInfo) {
 				scriptNames.push(scriptInfo.SCRIPT_NAME);
 			});
 
 			this.setState({ scriptNames: scriptNames });
-		}.bind(this)).fail(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
-			bootbox.alert(err);
-		});
+		}.bind(this)));
 	},
 
 	render() {

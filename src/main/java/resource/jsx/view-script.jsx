@@ -3,12 +3,10 @@ var React = require('react'),
 	ListGroup = require('./components/list-group.jsx').ListGroup,
 	util = require('util'),
 	UrlPattern = require('url-pattern'),
-	pattern = new UrlPattern('/Script/View/:scriptName/');
-
-var handleError = function(err) {
-	if(typeof err === 'object') err = JSON.stringify(err);
-	bootbox.alert(err);
-};
+	pattern = new UrlPattern('/Script/View/:scriptName/'),
+	jsUtil = require('./util/util.js'),
+	handleError = jsUtil.handleError,
+	handleResp = jsUtil.handleResp;
 
 var dispatcher = {
 	listeners: [],
@@ -31,32 +29,23 @@ var BtnArea = React.createClass({
 		};
 	},
 
-	onStart(evt) {
+	onScriptStart(evt) {
 		$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json')
-		.fail(handleError).done(function(resp) {
-			if(resp.success !== 1) {
-				handleError(resp.errmsg);
-				return;
-			}
-
+		.fail(handleError)
+		.done(handleResp(function(resp) {
 			bootbox.alert('script started', function() {
 				dispatcher.dispatch('reload-script', {});
 			});
-		});
+		}));
 	},
 
-	onStop(evt) {
+	onScriptStop(evt) {
 		$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json')
-		.fail(handleError).done(function(resp) {
-			if(resp.success !== 1) {
-				handleError(resp.errmsg);
-				return;
-			}
-
+		.fail(handleError).done(handleResp(function(resp) {
 			bootbox.alert('script stopped', function() {
 				dispatcher.dispatch('reload-script', {});
 			});
-		});
+		}));
 	},
 
 	onEdit(evt) {
@@ -67,15 +56,11 @@ var BtnArea = React.createClass({
 		bootbox.prompt('new title: ', function(newTitle) {
 			if(newTitle === null) return;
 			$.post(util.format('/REST/Script/Rename/%s/', this.props.scriptName), { newTitle: newTitle })
-			.fail(handleError).done(function(resp) {
-				if(resp.success !== 1) {
-					handleError(resp.errmsg);
-					return;
-				}
+			.fail(handleError).done(handleResp(function(resp) {
 				bootbox.alert('script renamed', function() {
 					window.location.href = util.format('/Script/View/%s/', newTitle);
 				});
-			});
+			}));
 		}.bind(this));
 	},
 
@@ -84,15 +69,11 @@ var BtnArea = React.createClass({
 			if(result === false) return;
 
 			$.post(util.format('/REST/Script/Remove/%s/', this.props.scriptName), {}, 'json')
-			.fail(handleError).done(function(resp) {
-				if(resp.success !== 1) {
-					handleError(resp.errmsg);
-					return;
-				}
+			.fail(handleError).done(handleResp(function(resp) {
 				bootbox.alert('script removed', function() {
 					window.location.href = '/';
 				});
-			});
+			}));
 		}.bind(this));
 	},
 
@@ -106,13 +87,13 @@ var BtnArea = React.createClass({
 						type="button" 
 						className="btn btn-primary btn-sm" 
 						disabled={this.props.isScriptRunning === true ? true : false}
-						onClick={this.onStart}
+						onClick={this.onScriptStart}
 						>start</button>
 					<button
 						type="button"
 						className="btn btn-primary btn-sm"
 						disabled={this.props.isScriptRunning === true ? false : true}
-						onClick={this.onStop}
+						onClick={this.onScriptStop}
 						>stop</button>
 					<span className="divider" />
 					<button
@@ -184,7 +165,7 @@ var ScriptPanel = React.createClass({
 	componentDidUpdate() {
 		if(this.props.isScriptLoaded === true) {
 			this.editor = ace.edit('editor');
-			this.editor.setTheme('ace/theme/kuroir');
+			this.editor.setTheme('ace/theme/github');
 			this.editor.getSession().setMode('ace/mode/javascript');
 			this.editor.setKeyboardHandler('ace/keyboard/vim');
 			this.editor.setReadOnly(true);
@@ -229,8 +210,6 @@ var LogMonitoringPanel = React.createClass({
 		}.bind(this);
 		this.ws.onmessage = function(evt) {
 			var data = JSON.parse(evt.data);
-
-			console.log('msg received', data); //DEBUG
 
 			var newLogItems = 
 				[(<LogMonitoringPanel.LogItem 
@@ -316,19 +295,14 @@ var ViewScriptView = React.createClass({
 	loadScript() {
 		$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {})
 		.fail(handleError)
-		.done(function(resp) {
-			if(resp.success !== 1) {
-				handleError(resp.errmsg);
-				return;
-			}
-
+		.done(handleResp(function(resp) {
 			this.setState({
 				isScriptLoaded: true,
 				isScriptRunning: resp.script.IS_RUNNING,
 				scriptPrettyRegdate: resp.script.PRETTY_REGDATE,
 				script: resp.script.SCRIPT
 			});
-		}.bind(this));
+		}.bind(this)));
 	},
 
 	render() {

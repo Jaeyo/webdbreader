@@ -20441,7 +20441,10 @@
 	'use strict';
 
 	var React = __webpack_require__(2),
-	    util = __webpack_require__(159);
+	    util = __webpack_require__(159),
+	    jsUtil = __webpack_require__(170),
+	    handleError = jsUtil.handleError,
+	    handleResp = jsUtil.handleResp;
 
 	var LeftNavMenu = React.createClass({
 		displayName: 'LeftNavMenu',
@@ -20453,22 +20456,14 @@
 		},
 
 		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Script/Info/', {}).done((function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-
+			$.getJSON('/REST/Script/Info/', {}).fail(handleError).done(handleResp((function (resp) {
 				var scriptNames = [];
 				resp.scriptInfos.forEach(function (scriptInfo) {
 					scriptNames.push(scriptInfo.SCRIPT_NAME);
 				});
 
 				this.setState({ scriptNames: scriptNames });
-			}).bind(this)).fail(function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				bootbox.alert(err);
-			});
+			}).bind(this)));
 		},
 
 		render: function render() {
@@ -21180,6 +21175,35 @@
 	  }
 	}
 
+
+/***/ },
+/* 162 */,
+/* 163 */,
+/* 164 */,
+/* 165 */,
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */,
+/* 170 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.handleError = function (err) {
+		if (typeof err === 'object') err = JSON.stringify(err);
+		bootbox.alert(err);
+	};
+
+	exports.handleResp = function (onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleError(resp.errmsg);
+				return;
+			}
+			onSuccess(resp);
+		};
+	};
 
 /***/ }
 /******/ ]);
