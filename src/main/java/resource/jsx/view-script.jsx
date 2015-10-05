@@ -9,6 +9,7 @@ var React = require('react'),
 	handleResp = jsUtil.handleResp;
 
 var dispatcher = {
+	RELOAD_SCRIPT: 'reload-script',
 	listeners: [],
 	dispatch(type, data) {
 		this.listeners.forEach(function(listener) {
@@ -34,7 +35,7 @@ var BtnArea = React.createClass({
 		.fail(handleError)
 		.done(handleResp(function(resp) {
 			bootbox.alert('script started', function() {
-				dispatcher.dispatch('reload-script', {});
+				dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
 			});
 		}));
 	},
@@ -43,7 +44,7 @@ var BtnArea = React.createClass({
 		$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json')
 		.fail(handleError).done(handleResp(function(resp) {
 			bootbox.alert('script stopped', function() {
-				dispatcher.dispatch('reload-script', {});
+				dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
 			});
 		}));
 	},
@@ -284,9 +285,9 @@ var ViewScriptView = React.createClass({
 
 	componentDidMount() {
 		dispatcher.listen(function(type, data) {
-			if(type === 'reload-script') {
+			if(type === dispatcher.RELOAD_SCRIPT) {
 				this.loadScript();
-			} //if
+			}
 		}.bind(this));
 
 		this.loadScript();
@@ -333,7 +334,27 @@ var ViewScriptView = React.createClass({
 });
 
 
+var ViewScriptHeader = React.createClass({
+	getDefaultProps() {
+		return {
+			scriptName: pattern.match(window.location.pathname).scriptName
+		};
+	},
+
+	render() {
+		return (
+			<h3>{this.props.title}</h3>
+		);
+	}
+});
+
+
 React.render(
 	<ViewScriptView />,
 	$('.contents-area')[0]
+);
+
+React.render(
+	<ViewScriptHeader />,
+	$('.title-area')[0]
 );

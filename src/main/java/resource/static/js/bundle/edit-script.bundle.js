@@ -44,21 +44,11 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(1);
+	module.exports = __webpack_require__(165);
 
 
 /***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    LeftNavMenu = __webpack_require__(158).LeftNavMenu;
-
-	React.render(React.createElement(LeftNavMenu, null), $('#menu-items')[0]);
-
-/***/ },
+/* 1 */,
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -20435,121 +20425,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 158 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    util = __webpack_require__(159),
-	    jsUtil = __webpack_require__(162),
-	    handleError = jsUtil.handleError,
-	    handleResp = jsUtil.handleResp;
-
-	var LeftNavMenu = React.createClass({
-		displayName: 'LeftNavMenu',
-
-		getInitialState: function getInitialState() {
-			return {
-				scriptNames: []
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Script/Info/', {}).fail(handleError).done(handleResp((function (resp) {
-				var scriptNames = [];
-				resp.scriptInfos.forEach(function (scriptInfo) {
-					scriptNames.push(scriptInfo.SCRIPT_NAME);
-				});
-
-				this.setState({ scriptNames: scriptNames });
-			}).bind(this)));
-		},
-
-		render: function render() {
-			var scriptBtns = [];
-			if (this.state.scriptNames.length === 0) {
-				scriptBtns.push(React.createElement(
-					'div',
-					{ className: 'well' },
-					'no scripts'
-				));
-			} else {
-				this.state.scriptNames.forEach(function (scriptName) {
-					scriptBtns.push(React.createElement(LeftNavMenu.Btn, {
-						link: '/Script/View/' + scriptName + '/',
-						name: scriptName,
-						glyphiName: 'console' }));
-				});
-			} //if
-
-			return React.createElement(
-				'ul',
-				{ className: 'nav nav-pills nav-stacked' },
-				React.createElement(LeftNavMenu.Btn, { link: '/', name: 'overview', glyphiName: 'cloud' }),
-				React.createElement(
-					'li',
-					null,
-					React.createElement('hr', null)
-				),
-				React.createElement(
-					'li',
-					null,
-					React.createElement(
-						'h5',
-						null,
-						'Scripts'
-					)
-				),
-				scriptBtns,
-				React.createElement(
-					'li',
-					null,
-					React.createElement('hr', null)
-				),
-				React.createElement(LeftNavMenu.Btn, { link: '/Config/', name: 'configuration', glyphiName: 'cog' }),
-				React.createElement(
-					'li',
-					null,
-					React.createElement('hr', null)
-				),
-				React.createElement(LeftNavMenu.Btn, { link: '/ApiDoc/', name: 'api documentation', glyphiName: 'modal-window' })
-			);
-		}
-	});
-
-	LeftNavMenu.Btn = React.createClass({
-		displayName: 'Btn',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				link: '',
-				name: '',
-				glyphiName: ''
-			};
-		},
-		render: function render() {
-			return React.createElement(
-				'li',
-				null,
-				React.createElement(
-					'a',
-					{ href: this.props.link },
-					React.createElement('span', { className: util.format('glyphicon glyphicon-%s pull-left', this.props.glyphiName) }),
-					React.createElement(
-						'span',
-						{ className: 'pull-right' },
-						this.props.name
-					),
-					React.createElement('div', { className: 'clearfix' })
-				)
-			);
-		}
-	});
-
-	exports.LeftNavMenu = LeftNavMenu;
-
-/***/ },
+/* 158 */,
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -21202,6 +21078,564 @@
 			onSuccess(resp);
 		};
 	};
+
+/***/ },
+/* 163 */,
+/* 164 */,
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    util = __webpack_require__(159),
+	    UrlPattern = __webpack_require__(166),
+	    pattern = new UrlPattern('/Script/Edit/:scriptName/'),
+	    jsUtil = __webpack_require__(162),
+	    handleError = jsUtil.handleError,
+	    handleResp = jsUtil.handleResp;
+
+	var EditScriptView = React.createClass({
+		displayName: 'EditScriptView',
+
+		editor: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.editor = ace.edit('editor');
+			this.editor.setTheme('ace/theme/github');
+			this.editor.getSession().setMode('ace/mode/javascript');
+			this.editor.setKeyboardHandler('ace/keyboard/vim');
+
+			$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {}).fail(handleError).done(handleResp((function (resp) {
+				debugger; //DEBUG
+				this.editor.setValue(resp.script.SCRIPT);
+			}).bind(this)));
+		},
+
+		onExportScript: function onExportScript() {
+			bootbox.alert('not implemented');
+		},
+
+		onSaveScript: function onSaveScript() {
+			$.post(util.format('/REST/Script/Edit/%s/', this.props.scriptName), { script: this.editor.getValue() }).fail(handleError).done(handleResp((function (resp) {
+				bootbox.alert('script saved', (function () {
+					window.location.href = util.format('/Script/View/%s/', this.props.scriptName);
+				}).bind(this));
+			}).bind(this)));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'div',
+					null,
+					React.createElement('pre', { id: 'editor' })
+				),
+				React.createElement(
+					'div',
+					{ className: 'oper-btns' },
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-primary',
+							onClick: this.onExportScript
+						},
+						'export'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-info',
+							onClick: this.onSaveScript
+						},
+						'save'
+					)
+				)
+			);
+		}
+	});
+
+	var EditScriptHeader = React.createClass({
+		displayName: 'EditScriptHeader',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				'h3',
+				null,
+				this.props.scriptName
+			);
+		}
+	});
+
+	React.render(React.createElement(EditScriptView, null), $('.contents-area')[0]);
+
+	React.render(React.createElement(EditScriptHeader, null), $('.title-area')[0]);
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Generated by CoffeeScript 1.10.0
+	var slice = [].slice;
+
+	(function(root, factory) {
+	  if (('function' === "function") && (__webpack_require__(167) != null)) {
+	    return !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports !== "undefined" && exports !== null) {
+	    return module.exports = factory();
+	  } else {
+	    return root.UrlPattern = factory();
+	  }
+	})(this, function() {
+	  var P, UrlPattern, astNodeContainsSegmentsForProvidedParams, astNodeToNames, astNodeToRegexString, baseAstNodeToRegexString, concatMap, defaultOptions, escapeForRegex, getParam, keysAndValuesToObject, newParser, regexGroupCount, stringConcatMap, stringify;
+	  escapeForRegex = function(string) {
+	    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	  };
+	  concatMap = function(array, f) {
+	    var i, length, results;
+	    results = [];
+	    i = -1;
+	    length = array.length;
+	    while (++i < length) {
+	      results = results.concat(f(array[i]));
+	    }
+	    return results;
+	  };
+	  stringConcatMap = function(array, f) {
+	    var i, length, result;
+	    result = '';
+	    i = -1;
+	    length = array.length;
+	    while (++i < length) {
+	      result += f(array[i]);
+	    }
+	    return result;
+	  };
+	  regexGroupCount = function(regex) {
+	    return (new RegExp(regex.toString() + '|')).exec('').length - 1;
+	  };
+	  keysAndValuesToObject = function(keys, values) {
+	    var i, key, length, object, value;
+	    object = {};
+	    i = -1;
+	    length = keys.length;
+	    while (++i < length) {
+	      key = keys[i];
+	      value = values[i];
+	      if (value == null) {
+	        continue;
+	      }
+	      if (object[key] != null) {
+	        if (!Array.isArray(object[key])) {
+	          object[key] = [object[key]];
+	        }
+	        object[key].push(value);
+	      } else {
+	        object[key] = value;
+	      }
+	    }
+	    return object;
+	  };
+	  P = {};
+	  P.Result = function(value, rest) {
+	    this.value = value;
+	    this.rest = rest;
+	  };
+	  P.Tagged = function(tag, value) {
+	    this.tag = tag;
+	    this.value = value;
+	  };
+	  P.tag = function(tag, parser) {
+	    return function(input) {
+	      var result, tagged;
+	      result = parser(input);
+	      if (result == null) {
+	        return;
+	      }
+	      tagged = new P.Tagged(tag, result.value);
+	      return new P.Result(tagged, result.rest);
+	    };
+	  };
+	  P.regex = function(regex) {
+	    return function(input) {
+	      var matches, result;
+	      matches = regex.exec(input);
+	      if (matches == null) {
+	        return;
+	      }
+	      result = matches[0];
+	      return new P.Result(result, input.slice(result.length));
+	    };
+	  };
+	  P.sequence = function() {
+	    var parsers;
+	    parsers = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+	    return function(input) {
+	      var i, length, parser, rest, result, values;
+	      i = -1;
+	      length = parsers.length;
+	      values = [];
+	      rest = input;
+	      while (++i < length) {
+	        parser = parsers[i];
+	        result = parser(rest);
+	        if (result == null) {
+	          return;
+	        }
+	        values.push(result.value);
+	        rest = result.rest;
+	      }
+	      return new P.Result(values, rest);
+	    };
+	  };
+	  P.pick = function() {
+	    var indexes, parsers;
+	    indexes = arguments[0], parsers = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+	    return function(input) {
+	      var array, result;
+	      result = P.sequence.apply(P, parsers)(input);
+	      if (result == null) {
+	        return;
+	      }
+	      array = result.value;
+	      result.value = array[indexes];
+	      return result;
+	    };
+	  };
+	  P.string = function(string) {
+	    var length;
+	    length = string.length;
+	    return function(input) {
+	      if (input.slice(0, length) === string) {
+	        return new P.Result(string, input.slice(length));
+	      }
+	    };
+	  };
+	  P.lazy = function(fn) {
+	    var cached;
+	    cached = null;
+	    return function(input) {
+	      if (cached == null) {
+	        cached = fn();
+	      }
+	      return cached(input);
+	    };
+	  };
+	  P.baseMany = function(parser, end, stringResult, atLeastOneResultRequired, input) {
+	    var endResult, parserResult, rest, results;
+	    rest = input;
+	    results = stringResult ? '' : [];
+	    while (true) {
+	      if (end != null) {
+	        endResult = end(rest);
+	        if (endResult != null) {
+	          break;
+	        }
+	      }
+	      parserResult = parser(rest);
+	      if (parserResult == null) {
+	        break;
+	      }
+	      if (stringResult) {
+	        results += parserResult.value;
+	      } else {
+	        results.push(parserResult.value);
+	      }
+	      rest = parserResult.rest;
+	    }
+	    if (atLeastOneResultRequired && results.length === 0) {
+	      return;
+	    }
+	    return new P.Result(results, rest);
+	  };
+	  P.many1 = function(parser) {
+	    return function(input) {
+	      return P.baseMany(parser, null, false, true, input);
+	    };
+	  };
+	  P.concatMany1Till = function(parser, end) {
+	    return function(input) {
+	      return P.baseMany(parser, end, true, true, input);
+	    };
+	  };
+	  P.firstChoice = function() {
+	    var parsers;
+	    parsers = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+	    return function(input) {
+	      var i, length, parser, result;
+	      i = -1;
+	      length = parsers.length;
+	      while (++i < length) {
+	        parser = parsers[i];
+	        result = parser(input);
+	        if (result != null) {
+	          return result;
+	        }
+	      }
+	    };
+	  };
+	  newParser = function(options) {
+	    var U;
+	    U = {};
+	    U.wildcard = P.tag('wildcard', P.string(options.wildcardChar));
+	    U.optional = P.tag('optional', P.pick(1, P.string(options.optionalSegmentStartChar), P.lazy(function() {
+	      return U.pattern;
+	    }), P.string(options.optionalSegmentEndChar)));
+	    U.name = P.regex(new RegExp("^[" + options.segmentNameCharset + "]+"));
+	    U.named = P.tag('named', P.pick(1, P.string(options.segmentNameStartChar), P.lazy(function() {
+	      return U.name;
+	    })));
+	    U.escapedChar = P.pick(1, P.string(options.escapeChar), P.regex(/^./));
+	    U["static"] = P.tag('static', P.concatMany1Till(P.firstChoice(P.lazy(function() {
+	      return U.escapedChar;
+	    }), P.regex(/^./)), P.firstChoice(P.string(options.segmentNameStartChar), P.string(options.optionalSegmentStartChar), P.string(options.optionalSegmentEndChar), U.wildcard)));
+	    U.token = P.lazy(function() {
+	      return P.firstChoice(U.wildcard, U.optional, U.named, U["static"]);
+	    });
+	    U.pattern = P.many1(P.lazy(function() {
+	      return U.token;
+	    }));
+	    return U;
+	  };
+	  defaultOptions = {
+	    escapeChar: '\\',
+	    segmentNameStartChar: ':',
+	    segmentValueCharset: 'a-zA-Z0-9-_~ %',
+	    segmentNameCharset: 'a-zA-Z0-9',
+	    optionalSegmentStartChar: '(',
+	    optionalSegmentEndChar: ')',
+	    wildcardChar: '*'
+	  };
+	  baseAstNodeToRegexString = function(astNode, segmentValueCharset) {
+	    if (Array.isArray(astNode)) {
+	      return stringConcatMap(astNode, function(node) {
+	        return baseAstNodeToRegexString(node, segmentValueCharset);
+	      });
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return '(.*?)';
+	      case 'named':
+	        return "([" + segmentValueCharset + "]+)";
+	      case 'static':
+	        return escapeForRegex(astNode.value);
+	      case 'optional':
+	        return '(?:' + baseAstNodeToRegexString(astNode.value, segmentValueCharset) + ')?';
+	    }
+	  };
+	  astNodeToRegexString = function(astNode, segmentValueCharset) {
+	    if (segmentValueCharset == null) {
+	      segmentValueCharset = defaultOptions.segmentValueCharset;
+	    }
+	    return '^' + baseAstNodeToRegexString(astNode, segmentValueCharset) + '$';
+	  };
+	  astNodeToNames = function(astNode) {
+	    if (Array.isArray(astNode)) {
+	      return concatMap(astNode, astNodeToNames);
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return ['_'];
+	      case 'named':
+	        return [astNode.value];
+	      case 'static':
+	        return [];
+	      case 'optional':
+	        return astNodeToNames(astNode.value);
+	    }
+	  };
+	  getParam = function(params, key, nextIndexes, sideEffects) {
+	    var index, maxIndex, result, value;
+	    if (sideEffects == null) {
+	      sideEffects = false;
+	    }
+	    value = params[key];
+	    if (value == null) {
+	      if (sideEffects) {
+	        throw new Error("no values provided for key `" + key + "`");
+	      } else {
+	        return;
+	      }
+	    }
+	    index = nextIndexes[key] || 0;
+	    maxIndex = Array.isArray(value) ? value.length - 1 : 0;
+	    if (index > maxIndex) {
+	      if (sideEffects) {
+	        throw new Error("too few values provided for key `" + key + "`");
+	      } else {
+	        return;
+	      }
+	    }
+	    result = Array.isArray(value) ? value[index] : value;
+	    if (sideEffects) {
+	      nextIndexes[key] = index + 1;
+	    }
+	    return result;
+	  };
+	  astNodeContainsSegmentsForProvidedParams = function(astNode, params, nextIndexes) {
+	    var i, length;
+	    if (Array.isArray(astNode)) {
+	      i = -1;
+	      length = astNode.length;
+	      while (++i < length) {
+	        if (astNodeContainsSegmentsForProvidedParams(astNode[i], params, nextIndexes)) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return getParam(params, '_', nextIndexes, false) != null;
+	      case 'named':
+	        return getParam(params, astNode.value, nextIndexes, false) != null;
+	      case 'static':
+	        return false;
+	      case 'optional':
+	        return astNodeContainsSegmentsForProvidedParams(astNode.value, params, nextIndexes);
+	    }
+	  };
+	  stringify = function(astNode, params, nextIndexes) {
+	    if (Array.isArray(astNode)) {
+	      return stringConcatMap(astNode, function(node) {
+	        return stringify(node, params, nextIndexes);
+	      });
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return getParam(params, '_', nextIndexes, true);
+	      case 'named':
+	        return getParam(params, astNode.value, nextIndexes, true);
+	      case 'static':
+	        return astNode.value;
+	      case 'optional':
+	        if (astNodeContainsSegmentsForProvidedParams(astNode.value, params, nextIndexes)) {
+	          return stringify(astNode.value, params, nextIndexes);
+	        } else {
+	          return '';
+	        }
+	    }
+	  };
+	  UrlPattern = function(arg1, arg2) {
+	    var groupCount, options, parsed, parser, withoutWhitespace;
+	    if (arg1 instanceof UrlPattern) {
+	      this.isRegex = arg1.isRegex;
+	      this.regex = arg1.regex;
+	      this.ast = arg1.ast;
+	      this.names = arg1.names;
+	      return;
+	    }
+	    this.isRegex = arg1 instanceof RegExp;
+	    if (!(('string' === typeof arg1) || this.isRegex)) {
+	      throw new TypeError('argument must be a regex or a string');
+	    }
+	    if (this.isRegex) {
+	      this.regex = arg1;
+	      if (arg2 != null) {
+	        if (!Array.isArray(arg2)) {
+	          throw new Error('if first argument is a regex the second argument may be an array of group names but you provided something else');
+	        }
+	        groupCount = regexGroupCount(this.regex);
+	        if (arg2.length !== groupCount) {
+	          throw new Error("regex contains " + groupCount + " groups but array of group names contains " + arg2.length);
+	        }
+	        this.names = arg2;
+	      }
+	      return;
+	    }
+	    if (arg1 === '') {
+	      throw new Error('argument must not be the empty string');
+	    }
+	    withoutWhitespace = arg1.replace(/\s+/g, '');
+	    if (withoutWhitespace !== arg1) {
+	      throw new Error('argument must not contain whitespace');
+	    }
+	    options = {
+	      escapeChar: (arg2 != null ? arg2.escapeChar : void 0) || defaultOptions.escapeChar,
+	      segmentNameStartChar: (arg2 != null ? arg2.segmentNameStartChar : void 0) || defaultOptions.segmentNameStartChar,
+	      segmentNameCharset: (arg2 != null ? arg2.segmentNameCharset : void 0) || defaultOptions.segmentNameCharset,
+	      segmentValueCharset: (arg2 != null ? arg2.segmentValueCharset : void 0) || defaultOptions.segmentValueCharset,
+	      optionalSegmentStartChar: (arg2 != null ? arg2.optionalSegmentStartChar : void 0) || defaultOptions.optionalSegmentStartChar,
+	      optionalSegmentEndChar: (arg2 != null ? arg2.optionalSegmentEndChar : void 0) || defaultOptions.optionalSegmentEndChar,
+	      wildcardChar: (arg2 != null ? arg2.wildcardChar : void 0) || defaultOptions.wildcardChar
+	    };
+	    parser = newParser(options);
+	    parsed = parser.pattern(arg1);
+	    if (parsed == null) {
+	      throw new Error("couldn't parse pattern");
+	    }
+	    if (parsed.rest !== '') {
+	      throw new Error("could only partially parse pattern");
+	    }
+	    this.ast = parsed.value;
+	    this.regex = new RegExp(astNodeToRegexString(this.ast, options.segmentValueCharset));
+	    this.names = astNodeToNames(this.ast);
+	  };
+	  UrlPattern.prototype.match = function(url) {
+	    var groups, match;
+	    match = this.regex.exec(url);
+	    if (match == null) {
+	      return null;
+	    }
+	    groups = match.slice(1);
+	    if (this.names) {
+	      return keysAndValuesToObject(this.names, groups);
+	    } else {
+	      return groups;
+	    }
+	  };
+	  UrlPattern.prototype.stringify = function(params) {
+	    if (params == null) {
+	      params = {};
+	    }
+	    if (this.isRegex) {
+	      throw new Error("can't stringify patterns generated from a regex");
+	    }
+	    if (params !== Object(params)) {
+	      throw new Error("argument must be an object or undefined");
+	    }
+	    return stringify(this.ast, params, {});
+	  };
+	  UrlPattern.escapeForRegex = escapeForRegex;
+	  UrlPattern.concatMap = concatMap;
+	  UrlPattern.stringConcatMap = stringConcatMap;
+	  UrlPattern.regexGroupCount = regexGroupCount;
+	  UrlPattern.keysAndValuesToObject = keysAndValuesToObject;
+	  UrlPattern.P = P;
+	  UrlPattern.newParser = newParser;
+	  UrlPattern.defaultOptions = defaultOptions;
+	  UrlPattern.astNodeToRegexString = astNodeToRegexString;
+	  UrlPattern.astNodeToNames = astNodeToNames;
+	  UrlPattern.getParam = getParam;
+	  UrlPattern.astNodeContainsSegmentsForProvidedParams = astNodeContainsSegmentsForProvidedParams;
+	  UrlPattern.stringify = stringify;
+	  return UrlPattern;
+	});
+
+
+/***/ },
+/* 167 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ }
 /******/ ]);

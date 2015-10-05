@@ -4,16 +4,16 @@ block header
 	link(href="/css/edit-script.css", rel="stylesheet")
 
 block title-area
-	h3 #{script.SCRIPT_NAME}
 
 block contents-area
-	div
-		pre#editor #{script.SCRIPT}
-	div.oper-btns
-		button(type="button", class="btn btn-primary", onclick="exportScript();") export
-		button(type="button", class="btn btn-info", onclick="save();") save
+//- 	div
+//- 		pre#editor #{script.SCRIPT}
+//- 	div.oper-btns
+//- 		button(type="button", class="btn btn-primary", onclick="exportScript();") export
+//- 		button(type="button", class="btn btn-info", onclick="save();") save
 
 block footer
-	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
-	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
-	script(src="/js/edit-script.js")
+	script(src="/js/bundle/edit-script.bundle.js")
+//- 	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
+//- 	input#hidden-script-editor-theme(type="hidden", value="#{scriptEditorTheme}")
+//- 	script(src="/js/edit-script.js")

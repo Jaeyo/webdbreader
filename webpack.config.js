@@ -5,6 +5,7 @@ module.exports = {
 		base: [ './src/main/java/resource/jsx/base.jsx' ],
 		config: [ './src/main/java/resource/jsx/config.jsx' ],
 		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ],
+		'edit-script': [ './src/main/java/resource/jsx/edit-script.jsx' ],
 		index: [ './src/main/java/resource/jsx/index.jsx' ]
 	},
 	output: {

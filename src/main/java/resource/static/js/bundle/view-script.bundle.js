@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(166);
+	module.exports = __webpack_require__(171);
 
 
 /***/ },
@@ -21059,8 +21059,29 @@
 
 
 /***/ },
-/* 162 */,
-/* 163 */
+/* 162 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.handleError = function (err) {
+		if (typeof err === 'object') err = JSON.stringify(err);
+		bootbox.alert(err);
+	};
+
+	exports.handleResp = function (onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleError(resp.errmsg);
+				return;
+			}
+			onSuccess(resp);
+		};
+	};
+
+/***/ },
+/* 163 */,
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21123,487 +21144,15 @@
 	exports.Panel = Panel;
 
 /***/ },
-/* 164 */,
 /* 165 */,
 /* 166 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    Panel = __webpack_require__(163).Panel,
-	    ListGroup = __webpack_require__(167).ListGroup,
-	    util = __webpack_require__(159),
-	    UrlPattern = __webpack_require__(168),
-	    pattern = new UrlPattern('/Script/View/:scriptName/'),
-	    jsUtil = __webpack_require__(170),
-	    handleError = jsUtil.handleError,
-	    handleResp = jsUtil.handleResp;
-
-	var dispatcher = {
-		listeners: [],
-		dispatch: function dispatch(type, data) {
-			this.listeners.forEach(function (listener) {
-				listener(type, data);
-			});
-		},
-		listen: function listen(listener) {
-			this.listeners.push(listener);
-		}
-	};
-
-	var BtnArea = React.createClass({
-		displayName: 'BtnArea',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: '',
-				isScriptRunning: false,
-				isScriptLoaded: false
-			};
-		},
-
-		onScriptStart: function onScriptStart(evt) {
-			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
-				bootbox.alert('script started', function () {
-					dispatcher.dispatch('reload-script', {});
-				});
-			}));
-		},
-
-		onScriptStop: function onScriptStop(evt) {
-			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
-				bootbox.alert('script stopped', function () {
-					dispatcher.dispatch('reload-script', {});
-				});
-			}));
-		},
-
-		onEdit: function onEdit(evt) {
-			window.location.href = util.format('/Script/Edit/%s/', this.props.scriptName);
-		},
-
-		onRename: function onRename(evt) {
-			bootbox.prompt('new title: ', (function (newTitle) {
-				if (newTitle === null) return;
-				$.post(util.format('/REST/Script/Rename/%s/', this.props.scriptName), { newTitle: newTitle }).fail(handleError).done(handleResp(function (resp) {
-					bootbox.alert('script renamed', function () {
-						window.location.href = util.format('/Script/View/%s/', newTitle);
-					});
-				}));
-			}).bind(this));
-		},
-
-		onRemove: function onRemove(evt) {
-			bootbox.confirm('remove', (function (result) {
-				if (result === false) return;
-
-				$.post(util.format('/REST/Script/Remove/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
-					bootbox.alert('script removed', function () {
-						window.location.href = '/';
-					});
-				}));
-			}).bind(this));
-		},
-
-		render: function render() {
-			if (this.props.isScriptLoaded === false) {
-				return React.createElement(
-					'span',
-					null,
-					'loading...'
-				);
-			} else {
-				return React.createElement(
-					'div',
-					{ className: 'btn-area' },
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-primary btn-sm',
-							disabled: this.props.isScriptRunning === true ? true : false,
-							onClick: this.onScriptStart
-						},
-						'start'
-					),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-primary btn-sm',
-							disabled: this.props.isScriptRunning === true ? false : true,
-							onClick: this.onScriptStop
-						},
-						'stop'
-					),
-					React.createElement('span', { className: 'divider' }),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-default btn-sm',
-							onClick: this.onEdit },
-						'edit script'
-					),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-default btn-sm',
-							onClick: this.onRename },
-						'rename'
-					),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-danger btn-sm',
-							onClick: this.onRemove },
-						'remove'
-					)
-				);
-			}
-		}
-	});
-
-	var InformationPanel = React.createClass({
-		displayName: 'InformationPanel',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				isScriptLoaded: false,
-				isScriptRunning: false,
-				scriptPrettyRegdate: ''
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				Panel,
-				{ className: 'information-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'th' },
-					'information'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					this.props.isScriptLoaded === false ? React.createElement(
-						'span',
-						null,
-						'loading...'
-					) : React.createElement(
-						ListGroup,
-						null,
-						React.createElement(
-							ListGroup.Item,
-							null,
-							React.createElement(
-								'span',
-								{ className: 'pull-left' },
-								'status'
-							),
-							this.props.isScriptRunning === true ? React.createElement(
-								'span',
-								{ className: 'pull-right label label-primary' },
-								'ON'
-							) : React.createElement(
-								'span',
-								{ className: 'pull-right label label-danger' },
-								'OFF'
-							),
-							React.createElement('div', { className: 'clearfix' })
-						),
-						React.createElement(
-							ListGroup.Item,
-							null,
-							React.createElement(
-								'span',
-								{ className: 'pull-left' },
-								'regdate'
-							),
-							React.createElement(
-								'span',
-								{ className: 'pull-right' },
-								this.props.scriptPrettyRegdate
-							),
-							React.createElement('div', { className: 'clearfix' })
-						)
-					)
-				)
-			);
-		}
-	});
-
-	var ScriptPanel = React.createClass({
-		displayName: 'ScriptPanel',
-
-		editor: null,
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				isScriptLoaded: false,
-				script: ''
-			};
-		},
-
-		componentDidUpdate: function componentDidUpdate() {
-			if (this.props.isScriptLoaded === true) {
-				this.editor = ace.edit('editor');
-				this.editor.setTheme('ace/theme/github');
-				this.editor.getSession().setMode('ace/mode/javascript');
-				this.editor.setKeyboardHandler('ace/keyboard/vim');
-				this.editor.setReadOnly(true);
-			} //if
-		},
-
-		render: function render() {
-			return React.createElement(
-				Panel,
-				{ className: 'script-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'cog' },
-					'script'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					this.props.isScriptLoaded === false ? React.createElement(
-						'span',
-						null,
-						'loading...'
-					) : React.createElement(
-						'pre',
-						{ id: 'editor' },
-						this.props.script
-					)
-				)
-			);
-		}
-	});
-
-	var LogMonitoringPanel = React.createClass({
-		displayName: 'LogMonitoringPanel',
-
-		ws: null,
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: ''
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				logItems: []
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.ws = new WebSocket(util.format('ws://%s/WebSocket/Logger/', window.location.host));
-			this.ws.onopen = (function () {
-				console.log('web socket opened');
-				this.ws.send(JSON.stringify({ scriptName: this.props.scriptName }));
-			}).bind(this);
-			this.ws.onmessage = (function (evt) {
-				var data = JSON.parse(evt.data);
-
-				var newLogItems = [React.createElement(LogMonitoringPanel.LogItem, {
-					itemstamp: data.timestamp,
-					level: data.level,
-					msg: data.msg })].concat(this.state.logItems);
-				if (newLogItems.length > 100) newLogItems.pop();
-				this.setState({ logItems: newLogItems });
-			}).bind(this);
-			this.ws.onclose = function () {
-				console.log('web socket closed');
-			};
-			this.ws.onerror = function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				console.error(err);
-				bootbox.alert(err);
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				Panel,
-				{ className: 'log-monitoring-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'time' },
-					'log monitoring ...'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					React.createElement(
-						'ul',
-						null,
-						this.state.logItems
-					)
-				)
-			);
-		}
-	});
-
-	LogMonitoringPanel.LogItem = React.createClass({
-		displayName: 'LogItem',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				timestamp: '',
-				level: '',
-				msg: ''
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				'li',
-				null,
-				React.createElement(
-					'span',
-					{ className: 'timestamp' },
-					React.createElement('span', { className: 'glyphicon glyphicon-time' }),
-					React.createElement(
-						'span',
-						null,
-						this.props.timestamp
-					)
-				),
-				React.createElement(
-					'span',
-					{ className: 'level' },
-					this.props.level
-				),
-				React.createElement(
-					'span',
-					{ className: 'msg' },
-					this.props.msg
-				)
-			);
-		}
-	});
-
-	var ViewScriptView = React.createClass({
-		displayName: 'ViewScriptView',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: pattern.match(window.location.pathname).scriptName
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isScriptLoaded: false,
-				isScriptRunning: false,
-				scriptPrettyRegdate: '',
-				script: ''
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			dispatcher.listen((function (type, data) {
-				if (type === 'reload-script') {
-					this.loadScript();
-				} //if
-			}).bind(this));
-
-			this.loadScript();
-		},
-
-		loadScript: function loadScript() {
-			$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {}).fail(handleError).done(handleResp((function (resp) {
-				this.setState({
-					isScriptLoaded: true,
-					isScriptRunning: resp.script.IS_RUNNING,
-					scriptPrettyRegdate: resp.script.PRETTY_REGDATE,
-					script: resp.script.SCRIPT
-				});
-			}).bind(this)));
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(BtnArea, {
-					scriptName: this.props.scriptName,
-					isScriptRunning: this.state.isScriptRunning,
-					isScriptLoaded: this.state.isScriptLoaded }),
-				React.createElement('hr', null),
-				React.createElement(
-					'div',
-					null,
-					React.createElement(InformationPanel, {
-						isScriptLoaded: this.state.isScriptLoaded,
-						isScriptRunning: this.state.isScriptRunning,
-						scriptPrettyRegdate: this.state.scriptPrettyRegdate }),
-					React.createElement(ScriptPanel, {
-						isScriptLoaded: this.state.isScriptLoaded,
-						script: this.state.script }),
-					React.createElement('div', { className: 'clearfix' })
-				),
-				React.createElement(
-					'div',
-					null,
-					React.createElement(LogMonitoringPanel, {
-						scriptName: this.props.scriptName })
-				)
-			);
-		}
-	});
-
-	React.render(React.createElement(ViewScriptView, null), $('.contents-area')[0]);
-
-/***/ },
-/* 167 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(2);
-
-	var ListGroup = React.createClass({
-		displayName: "ListGroup",
-
-		render: function render() {
-			return React.createElement(
-				"ul",
-				{ className: "list-group" },
-				this.props.children
-			);
-		}
-	});
-
-	ListGroup.Item = React.createClass({
-		displayName: "Item",
-
-		render: function render() {
-			return React.createElement(
-				"li",
-				{ className: "list-group-item" },
-				this.props.children
-			);
-		}
-	});
-
-	exports.ListGroup = ListGroup;
-
-/***/ },
-/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Generated by CoffeeScript 1.10.0
 	var slice = [].slice;
 
 	(function(root, factory) {
-	  if (('function' === "function") && (__webpack_require__(169) != null)) {
+	  if (('function' === "function") && (__webpack_require__(167) != null)) {
 	    return !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if (typeof exports !== "undefined" && exports !== null) {
 	    return module.exports = factory();
@@ -22038,7 +21587,7 @@
 
 
 /***/ },
-/* 169 */
+/* 167 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -22046,25 +21595,498 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
+/* 168 */,
+/* 169 */,
 /* 170 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(2);
+
+	var ListGroup = React.createClass({
+		displayName: "ListGroup",
+
+		render: function render() {
+			return React.createElement(
+				"ul",
+				{ className: "list-group" },
+				this.props.children
+			);
+		}
+	});
+
+	ListGroup.Item = React.createClass({
+		displayName: "Item",
+
+		render: function render() {
+			return React.createElement(
+				"li",
+				{ className: "list-group-item" },
+				this.props.children
+			);
+		}
+	});
+
+	exports.ListGroup = ListGroup;
+
+/***/ },
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	exports.handleError = function (err) {
-		if (typeof err === 'object') err = JSON.stringify(err);
-		bootbox.alert(err);
+	var React = __webpack_require__(2),
+	    Panel = __webpack_require__(164).Panel,
+	    ListGroup = __webpack_require__(170).ListGroup,
+	    util = __webpack_require__(159),
+	    UrlPattern = __webpack_require__(166),
+	    pattern = new UrlPattern('/Script/View/:scriptName/'),
+	    jsUtil = __webpack_require__(162),
+	    handleError = jsUtil.handleError,
+	    handleResp = jsUtil.handleResp;
+
+	var dispatcher = {
+		RELOAD_SCRIPT: 'reload-script',
+		listeners: [],
+		dispatch: function dispatch(type, data) {
+			this.listeners.forEach(function (listener) {
+				listener(type, data);
+			});
+		},
+		listen: function listen(listener) {
+			this.listeners.push(listener);
+		}
 	};
 
-	exports.handleResp = function (onSuccess) {
-		return function (resp) {
-			if (resp.success !== 1) {
-				exports.handleError(resp.errmsg);
-				return;
+	var BtnArea = React.createClass({
+		displayName: 'BtnArea',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: '',
+				isScriptRunning: false,
+				isScriptLoaded: false
+			};
+		},
+
+		onScriptStart: function onScriptStart(evt) {
+			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
+				bootbox.alert('script started', function () {
+					dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
+				});
+			}));
+		},
+
+		onScriptStop: function onScriptStop(evt) {
+			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
+				bootbox.alert('script stopped', function () {
+					dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
+				});
+			}));
+		},
+
+		onEdit: function onEdit(evt) {
+			window.location.href = util.format('/Script/Edit/%s/', this.props.scriptName);
+		},
+
+		onRename: function onRename(evt) {
+			bootbox.prompt('new title: ', (function (newTitle) {
+				if (newTitle === null) return;
+				$.post(util.format('/REST/Script/Rename/%s/', this.props.scriptName), { newTitle: newTitle }).fail(handleError).done(handleResp(function (resp) {
+					bootbox.alert('script renamed', function () {
+						window.location.href = util.format('/Script/View/%s/', newTitle);
+					});
+				}));
+			}).bind(this));
+		},
+
+		onRemove: function onRemove(evt) {
+			bootbox.confirm('remove', (function (result) {
+				if (result === false) return;
+
+				$.post(util.format('/REST/Script/Remove/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
+					bootbox.alert('script removed', function () {
+						window.location.href = '/';
+					});
+				}));
+			}).bind(this));
+		},
+
+		render: function render() {
+			if (this.props.isScriptLoaded === false) {
+				return React.createElement(
+					'span',
+					null,
+					'loading...'
+				);
+			} else {
+				return React.createElement(
+					'div',
+					{ className: 'btn-area' },
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-primary btn-sm',
+							disabled: this.props.isScriptRunning === true ? true : false,
+							onClick: this.onScriptStart
+						},
+						'start'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-primary btn-sm',
+							disabled: this.props.isScriptRunning === true ? false : true,
+							onClick: this.onScriptStop
+						},
+						'stop'
+					),
+					React.createElement('span', { className: 'divider' }),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-default btn-sm',
+							onClick: this.onEdit },
+						'edit script'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-default btn-sm',
+							onClick: this.onRename },
+						'rename'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-danger btn-sm',
+							onClick: this.onRemove },
+						'remove'
+					)
+				);
 			}
-			onSuccess(resp);
-		};
-	};
+		}
+	});
+
+	var InformationPanel = React.createClass({
+		displayName: 'InformationPanel',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				isScriptLoaded: false,
+				isScriptRunning: false,
+				scriptPrettyRegdate: ''
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'information-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'th' },
+					'information'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					this.props.isScriptLoaded === false ? React.createElement(
+						'span',
+						null,
+						'loading...'
+					) : React.createElement(
+						ListGroup,
+						null,
+						React.createElement(
+							ListGroup.Item,
+							null,
+							React.createElement(
+								'span',
+								{ className: 'pull-left' },
+								'status'
+							),
+							this.props.isScriptRunning === true ? React.createElement(
+								'span',
+								{ className: 'pull-right label label-primary' },
+								'ON'
+							) : React.createElement(
+								'span',
+								{ className: 'pull-right label label-danger' },
+								'OFF'
+							),
+							React.createElement('div', { className: 'clearfix' })
+						),
+						React.createElement(
+							ListGroup.Item,
+							null,
+							React.createElement(
+								'span',
+								{ className: 'pull-left' },
+								'regdate'
+							),
+							React.createElement(
+								'span',
+								{ className: 'pull-right' },
+								this.props.scriptPrettyRegdate
+							),
+							React.createElement('div', { className: 'clearfix' })
+						)
+					)
+				)
+			);
+		}
+	});
+
+	var ScriptPanel = React.createClass({
+		displayName: 'ScriptPanel',
+
+		editor: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				isScriptLoaded: false,
+				script: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate() {
+			if (this.props.isScriptLoaded === true) {
+				this.editor = ace.edit('editor');
+				this.editor.setTheme('ace/theme/github');
+				this.editor.getSession().setMode('ace/mode/javascript');
+				this.editor.setKeyboardHandler('ace/keyboard/vim');
+				this.editor.setReadOnly(true);
+			} //if
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'script-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'cog' },
+					'script'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					this.props.isScriptLoaded === false ? React.createElement(
+						'span',
+						null,
+						'loading...'
+					) : React.createElement(
+						'pre',
+						{ id: 'editor' },
+						this.props.script
+					)
+				)
+			);
+		}
+	});
+
+	var LogMonitoringPanel = React.createClass({
+		displayName: 'LogMonitoringPanel',
+
+		ws: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: ''
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				logItems: []
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.ws = new WebSocket(util.format('ws://%s/WebSocket/Logger/', window.location.host));
+			this.ws.onopen = (function () {
+				console.log('web socket opened');
+				this.ws.send(JSON.stringify({ scriptName: this.props.scriptName }));
+			}).bind(this);
+			this.ws.onmessage = (function (evt) {
+				var data = JSON.parse(evt.data);
+
+				var newLogItems = [React.createElement(LogMonitoringPanel.LogItem, {
+					itemstamp: data.timestamp,
+					level: data.level,
+					msg: data.msg })].concat(this.state.logItems);
+				if (newLogItems.length > 100) newLogItems.pop();
+				this.setState({ logItems: newLogItems });
+			}).bind(this);
+			this.ws.onclose = function () {
+				console.log('web socket closed');
+			};
+			this.ws.onerror = function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				console.error(err);
+				bootbox.alert(err);
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'log-monitoring-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'time' },
+					'log monitoring ...'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					React.createElement(
+						'ul',
+						null,
+						this.state.logItems
+					)
+				)
+			);
+		}
+	});
+
+	LogMonitoringPanel.LogItem = React.createClass({
+		displayName: 'LogItem',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				timestamp: '',
+				level: '',
+				msg: ''
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				'li',
+				null,
+				React.createElement(
+					'span',
+					{ className: 'timestamp' },
+					React.createElement('span', { className: 'glyphicon glyphicon-time' }),
+					React.createElement(
+						'span',
+						null,
+						this.props.timestamp
+					)
+				),
+				React.createElement(
+					'span',
+					{ className: 'level' },
+					this.props.level
+				),
+				React.createElement(
+					'span',
+					{ className: 'msg' },
+					this.props.msg
+				)
+			);
+		}
+	});
+
+	var ViewScriptView = React.createClass({
+		displayName: 'ViewScriptView',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				isScriptLoaded: false,
+				isScriptRunning: false,
+				scriptPrettyRegdate: '',
+				script: ''
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			dispatcher.listen((function (type, data) {
+				if (type === dispatcher.RELOAD_SCRIPT) {
+					this.loadScript();
+				}
+			}).bind(this));
+
+			this.loadScript();
+		},
+
+		loadScript: function loadScript() {
+			$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {}).fail(handleError).done(handleResp((function (resp) {
+				this.setState({
+					isScriptLoaded: true,
+					isScriptRunning: resp.script.IS_RUNNING,
+					scriptPrettyRegdate: resp.script.PRETTY_REGDATE,
+					script: resp.script.SCRIPT
+				});
+			}).bind(this)));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(BtnArea, {
+					scriptName: this.props.scriptName,
+					isScriptRunning: this.state.isScriptRunning,
+					isScriptLoaded: this.state.isScriptLoaded }),
+				React.createElement('hr', null),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(InformationPanel, {
+						isScriptLoaded: this.state.isScriptLoaded,
+						isScriptRunning: this.state.isScriptRunning,
+						scriptPrettyRegdate: this.state.scriptPrettyRegdate }),
+					React.createElement(ScriptPanel, {
+						isScriptLoaded: this.state.isScriptLoaded,
+						script: this.state.script }),
+					React.createElement('div', { className: 'clearfix' })
+				),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(LogMonitoringPanel, {
+						scriptName: this.props.scriptName })
+				)
+			);
+		}
+	});
+
+	var ViewScriptHeader = React.createClass({
+		displayName: 'ViewScriptHeader',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				'h3',
+				null,
+				this.props.title
+			);
+		}
+	});
+
+	React.render(React.createElement(ViewScriptView, null), $('.contents-area')[0]);
+
+	React.render(React.createElement(ViewScriptHeader, null), $('.title-area')[0]);
 
 /***/ }
 /******/ ]);
