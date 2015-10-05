@@ -7,65 +7,6 @@ block title-area
 	h3 #{script.SCRIPT_NAME}
 
 block contents-area
-	div.btn-area
-		if script.IS_RUNNING == true
-			button.btn.btn-primary.btn-sm(type="button", disabled=true) start
-			button.btn.btn-primary.btn-sm(type="button", onclick="controller.stopScript();") stop
-		else
-			button.btn.btn-primary.btn-sm(type="button", onclick="controller.startScript();") start
-			button.btn.btn-primary.btn-sm(type="button", disabled=true) stop
-		span.divider
-		button.btn.btn-default.btn-sm(type="button", onclick="editScript();") edit script
-		button.btn.btn-default.btn-sm(type="button", onclick="controller.rename();") rename
-		button.btn.btn-danger.btn-sm(type="button", onclick="controller.remove();") remove
-	hr
-	div
-		div.panel.panel-default.infomation-panel
-			div.panel.panel-heading
-				span.glyphicon.glyphicon-th
-				span infomation
-			div.panel-body
-				ul.list-group
-					li.list-group-item
-						span.pull-left status
-						if script.IS_RUNNING == true
-							span.pull-right.label.label-primary ON
-						else
-							span.pull-right.label.label-danger OFF
-						div.clearfix
-					li.list-group-item
-						span.pull-left regdate
-						span.pull-right #{script.PRETTY_REGDATE}
-						div.clearfix
-		div.panel.panel-default.script-panel
-			div.panel-heading
-				span.glyphicon.glyphicon-cog
-				span script
-			div.panel-body
-				pre#editor #{script.SCRIPT}
-		div.clearfix
-	div
-		div.panel.panel-default.log-monitoring-panel
-			div.panel-heading
-				span.glyphicon.glyphicon-time
-				span operation log monitoring ...
-			div.panel-body
-				ul
 
 block footer
-	input#script-name(type="hidden", value="#{script.SCRIPT_NAME}")
-	script.
-		function editScript(){
-			var scriptName = $('input#script-name[type="hidden"]').val();
-			window.location.href = '/Script/Edit/' + scriptName + '/';
-		} //editScript
-	script#log-monitoring-item(type="x-jade")
-		:plain
-			li
-				span.timestamp
-					span.glyphicon.glyphicon-time
-					span \#{timestamp}
-				span.level \#{level} :
-				span.msg \#{msg}
-
-	script(src="/js/view-script.js")
+	script(src="/js/bundle/view-script.bundle.js")

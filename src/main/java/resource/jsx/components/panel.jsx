@@ -3,24 +3,40 @@ var React = require('react');
 var Panel = React.createClass({
 	getDefaultProps() {
 		return {
-			panelClassName: '',
-			headerGlyphicon: 'cog',
-			headerTitle: '',
-			body: null
+			className: '',
 		};
 	},
 
 	render() {
 		return (
-			<div className={'panel panel-default ' + this.props.panelClassName}>
-				<div className="panel-heading">
-					<span className={'glyphicon glyphicon-' + this.props.headerGlyphicon} />
-					<span>{this.props.headerTitle}</span>
-				</div>
-				<div className="panel-body">
-					{this.props.body}
-				</div>
+			<div className={'panel panel-default ' + this.props.className}>
+				{this.props.children}
 			</div>	
+		);
+	}
+});
+
+Panel.Heading = React.createClass({
+	getDefaultProps() {
+		return {
+			glyphicon: ''
+		};
+	},
+
+	render() {
+		return (
+			<div className="panel-heading">
+				<span className={'glyphicon glyphicon-' + this.props.glyphicon} />
+				<span>{this.props.children}</span>
+			</div>
+		);
+	}
+});
+
+Panel.Body = React.createClass({
+	render() {
+		return (
+			<div className="panel-body">{this.props.children}</div>
 		);
 	}
 });

@@ -21,12 +21,14 @@
     "babel-loader": "^5.3.2",
     "css-loader": "^0.19.0",
     "jquery": "^2.1.4",
+    "json-loader": "^0.5.3",
     "jsx-loader": "^0.13.2",
     "moment": "^2.10.6",
     "precond": "^0.2.3",
     "promise": "^7.0.4",
     "react": "^0.13.3",
     "style-loader": "^0.12.4",
+    "url-pattern": "^0.10.2",
     "webpack": "^1.12.2"
   }
 }

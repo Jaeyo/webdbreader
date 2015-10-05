@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(162);
+	module.exports = __webpack_require__(164);
 
 
 /***/ },
@@ -20426,290 +20426,640 @@
 
 /***/ },
 /* 158 */,
-/* 159 */,
-/* 160 */,
-/* 161 */,
-/* 162 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var React = __webpack_require__(2),
-	    Panel = __webpack_require__(163).Panel;
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
 
-	function postConfig(configKeyValueArr) {
-		$.post('/REST/Config/', {
-			jsonParam: JSON.stringify(configKeyValueArr)
-		}, function (resp) {
-			if (resp.success !== 1) {
-				bootbox.alert(JSON.stringify(resp));
-				return;
-			}
-			bootbox.alert('config saved');
-		}, 'json');
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+
+
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+
+
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+
+
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+
+
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
 	}
 
-	var GeneralConfigPanel = React.createClass({
-		displayName: 'GeneralConfigPanel',
 
-		getInitialState: function getInitialState() {
-			return {
-				versionCheck: false,
-				isLoaded: false
-			};
-		},
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
 
-		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Config/', {}).fail(function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				bootbox.alert(err);
-			}).done((function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(resp.errmsg);
-					return;
-				}
 
-				if (resp.configs['version.check']) {
-					this.setState({
-						isLoaded: true,
-						versionCheck: JSON.parse(resp.configs['version.check'])
-					});
-				} else {
-					this.setState({ isLoaded: true, versionCheck: false });
-				}
-			}).bind(this));
-		},
+	function arrayToHash(array) {
+	  var hash = {};
 
-		onVersionCheckChange: function onVersionCheckChange(evt) {
-			var value = JSON.parse(evt.target.value);
-			this.setState({ versionCheck: value });
-		},
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
 
-		save: function save() {
-			postConfig([{ configKey: 'version.check', configValue: this.state.versionCheck + "" }]);
-		},
+	  return hash;
+	}
 
-		render: function render() {
-			var body = this.state.isLoaded === false ? React.createElement(
-				'span',
-				null,
-				'loading...'
-			) : React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'span',
-					{ className: 'config-key' },
-					'version check'
-				),
-				React.createElement(
-					'span',
-					null,
-					React.createElement(
-						'label',
-						null,
-						React.createElement('input', {
-							type: 'radio',
-							name: 'version-check',
-							value: 'true',
-							checked: this.state.versionCheck === true,
-							onChange: this.onVersionCheckChange }),
-						React.createElement(
-							'span',
-							null,
-							'true'
-						)
-					),
-					React.createElement(
-						'label',
-						null,
-						React.createElement('input', {
-							type: 'radio',
-							name: 'version-check',
-							value: 'false',
-							checked: this.state.versionCheck === false,
-							onChange: this.onVersionCheckChange }),
-						React.createElement(
-							'span',
-							null,
-							'false'
-						)
-					)
-				),
-				React.createElement('hr', null),
-				React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'button',
-						{
-							className: 'btn btn-primary btn-sm pull-right',
-							type: 'button',
-							onClick: this.save },
-						'save'
-					),
-					React.createElement('div', { className: 'clearfix' })
-				)
-			);
 
-			return React.createElement(
-				Panel,
-				{ className: 'general-config-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'cog' },
-					'general'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					body
-				)
-			);
-		}
-	});
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
 
-	var DerbySqlPanel = React.createClass({
-		displayName: 'DerbySqlPanel',
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
 
-		query: function query() {
-			var query = React.findDOMNode(this.refs.queryInput).value;
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
 
-			$.getJSON('/REST/EmbedDb/Query/', { query: query }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
 
-				bootbox.alert('<textarea style="width: 100%;" rows="10">' + resp.result + '</textarea>');
-			});
-		},
-		render: function render() {
-			return React.createElement(
-				Panel,
-				{ className: 'derby-sql-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'cog' },
-					'derby database'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-addon' },
-							'sql'
-						),
-						React.createElement('input', {
-							className: 'form-control',
-							id: 'derby-query',
-							type: 'text',
-							ref: 'queryInput' })
-					),
-					React.createElement('hr', null),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-default pull-right',
-							onClick: this.query },
-						'query'
-					)
-				)
-			);
-		}
-	});
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
 
-	var CryptoPanel = React.createClass({
-		displayName: 'CryptoPanel',
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
 
-		encrypt: function encrypt() {
-			var text = React.findDOMNode(this.refs.cryptoInput).value;
-			$.getJSON('/REST/Meta/Encrypt/', { value: text }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-				bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-			});
-		},
-		decrypt: function decrypt() {
-			var text = React.findDOMNode(this.refs.cryptoInput).value;
-			$.getJSON('/REST/Meta/Decrypt/', { value: text }).fail(function (err) {
-				bootbox.alert(JSON.stringify(err));
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					bootbox.alert(JSON.stringify(resp));
-					return;
-				} //if
-				bootbox.alert('<input type="text" class="form-control" value="' + resp.value + '" />');
-			});
-		},
-		render: function render() {
-			return React.createElement(
-				Panel,
-				{ className: 'crypto-panel' },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'cog' },
-					'crypto'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-addon' },
-							'text'
-						),
-						React.createElement('input', {
-							type: 'text',
-							className: 'form-control',
-							id: 'crypto-text',
-							ref: 'cryptoInput' })
-					),
-					React.createElement('hr', null),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-default pull-right',
-							onClick: this.encrypt },
-						'encrypt'
-					),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-default pull-right',
-							onClick: this.decrypt },
-						'decrypt'
-					)
-				)
-			);
-		}
-	});
+	  var base = '', array = false, braces = ['{', '}'];
 
-	React.render(React.createElement(
-		'div',
-		null,
-		React.createElement(GeneralConfigPanel, null),
-		React.createElement(DerbySqlPanel, null),
-		React.createElement(CryptoPanel, null)
-	), $('#contents')[0]);
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+
+	  ctx.seen.push(value);
+
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+
+	  ctx.seen.pop();
+
+	  return reduceToSingleString(output, base, braces);
+	}
+
+
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+
+
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+
+
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+
+
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+
+	  return name + ': ' + str;
+	}
+
+
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+
+
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+
+	exports.isBuffer = __webpack_require__(160);
+
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+
+
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+
+
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+
+
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+
+
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(161);
+
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
 
 /***/ },
+/* 160 */
+/***/ function(module, exports) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ },
+/* 161 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 162 */,
 /* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -20771,6 +21121,954 @@
 	});
 
 	exports.Panel = Panel;
+
+/***/ },
+/* 164 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    Panel = __webpack_require__(163).Panel,
+	    ListGroup = __webpack_require__(165).ListGroup,
+	    util = __webpack_require__(159),
+	    UrlPattern = __webpack_require__(166),
+	    pattern = new UrlPattern('/Script/View/:scriptName/');
+
+	var handleError = function handleError(err) {
+		if (typeof err === 'object') err = JSON.stringify(err);
+		bootbox.alert(err);
+	};
+
+	var dispatcher = {
+		listeners: [],
+		dispatch: function dispatch(type, data) {
+			this.listeners.forEach(function (listener) {
+				listener(type, data);
+			});
+		},
+		listen: function listen(listener) {
+			this.listeners.push(listener);
+		}
+	};
+
+	var BtnArea = React.createClass({
+		displayName: 'BtnArea',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: '',
+				isScriptRunning: false,
+				isScriptLoaded: false
+			};
+		},
+
+		onStart: function onStart(evt) {
+			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(function (resp) {
+				if (resp.success !== 1) {
+					handleError(resp.errmsg);
+					return;
+				}
+
+				bootbox.alert('script started', function () {
+					dispatcher.dispatch('reload-script', {});
+				});
+			});
+		},
+
+		onStop: function onStop(evt) {
+			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(function (resp) {
+				if (resp.success !== 1) {
+					handleError(resp.errmsg);
+					return;
+				}
+
+				bootbox.alert('script stopped', function () {
+					dispatcher.dispatch('reload-script', {});
+				});
+			});
+		},
+
+		onEdit: function onEdit(evt) {
+			window.location.href = util.format('/Script/Edit/%s/', this.props.scriptName);
+		},
+
+		onRename: function onRename(evt) {
+			bootbox.prompt('new title: ', (function (newTitle) {
+				if (newTitle === null) return;
+				$.post(util.format('/REST/Script/Rename/%s/', this.props.scriptName), { newTitle: newTitle }).fail(handleError).done(function (resp) {
+					if (resp.success !== 1) {
+						handleError(resp.errmsg);
+						return;
+					}
+					bootbox.alert('script renamed', function () {
+						window.location.href = util.format('/Script/View/%s/', newTitle);
+					});
+				});
+			}).bind(this));
+		},
+
+		onRemove: function onRemove(evt) {
+			bootbox.confirm('remove', (function (result) {
+				if (result === false) return;
+
+				$.post(util.format('/REST/Script/Remove/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(function (resp) {
+					if (resp.success !== 1) {
+						handleError(resp.errmsg);
+						return;
+					}
+					bootbox.alert('script removed', function () {
+						window.location.href = '/';
+					});
+				});
+			}).bind(this));
+		},
+
+		render: function render() {
+			if (this.props.isScriptLoaded === false) {
+				return React.createElement(
+					'span',
+					null,
+					'loading...'
+				);
+			} else {
+				return React.createElement(
+					'div',
+					{ className: 'btn-area' },
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-primary btn-sm',
+							disabled: this.props.isScriptRunning === true ? true : false,
+							onClick: this.onStart
+						},
+						'start'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-primary btn-sm',
+							disabled: this.props.isScriptRunning === true ? false : true,
+							onClick: this.onStop
+						},
+						'stop'
+					),
+					React.createElement('span', { className: 'divider' }),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-default btn-sm',
+							onClick: this.onEdit },
+						'edit script'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-default btn-sm',
+							onClick: this.onRename },
+						'rename'
+					),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-danger btn-sm',
+							onClick: this.onRemove },
+						'remove'
+					)
+				);
+			}
+		}
+	});
+
+	var InformationPanel = React.createClass({
+		displayName: 'InformationPanel',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				isScriptLoaded: false,
+				isScriptRunning: false,
+				scriptPrettyRegdate: ''
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'information-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'th' },
+					'information'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					this.props.isScriptLoaded === false ? React.createElement(
+						'span',
+						null,
+						'loading...'
+					) : React.createElement(
+						ListGroup,
+						null,
+						React.createElement(
+							ListGroup.Item,
+							null,
+							React.createElement(
+								'span',
+								{ className: 'pull-left' },
+								'status'
+							),
+							this.props.isScriptRunning === true ? React.createElement(
+								'span',
+								{ className: 'pull-right label label-primary' },
+								'ON'
+							) : React.createElement(
+								'span',
+								{ className: 'pull-right label label-danger' },
+								'OFF'
+							),
+							React.createElement('div', { className: 'clearfix' })
+						),
+						React.createElement(
+							ListGroup.Item,
+							null,
+							React.createElement(
+								'span',
+								{ className: 'pull-left' },
+								'regdate'
+							),
+							React.createElement(
+								'span',
+								{ className: 'pull-right' },
+								this.props.scriptPrettyRegdate
+							),
+							React.createElement('div', { className: 'clearfix' })
+						)
+					)
+				)
+			);
+		}
+	});
+
+	var ScriptPanel = React.createClass({
+		displayName: 'ScriptPanel',
+
+		editor: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				isScriptLoaded: false,
+				script: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate() {
+			if (this.props.isScriptLoaded === true) {
+				this.editor = ace.edit('editor');
+				this.editor.setTheme('ace/theme/kuroir');
+				this.editor.getSession().setMode('ace/mode/javascript');
+				this.editor.setKeyboardHandler('ace/keyboard/vim');
+				this.editor.setReadOnly(true);
+			} //if
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'script-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'cog' },
+					'script'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					this.props.isScriptLoaded === false ? React.createElement(
+						'span',
+						null,
+						'loading...'
+					) : React.createElement(
+						'pre',
+						{ id: 'editor' },
+						this.props.script
+					)
+				)
+			);
+		}
+	});
+
+	var LogMonitoringPanel = React.createClass({
+		displayName: 'LogMonitoringPanel',
+
+		ws: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: ''
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				logItems: []
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.ws = new WebSocket(util.format('ws://%s/WebSocket/Logger/', window.location.host));
+			this.ws.onopen = (function () {
+				console.log('web socket opened');
+				this.ws.send(JSON.stringify({ scriptName: this.props.scriptName }));
+			}).bind(this);
+			this.ws.onmessage = (function (evt) {
+				var data = JSON.parse(evt.data);
+
+				console.log('msg received', data); //DEBUG
+
+				var newLogItems = [React.createElement(LogMonitoringPanel.LogItem, {
+					itemstamp: data.timestamp,
+					level: data.level,
+					msg: data.msg })].concat(this.state.logItems);
+				if (newLogItems.length > 100) newLogItems.pop();
+				this.setState({ logItems: newLogItems });
+			}).bind(this);
+			this.ws.onclose = function () {
+				console.log('web socket closed');
+			};
+			this.ws.onerror = function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				console.error(err);
+				bootbox.alert(err);
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				{ className: 'log-monitoring-panel' },
+				React.createElement(
+					Panel.Heading,
+					{ glyphicon: 'time' },
+					'log monitoring ...'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					React.createElement(
+						'ul',
+						null,
+						this.state.logItems
+					)
+				)
+			);
+		}
+	});
+
+	LogMonitoringPanel.LogItem = React.createClass({
+		displayName: 'LogItem',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				timestamp: '',
+				level: '',
+				msg: ''
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				'li',
+				null,
+				React.createElement(
+					'span',
+					{ className: 'timestamp' },
+					React.createElement('span', { className: 'glyphicon glyphicon-time' }),
+					React.createElement(
+						'span',
+						null,
+						this.props.timestamp
+					)
+				),
+				React.createElement(
+					'span',
+					{ className: 'level' },
+					this.props.level
+				),
+				React.createElement(
+					'span',
+					{ className: 'msg' },
+					this.props.msg
+				)
+			);
+		}
+	});
+
+	var ViewScriptView = React.createClass({
+		displayName: 'ViewScriptView',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				isScriptLoaded: false,
+				isScriptRunning: false,
+				scriptPrettyRegdate: '',
+				script: ''
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			dispatcher.listen((function (type, data) {
+				if (type === 'reload-script') {
+					this.loadScript();
+				} //if
+			}).bind(this));
+
+			this.loadScript();
+		},
+
+		loadScript: function loadScript() {
+			$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {}).fail(handleError).done((function (resp) {
+				if (resp.success !== 1) {
+					handleError(resp.errmsg);
+					return;
+				}
+
+				this.setState({
+					isScriptLoaded: true,
+					isScriptRunning: resp.script.IS_RUNNING,
+					scriptPrettyRegdate: resp.script.PRETTY_REGDATE,
+					script: resp.script.SCRIPT
+				});
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(BtnArea, {
+					scriptName: this.props.scriptName,
+					isScriptRunning: this.state.isScriptRunning,
+					isScriptLoaded: this.state.isScriptLoaded }),
+				React.createElement('hr', null),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(InformationPanel, {
+						isScriptLoaded: this.state.isScriptLoaded,
+						isScriptRunning: this.state.isScriptRunning,
+						scriptPrettyRegdate: this.state.scriptPrettyRegdate }),
+					React.createElement(ScriptPanel, {
+						isScriptLoaded: this.state.isScriptLoaded,
+						script: this.state.script }),
+					React.createElement('div', { className: 'clearfix' })
+				),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(LogMonitoringPanel, {
+						scriptName: this.props.scriptName })
+				)
+			);
+		}
+	});
+
+	React.render(React.createElement(ViewScriptView, null), $('.contents-area')[0]);
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(2);
+
+	var ListGroup = React.createClass({
+		displayName: "ListGroup",
+
+		render: function render() {
+			return React.createElement(
+				"ul",
+				{ className: "list-group" },
+				this.props.children
+			);
+		}
+	});
+
+	ListGroup.Item = React.createClass({
+		displayName: "Item",
+
+		render: function render() {
+			return React.createElement(
+				"li",
+				{ className: "list-group-item" },
+				this.props.children
+			);
+		}
+	});
+
+	exports.ListGroup = ListGroup;
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Generated by CoffeeScript 1.10.0
+	var slice = [].slice;
+
+	(function(root, factory) {
+	  if (('function' === "function") && (__webpack_require__(167) != null)) {
+	    return !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports !== "undefined" && exports !== null) {
+	    return module.exports = factory();
+	  } else {
+	    return root.UrlPattern = factory();
+	  }
+	})(this, function() {
+	  var P, UrlPattern, astNodeContainsSegmentsForProvidedParams, astNodeToNames, astNodeToRegexString, baseAstNodeToRegexString, concatMap, defaultOptions, escapeForRegex, getParam, keysAndValuesToObject, newParser, regexGroupCount, stringConcatMap, stringify;
+	  escapeForRegex = function(string) {
+	    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	  };
+	  concatMap = function(array, f) {
+	    var i, length, results;
+	    results = [];
+	    i = -1;
+	    length = array.length;
+	    while (++i < length) {
+	      results = results.concat(f(array[i]));
+	    }
+	    return results;
+	  };
+	  stringConcatMap = function(array, f) {
+	    var i, length, result;
+	    result = '';
+	    i = -1;
+	    length = array.length;
+	    while (++i < length) {
+	      result += f(array[i]);
+	    }
+	    return result;
+	  };
+	  regexGroupCount = function(regex) {
+	    return (new RegExp(regex.toString() + '|')).exec('').length - 1;
+	  };
+	  keysAndValuesToObject = function(keys, values) {
+	    var i, key, length, object, value;
+	    object = {};
+	    i = -1;
+	    length = keys.length;
+	    while (++i < length) {
+	      key = keys[i];
+	      value = values[i];
+	      if (value == null) {
+	        continue;
+	      }
+	      if (object[key] != null) {
+	        if (!Array.isArray(object[key])) {
+	          object[key] = [object[key]];
+	        }
+	        object[key].push(value);
+	      } else {
+	        object[key] = value;
+	      }
+	    }
+	    return object;
+	  };
+	  P = {};
+	  P.Result = function(value, rest) {
+	    this.value = value;
+	    this.rest = rest;
+	  };
+	  P.Tagged = function(tag, value) {
+	    this.tag = tag;
+	    this.value = value;
+	  };
+	  P.tag = function(tag, parser) {
+	    return function(input) {
+	      var result, tagged;
+	      result = parser(input);
+	      if (result == null) {
+	        return;
+	      }
+	      tagged = new P.Tagged(tag, result.value);
+	      return new P.Result(tagged, result.rest);
+	    };
+	  };
+	  P.regex = function(regex) {
+	    return function(input) {
+	      var matches, result;
+	      matches = regex.exec(input);
+	      if (matches == null) {
+	        return;
+	      }
+	      result = matches[0];
+	      return new P.Result(result, input.slice(result.length));
+	    };
+	  };
+	  P.sequence = function() {
+	    var parsers;
+	    parsers = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+	    return function(input) {
+	      var i, length, parser, rest, result, values;
+	      i = -1;
+	      length = parsers.length;
+	      values = [];
+	      rest = input;
+	      while (++i < length) {
+	        parser = parsers[i];
+	        result = parser(rest);
+	        if (result == null) {
+	          return;
+	        }
+	        values.push(result.value);
+	        rest = result.rest;
+	      }
+	      return new P.Result(values, rest);
+	    };
+	  };
+	  P.pick = function() {
+	    var indexes, parsers;
+	    indexes = arguments[0], parsers = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+	    return function(input) {
+	      var array, result;
+	      result = P.sequence.apply(P, parsers)(input);
+	      if (result == null) {
+	        return;
+	      }
+	      array = result.value;
+	      result.value = array[indexes];
+	      return result;
+	    };
+	  };
+	  P.string = function(string) {
+	    var length;
+	    length = string.length;
+	    return function(input) {
+	      if (input.slice(0, length) === string) {
+	        return new P.Result(string, input.slice(length));
+	      }
+	    };
+	  };
+	  P.lazy = function(fn) {
+	    var cached;
+	    cached = null;
+	    return function(input) {
+	      if (cached == null) {
+	        cached = fn();
+	      }
+	      return cached(input);
+	    };
+	  };
+	  P.baseMany = function(parser, end, stringResult, atLeastOneResultRequired, input) {
+	    var endResult, parserResult, rest, results;
+	    rest = input;
+	    results = stringResult ? '' : [];
+	    while (true) {
+	      if (end != null) {
+	        endResult = end(rest);
+	        if (endResult != null) {
+	          break;
+	        }
+	      }
+	      parserResult = parser(rest);
+	      if (parserResult == null) {
+	        break;
+	      }
+	      if (stringResult) {
+	        results += parserResult.value;
+	      } else {
+	        results.push(parserResult.value);
+	      }
+	      rest = parserResult.rest;
+	    }
+	    if (atLeastOneResultRequired && results.length === 0) {
+	      return;
+	    }
+	    return new P.Result(results, rest);
+	  };
+	  P.many1 = function(parser) {
+	    return function(input) {
+	      return P.baseMany(parser, null, false, true, input);
+	    };
+	  };
+	  P.concatMany1Till = function(parser, end) {
+	    return function(input) {
+	      return P.baseMany(parser, end, true, true, input);
+	    };
+	  };
+	  P.firstChoice = function() {
+	    var parsers;
+	    parsers = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+	    return function(input) {
+	      var i, length, parser, result;
+	      i = -1;
+	      length = parsers.length;
+	      while (++i < length) {
+	        parser = parsers[i];
+	        result = parser(input);
+	        if (result != null) {
+	          return result;
+	        }
+	      }
+	    };
+	  };
+	  newParser = function(options) {
+	    var U;
+	    U = {};
+	    U.wildcard = P.tag('wildcard', P.string(options.wildcardChar));
+	    U.optional = P.tag('optional', P.pick(1, P.string(options.optionalSegmentStartChar), P.lazy(function() {
+	      return U.pattern;
+	    }), P.string(options.optionalSegmentEndChar)));
+	    U.name = P.regex(new RegExp("^[" + options.segmentNameCharset + "]+"));
+	    U.named = P.tag('named', P.pick(1, P.string(options.segmentNameStartChar), P.lazy(function() {
+	      return U.name;
+	    })));
+	    U.escapedChar = P.pick(1, P.string(options.escapeChar), P.regex(/^./));
+	    U["static"] = P.tag('static', P.concatMany1Till(P.firstChoice(P.lazy(function() {
+	      return U.escapedChar;
+	    }), P.regex(/^./)), P.firstChoice(P.string(options.segmentNameStartChar), P.string(options.optionalSegmentStartChar), P.string(options.optionalSegmentEndChar), U.wildcard)));
+	    U.token = P.lazy(function() {
+	      return P.firstChoice(U.wildcard, U.optional, U.named, U["static"]);
+	    });
+	    U.pattern = P.many1(P.lazy(function() {
+	      return U.token;
+	    }));
+	    return U;
+	  };
+	  defaultOptions = {
+	    escapeChar: '\\',
+	    segmentNameStartChar: ':',
+	    segmentValueCharset: 'a-zA-Z0-9-_~ %',
+	    segmentNameCharset: 'a-zA-Z0-9',
+	    optionalSegmentStartChar: '(',
+	    optionalSegmentEndChar: ')',
+	    wildcardChar: '*'
+	  };
+	  baseAstNodeToRegexString = function(astNode, segmentValueCharset) {
+	    if (Array.isArray(astNode)) {
+	      return stringConcatMap(astNode, function(node) {
+	        return baseAstNodeToRegexString(node, segmentValueCharset);
+	      });
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return '(.*?)';
+	      case 'named':
+	        return "([" + segmentValueCharset + "]+)";
+	      case 'static':
+	        return escapeForRegex(astNode.value);
+	      case 'optional':
+	        return '(?:' + baseAstNodeToRegexString(astNode.value, segmentValueCharset) + ')?';
+	    }
+	  };
+	  astNodeToRegexString = function(astNode, segmentValueCharset) {
+	    if (segmentValueCharset == null) {
+	      segmentValueCharset = defaultOptions.segmentValueCharset;
+	    }
+	    return '^' + baseAstNodeToRegexString(astNode, segmentValueCharset) + '$';
+	  };
+	  astNodeToNames = function(astNode) {
+	    if (Array.isArray(astNode)) {
+	      return concatMap(astNode, astNodeToNames);
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return ['_'];
+	      case 'named':
+	        return [astNode.value];
+	      case 'static':
+	        return [];
+	      case 'optional':
+	        return astNodeToNames(astNode.value);
+	    }
+	  };
+	  getParam = function(params, key, nextIndexes, sideEffects) {
+	    var index, maxIndex, result, value;
+	    if (sideEffects == null) {
+	      sideEffects = false;
+	    }
+	    value = params[key];
+	    if (value == null) {
+	      if (sideEffects) {
+	        throw new Error("no values provided for key `" + key + "`");
+	      } else {
+	        return;
+	      }
+	    }
+	    index = nextIndexes[key] || 0;
+	    maxIndex = Array.isArray(value) ? value.length - 1 : 0;
+	    if (index > maxIndex) {
+	      if (sideEffects) {
+	        throw new Error("too few values provided for key `" + key + "`");
+	      } else {
+	        return;
+	      }
+	    }
+	    result = Array.isArray(value) ? value[index] : value;
+	    if (sideEffects) {
+	      nextIndexes[key] = index + 1;
+	    }
+	    return result;
+	  };
+	  astNodeContainsSegmentsForProvidedParams = function(astNode, params, nextIndexes) {
+	    var i, length;
+	    if (Array.isArray(astNode)) {
+	      i = -1;
+	      length = astNode.length;
+	      while (++i < length) {
+	        if (astNodeContainsSegmentsForProvidedParams(astNode[i], params, nextIndexes)) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return getParam(params, '_', nextIndexes, false) != null;
+	      case 'named':
+	        return getParam(params, astNode.value, nextIndexes, false) != null;
+	      case 'static':
+	        return false;
+	      case 'optional':
+	        return astNodeContainsSegmentsForProvidedParams(astNode.value, params, nextIndexes);
+	    }
+	  };
+	  stringify = function(astNode, params, nextIndexes) {
+	    if (Array.isArray(astNode)) {
+	      return stringConcatMap(astNode, function(node) {
+	        return stringify(node, params, nextIndexes);
+	      });
+	    }
+	    switch (astNode.tag) {
+	      case 'wildcard':
+	        return getParam(params, '_', nextIndexes, true);
+	      case 'named':
+	        return getParam(params, astNode.value, nextIndexes, true);
+	      case 'static':
+	        return astNode.value;
+	      case 'optional':
+	        if (astNodeContainsSegmentsForProvidedParams(astNode.value, params, nextIndexes)) {
+	          return stringify(astNode.value, params, nextIndexes);
+	        } else {
+	          return '';
+	        }
+	    }
+	  };
+	  UrlPattern = function(arg1, arg2) {
+	    var groupCount, options, parsed, parser, withoutWhitespace;
+	    if (arg1 instanceof UrlPattern) {
+	      this.isRegex = arg1.isRegex;
+	      this.regex = arg1.regex;
+	      this.ast = arg1.ast;
+	      this.names = arg1.names;
+	      return;
+	    }
+	    this.isRegex = arg1 instanceof RegExp;
+	    if (!(('string' === typeof arg1) || this.isRegex)) {
+	      throw new TypeError('argument must be a regex or a string');
+	    }
+	    if (this.isRegex) {
+	      this.regex = arg1;
+	      if (arg2 != null) {
+	        if (!Array.isArray(arg2)) {
+	          throw new Error('if first argument is a regex the second argument may be an array of group names but you provided something else');
+	        }
+	        groupCount = regexGroupCount(this.regex);
+	        if (arg2.length !== groupCount) {
+	          throw new Error("regex contains " + groupCount + " groups but array of group names contains " + arg2.length);
+	        }
+	        this.names = arg2;
+	      }
+	      return;
+	    }
+	    if (arg1 === '') {
+	      throw new Error('argument must not be the empty string');
+	    }
+	    withoutWhitespace = arg1.replace(/\s+/g, '');
+	    if (withoutWhitespace !== arg1) {
+	      throw new Error('argument must not contain whitespace');
+	    }
+	    options = {
+	      escapeChar: (arg2 != null ? arg2.escapeChar : void 0) || defaultOptions.escapeChar,
+	      segmentNameStartChar: (arg2 != null ? arg2.segmentNameStartChar : void 0) || defaultOptions.segmentNameStartChar,
+	      segmentNameCharset: (arg2 != null ? arg2.segmentNameCharset : void 0) || defaultOptions.segmentNameCharset,
+	      segmentValueCharset: (arg2 != null ? arg2.segmentValueCharset : void 0) || defaultOptions.segmentValueCharset,
+	      optionalSegmentStartChar: (arg2 != null ? arg2.optionalSegmentStartChar : void 0) || defaultOptions.optionalSegmentStartChar,
+	      optionalSegmentEndChar: (arg2 != null ? arg2.optionalSegmentEndChar : void 0) || defaultOptions.optionalSegmentEndChar,
+	      wildcardChar: (arg2 != null ? arg2.wildcardChar : void 0) || defaultOptions.wildcardChar
+	    };
+	    parser = newParser(options);
+	    parsed = parser.pattern(arg1);
+	    if (parsed == null) {
+	      throw new Error("couldn't parse pattern");
+	    }
+	    if (parsed.rest !== '') {
+	      throw new Error("could only partially parse pattern");
+	    }
+	    this.ast = parsed.value;
+	    this.regex = new RegExp(astNodeToRegexString(this.ast, options.segmentValueCharset));
+	    this.names = astNodeToNames(this.ast);
+	  };
+	  UrlPattern.prototype.match = function(url) {
+	    var groups, match;
+	    match = this.regex.exec(url);
+	    if (match == null) {
+	      return null;
+	    }
+	    groups = match.slice(1);
+	    if (this.names) {
+	      return keysAndValuesToObject(this.names, groups);
+	    } else {
+	      return groups;
+	    }
+	  };
+	  UrlPattern.prototype.stringify = function(params) {
+	    if (params == null) {
+	      params = {};
+	    }
+	    if (this.isRegex) {
+	      throw new Error("can't stringify patterns generated from a regex");
+	    }
+	    if (params !== Object(params)) {
+	      throw new Error("argument must be an object or undefined");
+	    }
+	    return stringify(this.ast, params, {});
+	  };
+	  UrlPattern.escapeForRegex = escapeForRegex;
+	  UrlPattern.concatMap = concatMap;
+	  UrlPattern.stringConcatMap = stringConcatMap;
+	  UrlPattern.regexGroupCount = regexGroupCount;
+	  UrlPattern.keysAndValuesToObject = keysAndValuesToObject;
+	  UrlPattern.P = P;
+	  UrlPattern.newParser = newParser;
+	  UrlPattern.defaultOptions = defaultOptions;
+	  UrlPattern.astNodeToRegexString = astNodeToRegexString;
+	  UrlPattern.astNodeToNames = astNodeToNames;
+	  UrlPattern.getParam = getParam;
+	  UrlPattern.astNodeContainsSegmentsForProvidedParams = astNodeContainsSegmentsForProvidedParams;
+	  UrlPattern.stringify = stringify;
+	  return UrlPattern;
+	});
+
+
+/***/ },
+/* 167 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ }
 /******/ ]);

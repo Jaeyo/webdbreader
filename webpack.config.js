@@ -3,7 +3,8 @@ var webpack = require('webpack');
 module.exports = {
 	entry: {
 		base: [ './src/main/java/resource/jsx/base.jsx' ],
-		config: [ './src/main/java/resource/jsx/config.jsx' ]
+		config: [ './src/main/java/resource/jsx/config.jsx' ],
+		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ]
 	},
 	output: {
 		path: './src/main/java/resource/static/js/bundle/',

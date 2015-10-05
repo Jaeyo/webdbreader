@@ -43,6 +43,9 @@ public class ScriptREST extends JadeHttpServlet{
 			if(new UriTemplate("/Info/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/Load/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(loadScript(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
@@ -60,9 +63,14 @@ public class ScriptREST extends JadeHttpServlet{
 		} //catch
 	} //doGet
 
+	private String loadScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException{
+		JSONObject script = scriptService.load(pathParams.get("title"));
+		return new JSONObject().put("success", 1).put("script", script).toString();
+	} //loadScript
+	
 	private String getScriptInfo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		JSONArray scripts = scriptService.getScriptInfo();
-		return new JSONObject().put("success", 1).put("scriptInfos", scripts).toString();	
+		return new JSONObject().put("success", 1).put("scriptInfos", scripts).toString();
 	} //getScriptInfo
 
 	@Override
