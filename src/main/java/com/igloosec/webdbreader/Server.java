@@ -18,6 +18,7 @@ import com.igloosec.webdbreader.servlet.ChartREST;
 import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
 import com.igloosec.webdbreader.servlet.EmbedDbREST;
+import com.igloosec.webdbreader.servlet.FileOutMsgWebSocket.FileOutMsgWebSocketServlet;
 import com.igloosec.webdbreader.servlet.Index;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
@@ -28,6 +29,8 @@ import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class Server {
 	public static void main(String[] args) throws Exception {
+		// log tailing 하는 부분 queue 빼고 ScriptLogger 에 바로 빨대 꽃도록 수정 필요
+		
 		configureLog4j();
 		registerShutdownHook();
 		
@@ -75,6 +78,7 @@ public class Server {
 		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
 		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
+		context.addServlet(FileOutMsgWebSocketServlet.class, "/WebSocket/FileOutMsg/*");
 		context.addServlet(Index.class, "");
 		context.addServlet(Index.class, "/Script/*");
 		context.addServlet(Index.class, "/Config/*");

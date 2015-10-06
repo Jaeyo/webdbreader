@@ -6,6 +6,7 @@ module.exports = {
 		config: [ './src/main/java/resource/jsx/config.jsx' ],
 		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ],
 		'edit-script': [ './src/main/java/resource/jsx/edit-script.jsx' ],
+		'tail-fileout': [ './src/main/java/resource/jsx/tail-fileout.jsx' ],
 		index: [ './src/main/java/resource/jsx/index.jsx' ]
 	},
 	output: {

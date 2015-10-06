@@ -24,7 +24,6 @@ var EditScriptView = React.createClass({
 		$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {})
 		.fail(handleError)
 		.done(handleResp(function(resp) {
-			debugger; //DEBUG
 			this.editor.setValue(resp.script.SCRIPT);
 		}.bind(this)));
 	},

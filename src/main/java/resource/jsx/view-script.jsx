@@ -8,25 +8,13 @@ var React = require('react'),
 	handleError = jsUtil.handleError,
 	handleResp = jsUtil.handleResp;
 
-var dispatcher = {
-	RELOAD_SCRIPT: 'reload-script',
-	listeners: [],
-	dispatch(type, data) {
-		this.listeners.forEach(function(listener) {
-			listener(type, data);
-		});
-	},
-	listen(listener) {
-		this.listeners.push(listener);
-	}
-};
-
 var BtnArea = React.createClass({
 	getDefaultProps() {
 		return {
 			scriptName: '',
 			isScriptRunning: false,
-			isScriptLoaded: false
+			isScriptLoaded: false,
+			loadScriptAction: null
 		};
 	},
 
@@ -35,18 +23,18 @@ var BtnArea = React.createClass({
 		.fail(handleError)
 		.done(handleResp(function(resp) {
 			bootbox.alert('script started', function() {
-				dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
-			});
-		}));
+				this.props.loadScriptAction();
+			}.bind(this));
+		}.bind(this)));
 	},
 
 	onScriptStop(evt) {
 		$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json')
 		.fail(handleError).done(handleResp(function(resp) {
 			bootbox.alert('script stopped', function() {
-				dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
-			});
-		}));
+				this.props.loadScriptAction();
+			}.bind(this));
+		}.bind(this)));
 	},
 
 	onEdit(evt) {
@@ -78,6 +66,12 @@ var BtnArea = React.createClass({
 		}.bind(this));
 	},
 
+	onTailFileOut(evt) {
+		window.open(util.format('/Script/TailFileOut/%s/', this.props.scriptName),
+			'tail file out',
+			[ 'width=800', 'height=700', 'toolbar=no', 'menubar=no', 'resizable=yes' ].join(', '));
+	},
+
 	render() {
 		if(this.props.isScriptLoaded === false) {
 			return (<span>loading...</span>);
@@ -88,14 +82,12 @@ var BtnArea = React.createClass({
 						type="button" 
 						className="btn btn-primary btn-sm" 
 						disabled={this.props.isScriptRunning === true ? true : false}
-						onClick={this.onScriptStart}
-						>start</button>
+						onClick={this.onScriptStart}>start</button>
 					<button
 						type="button"
 						className="btn btn-primary btn-sm"
 						disabled={this.props.isScriptRunning === true ? false : true}
-						onClick={this.onScriptStop}
-						>stop</button>
+						onClick={this.onScriptStop}>stop</button>
 					<span className="divider" />
 					<button
 						type="button"
@@ -109,6 +101,12 @@ var BtnArea = React.createClass({
 						type="button"
 						className="btn btn-danger btn-sm"
 						onClick={this.onRemove}>remove</button>
+					<span className="divider" />
+					<button
+						type="button"
+						className="btn btn-default btn-sm"
+						disabled={this.props.isScriptRunning === true ? false : true}
+						onClick={this.onTailFileOut}>tail file output</button>
 				</div>
 			);
 		}
@@ -284,12 +282,6 @@ var ViewScriptView = React.createClass({
 	},
 
 	componentDidMount() {
-		dispatcher.listen(function(type, data) {
-			if(type === dispatcher.RELOAD_SCRIPT) {
-				this.loadScript();
-			}
-		}.bind(this));
-
 		this.loadScript();
 	},
 
@@ -312,7 +304,8 @@ var ViewScriptView = React.createClass({
 				<BtnArea 
 					scriptName={this.props.scriptName}
 					isScriptRunning={this.state.isScriptRunning}
-					isScriptLoaded={this.state.isScriptLoaded} />
+					isScriptLoaded={this.state.isScriptLoaded}
+					loadScriptAction={this.loadScript} />
 				<hr />
 				<div>
 					<InformationPanel 

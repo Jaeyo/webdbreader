@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(165);
+	module.exports = __webpack_require__(171);
 
 
 /***/ },
@@ -21059,134 +21059,10 @@
 
 
 /***/ },
-/* 162 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.handleError = function (err) {
-		if (typeof err === 'object') err = JSON.stringify(err);
-		bootbox.alert(err);
-	};
-
-	exports.handleResp = function (onSuccess) {
-		return function (resp) {
-			if (resp.success !== 1) {
-				exports.handleError(resp.errmsg);
-				return;
-			}
-			onSuccess(resp);
-		};
-	};
-
-/***/ },
+/* 162 */,
 /* 163 */,
 /* 164 */,
-/* 165 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    util = __webpack_require__(159),
-	    UrlPattern = __webpack_require__(166),
-	    pattern = new UrlPattern('/Script/Edit/:scriptName/'),
-	    jsUtil = __webpack_require__(162),
-	    handleError = jsUtil.handleError,
-	    handleResp = jsUtil.handleResp;
-
-	var EditScriptView = React.createClass({
-		displayName: 'EditScriptView',
-
-		editor: null,
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: pattern.match(window.location.pathname).scriptName
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.editor = ace.edit('editor');
-			this.editor.setTheme('ace/theme/github');
-			this.editor.getSession().setMode('ace/mode/javascript');
-			this.editor.setKeyboardHandler('ace/keyboard/vim');
-
-			$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {}).fail(handleError).done(handleResp((function (resp) {
-				this.editor.setValue(resp.script.SCRIPT);
-			}).bind(this)));
-		},
-
-		onExportScript: function onExportScript() {
-			bootbox.alert('not implemented');
-		},
-
-		onSaveScript: function onSaveScript() {
-			$.post(util.format('/REST/Script/Edit/%s/', this.props.scriptName), { script: this.editor.getValue() }).fail(handleError).done(handleResp((function (resp) {
-				bootbox.alert('script saved', (function () {
-					window.location.href = util.format('/Script/View/%s/', this.props.scriptName);
-				}).bind(this));
-			}).bind(this)));
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'div',
-					null,
-					React.createElement('pre', { id: 'editor' })
-				),
-				React.createElement(
-					'div',
-					{ className: 'oper-btns' },
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-primary',
-							onClick: this.onExportScript
-						},
-						'export'
-					),
-					React.createElement(
-						'button',
-						{
-							type: 'button',
-							className: 'btn btn-info',
-							onClick: this.onSaveScript
-						},
-						'save'
-					)
-				)
-			);
-		}
-	});
-
-	var EditScriptHeader = React.createClass({
-		displayName: 'EditScriptHeader',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: pattern.match(window.location.pathname).scriptName
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				'h3',
-				null,
-				this.props.scriptName
-			);
-		}
-	});
-
-	React.render(React.createElement(EditScriptView, null), $('.contents-area')[0]);
-
-	React.render(React.createElement(EditScriptHeader, null), $('.title-area')[0]);
-
-/***/ },
+/* 165 */,
 /* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -21635,6 +21511,149 @@
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
 
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ },
+/* 168 */,
+/* 169 */,
+/* 170 */,
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    util = __webpack_require__(159),
+	    UrlPattern = __webpack_require__(166),
+	    pattern = new UrlPattern('/Script/TailFileOut/:scriptName/');
+
+	var TailFileOutView = React.createClass({
+		displayName: 'TailFileOutView',
+
+		ws: null,
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				scriptName: pattern.match(window.location.pathname).scriptName
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				msgs: []
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.ws = new WebSocket(util.format('ws://%s/WebSocket/FileOutMsg/', window.location.host));
+			this.ws.onopen = (function () {
+				console.log('web socket opened');
+				this.ws.send(JSON.stringify({
+					type: 'init-tail',
+					scriptName: this.props.scriptName
+				}));
+			}).bind(this);
+			this.ws.onmessage = (function (evt) {
+				var msg = JSON.parse(evt.data);
+
+				if (!msg.type) {
+					bootbox.alert('unknown msg: ' + evt.data);
+					this.ws.close();
+					return;
+				} //if
+
+				switch (msg.type) {
+					case 'init-tail-resp':
+						if (msg.success !== 1) {
+							bootbox.alert(msg.errmsg);
+							this.ws.close();
+						} //if
+
+						this.ws.send(JSON.stringify({
+							type: 'start-tail',
+							scriptName: this.props.scriptName
+						}));
+						break;
+					case 'msg':
+						var newMsg = { timestamp: msg.timestamp, msg: msg.msg };
+						var newMsgs = [newMsg].concat(this.state.msgs);
+						if (newMsgs.length > 100) newMsgs.pop();
+						this.setState({ msgs: newMsgs });
+						break;
+					case 'error':
+						bootbox.alert(msg.errmsg);
+						break;
+					default:
+						bootbox.alert('unknown msg: ' + evt.data);
+						this.ws.close();
+				} //switch
+			}).bind(this);
+			this.ws.onclose = function () {
+				console.log('web socket closed');
+			};
+			this.ws.onerror = function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				console.error(err);
+				bootbox.alert(err);
+			};
+		},
+
+		render: function render() {
+			// var msgs = [];
+			// this.state.msgs.forEach(function(msg) {
+			// 	msgs.push(
+			// 		<tr>
+			// 			<td>{msg.timestamp}</td>
+			// 			<td>{msg.msg}</td>
+			// 		</tr>
+			// 	);
+			// });
+
+			return React.createElement(
+				'table',
+				null,
+				React.createElement(
+					'thead',
+					null,
+					React.createElement(
+						'tr',
+						null,
+						React.createElement(
+							'th',
+							null,
+							'timestamp'
+						),
+						React.createElement(
+							'th',
+							null,
+							'msg'
+						)
+					)
+				),
+				React.createElement(
+					'tbody',
+					null,
+					this.state.msgs.map(function (msg) {
+						return React.createElement(
+							'tr',
+							null,
+							React.createElement(
+								'td',
+								null,
+								msg.timestamp
+							),
+							React.createElement(
+								'td',
+								null,
+								msg.msg
+							)
+						);
+					})
+				)
+			);
+		}
+	});
+
+	React.render(React.createElement(TailFileOutView, null), document.body);
 
 /***/ }
 /******/ ]);

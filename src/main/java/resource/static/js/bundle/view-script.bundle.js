@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(171);
+	module.exports = __webpack_require__(172);
 
 
 /***/ },
@@ -21631,7 +21631,8 @@
 	exports.ListGroup = ListGroup;
 
 /***/ },
-/* 171 */
+/* 171 */,
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21646,19 +21647,6 @@
 	    handleError = jsUtil.handleError,
 	    handleResp = jsUtil.handleResp;
 
-	var dispatcher = {
-		RELOAD_SCRIPT: 'reload-script',
-		listeners: [],
-		dispatch: function dispatch(type, data) {
-			this.listeners.forEach(function (listener) {
-				listener(type, data);
-			});
-		},
-		listen: function listen(listener) {
-			this.listeners.push(listener);
-		}
-	};
-
 	var BtnArea = React.createClass({
 		displayName: 'BtnArea',
 
@@ -21666,24 +21654,25 @@
 			return {
 				scriptName: '',
 				isScriptRunning: false,
-				isScriptLoaded: false
+				isScriptLoaded: false,
+				loadScriptAction: null
 			};
 		},
 
 		onScriptStart: function onScriptStart(evt) {
-			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
-				bootbox.alert('script started', function () {
-					dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
-				});
-			}));
+			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp((function (resp) {
+				bootbox.alert('script started', (function () {
+					this.props.loadScriptAction();
+				}).bind(this));
+			}).bind(this)));
 		},
 
 		onScriptStop: function onScriptStop(evt) {
-			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp(function (resp) {
-				bootbox.alert('script stopped', function () {
-					dispatcher.dispatch(dispatcher.RELOAD_SCRIPT, {});
-				});
-			}));
+			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp((function (resp) {
+				bootbox.alert('script stopped', (function () {
+					this.props.loadScriptAction();
+				}).bind(this));
+			}).bind(this)));
 		},
 
 		onEdit: function onEdit(evt) {
@@ -21713,6 +21702,10 @@
 			}).bind(this));
 		},
 
+		onTailFileOut: function onTailFileOut(evt) {
+			window.open(util.format('/Script/TailFileOut/%s/', this.props.scriptName), 'tail file out', ['width=800', 'height=700', 'toolbar=no', 'menubar=no', 'resizable=yes'].join(', '));
+		},
+
 		render: function render() {
 			if (this.props.isScriptLoaded === false) {
 				return React.createElement(
@@ -21730,8 +21723,7 @@
 							type: 'button',
 							className: 'btn btn-primary btn-sm',
 							disabled: this.props.isScriptRunning === true ? true : false,
-							onClick: this.onScriptStart
-						},
+							onClick: this.onScriptStart },
 						'start'
 					),
 					React.createElement(
@@ -21740,8 +21732,7 @@
 							type: 'button',
 							className: 'btn btn-primary btn-sm',
 							disabled: this.props.isScriptRunning === true ? false : true,
-							onClick: this.onScriptStop
-						},
+							onClick: this.onScriptStop },
 						'stop'
 					),
 					React.createElement('span', { className: 'divider' }),
@@ -21768,6 +21759,16 @@
 							className: 'btn btn-danger btn-sm',
 							onClick: this.onRemove },
 						'remove'
+					),
+					React.createElement('span', { className: 'divider' }),
+					React.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'btn btn-default btn-sm',
+							disabled: this.props.isScriptRunning === true ? false : true,
+							onClick: this.onTailFileOut },
+						'tail file output'
 					)
 				);
 			}
@@ -22015,12 +22016,6 @@
 		},
 
 		componentDidMount: function componentDidMount() {
-			dispatcher.listen((function (type, data) {
-				if (type === dispatcher.RELOAD_SCRIPT) {
-					this.loadScript();
-				}
-			}).bind(this));
-
 			this.loadScript();
 		},
 
@@ -22042,7 +22037,8 @@
 				React.createElement(BtnArea, {
 					scriptName: this.props.scriptName,
 					isScriptRunning: this.state.isScriptRunning,
-					isScriptLoaded: this.state.isScriptLoaded }),
+					isScriptLoaded: this.state.isScriptLoaded,
+					loadScriptAction: this.loadScript }),
 				React.createElement('hr', null),
 				React.createElement(
 					'div',

@@ -6,13 +6,18 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.json.JSONObject;
+
+import com.google.common.collect.Lists;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
@@ -50,6 +55,7 @@ public class FileWriterFactory {
 		private File file;
 		private PrintWriter output;
 		private Lock lock = new ReentrantLock();
+		private List<FileOutListener> fileOutListeners = Lists.newArrayList();
 		
 		public FileWriter(String filename, String charsetName) throws ParseException, IOException {
 			this.originalFilename = filename;
@@ -85,6 +91,14 @@ public class FileWriterFactory {
 			((ScriptThread) Thread.currentThread()).addSchedulerTimer(timer);
 		} //INIT
 		
+		public void listenFileOut(FileOutListener listener) {
+			this.fileOutListeners.add(listener);
+		}
+		
+		public void unlistenFileOut(FileOutListener listener) {
+			this.fileOutListeners.remove(listener);
+		}
+		
 		public FileWriter println(String msg){
 			return print(msg + "\n");
 		} //println
@@ -97,6 +111,9 @@ public class FileWriterFactory {
 				
 				if(msg.contains("\n"))
 					scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, msg.split("\n").length - 1);
+				
+				for(FileOutListener listener : fileOutListeners)
+					listener.listen(System.currentTimeMillis(), msg);
 			} finally{
 				lock.unlock();
 			} //finally
@@ -105,6 +122,13 @@ public class FileWriterFactory {
 		
 		public void close(){
 			output.close();
+			ScriptThread scriptThread = ScriptThread.currentThread();
+			if(scriptThread != null)
+				scriptThread.removeFileWriter(this);
 		} //close
 	} //class
-} //class
+	
+	public interface FileOutListener {
+		public void listen(long timestamp, String msg);
+	} 
+}

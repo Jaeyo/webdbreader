@@ -37,6 +37,14 @@ public class ScriptThread extends Thread{
 		this.fileWriters.add(writer);
 	} //addFileWriter
 	
+	public void removeFileWriter(FileWriter writer) {
+		this.fileWriters.remove(writer);
+	}
+	
+	public List<FileWriter> getFileWriters() {
+		return this.fileWriters;
+	}
+	
 	public String getScriptName(){
 		return this.scriptName;
 	} //getScriptName

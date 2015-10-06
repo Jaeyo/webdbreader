@@ -8,11 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.script.ScriptLoggerMessageQueueRepo;
+import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
 
 public class ScriptLogger {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptLogger.class);
-	private ScriptLoggerMessageQueueRepo mq = SingletonInstanceRepo.getInstance(ScriptLoggerMessageQueueRepo.class);
+	private ScriptMessageQueueRepo mq = SingletonInstanceRepo.getInstance(ScriptMessageQueueRepo.class);
 	private String scriptName;
 
 	public ScriptLogger(String scriptName) {

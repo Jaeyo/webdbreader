@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import com.google.common.collect.Maps;
 import com.igloosec.webdbreader.util.IterableLinkedQueue;
 
-public class ScriptLoggerMessageQueueRepo {
+public class ScriptMessageQueueRepo {
 	private static final int LOG_QUEUE_CAPACITY = 100;
 	Map<String, IterableLinkedQueue<JSONObject>> logQueues = Maps.newHashMap();
 	
@@ -17,10 +17,10 @@ public class ScriptLoggerMessageQueueRepo {
 		if(logQueue == null) {
 			logQueue = new IterableLinkedQueue<JSONObject>(LOG_QUEUE_CAPACITY);
 			logQueues.put(scriptName, logQueue);
-		} //if
+		} 
 		
 		logQueue.push(logObj);
-	} //pushLogMsg
+	} 
 	
 	public Iterator<JSONObject> getLogQueueIterator(String scriptName) {
 		IterableLinkedQueue<JSONObject> logQueue = logQueues.get(scriptName);
@@ -28,5 +28,5 @@ public class ScriptLoggerMessageQueueRepo {
 			return null;
 		
 		return logQueue.iterator();
-	} //getLogQueueIterator
-} // class
+	}
+}

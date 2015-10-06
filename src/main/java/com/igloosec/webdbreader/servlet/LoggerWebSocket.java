@@ -20,25 +20,25 @@ import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.NotExistsException;
-import com.igloosec.webdbreader.script.ScriptLoggerMessageQueueRepo;
+import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
 
 @WebSocket
 public class LoggerWebSocket {
 	private static final Logger logger = LoggerFactory.getLogger(LoggerWebSocket.class);
-	private ScriptLoggerMessageQueueRepo logQueues = SingletonInstanceRepo.getInstance(ScriptLoggerMessageQueueRepo.class);
+	private ScriptMessageQueueRepo logQueues = SingletonInstanceRepo.getInstance(ScriptMessageQueueRepo.class);
 	private Session session;
 	private Timer pollingTimer = new Timer();
 	
 	@OnWebSocketConnect
 	public void handleConnect(Session session) {
 		this.session = session;
-	} //handleConnect
+	}
 	
 	@OnWebSocketClose
 	public void handleClose(int statusCode, String reason) {
 		logger.info("statusCode: {}, reason: {}", statusCode, reason);
 		pollingTimer.cancel();
-	} //handleClose
+	} 
 	
 	@OnWebSocketMessage
 	public void handleMessage(String msg) {
@@ -59,10 +59,10 @@ public class LoggerWebSocket {
 				while(iter.hasNext()) {
 					JSONObject logMsg = iter.next();
 					sendMsg(logMsg.toString());
-				} //while
-			} //run
-		}, 1000, 1000);
-	} //handleMessage
+				} 
+			} 
+		}, 1000, 100);
+	} 
 	
 	@OnWebSocketError
 	public void handleError(Throwable e) {
@@ -70,7 +70,7 @@ public class LoggerWebSocket {
 		pollingTimer.cancel();
 		if(session.isOpen())
 			session.close();
-	} //handleError
+	} 
 	
 	private void sendMsg(String msg) {
 		try{
@@ -78,13 +78,13 @@ public class LoggerWebSocket {
 				session.getRemote().sendString(msg);
 		} catch(IOException e){
 			e.printStackTrace();
-		} //catch
-	} //send
+		} 
+	} 
 	
 	public static class LoggerWebSocketServlet extends WebSocketServlet {
 		@Override
 		public void configure(WebSocketServletFactory factory) {
 			factory.register(LoggerWebSocket.class);
-		} //configure
-	} //class
-} //class
+		} 
+	} 
+} 

@@ -28,7 +28,6 @@ import de.neuland.jade4j.exceptions.JadeCompilerException;
 
 public class Index extends JadeHttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(Index.class);
-	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -41,33 +40,36 @@ public class Index extends JadeHttpServlet {
 		
 		try{
 			if(new UriTemplate("/").match(uri, pathParams)){
-				resp.getWriter().print(getIndex(req, resp, pathParams));
+				resp.getWriter().print(jade("index.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Config/").match(uri, pathParams)){
-				resp.getWriter().print(getConfig(req, resp, pathParams));
+				resp.getWriter().print(jade("config.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/NewDb2File/").match(uri, pathParams)){
-				resp.getWriter().print(getNewDb2File(req, resp, pathParams));
+				resp.getWriter().print(jade("new-db2file.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/NewDb2Db/").match(uri, pathParams)){
-				resp.getWriter().print(getNewDb2Db(req, resp, pathParams));
+				resp.getWriter().print(jade("new-db2db.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/View/{title}/").match(uri, pathParams)){
-				resp.getWriter().print(getViewScript(req, resp, pathParams));
+				resp.getWriter().print(jade("view-script.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/Edit/{title}/").match(uri, pathParams)){
-				resp.getWriter().print(getEditScript(req, resp, pathParams));
+				resp.getWriter().print(jade("edit-script.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/EditNew/").match(uri, pathParams)){
-				resp.getWriter().print(getNewScript(req, resp, pathParams));
+				resp.getWriter().print(jade("new-script.jade", null));
 				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/Edit/").match(uri, pathParams)){
-				resp.getWriter().print(getEditNewScript(req, resp, pathParams));
+				resp.getWriter().print(jade("edit-script.jade", null));
+				resp.getWriter().flush();
+			} else if(new UriTemplate("/Script/TailFileOut/{title}/").match(uri, pathParams)){
+				resp.getWriter().print(jade("tail-fileout.jade", null));
 				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(jade("error.jade", null));
 				resp.getWriter().flush();
-			} //if
+			} 
 		} catch(IllegalArgumentException e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 			resp.getWriter().print(jade("error.jade", null));
@@ -76,49 +78,6 @@ public class Index extends JadeHttpServlet {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			resp.getWriter().print(jade("error.jade", null));
 			resp.getWriter().flush();
-		} //catch
-	} //doGet
-	
-	private String getIndex(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
-		return jade("index.jade", null);
-	} //getIndex
-	
-	private String getConfig(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException{
-		return jade("config.jade", null);
-	} //getConfig
-	
-	private String getNewDb2File(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException {
-		return jade("new-db2file.jade", null);
-	} //getNewDb2File
-	
-	private String getNewDb2Db(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JadeCompilerException, IOException {
-		return jade("new-db2db.jade", null);
-	} //getNewDb2File
-	
-	private String getViewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException{
-		String title = pathParams.get("title");
-		
-		Preconditions.checkNotNull(title, "title is null");
-		
-		return jade("view-script.jade", null);
-	} //getViewScript
-	
-	private String getEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
-		String title = pathParams.get("title");
-		
-		Preconditions.checkNotNull(title, "title is null");
-		
-		JSONObject scriptJSON = scriptService.load(title);
-		Map<String, Object> model = Maps.newHashMap();
-		model.put("script", scriptJSON);
-		return jade("edit-script.jade", model);
-	} //getEditScript
-	
-	private String getNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
-		return jade("new-script.jade", null);
-	} //getNewScript
-	
-	private String getEditNewScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, JadeCompilerException, IOException {
-		return jade("edit-script.jade", null);
-	} //getEditScript
-} //class
+		} 
+	} 
+} 
