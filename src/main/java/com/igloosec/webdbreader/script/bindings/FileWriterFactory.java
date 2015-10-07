@@ -19,11 +19,13 @@ import com.google.common.collect.Lists;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
+import com.igloosec.webdbreader.service.FileOutMsgService;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class FileWriterFactory {
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private ScriptLogger logger;
+	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 	
 	public FileWriterFactory(ScriptLogger logger) {
 		this.logger = logger;
@@ -55,7 +57,6 @@ public class FileWriterFactory {
 		private File file;
 		private PrintWriter output;
 		private Lock lock = new ReentrantLock();
-		private List<FileOutListener> fileOutListeners = Lists.newArrayList();
 		
 		public FileWriter(String filename, String charsetName) throws ParseException, IOException {
 			this.originalFilename = filename;
@@ -91,14 +92,6 @@ public class FileWriterFactory {
 			((ScriptThread) Thread.currentThread()).addSchedulerTimer(timer);
 		} //INIT
 		
-		public void listenFileOut(FileOutListener listener) {
-			this.fileOutListeners.add(listener);
-		}
-		
-		public void unlistenFileOut(FileOutListener listener) {
-			this.fileOutListeners.remove(listener);
-		}
-		
 		public FileWriter println(String msg){
 			return print(msg + "\n");
 		} //println
@@ -111,9 +104,9 @@ public class FileWriterFactory {
 				
 				if(msg.contains("\n"))
 					scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, msg.split("\n").length - 1);
-				
-				for(FileOutListener listener : fileOutListeners)
-					listener.listen(System.currentTimeMillis(), msg);
+	
+				String scriptName = ScriptThread.currentThread().getScriptName();
+				fileOutMsgService.dispatchMsg(scriptName, System.currentTimeMillis(), msg);
 			} finally{
 				lock.unlock();
 			} //finally
@@ -127,8 +120,4 @@ public class FileWriterFactory {
 				scriptThread.removeFileWriter(this);
 		} //close
 	} //class
-	
-	public interface FileOutListener {
-		public void listen(long timestamp, String msg);
-	} 
 }

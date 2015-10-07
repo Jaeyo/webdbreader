@@ -45,7 +45,7 @@ public class DerbySchemaCreator {
 			ds.getJdbcTmpl().execute("CREATE TABLE script ( "
 					+ "script_name VARCHAR(100) NOT NULL PRIMARY KEY, "
 					+ "script CLOB, "
-					+ "regdate timestamp NOT NULL )");
+					+ "regdate TIMESTAMP NOT NULL )");
 		
 		if(existingTableNames.contains("SCRIPT_SCORE_STATISTICS") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE script_score_statistics ( "
@@ -53,6 +53,11 @@ public class DerbySchemaCreator {
 					+ "script_name VARCHAR(100) NOT NULL, "
 					+ "count_timestamp TIMESTAMP NOT NULL, "
 					+ "count_value INTEGER NOT NULL )");
+		
+		if(existingTableNames.contains("AUTO_START_SCRIPT") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE auto_start_script ( "
+					+ "script_name VARCHAR(100) NOT NULL, "
+					+ "regdate TIMESTAMP NOT NULL )");
 		
 		if(existingTableNames.contains("CONFIG") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE config ( "

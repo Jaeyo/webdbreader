@@ -1,8 +1,14 @@
 var React = require('react'),
+	Promise = require('promise'),
+	util = require('util'),
 	Panel = require('./components/panel.jsx').Panel,
+	ListGroup = require('./components/list-group.jsx').ListGroup,
 	jsUtil = require('./util/util.js'),
 	handleError = jsUtil.handleError,
-	handleResp = jsUtil.handleResp;
+	handleResp = jsUtil.handleResp,
+	handleErrorPromise = jsUtil.handleErrorPromise,
+	handleRespPromise = jsUtil.handleRespPromise;
+Array.prototype.remove = require('array-remove-by-value'),
 
 function postConfig(configKeyValueArr) {
 	$.post('/REST/Config/', { 
@@ -171,11 +177,138 @@ var CryptoPanel = React.createClass({
 	}
 });
 
+var AutoStartScriptPanel = React.createClass({
+	getInitialState() {
+		return {
+			scriptsData: {} //key: scriptName, values: (boolean)
+		}
+	},
+
+	componentDidMount() {
+		this.loadData();
+	},
+
+	loadData() {
+		Promise.all([
+			new Promise(function(resolve, reject) {
+				$.getJSON('/REST/Script/Info/', {})
+				.fail(handleErrorPromise(reject))
+				.done(handleRespPromise(reject, function(resp) {
+					var scriptNames = [];
+					resp.scriptInfos.forEach(function(script) {
+						scriptNames.push(script.SCRIPT_NAME);
+					});
+
+					resolve(scriptNames);
+				}));
+			}),
+			new Promise(function(resolve, reject) {
+				$.getJSON('/REST/Config/AutoStartScript/', {})
+				.fail(handleErrorPromise(reject))
+				.done(handleRespPromise(reject, function(resp) {
+					resolve(resp.scripts);
+				}));
+			})
+		]).then(function(args) {
+			var scriptNames = args[0];
+			var autoStartScripts = args[1];
+
+			var scriptsData = {};
+			scriptNames.forEach(function(scriptName) {
+				scriptsData[scriptName] = false;
+			});
+
+			autoStartScripts.forEach(function(autoStartScript) {
+				scriptsData[autoStartScript.SCRIPT_NAME] = true;
+			});
+
+			this.setState({
+				scriptsData: scriptsData
+			});
+		}.bind(this))
+		.catch(handleError);
+	},
+
+	removeFromAutoStartScript(evt) {
+		var scriptName = evt.target.value; 
+		$.ajax({
+			url: util.format('/REST/Config/AutoStartScript/%s/', scriptName),
+			type: 'DELETE',
+			error: handleError,
+			success: handleResp(function(resp) {
+				var newScriptsData = JSON.parse(JSON.stringify(this.state.scriptsData));
+				newScriptsData[scriptName] = false;
+				this.setState({
+					scriptsData: newScriptsData
+				});
+
+				this.loadData();
+			}.bind(this))
+		});
+	},
+
+	addToAutoStartScript(evt) {
+		var scriptName = evt.target.value;
+		$.post('/REST/Config/AutoStartScript/', { scriptName: scriptName }, 'json')
+		.fail(handleError)
+		.done(handleResp(function(resp) {
+			var newScriptsData = JSON.parse(JSON.stringify(this.state.scriptsData));
+			newScriptsData[scriptName] = true;
+			this.setState({
+				scriptsData: newScriptsData
+			});
+
+			this.loadData();
+		}.bind(this)));
+	},
+
+	render() {
+		var scriptItems = [];
+		for(var scriptName in this.state.scriptsData) {
+			var isAutoStartScript = this.state.scriptsData[scriptName];
+			if(isAutoStartScript === true) {
+				scriptItems.push(
+					<div className="script-item">
+						<button
+							type="button"
+							className="btn btn-xs btn-danger"
+							value={scriptName}
+							onClick={this.removeFromAutoStartScript}>-</button>
+						<label>{scriptName}</label>
+						<label className="desc">(auto start)</label>
+					</div>
+				);
+			} else {
+				scriptItems.push(
+					<div className="script-item">
+						<button
+							type="button"
+							className="btn btn-xs btn-info"
+							value={scriptName}
+							onClick={this.addToAutoStartScript}>+</button>
+						<label>{scriptName}</label>
+					</div>
+				);
+			}
+		}
+
+		return (
+			<Panel className="auto-start-script-panel">
+				<Panel.Heading glyphicon="cog">auto start script</Panel.Heading>
+				<Panel.Body>
+					{scriptItems}
+				</Panel.Body>
+			</Panel>
+		);
+	}
+});
+
 React.render(
 	<div>
 		<GeneralConfigPanel />
 		<DerbySqlPanel />
 		<CryptoPanel />
+		<AutoStartScriptPanel />
 	</div>,
 	$('#contents')[0]
 );

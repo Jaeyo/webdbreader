@@ -14,6 +14,7 @@ import com.igloosec.webdbreader.common.Path;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.rdb.DerbySchemaCreator;
 import com.igloosec.webdbreader.script.ScriptExecutor;
+import com.igloosec.webdbreader.service.ScriptService;
 import com.igloosec.webdbreader.servlet.ChartREST;
 import com.igloosec.webdbreader.servlet.ConfigREST;
 import com.igloosec.webdbreader.servlet.DatabaseREST;
@@ -22,6 +23,7 @@ import com.igloosec.webdbreader.servlet.FileOutMsgWebSocket.FileOutMsgWebSocketS
 import com.igloosec.webdbreader.servlet.Index;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
+import com.igloosec.webdbreader.servlet.NotiWebSocket.NotiWebSocketServlet;
 import com.igloosec.webdbreader.servlet.OperationHistoryREST;
 import com.igloosec.webdbreader.servlet.ScriptREST;
 import com.igloosec.webdbreader.servlet.ShutdownREST;
@@ -35,6 +37,8 @@ public class Server {
 		registerShutdownHook();
 		
 		new DerbySchemaCreator().check();
+		
+		SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScript();
 		
 		SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 		
@@ -77,11 +81,15 @@ public class Server {
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
 		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
+		
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
 		context.addServlet(FileOutMsgWebSocketServlet.class, "/WebSocket/FileOutMsg/*");
+		context.addServlet(NotiWebSocketServlet.class, "/WebSocket/Noti/*");
+		
 		context.addServlet(Index.class, "");
 		context.addServlet(Index.class, "/Script/*");
 		context.addServlet(Index.class, "/Config/*");
+		
 		context.setContextPath("/");
 		
 		File workDir = new File(Path.getPackagePath().getAbsolutePath(), "work");

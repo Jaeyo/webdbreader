@@ -168,6 +168,9 @@ var ScriptPanel = React.createClass({
 			this.editor.getSession().setMode('ace/mode/javascript');
 			this.editor.setKeyboardHandler('ace/keyboard/vim');
 			this.editor.setReadOnly(true);
+			this.editor.setOptions({
+				fontFamily: 'consolas'
+			});
 		} //if
 	},
 
@@ -336,7 +339,7 @@ var ViewScriptHeader = React.createClass({
 
 	render() {
 		return (
-			<h3>{this.props.title}</h3>
+			<h3>{this.props.scriptName}</h3>
 		);
 	}
 });

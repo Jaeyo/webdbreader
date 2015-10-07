@@ -20443,6 +20443,7 @@
 	var React = __webpack_require__(2),
 	    util = __webpack_require__(159),
 	    jsUtil = __webpack_require__(162),
+	    Noti = __webpack_require__(163).Noti,
 	    handleError = jsUtil.handleError,
 	    handleResp = jsUtil.handleResp;
 
@@ -20486,6 +20487,7 @@
 			return React.createElement(
 				'ul',
 				{ className: 'nav nav-pills nav-stacked' },
+				React.createElement(Noti, null),
 				React.createElement(LeftNavMenu.Btn, { link: '/', name: 'overview', glyphiName: 'cloud' }),
 				React.createElement(
 					'li',
@@ -21186,10 +21188,10 @@
 /* 162 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	exports.handleError = function (err) {
-		if (typeof err === 'object') err = JSON.stringify(err);
+		if (err.statusText) err = err.statusText;
 		bootbox.alert(err);
 	};
 
@@ -21202,6 +21204,99 @@
 			onSuccess(resp);
 		};
 	};
+
+	exports.handleErrorPromise = function (reject) {
+		return function (err) {
+			reject(err);
+		};
+	};
+
+	exports.handleRespPromise = function (reject, onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleErrorPromise(resp.errmsg, reject);
+				return;
+			}
+			onSuccess(resp);
+		};
+	};
+
+/***/ },
+/* 163 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    util = __webpack_require__(159);
+
+	var Noti = React.createClass({
+		displayName: 'Noti',
+
+		ws: null,
+
+		componentDidMount: function componentDidMount() {
+			this.ws = new WebSocket(util.format('ws://%s/WebSocket/Noti/', window.location.host));
+			this.ws.onopen = function () {
+				console.log('noti web socket opened');
+			};
+			this.ws.onmessage = (function (evt) {
+				var msg = JSON.parse(evt.data);
+
+				if (!msg.type) {
+					bootbox.alert('unknown msg: ' + evt.data);
+					this.ws.close();
+					return;
+				} //if
+
+				switch (msg.type) {
+					case 'error-log':
+						$.notify({
+							icon: 'glyphicon glyphicon-warning-sign',
+							title: msg.scriptName,
+							message: msg.msg,
+							url: null,
+							target: '_blank'
+
+						}, {
+							element: 'body',
+							position: null,
+							allow_dismiss: true,
+							newest_on_top: true,
+							placement: {
+								from: 'top',
+								align: 'right'
+							},
+							offset: 20,
+							spacing: 10,
+							z_index: 1031,
+							delay: 4000,
+							timer: 1000,
+							url_target: '_black',
+							type: 'danger'
+						});
+						break;
+					default:
+						bootbox.alert('unknown msg: ' + evt.data);
+						this.ws.close();
+				} //switch
+			}).bind(this);
+			this.ws.onclose = function () {
+				console.log('noti web socket closed');
+			};
+			this.ws.onerror = function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				console.error(err);
+				bootbox.alert(err);
+			};
+		},
+
+		render: function render() {
+			return null;
+		}
+	});
+
+	exports.Noti = Noti;
 
 /***/ }
 /******/ ]);

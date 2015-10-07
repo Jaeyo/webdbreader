@@ -1,11 +1,11 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -22,24 +22,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.exception.NotExistsException;
-import com.igloosec.webdbreader.script.ScriptExecutor;
-import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
-import com.igloosec.webdbreader.script.ScriptThread;
-import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileOutListener;
-import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
+import com.igloosec.webdbreader.service.FileOutMsgService;
+import com.igloosec.webdbreader.service.FileOutMsgService.FileOutListener;
 
 @WebSocket
 public class FileOutMsgWebSocket {
 	private static final Logger logger = LoggerFactory.getLogger(FileOutMsgWebSocket.class);
-	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
+	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 	private Session session;
-	private Timer pollingTimer = new Timer();
 	
-	private List<FileWriter> tailingFilewriters = Lists.newArrayList();
-	private List<FileOutListener> fileOutListeners = Lists.newArrayList();
+	private Map<String, FileOutListener> listeners = Maps.newHashMap();
+	private List<Timer> pollingTimers = Lists.newArrayList();
+	
 	
 	@OnWebSocketConnect
 	public void handleConnect(Session session) {
@@ -49,12 +46,15 @@ public class FileOutMsgWebSocket {
 	@OnWebSocketClose
 	public void handleClose(int statusCode, String reason) {
 		logger.info("statusCode: {}, reason: {}", statusCode, reason);
-		pollingTimer.cancel();
 		
-		for(FileWriter fileWriter : this.tailingFilewriters) {
-			for(FileOutListener listener: fileOutListeners) {
-				fileWriter.unlistenFileOut(listener);
-			}
+		for(Timer pollingTimer: pollingTimers) {
+			pollingTimer.cancel();
+		}
+		
+		for(Entry<String, FileOutListener> listenerEntry: listeners.entrySet()) {
+			String scriptName = listenerEntry.getKey();
+			FileOutListener listener = listenerEntry.getValue();
+			fileOutMsgService.removeTailingListener(scriptName, listener);
 		}
 	}
 	
@@ -75,63 +75,34 @@ public class FileOutMsgWebSocket {
 		String type = msgObj.getString("type");
 		
 		switch(type.toLowerCase()) {
-			case "init-tail" :
-				initTail(msgObj);
-				break;
 			case "start-tail" :
 				startTail(msgObj);
 				break;
 		}
 	}
 	
-	private void initTail(JSONObject msg) {
-		String scriptName = msg.getString("scriptName");
-		ScriptThread scriptThread = scriptExecutor.getScriptThread(scriptName);
-		if(scriptThread == null) {
-			logger.warn(String.format("script(%s) not running", scriptName));
-			sendMsg(
-				new JSONObject()
-				.put("type", "init-tail-resp")
-				.put("success", 0)
-				.put("errmsg", "script not running").toString()
-			);
-			return;
-		}
-		
-		sendMsg(
-			new JSONObject()
-			.put("type", "init-tail-resp")
-			.put("success", 1).toString()
-		);
-	}
-	
 	private void startTail(JSONObject msg) {
 		String scriptName = msg.getString("scriptName");
-		ScriptThread scriptThread = scriptExecutor.getScriptThread(scriptName);
-		this.tailingFilewriters = scriptThread.getFileWriters();
 		final LinkedBlockingQueue<JSONObject> fileOutMsgQueue = Queues.newLinkedBlockingQueue();
-		
-		for(FileWriter fileWriter : this.tailingFilewriters) {
-			FileOutListener listener = new FileOutListener() {
-				@Override
-				public void listen(long timestamp, String msg) {
-					try {
-						fileOutMsgQueue.put(
-							new JSONObject()
-							.put("type", "msg")
-							.put("timestamp", timestamp)
-							.put("msg", msg)
-							);
-					} catch (JSONException | InterruptedException e) {
-						logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
-					}
+		FileOutListener listener = new FileOutListener() {
+			@Override
+			public void listen(long timestamp, String msg) {
+				try {
+					fileOutMsgQueue.put(
+						new JSONObject()
+						.put("type", "msg")
+						.put("timestamp", timestamp)
+						.put("msg", msg)
+					);
+				} catch (JSONException | InterruptedException e) {
+					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 				}
-			};
-
-			fileWriter.listenFileOut(listener);
-			fileOutListeners.add(listener);
-		}
+			}
+		};
+		this.listeners.put(scriptName, listener);
+		fileOutMsgService.addTailingListener(scriptName, listener);
 		
+		Timer pollingTimer = new Timer();
 		pollingTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -143,17 +114,18 @@ public class FileOutMsgWebSocket {
 				}
 			}
 		}, 1000, 100);
+		pollingTimers.add(pollingTimer);
 	}
 
 	@OnWebSocketError
 	public void handleError(Throwable e) {
 		logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-		pollingTimer.cancel();
+		
 		if(session.isOpen())
 			session.close();
 	}
 
-	private void sendMsg(String msg) {
+	private synchronized void sendMsg(String msg) {
 		try{
 			if(session.isOpen())
 				session.getRemote().sendString(msg);

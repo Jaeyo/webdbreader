@@ -24,7 +24,7 @@ var TailFileOutView = React.createClass({
 		this.ws.onopen = function() {
 			console.log('web socket opened');
 			this.ws.send(JSON.stringify({ 
-				type: 'init-tail',
+				type: 'start-tail',
 				scriptName: this.props.scriptName 
 			}));
 		}.bind(this);
@@ -38,17 +38,6 @@ var TailFileOutView = React.createClass({
 			} //if
 
 			switch(msg.type) {
-				case 'init-tail-resp':
-					if(msg.success !== 1) {
-						bootbox.alert(msg.errmsg);
-						this.ws.close();
-					} //if
-
-					this.ws.send(JSON.stringify({ 
-						type: 'start-tail',
-						scriptName: this.props.scriptName
-					}));
-					break;
 				case 'msg':
 					var newMsg = { timestamp: msg.timestamp, msg: msg.msg };
 					var newMsgs = [newMsg].concat(this.state.msgs);
@@ -74,16 +63,6 @@ var TailFileOutView = React.createClass({
 	},
 
 	render() {
-		// var msgs = [];
-		// this.state.msgs.forEach(function(msg) {
-		// 	msgs.push(
-		// 		<tr>
-		// 			<td>{msg.timestamp}</td>
-		// 			<td>{msg.msg}</td>
-		// 		</tr>
-		// 	);
-		// });
-
 		return (
 			<table>
 				<thead>

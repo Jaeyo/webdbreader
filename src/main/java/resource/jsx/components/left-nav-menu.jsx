@@ -1,6 +1,7 @@
 var React = require('react'),
 	util = require('util'),
 	jsUtil = require('../util/util.js'),
+	Noti = require('./noti.jsx').Noti,
 	handleError = jsUtil.handleError,
 	handleResp = jsUtil.handleResp;
 
@@ -40,6 +41,7 @@ var LeftNavMenu = React.createClass({
 
 		return (
 			<ul className="nav nav-pills nav-stacked">
+				<Noti />
 				<LeftNavMenu.Btn link="/" name="overview" glyphiName="cloud" />
 				<li><hr /></li>
 				<li><h5>Scripts</h5></li>

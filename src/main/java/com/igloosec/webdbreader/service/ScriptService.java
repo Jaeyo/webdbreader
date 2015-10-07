@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
+import com.igloosec.webdbreader.dao.AutoStartScriptDAO;
 import com.igloosec.webdbreader.dao.OperationHistoryDAO;
 import com.igloosec.webdbreader.dao.ScriptDAO;
 import com.igloosec.webdbreader.dao.ScriptScoreStatisticsDAO;
@@ -30,6 +31,7 @@ public class ScriptService {
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
 	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
 	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
+	private AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
 	
 	public JSONArray getScriptInfo(){
@@ -41,27 +43,27 @@ public class ScriptService {
 				scriptJson.put("IS_RUNNING", true);
 			} else{
 				scriptJson.put("IS_RUNNING", false);
-			} //if
-		} //for i
+			} 
+		} 
 		
 		return scripts;
-	} //loadScripts
+	} 
 	
 	public boolean isExists(String scriptName){
 		return scriptDAO.isExists(scriptName);
-	} //isExists
+	} 
 	
 	public void save(String scriptName, String script) throws AlreadyExistsException{
 		if(scriptDAO.isExists(scriptName)){
 			throw new AlreadyExistsException(scriptName);
 		} else{
 			scriptDAO.save(scriptName, script);
-		} //if
-	} //save
+		} 
+	} 
 	
 	public void edit(String scriptName, String script){
 		scriptDAO.edit(scriptName, script);
-	} //edit
+	} 
 	
 	public JSONObject load(String title) throws NotFoundException {
 		JSONObject scriptJson = scriptDAO.load(title);
@@ -71,24 +73,33 @@ public class ScriptService {
 			scriptJson.put("IS_RUNNING", true);
 		} else{
 			scriptJson.put("IS_RUNNING", false);
-		} //if
+		} 
 		
 		Date regdate = (Date) scriptJson.get("REGDATE");
 		scriptJson.put("PRETTY_REGDATE", new PrettyTime().format(regdate));
 		
 		return scriptJson;
-	} //load
+	} 
 
+	public void startAutoStartScript() throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
+		JSONArray autoStartScripts = autoStartScriptDAO.load();
+		for (int i = 0; i < autoStartScripts.length(); i++) {
+			JSONObject autoStartScript = autoStartScripts.getJSONObject(i);
+			String scriptName = autoStartScript.getString("SCRIPT_NAME");
+			startScript(scriptName);
+		}
+	}
+	
 	public void startScript(String scriptName) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
 		logger.info("scriptName: {}", scriptName);
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);
-	} //startScript
+	} 
 	
 	public void stopScript(String scriptName) throws ScriptNotRunningException {
 		logger.info("scriptName: {}", scriptName);
 		scriptExecutor.stop(scriptName);
-	} //stopScript
+	} 
 	
 	public void rename(String scriptName, String newScriptName) throws AlreadyExistsException{
 		logger.info("scriptName: {}, newScriptName: {}", scriptName, newScriptName);
@@ -100,7 +111,8 @@ public class ScriptService {
 		scriptScoreStatisticsDAO.renameScript(scriptName, newScriptName);
 		operationHistoryDAO.renameScript(scriptName, newScriptName);
 		simpleRepoDAO.renameScript(scriptName, newScriptName);
-	} //rename
+		autoStartScriptDAO.rename(scriptName, newScriptName);
+	} 
 	
 	public void remove(String scriptName){
 		logger.info("scriptName: {}", scriptName);
@@ -108,5 +120,7 @@ public class ScriptService {
 		scriptDAO.remove(scriptName);
 		scriptScoreStatisticsDAO.remove(scriptName);
 		operationHistoryDAO.remove(scriptName);
-	} //remove
-} //class
+		simpleRepoDAO.delete(scriptName);
+		autoStartScriptDAO.remove(scriptName);
+	} 
+} 

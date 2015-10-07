@@ -20,6 +20,9 @@ var EditScriptView = React.createClass({
 		this.editor.setTheme('ace/theme/github');
 		this.editor.getSession().setMode('ace/mode/javascript');
 		this.editor.setKeyboardHandler('ace/keyboard/vim');
+		this.editor.setOptions({
+			fontFamily: 'consolas'
+		});
 
 		$.getJSON(util.format('/REST/Script/Load/%s/', this.props.scriptName), {})
 		.fail(handleError)
