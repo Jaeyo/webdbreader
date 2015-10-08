@@ -6,18 +6,13 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.json.JSONObject;
-
-import com.google.common.collect.Lists;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.service.FileOutMsgService;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;

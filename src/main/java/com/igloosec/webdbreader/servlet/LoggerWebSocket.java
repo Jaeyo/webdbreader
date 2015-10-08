@@ -1,10 +1,12 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -14,20 +16,26 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.exception.NotExistsException;
-import com.igloosec.webdbreader.script.ScriptMessageQueueRepo;
+import com.igloosec.webdbreader.service.LoggerService;
+import com.igloosec.webdbreader.service.LoggerService.LoggerListener;
 
 @WebSocket
 public class LoggerWebSocket {
 	private static final Logger logger = LoggerFactory.getLogger(LoggerWebSocket.class);
-	private ScriptMessageQueueRepo logQueues = SingletonInstanceRepo.getInstance(ScriptMessageQueueRepo.class);
+	private LoggerService loggerService = SingletonInstanceRepo.getInstance(LoggerService.class);
 	private Session session;
-	private Timer pollingTimer = new Timer();
+	
+	private Map<String, LoggerListener> listeners = Maps.newHashMap();
+	private List<Timer> pollingTimers = Lists.newArrayList();
 	
 	@OnWebSocketConnect
 	public void handleConnect(Session session) {
@@ -37,37 +45,82 @@ public class LoggerWebSocket {
 	@OnWebSocketClose
 	public void handleClose(int statusCode, String reason) {
 		logger.info("statusCode: {}, reason: {}", statusCode, reason);
-		pollingTimer.cancel();
-	} 
+		
+		for(Timer pollingTimer: pollingTimers) {
+			pollingTimer.cancel();
+		}
+		
+		for(Entry<String, LoggerListener> listenerEntry: listeners.entrySet()) {
+			String scriptName = listenerEntry.getKey();
+			LoggerListener listener = listenerEntry.getValue();
+			loggerService.removeTailingListener(scriptName, listener);
+		}
+	}
 	
 	@OnWebSocketMessage
 	public void handleMessage(String msg) {
 		JSONObject msgObj = new JSONObject(msg);
 		
-		final String scriptName = msgObj.getString("scriptName");
+		if(msgObj.isNull("type")) {
+			logger.error(String.format("no type parameter: %s", msg));
+			sendMsg(
+				new JSONObject()
+				.put("type", "error")
+				.put("errmsg", "no type parameter").toString()
+			);
+			session.close();
+		}
+		
+		String type = msgObj.getString("type");
+		
+		switch(type.toLowerCase()) {
+			case "start-tail" :
+				startTail(msgObj);
+				break;
+		}
+	} 
 	
+	private void startTail(JSONObject msg) {
+		String scriptName = msg.getString("scriptName");
+		final LinkedBlockingQueue<JSONObject> logMsgQueue = Queues.newLinkedBlockingQueue();
+		LoggerListener listener = new LoggerListener() {
+			@Override
+			public void listen(long timestamp, String logLevel, String msg) {
+				try {
+					logMsgQueue.put(
+						new JSONObject()
+						.put("type", "msg")
+						.put("timestamp", timestamp)
+						.put("level", logLevel)
+						.put("msg", msg)
+					);
+				} catch (JSONException | InterruptedException e) {
+					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
+				}
+			}
+		};
+		this.listeners.put(scriptName, listener);
+		loggerService.addTailingListener(scriptName, listener);
+		
+		Timer pollingTimer = new Timer();
 		pollingTimer.schedule(new TimerTask() {
-			private Iterator<JSONObject> iter;
-			
 			@Override
 			public void run() {
-				if(iter == null)
-					iter = logQueues.getLogQueueIterator(scriptName);
-				if(iter == null)
-					return;
-				
-				while(iter.hasNext()) {
-					JSONObject logMsg = iter.next();
-					sendMsg(logMsg.toString());
-				} 
-			} 
+				for (int i = 0; i < logMsgQueue.size(); i++) {
+					JSONObject msg = logMsgQueue.poll();
+					if(msg != null) {
+						sendMsg(msg.toString());
+					}
+				}
+			}
 		}, 1000, 100);
-	} 
+		pollingTimers.add(pollingTimer);
+	}
 	
 	@OnWebSocketError
 	public void handleError(Throwable e) {
 		logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-		pollingTimer.cancel();
+		
 		if(session.isOpen())
 			session.close();
 	} 

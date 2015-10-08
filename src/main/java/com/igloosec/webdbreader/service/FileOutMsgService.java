@@ -3,7 +3,7 @@ package com.igloosec.webdbreader.service;
 import com.google.common.collect.HashMultimap;
 
 public class FileOutMsgService {
-	HashMultimap<String, FileOutListener> tailingListeners = HashMultimap.create();
+	private HashMultimap<String, FileOutListener> tailingListeners = HashMultimap.create();
 	
 	public void addTailingListener(String scriptName, FileOutListener listener) {
 		tailingListeners.put(scriptName, listener);
@@ -22,4 +22,4 @@ public class FileOutMsgService {
 	public interface FileOutListener {
 		public void listen(long timestamp, String msg);
 	} 
-} //class
+}

@@ -21942,17 +21942,35 @@
 			this.ws = new WebSocket(util.format('ws://%s/WebSocket/Logger/', window.location.host));
 			this.ws.onopen = (function () {
 				console.log('web socket opened');
-				this.ws.send(JSON.stringify({ scriptName: this.props.scriptName }));
+				this.ws.send(JSON.stringify({
+					type: 'start-tail',
+					scriptName: this.props.scriptName
+				}));
 			}).bind(this);
 			this.ws.onmessage = (function (evt) {
-				var data = JSON.parse(evt.data);
+				var msg = JSON.parse(evt.data);
 
-				var newLogItems = [React.createElement(LogMonitoringPanel.LogItem, {
-					itemstamp: data.timestamp,
-					level: data.level,
-					msg: data.msg })].concat(this.state.logItems);
-				if (newLogItems.length > 100) newLogItems.pop();
-				this.setState({ logItems: newLogItems });
+				if (!msg.type) {
+					bootbox.alert('unknown msg: ' + evt.data);
+					this.ws.close();
+					return;
+				}
+
+				switch (msg.type) {
+					case 'msg':
+						var newLogItems = [React.createElement(LogMonitoringPanel.LogItem, {
+							itemstamp: msg.timestamp,
+							level: msg.level,
+							msg: msg.msg })].concat(this.state.logItems);
+						if (newLogItems.length > 100) newLogItems.pop();
+						this.setState({ logItems: newLogItems });
+						break;
+					case 'error':
+						bootbox.alert(msg.errmsg);
+					default:
+						bootbox.alert('unknown msg: ' + evt.data);
+						this.ws.close();
+				}
 			}).bind(this);
 			this.ws.onclose = function () {
 				console.log('web socket closed');
