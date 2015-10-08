@@ -21112,13 +21112,16 @@
 	    handleResp = jsUtil.handleResp,
 	    handleErrorPromise = jsUtil.handleErrorPromise,
 	    handleRespPromise = jsUtil.handleRespPromise;
-	Array.prototype.remove = __webpack_require__(176), function postConfig(configKeyValueArr) {
+
+	Array.prototype.remove = __webpack_require__(176);
+
+	function postConfig(configKeyValueArr) {
 		$.post('/REST/Config/', {
 			jsonParam: JSON.stringify(configKeyValueArr)
 		}, 'json').fail(handleError).done(handleResp(function (resp) {
 			bootbox.alert('config saved');
 		}));
-	};
+	}
 
 	var GeneralConfigPanel = React.createClass({
 		displayName: 'GeneralConfigPanel',
@@ -21143,13 +21146,21 @@
 			}).bind(this)));
 		},
 
+		postConfig: function postConfig(configKeyValueArr) {
+			$.post('/REST/Config/', {
+				jsonParam: JSON.stringify(configKeyValueArr)
+			}, 'json').fail(handleError).done(handleResp(function (resp) {
+				$.notify('config saved', { delay: 1 });
+			}));
+		},
+
 		onVersionCheckChange: function onVersionCheckChange(evt) {
 			var value = JSON.parse(evt.target.value);
 			this.setState({ versionCheck: value });
 		},
 
 		save: function save() {
-			postConfig([{ configKey: 'version.check', configValue: this.state.versionCheck + "" }]);
+			this.postConfig([{ configKey: 'version.check', configValue: this.state.versionCheck + "" }]);
 		},
 
 		render: function render() {
@@ -21404,6 +21415,8 @@
 						scriptsData: newScriptsData
 					});
 
+					$.notify(util.format('%s removed from auto start script', scriptName), { delay: 1 });
+
 					this.loadData();
 				}).bind(this))
 			});
@@ -21417,6 +21430,8 @@
 				this.setState({
 					scriptsData: newScriptsData
 				});
+
+				$.notify(util.format('%s added to auto start script', scriptName), { delay: 1 });
 
 				this.loadData();
 			}).bind(this)));

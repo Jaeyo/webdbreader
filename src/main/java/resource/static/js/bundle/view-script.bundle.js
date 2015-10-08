@@ -21688,17 +21688,15 @@
 
 		onScriptStart: function onScriptStart(evt) {
 			$.post(util.format('/REST/Script/Start/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp((function (resp) {
-				bootbox.alert('script started', (function () {
-					this.props.loadScriptAction();
-				}).bind(this));
+				$.notify('script started', { delay: 1 });
+				this.props.loadScriptAction();
 			}).bind(this)));
 		},
 
 		onScriptStop: function onScriptStop(evt) {
 			$.post(util.format('/REST/Script/Stop/%s/', this.props.scriptName), {}, 'json').fail(handleError).done(handleResp((function (resp) {
-				bootbox.alert('script stopped', (function () {
-					this.props.loadScriptAction();
-				}).bind(this));
+				$.notify('script stopped', { delay: 1 });
+				this.props.loadScriptAction();
 			}).bind(this)));
 		},
 

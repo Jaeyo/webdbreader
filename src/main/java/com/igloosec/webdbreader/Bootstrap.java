@@ -21,7 +21,7 @@ public class Bootstrap {
 			if (com.igloosec.webdbreader.common.Conf.isOpenJdk()) {
 				System.err.println("OpenJDK not allowed, use another jdk");
 				System.exit(-1);
-			} // if
+			} 
 			
 			String classPathSeparator = SystemUtils.IS_OS_WINDOWS ? ";" : ":";
 
@@ -34,8 +34,8 @@ public class Bootstrap {
 			bootstrapJar(classPath, mainClass, args);
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
-		} //catch
-	} //main
+		} 
+	} 
 
 	public static void bootstrapJar(String classPath, String mainClass, String... args) throws IOException {
 		logger.info("start to bootstrap jar " + mainClass);
@@ -49,7 +49,7 @@ public class Bootstrap {
 		if(SystemUtils.IS_OS_WINDOWS){
 			cmd.add("cmd");
 			cmd.add("/C");
-		} //if
+		} 
 		cmd.add(javaExe);
 		cmd.add("-Dfile.encoding=UTF-8");
 		cmd.add("-cp");
@@ -58,7 +58,7 @@ public class Bootstrap {
 		if(args != null && args.length != 0){
 			for(String arg : args)
 				cmd.add(arg);
-		} //if
+		} 
 
 		logger.info("cmd : " + cmd.toString());
 
@@ -66,5 +66,5 @@ public class Bootstrap {
 		Process processor = builder.start();
 
 		logger.info(mainClass + " success to bootstrap");
-	} // bootstrap
-} // class
+	} 
+} 
