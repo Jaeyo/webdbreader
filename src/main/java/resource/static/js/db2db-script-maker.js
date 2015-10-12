@@ -28,8 +28,9 @@ Db2DbScriptMaker.prototype = {
 				script += '\n		database: { ';
 				script += '\n			driver: "{}", '.format(model.src.database.driver);
 				script += '\n			connUrl: "{}", '.format(model.src.database.connUrl);
-				script += '\n			encryptedUsername: "{}", '.format(model.src.database.username);
-				script += '\n			encryptedPassword: "{}", '.format(model.src.database.password);
+				script += '\n			username: "{}", '.format(model.src.database.username);
+				script += '\n			password: "{}", '.format(model.src.database.password);
+				script += '\n			isUserEncrypted: "true" ';
 				script += '\n		} ';
 				script += '\n	}, dest: { ';
 				script += '\n		insertColumn: "{}", '.format(model.dest.insertColumn.toString());
@@ -37,8 +38,9 @@ Db2DbScriptMaker.prototype = {
 				script += '\n		database: { ';
 				script += '\n			driver: "{}", '.format(model.dest.database.driver);
 				script += '\n			connUrl: "{}", '.format(model.dest.database.connUrl);
-				script += '\n			encryptedUsername: "{}", '.format(model.dest.database.username);
-				script += '\n			encryptedPassword: "{}", '.format(model.dest.database.password);
+				script += '\n			username: "{}", '.format(model.dest.database.username);
+				script += '\n			password: "{}", '.format(model.dest.database.password);
+				script += '\n			isUserEncrypted: true, ';
 				script += '\n		} ';
 				script += '\n	} ';
 				script += '\n}; //conf';
@@ -76,7 +78,7 @@ Db2DbScriptMaker.prototype = {
 				var script = '\nfunction main() {';
 
 				if(model.src.condition.type !== 'no-condition')
-					script += '\n	condition = getCondition();\n';
+					script += '\n	var condition = getCondition();\n';
 
 				if(model.src.condition.type === 'no-condition') {
 					script += '\n	var selectQuery = ';

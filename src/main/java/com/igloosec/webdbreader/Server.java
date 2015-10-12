@@ -89,6 +89,7 @@ public class Server {
 		context.addServlet(Index.class, "");
 		context.addServlet(Index.class, "/Script/*");
 		context.addServlet(Index.class, "/Config/*");
+		context.addServlet(Index.class, "/ApiDoc/*");
 		
 		context.setContextPath("/");
 		

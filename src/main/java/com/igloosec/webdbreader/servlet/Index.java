@@ -45,6 +45,9 @@ public class Index extends JadeHttpServlet {
 			} else if(new UriTemplate("/Config/").match(uri, pathParams)){
 				resp.getWriter().print(jade("config.jade", null));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/ApiDoc/").match(uri, pathParams)){
+				resp.getWriter().print(jade("api.jade", null));
+				resp.getWriter().flush();
 			} else if(new UriTemplate("/Script/NewDb2File/").match(uri, pathParams)){
 				resp.getWriter().print(jade("new-db2file.jade", null));
 				resp.getWriter().flush();

@@ -4,6 +4,7 @@ module.exports = {
 	entry: {
 		base: [ './src/main/java/resource/jsx/base.jsx' ],
 		config: [ './src/main/java/resource/jsx/config.jsx' ],
+		api: [ './src/main/java/resource/jsx/api.jsx' ],
 		'view-script': [ './src/main/java/resource/jsx/view-script.jsx' ],
 		'edit-script': [ './src/main/java/resource/jsx/edit-script.jsx' ],
 		'tail-fileout': [ './src/main/java/resource/jsx/tail-fileout.jsx' ],

@@ -40,6 +40,7 @@ public class DbHandler {
 	 * 			connUrl: (string)(required)
 	 * 			username: (string)(required)(encrypted)
 	 * 			password: (string)(required)(encrypted)
+	 * 			isUserEncrypted: (boolean)(default: true)
 	 * 		},
 	 * 		query: (string)(required)
 	 * }
@@ -77,6 +78,7 @@ public class DbHandler {
 	 * 			connUrl: (string)(required)
 	 * 			username: (string)(required)(encrypted)
 	 * 			password: (string)(required)(encrypted)
+	 * 			isUserEncrypted: (boolean)(default: true)
 	 * 		},
 	 * 		queries: (array of string)(required)
 	 * }
@@ -235,7 +237,9 @@ public class DbHandler {
 					String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 					logger.error(errmsg, e);
 					e.printStackTrace();
-				} //catch
+				} finally {
+					close(conn, pstmt, null);
+				}
 				return null;
 			} //apply
 		});
@@ -308,19 +312,22 @@ public class DbHandler {
 	 * 			username: (string)(required)(encrypted)
 	 * 			password: (string)(required)(encrypted)
 	 * 		},
-	 * 		query: (string)(required)
+	 * 		query: (string)(required),
+	 * 		callback: function(ResultSet){ ... } (required)
 	 * }
 	 * @param callback: function(ResultSet){ ... }
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
 	 * @throws CryptoException 
 	 */
-	public void query(Map<String, Object> args, final sun.org.mozilla.javascript.internal.Function callback) throws ClassNotFoundException, SQLException, CryptoException{
+	public void queryCallback(Map<String, Object> args) throws ClassNotFoundException, SQLException, CryptoException{
 		Map<String, Object> database = (Map<String, Object>) args.get("database");
 		String query = (String) args.get("query");
+		final sun.org.mozilla.javascript.internal.Function callback = (sun.org.mozilla.javascript.internal.Function) args.get("callback");
 		
 		Preconditions.checkArgument(database != null, "database is null");
 		Preconditions.checkArgument(query != null, "query is null");
+		Preconditions.checkArgument(callback != null, "callback is null");
 		
 		logger.info(String.format("query: %s", query));
 		
@@ -339,20 +346,25 @@ public class DbHandler {
 	private Connection getConnection(Map<String, Object> database) throws SQLException, ClassNotFoundException, CryptoException{
 		String driver = (String) database.get("driver");
 		String connUrl = (String) database.get("connUrl");
-		String encryptedUsername = (String) database.get("encryptedUsername");
-		String encryptedPassword = (String) database.get("encryptedPassword");
+		String username = (String) database.get("username");
+		String password = (String) database.get("password");
+		Boolean isUserEncrypted = (Boolean) database.get("isUserEncrypted");
+		if(isUserEncrypted == null)
+			isUserEncrypted = true;
 		
 		connUrl = new DateUtil(this.logger).formatReplace(connUrl);
 		
 		Preconditions.checkArgument(driver != null, "driver is null");
 		Preconditions.checkArgument(connUrl != null, "connUrl is null");
-		Preconditions.checkArgument(encryptedUsername != null, "encryptedUsername is null");
-		Preconditions.checkArgument(encryptedPassword!= null, "encryptedPassword is null");
+		Preconditions.checkArgument(username != null, "encryptedUsername is null");
+		Preconditions.checkArgument(password!= null, "encryptedPassword is null");
 		
 		Class.forName(driver);
 		
-		String username = SimpleCrypto.decrypt(encryptedUsername);
-		String password = SimpleCrypto.decrypt(encryptedPassword);
+		if(isUserEncrypted) {
+			username = SimpleCrypto.decrypt(username);
+			password = SimpleCrypto.decrypt(password);
+		}
 		
 		return DriverManager.getConnection(connUrl, username, password);
 	} //getConnection

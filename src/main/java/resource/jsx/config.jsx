@@ -101,7 +101,11 @@ var GeneralConfigPanel = React.createClass({
 		);
 		
 		return (
-			<Panel className="general-config-panel">
+			<Panel 
+				className="general-config-panel"
+				style={{
+					margin: '10px'
+				}}>
 				<Panel.Heading glyphicon="cog">general</Panel.Heading>
 				<Panel.Body>{body}</Panel.Body>
 			</Panel>
@@ -121,7 +125,11 @@ var DerbySqlPanel = React.createClass({
 	},
 	render() {
 		return (
-			<Panel className="derby-sql-panel">
+			<Panel 
+				className="derby-sql-panel"
+				style={{
+					margin: '10px'
+				}}>
 				<Panel.Heading glyphicon="cog">derby database</Panel.Heading>
 				<Panel.Body>
 					<div className="input-group">
@@ -137,6 +145,7 @@ var DerbySqlPanel = React.createClass({
 						type="button" 
 						className="btn btn-default pull-right" 
 						onClick={this.query}>query</button>
+					<div className="clearfix" />
 				</Panel.Body>
 			</Panel>
 		);
@@ -162,7 +171,11 @@ var CryptoPanel = React.createClass({
 	},
 	render() {
 		return (
-			<Panel className="crypto-panel">
+			<Panel 
+				className="crypto-panel"
+				style={{
+					margin: '10px'
+				}}>
 				<Panel.Heading glyphicon="cog">crypto</Panel.Heading>
 				<Panel.Body>
 					<div className="input-group">
@@ -182,6 +195,7 @@ var CryptoPanel = React.createClass({
 						type="button"
 						className="btn btn-default pull-right"
 						onClick={this.decrypt}>decrypt</button>
+					<div className="clearfix" />
 				</Panel.Body>
 			</Panel>
 		);
@@ -288,9 +302,12 @@ var AutoStartScriptPanel = React.createClass({
 							type="button"
 							className="btn btn-xs btn-danger"
 							value={scriptName}
+							style={{ marginRight: '5px' }}
 							onClick={this.removeFromAutoStartScript}>-</button>
 						<label>{scriptName}</label>
-						<label className="desc">(auto start)</label>
+						<label 
+							className="desc"
+							style={{ fontSize: '95%' }}>(auto start)</label>
 					</div>
 				);
 			} else {
@@ -300,6 +317,7 @@ var AutoStartScriptPanel = React.createClass({
 							type="button"
 							className="btn btn-xs btn-info"
 							value={scriptName}
+							style={{ marginRight: '5px' }}
 							onClick={this.addToAutoStartScript}>+</button>
 						<label>{scriptName}</label>
 					</div>
@@ -308,7 +326,11 @@ var AutoStartScriptPanel = React.createClass({
 		}
 
 		return (
-			<Panel className="auto-start-script-panel">
+			<Panel 
+				className="auto-start-script-panel"
+				style={{
+					margin: '10px'
+				}}>
 				<Panel.Heading glyphicon="cog">auto start script</Panel.Heading>
 				<Panel.Body>
 					{scriptItems}
@@ -320,10 +342,20 @@ var AutoStartScriptPanel = React.createClass({
 
 React.render(
 	<div>
-		<GeneralConfigPanel />
-		<DerbySqlPanel />
-		<CryptoPanel />
-		<AutoStartScriptPanel />
+		<div style={{
+			width: '48%',
+			float: 'left'
+		}}>
+			<GeneralConfigPanel />
+			<DerbySqlPanel />
+		</div>
+		<div style={{
+			width: '48%',
+			float: 'left'
+		}}>
+			<CryptoPanel />
+			<AutoStartScriptPanel />
+		</div>
 	</div>,
 	$('#contents')[0]
 );

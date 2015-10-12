@@ -49,7 +49,7 @@ var LeftNavMenu = React.createClass({
 				<li><hr /></li>
 				<LeftNavMenu.Btn link="/Config/" name="configuration" glyphiName="cog" />
 				<li><hr /></li>
-				<LeftNavMenu.Btn link="/ApiDoc/" name="api documentation" glyphiName="modal-window" />
+				<LeftNavMenu.Btn link="/ApiDoc/" name="api" glyphiName="modal-window" />
 			</ul>
 		);
 	}

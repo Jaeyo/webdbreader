@@ -30,22 +30,33 @@ public class Conf{
 			File configJsonFile = new File(confPath, "config.json");
 			
 			if(configJsonFile.exists() == false) {
-				props.put(PORT, 8098);
-				
+				int port = 8098;
 				File defaultDerbyPath = new File(Path.getPackagePath(), "derby");
-				props.put(DERBY_PATH, defaultDerbyPath.getAbsolutePath());
+				String derbyPath = defaultDerbyPath.getAbsolutePath();
+				int jettyThreadPoolSize = 20;
 				
-				props.put(JETTY_THREAD_POOL_SIZE, 20);
+				props.put(PORT, port);
+				props.put(DERBY_PATH, derbyPath);
+				props.put(JETTY_THREAD_POOL_SIZE, jettyThreadPoolSize);
+				
+				logger.info("--------------------------------------------");
+				logger.info(String.format("%s: %s", PORT, port));
+				logger.info(String.format("%s: %s", DERBY_PATH, derbyPath));
+				logger.info(String.format("%s: %s", JETTY_THREAD_POOL_SIZE, jettyThreadPoolSize));
+				logger.info("--------------------------------------------");
 				
 				JSONObject configJson = new JSONObject(props);
 				configJsonFile.createNewFile();
 				IOUtils.write(configJson.toString(4), new FileOutputStream(configJsonFile));
 			} else {
 				JSONObject configJson = new JSONObject(IOUtils.toString(new FileInputStream(configJsonFile)));
+				logger.info("--------------------------------------------");
 				for(Object key: configJson.keySet()) {
 					Object value = configJson.get(key.toString());
 					props.put(key.toString(), value);
+					logger.info(String.format("%s: %s", key.toString(), value));
 				}
+				logger.info("--------------------------------------------");
 			}
 		} catch(Exception e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));

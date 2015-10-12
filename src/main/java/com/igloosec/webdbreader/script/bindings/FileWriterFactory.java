@@ -29,7 +29,7 @@ public class FileWriterFactory {
 	/*
 	 * @param args: {
 	 * 		filename: (string)(required)
-	 * 		charset: (string)(required)
+	 * 		charset: (string)(default: utf8)
 	 * }
 	 * @return
 	 * @throws IOException 
@@ -38,6 +38,9 @@ public class FileWriterFactory {
 	public FileWriter getWriter(Map<String, Object> args) throws ParseException, IOException{
 		String filename = (String) args.get("filename");
 		String charset = (String) args.get("charset");
+		
+		if(charset == null) charset = "utf8";
+		
 		FileWriter writer = new FileWriter(filename, charset);
 		ScriptThread.currentThread().addFileWriter(writer);
 		

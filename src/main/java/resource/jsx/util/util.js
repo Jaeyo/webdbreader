@@ -28,3 +28,22 @@ exports.handleRespPromise = function(reject, onSuccess) {
 		onSuccess(resp);
 	};
 };
+
+exports.color = function(colorName) {
+	switch(colorName) {
+		case 'blue-black':
+			return '#293a48';
+
+		case 'light-blue':
+			return '#385771';
+		case 'light-blue2':
+			return '#6c91ba';
+
+		case 'light-gray':
+			return '#dadada';
+		case 'dark-gray':
+			return '#5d5d5d';
+		default: 
+			return null;
+	}
+};

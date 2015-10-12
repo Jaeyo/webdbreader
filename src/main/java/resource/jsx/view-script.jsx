@@ -8,6 +8,11 @@ var React = require('react'),
 	handleError = jsUtil.handleError,
 	handleResp = jsUtil.handleResp;
 
+var color = {
+	lightGray: jsUtil.color('light-gray'),
+	darkGray: jsUtil.color('dark-gray')
+};
+
 var BtnArea = React.createClass({
 	getDefaultProps() {
 		return {
@@ -74,6 +79,11 @@ var BtnArea = React.createClass({
 		if(this.props.isScriptLoaded === false) {
 			return (<span>loading...</span>);
 		} else {
+			var spanDividerStyle = {
+				margin: '11px',
+				border: '1px solid ' + color.lightGray
+			};
+
 			return (
 				<div className="btn-area">
 					<button 
@@ -86,7 +96,7 @@ var BtnArea = React.createClass({
 						className="btn btn-primary btn-sm"
 						disabled={this.props.isScriptRunning === true ? false : true}
 						onClick={this.onScriptStop}>stop</button>
-					<span className="divider" />
+					<span style={spanDividerStyle} />
 					<button
 						type="button"
 						className="btn btn-default btn-sm"
@@ -99,7 +109,7 @@ var BtnArea = React.createClass({
 						type="button"
 						className="btn btn-danger btn-sm"
 						onClick={this.onRemove}>remove</button>
-					<span className="divider" />
+					<span style={spanDividerStyle} />
 					<button
 						type="button"
 						className="btn btn-default btn-sm"
@@ -122,7 +132,14 @@ var InformationPanel = React.createClass({
 
 	render() {
 		return (
-			<Panel className="information-panel">
+			<Panel 
+				style={{
+					width: '200px',
+					height: '200px',
+					float: 'left',
+					marginRight: '20px',
+				}}
+			>
 				<Panel.Heading glyphicon="th">information</Panel.Heading>
 				<Panel.Body>
 					{ this.props.isScriptLoaded === false ?
@@ -174,12 +191,32 @@ var ScriptPanel = React.createClass({
 
 	render() {
 		return (
-			<Panel className="script-panel">
+			<Panel
+				style={{
+					height: '200px',
+					width: 'calc(100% - 220px)',
+					float: 'left'
+				}}>
 				<Panel.Heading glyphicon="cog">script</Panel.Heading>
-				<Panel.Body>
+				<Panel.Body
+					style={{
+						position: 'relative',
+						height: 'calc(100% - 30px)',
+						overflow: 'hidden'
+					}}>
 					{ this.props.isScriptLoaded === false ?
 						(<span>loading...</span>) :
-						(<pre id="editor">{this.props.script}</pre>)
+						(<pre 
+							id="editor"
+							style={{
+								position: 'absolute',
+								top: '10px',
+								bottom: '10px',
+								right: '10px',
+								left: '10px'
+							}}>
+							{this.props.script}
+						</pre>)
 					}
 				</Panel.Body>
 			</Panel>
@@ -249,7 +286,7 @@ var LogMonitoringPanel = React.createClass({
 
 	render() {
 		return (
-			<Panel className="log-monitoring-panel">
+			<Panel>
 				<Panel.Heading glyphicon="time">log monitoring ...</Panel.Heading>
 				<Panel.Body>
 					<ul>
@@ -272,13 +309,35 @@ LogMonitoringPanel.LogItem = React.createClass({
 
 	render() {
 		return (
-			<li>
-				<span className="timestamp">
-					<span className="glyphicon glyphicon-time" />
+			<li
+				style={{
+					borderBottom: '1px dotted ' + color.lightGray,
+					listStyle: 'none',
+					padding: '3px'
+				}}
+			>
+				<span
+					style={{
+						fontSize: '80%',
+						color: color.darkGray,
+						marginRight: '8px'
+					}} >
+					<span 
+						className="glyphicon glyphicon-time"
+						style={{ marginRight: '3px' }} />
 					<span>{this.props.timestamp}</span>
 				</span>
-				<span className="level">{this.props.level}</span>
-				<span className="msg">{this.props.msg}</span>
+				<span
+					style={{
+						marginRight: '5px',
+						color: color.darkGray,
+						fontSize: '90%'
+					}}>
+					{this.props.level}</span>
+				<span 
+					className="msg"
+					style={{ fontSize: '80%' }}>
+					{this.props.msg}</span>
 			</li>
 		);
 	}
@@ -326,7 +385,9 @@ var ViewScriptView = React.createClass({
 					isScriptLoaded={this.state.isScriptLoaded}
 					loadScriptAction={this.loadScript} />
 				<hr />
-				<div>
+				<div
+					style={{ marginBottom: '10px' }}
+				>
 					<InformationPanel 
 						isScriptLoaded={this.state.isScriptLoaded}
 						isScriptRunning={this.state.isScriptRunning}
