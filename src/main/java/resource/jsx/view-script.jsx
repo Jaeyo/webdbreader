@@ -3,10 +3,13 @@ var React = require('react'),
 	ListGroup = require('./components/list-group.jsx').ListGroup,
 	util = require('util'),
 	UrlPattern = require('url-pattern'),
+	moment = require('moment'),
 	pattern = new UrlPattern('/Script/View/:scriptName/'),
 	jsUtil = require('./util/util.js'),
 	handleError = jsUtil.handleError,
 	handleResp = jsUtil.handleResp;
+
+moment.locale('ko');
 
 var color = {
 	lightGray: jsUtil.color('light-gray'),
@@ -261,7 +264,7 @@ var LogMonitoringPanel = React.createClass({
 				case 'msg':
 					var newLogItems = 
 						[(<LogMonitoringPanel.LogItem 
-							itemstamp={msg.timestamp}
+							timestamp={msg.timestamp}
 							level={msg.level}
 							msg={msg.msg} />)].concat(this.state.logItems);
 					if(newLogItems.length > 100) newLogItems.pop();
@@ -314,8 +317,7 @@ LogMonitoringPanel.LogItem = React.createClass({
 					borderBottom: '1px dotted ' + color.lightGray,
 					listStyle: 'none',
 					padding: '3px'
-				}}
-			>
+				}}>
 				<span
 					style={{
 						fontSize: '80%',
@@ -325,7 +327,7 @@ LogMonitoringPanel.LogItem = React.createClass({
 					<span 
 						className="glyphicon glyphicon-time"
 						style={{ marginRight: '3px' }} />
-					<span>{this.props.timestamp}</span>
+					<span>{ moment(this.props.timestamp).format('YYYY-MM-DD HH:mm:ss') }</span>
 				</span>
 				<span
 					style={{
@@ -346,7 +348,7 @@ LogMonitoringPanel.LogItem = React.createClass({
 var ViewScriptView = React.createClass({
 	getDefaultProps() {
 		return {
-			scriptName: pattern.match(window.location.pathname).scriptName
+			scriptName: decodeURI(pattern.match(window.location.pathname).scriptName)
 		};
 	},
 
@@ -410,7 +412,7 @@ var ViewScriptView = React.createClass({
 var ViewScriptHeader = React.createClass({
 	getDefaultProps() {
 		return {
-			scriptName: pattern.match(window.location.pathname).scriptName
+			scriptName: decodeURI(pattern.match(window.location.pathname).scriptName)
 		};
 	},
 

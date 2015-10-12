@@ -100,8 +100,11 @@ public class FileWriterFactory {
 				output.append(msg);
 				output.flush();
 				
-				if(msg.contains("\n"))
-					scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, msg.split("\n").length - 1);
+				if(msg.contains("\n")) {
+					int count = msg.split("\n").length - 1;
+					if(count <= 0) count = 1;
+					scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, count);
+				}
 	
 				String scriptName = ScriptThread.currentThread().getScriptName();
 				fileOutMsgService.dispatchMsg(scriptName, System.currentTimeMillis(), msg);

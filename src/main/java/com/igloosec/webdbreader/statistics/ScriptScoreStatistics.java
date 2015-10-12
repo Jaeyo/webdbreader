@@ -42,7 +42,7 @@ public class ScriptScoreStatistics {
 								oldCount.getLong("count"));
 					} //for i
 				} //sync
-
+				
 				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
 			} //run
 		}, 60 * 1000, 60 * 1000);

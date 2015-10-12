@@ -11,7 +11,7 @@ var EditScriptView = React.createClass({
 
 	getDefaultProps() {
 		return {
-			scriptName: pattern.match(window.location.pathname).scriptName
+			scriptName: decodeURI(pattern.match(window.location.pathname).scriptName)
 		}
 	},
 
@@ -73,7 +73,7 @@ var EditScriptView = React.createClass({
 var EditScriptHeader = React.createClass({
 	getDefaultProps() {
 		return {
-			scriptName: pattern.match(window.location.pathname).scriptName
+			scriptName: decodeURI(pattern.match(window.location.pathname).scriptName)
 		};
 	},
 

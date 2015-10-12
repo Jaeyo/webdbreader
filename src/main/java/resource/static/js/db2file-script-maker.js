@@ -93,6 +93,7 @@ Db2FileScriptMaker.prototype = {
 						script += '\n 				" AND " + conf.conditionColumn + " <= to_date(\'" + condition.bigValue + "\', \'YYYY-MM-DD HH24:MI:SS\') ";';
 					} //if
 				} else if(model.condition.type === 'sequence-condition'){
+					script += '\n 	var condition = getCondition();';
 					script += '\n 	condition.bigValue = dbHandler.query({ ';
 					script += '\n 		database: conf.database, ';
 					script += '\n 		query: "SELECT MAX(" + conf.conditionColumn + ") FROM " + dateUtil.formatReplace(conf.tableName), ';
