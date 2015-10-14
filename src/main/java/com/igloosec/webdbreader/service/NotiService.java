@@ -21,4 +21,10 @@ public class NotiService {
 			notiWebSocket.sendErrorLogNotiMsg(scriptName, msg);
 		}
 	}
+	
+	public void sendScriptEndNoti(String scriptName) {
+		for(NotiWebSocket notiWebSocket: notiWebSockets) {
+			notiWebSocket.sendScriptEndNotiMsg(scriptName);
+		}
+	}
 }

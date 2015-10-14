@@ -43,7 +43,7 @@ public class ScriptScoreStatistics {
 					} //for i
 				} //sync
 				
-				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
+				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (6 * 60 * 60 * 1000));
 			} //run
 		}, 60 * 1000, 60 * 1000);
 	} //INIT

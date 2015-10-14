@@ -1,5 +1,6 @@
 var React = require('react'),
-	Panel = require('./components/panel.jsx').Panel,
+	Panel = require('./comps/panel.jsx').Panel,
+	Layout = require('./comps/layout.jsx').Layout,
 	color = require('./util/util.js').color;
 
 var ApiClassBox = React.createClass({
@@ -115,7 +116,7 @@ ApiMethodBox.Example = React.createClass({
 
 
 React.render(
-	<div>
+	<Layout>
 		<ApiClassBox apiClassName="DateUtil">
 			<ApiMethodBox methodName="String format(date, format)">
 				<ApiMethodBox.ItemList>
@@ -407,5 +408,5 @@ React.render(
 				" />
 			</ApiMethodBox>
 		</ApiClassBox>
-	</div>, 
-	$('.contents-area')[0]);
+	</Layout>, 
+	document.body);

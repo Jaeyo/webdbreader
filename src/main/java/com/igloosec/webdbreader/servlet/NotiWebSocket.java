@@ -68,6 +68,14 @@ public class NotiWebSocket {
 		);
 	}
 	
+	public void sendScriptEndNotiMsg(String scriptName) {
+		sendMsg(
+			new JSONObject()
+			.put("type", "script-end")
+			.put("scriptName", scriptName).toString()
+		);
+	}
+	
 	private synchronized void sendMsg(String msg) {
 		try{
 			if(session.isOpen())

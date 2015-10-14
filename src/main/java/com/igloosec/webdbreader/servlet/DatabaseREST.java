@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.service.DatabaseService;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class DatabaseREST extends JadeHttpServlet{

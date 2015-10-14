@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.util.jade;
+package com.igloosec.webdbreader.util.servlet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,23 +23,23 @@ public class JadeHttpServlet extends HttpServlet{
 			@Override
 			public Reader getReader(String name) throws IOException {
 				return new InputStreamReader(Server.class.getClassLoader().getResourceAsStream("resource/view/" + name));
-			} //getReader
+			} 
 			
 			@Override
 			public long getLastModified(String name) throws IOException {
 				return 0;
 			}
 		});
-	} //static
+	} 
 	
 	protected void render(HttpServletResponse resp, String view, Map<String, Object> model) throws JadeCompilerException, IOException{
 		if(model == null) model = new HashMap<String, Object>();
 		resp.getWriter().println(jade(view, model));
-	} //render
+	} 
 	
 	protected String jade(String view, Map<String, Object> model) throws JadeCompilerException, IOException{
 		if(model == null) model = new HashMap<String, Object>();
 		JadeTemplate tmpl = jadeConfig.getTemplate(view);
 		return jadeConfig.renderTemplate(tmpl, model);
-	} //jade
-} //lass
+	} 
+} 

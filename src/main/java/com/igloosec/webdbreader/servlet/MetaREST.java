@@ -1,14 +1,9 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +17,7 @@ import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.Version;
 import com.igloosec.webdbreader.exception.CryptoException;
 import com.igloosec.webdbreader.util.SimpleCrypto;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class MetaREST extends JadeHttpServlet {

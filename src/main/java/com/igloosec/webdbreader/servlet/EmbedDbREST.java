@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.service.EmbedDbService;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class EmbedDbREST extends JadeHttpServlet{

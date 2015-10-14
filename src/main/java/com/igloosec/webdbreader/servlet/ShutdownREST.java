@@ -4,26 +4,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.script.ScriptException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.exception.AlreadyExistsException;
-import com.igloosec.webdbreader.exception.AlreadyStartedException;
-import com.igloosec.webdbreader.exception.NotFoundException;
-import com.igloosec.webdbreader.exception.ScriptNotRunningException;
-import com.igloosec.webdbreader.exception.VersionException;
-import com.igloosec.webdbreader.service.ScriptService;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ShutdownREST extends JadeHttpServlet{

@@ -30,6 +30,7 @@ import com.igloosec.webdbreader.script.bindings.ScriptLogger;
 import com.igloosec.webdbreader.script.bindings.SimpleRepo;
 import com.igloosec.webdbreader.script.bindings.StringUtil;
 import com.igloosec.webdbreader.service.ConfigService;
+import com.igloosec.webdbreader.service.NotiService;
 import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptExecutor {
@@ -37,6 +38,7 @@ public class ScriptExecutor {
 	private Map<String, ScriptThread> runningScripts = new HashMap<String, ScriptThread>();
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
+	private NotiService notiService = SingletonInstanceRepo.getInstance(NotiService.class);
 
 	public void execute(final String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException {
 		if(runningScripts.containsKey(scriptName))
@@ -72,15 +74,17 @@ public class ScriptExecutor {
 					if(isScheduled() == false && isFileReaderMonitoring() == false){
 						operationHistoryService.saveShutdownHistory(getScriptName());
 						runningScripts.remove(getScriptName()).stopScript();
-					} //if
-				} //finally
-			} //run
+						
+						notiService.sendScriptEndNoti(scriptName);
+					} 
+				} 
+			} 
 		};
 	
 		thread.start();
 		logger.info("{} start to running", scriptName);
 		runningScripts.put(scriptName, thread);
-	} //execute
+	} 
 	
 	private void versionCheck(String script) throws ScriptException, VersionException{
 		if("false".equals(configService.load("version.check")) == true)
@@ -116,7 +120,7 @@ public class ScriptExecutor {
 		int scriptMinorVersion = Integer.parseInt(version.split("\\.")[1]);
 		if(scriptMinorVersion > minorVersion)
 			throw new VersionException("unsupported minor version: " + version);
-	} //versionCheck
+	} 
 	
 	public void stop(String scriptName) throws ScriptNotRunningException {
 		logger.info("{} stop to running", scriptName);
@@ -124,7 +128,7 @@ public class ScriptExecutor {
 		if(thread == null)
 			throw new ScriptNotRunningException(scriptName);
 		thread.stopScript();
-	} //stop
+	} 
 	
 	public void stopAllScript(){
 		logger.info("stop all scripts");
@@ -133,18 +137,18 @@ public class ScriptExecutor {
 				stop(scriptName);
 			} catch (ScriptNotRunningException e) {
 				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-			} //catch
-		} //for scriptName
-	} //stopAllScript
+			} 
+		} 
+	} 
 
 	public Set<String> getRunningScripts(){
 		Set<String> runningScriptNames = new HashSet<String>();
 		for(String scriptName: runningScripts.keySet())
 			runningScriptNames.add(scriptName);
 		return runningScriptNames;
-	} //getRunningScripts
+	} 
 	
 	public ScriptThread getScriptThread(String scriptName){
 		return runningScripts.get(scriptName);
-	} //getScriptThread
-} //class
+	} 
+} 

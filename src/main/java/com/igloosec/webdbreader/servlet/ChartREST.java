@@ -12,10 +12,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.service.ScriptScoreStatisticsService;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ChartREST extends JadeHttpServlet{

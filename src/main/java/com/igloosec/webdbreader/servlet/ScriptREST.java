@@ -23,7 +23,7 @@ import com.igloosec.webdbreader.exception.NotFoundException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.exception.VersionException;
 import com.igloosec.webdbreader.service.ScriptService;
-import com.igloosec.webdbreader.util.jade.JadeHttpServlet;
+import com.igloosec.webdbreader.util.servlet.JadeHttpServlet;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ScriptREST extends JadeHttpServlet{

@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -18,6 +16,7 @@ public class Conf{
 	public static final String PORT = "port";
 	public static final String DERBY_PATH= "derby.path";
 	public static final String JETTY_THREAD_POOL_SIZE = "jetty.thread.pool.size";
+	public static final String TOTAL_CHART_TIME = "total.chart.time";
 	
 	private static final Logger logger = LoggerFactory.getLogger(Conf.class);
 	private static Map<String, Object> props = Maps.newHashMap();
@@ -29,35 +28,35 @@ public class Conf{
 				confPath.mkdirs();
 			File configJsonFile = new File(confPath, "config.json");
 			
-			if(configJsonFile.exists() == false) {
-				int port = 8098;
-				File defaultDerbyPath = new File(Path.getPackagePath(), "derby");
-				String derbyPath = defaultDerbyPath.getAbsolutePath();
-				int jettyThreadPoolSize = 20;
-				
-				props.put(PORT, port);
-				props.put(DERBY_PATH, derbyPath);
-				props.put(JETTY_THREAD_POOL_SIZE, jettyThreadPoolSize);
-				
-				logger.info("--------------------------------------------");
-				logger.info(String.format("%s: %s", PORT, port));
-				logger.info(String.format("%s: %s", DERBY_PATH, derbyPath));
-				logger.info(String.format("%s: %s", JETTY_THREAD_POOL_SIZE, jettyThreadPoolSize));
-				logger.info("--------------------------------------------");
-				
-				JSONObject configJson = new JSONObject(props);
-				configJsonFile.createNewFile();
-				IOUtils.write(configJson.toString(4), new FileOutputStream(configJsonFile));
-			} else {
+			//default values
+			int port = 8098;
+			String derbyPath = new File(Path.getPackagePath(), "derby").getAbsolutePath();
+			int jettyThreadPoolSize = 20;
+			int totalChartTime = 6;
+			
+			props.put(PORT, port);
+			props.put(DERBY_PATH, derbyPath);
+			props.put(JETTY_THREAD_POOL_SIZE, jettyThreadPoolSize);
+			props.put(TOTAL_CHART_TIME, totalChartTime);
+			
+			if(configJsonFile.exists() == true) {
 				JSONObject configJson = new JSONObject(IOUtils.toString(new FileInputStream(configJsonFile)));
-				logger.info("--------------------------------------------");
 				for(Object key: configJson.keySet()) {
 					Object value = configJson.get(key.toString());
 					props.put(key.toString(), value);
-					logger.info(String.format("%s: %s", key.toString(), value));
 				}
-				logger.info("--------------------------------------------");
+			} else {
+				configJsonFile.createNewFile();
+				JSONObject configJson = new JSONObject(props);
+				IOUtils.write(configJson.toString(4), new FileOutputStream(configJsonFile));
 			}
+			
+			logger.info("--------------------------------------------");
+			logger.info(String.format("%s: %s", PORT, props.get(PORT)));
+			logger.info(String.format("%s: %s", DERBY_PATH, props.get(DERBY_PATH)));
+			logger.info(String.format("%s: %s", JETTY_THREAD_POOL_SIZE, props.get(JETTY_THREAD_POOL_SIZE)));
+			logger.info(String.format("%s: %s", TOTAL_CHART_TIME, props.get(TOTAL_CHART_TIME)));
+			logger.info("--------------------------------------------");
 		} catch(Exception e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 		}
