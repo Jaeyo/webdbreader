@@ -28,9 +28,11 @@ public class Index extends HtmlHttpServlet {
 		
 		try{
 			if(new UriTemplate("/").match(uri, pathParams)){
-				view(resp, "script.html");
+				viewWithBundleJs(resp, "new.script.bundle.js");
+			} else if(new UriTemplate("/Api").match(uri, pathParams)){
+				viewWithBundleJs(resp, "new.api.bundle.js");
 			} else {
-				view(resp, "404.html");
+				viewWithBundleJs(resp, "404.bundle.js");
 			}
 			
 //			if(new UriTemplate("/").match(uri, pathParams)){
@@ -77,6 +79,11 @@ public class Index extends HtmlHttpServlet {
 //			resp.getWriter().flush();
 		} 
 	} 
+	
+	private void viewWithBundleJs(HttpServletResponse resp, String bundleJs) throws IOException {
+		resp.getWriter().print(html("index.html").replace("{bundle.js}", "/js/bundle/" + bundleJs));
+		resp.getWriter().flush();
+	} //viewWithBundleJS
 	
 	private void view(HttpServletResponse resp, String view) throws IOException {
 		resp.getWriter().print(html(view));

@@ -91,6 +91,10 @@ public class Server {
 		context.addServlet(Index.class, "/Config/*");
 		context.addServlet(Index.class, "/ApiDoc/*");
 		
+		//new
+		context.addServlet(Index.class, "/Api");
+		context.addServlet(Index.class, "/Api/*");
+		
 		context.setContextPath("/");
 		
 		File workDir = new File(Path.getPackagePath().getAbsolutePath(), "work");

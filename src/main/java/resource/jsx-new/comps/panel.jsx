@@ -1,5 +1,5 @@
 var React = require('react'),
-	color = require('../util/util.js').color,
+	color = require('../utils/util.js').color,
 	_ = require('underscore');
 
 var Panel = React.createClass({

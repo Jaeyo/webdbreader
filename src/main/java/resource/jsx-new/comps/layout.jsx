@@ -8,6 +8,12 @@ var NAV_WIDTH = '100px';
 var CONTENTS_WIDTH = (1024-100) + 'px';
 
 var Layout = React.createClass({
+	getDefaultProps() {
+		return {
+			active: 'script'
+		};
+	},
+
 	render() {
 		var outerDivStyle = {
 			backgroundColor: color.darkBlue,
@@ -25,7 +31,7 @@ var Layout = React.createClass({
 		return (
 			<div style={outerDivStyle}>
 				<div style={innerDivStyle}>
-					<Nav />
+					<Nav active={this.props.active} />
 					<Container>{this.props.children}</Container>
 				</div>
 			</div>	
@@ -35,6 +41,12 @@ var Layout = React.createClass({
 exports.Layout = Layout;
 
 var Nav = React.createClass({
+	getDefaultProps() {
+		return {
+			active: 'script'
+		};
+	},
+
 	render() {
 		var outerDivStyle = {
 			float: 'left', 
@@ -53,9 +65,9 @@ var Nav = React.createClass({
 		return (
 			<div style={outerDivStyle}>
 				<div style={innerDivStyle}>
-					<Nav.Btn gly="console" name="script" href="/TODO" isActive={/*TODO*/true} />
-					<Nav.Btn gly="cog" name="config" href="/TODO" isActive={/*TODO*/false} />
-					<Nav.Btn gly="modal-window" name="api" href="/TODO" isActive={/*TODO*/false} />
+					<Nav.Btn gly="console" name="script" href="/" isActive={this.props.active === 'script'} />
+					<Nav.Btn gly="cog" name="config" href="/TODO" isActive={this.props.active === 'config'} />
+					<Nav.Btn gly="modal-window" name="api" href="/Api" isActive={this.props.active === 'api'} />
 				</div>
 			</div>
 		);
@@ -129,7 +141,8 @@ var Container = React.createClass({
 			backgroundColor: 'white',
 			width: '100%',
 			height: '100%',
-			overflow: 'auto'
+			overflow: 'auto',
+			padding: '15px'
 		};
 
 		return (
