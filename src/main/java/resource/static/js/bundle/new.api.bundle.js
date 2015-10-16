@@ -55,41 +55,285 @@
 
 	var React = __webpack_require__(3),
 	    _ = __webpack_require__(163),
+	    util = __webpack_require__(160),
 	    Panel = __webpack_require__(165).Panel,
 	    Layout = __webpack_require__(159).Layout,
 	    Clearfix = __webpack_require__(166).Clearfix,
-	    color = __webpack_require__(164).color;
+	    color = __webpack_require__(164).color,
+	    DarkBlueSmallToggleBtn = __webpack_require__(167).DarkBlueSmallToggleBtn;
+
+	Array.prototype.remove = __webpack_require__(168);
+
+	var apiData = {
+		DateUtil: {
+			'String format(date, format)': {
+				desc: ['long 형으로 주어진 시간(date)을 포맷(format)에 맞춰서 출력한다.elong형의 시간 값은 DateUtil.parse(), DateUtil.currentTimeMillis()를 통해서 구할 수 있다.'],
+				returns: '포맷팅된 날짜',
+				example: ['var formattedDate = dateUtil.format(1414460642364, \'yyyyMMddHHmmss\'); // => 20141028104502', 'var formattedDate = dateUtil.format(1414460642364, \'yyyyMMdd\'); // => 20141028 ', 'var formattedDate = dateUtil.format(1414460642364, \'yyyy-MM-dd\'); // => 2014-10-28'],
+				tag: ['date'],
+				visible: true
+			},
+			'long parse(date, format)': {
+				desc: ['포맷(format)에 맞춰 포맷팅된 시간값(date)을 long 형태의 시간 값으로 변환한다.'],
+				returns: 'long 타입의 시간 값',
+				example: ['var dateValue = dateUtil.parse(\'20141028104502\', \'yyyyMMddHHmmss\'); // => 1414460642364 ', 'var dateValue = dateUtil.parse(\'20141028\', \'yyyyMMdd\'); // => 1414422000000 ', 'var dateValue = dateUtil.parse(\'2014 10-28\', \'yyyy MM-dd\'); // => 1414422000000'],
+				tag: ['date'],
+				visible: true
+			},
+			'long currentTimeMillis()': {
+				desc: ['현재 시간을 long 형태의 시간 값으로 변환한다.'],
+				returns: 'long 타입의 시간값',
+				example: ['var currentTime = dateUtil.currentTimeMillis(); // => 1414460642364'],
+				tag: ['date'],
+				visible: true
+			}
+		},
+		dbHandler: {
+			'void update({ database(required), query(required) })': {
+				desc: ['지정된 데이터베이스(database)에 대해 insert, update, delete query를 실행한다.'],
+				example: ['var database = {', '	driver: \'oracle.jdbc.driver.OracleDriver\', //(required)', '	connUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)', '	username: \'admin\', //(required)', '	password: \'admin\', //(required)', '	isUserEncrypted: \'false\' //(default: true)', '};', 'dbHandler.update({database: database, query: \'delete from test_table\'});'],
+				tag: ['database', 'insert', 'update', 'delete'],
+				visible: true
+			},
+			'void batch({ database(required), queries(required) })': {
+				desc: ['지정된 데이터베이스(database)에 대해 insert, update, delete query를 배치로 실행한다.'],
+				example: ['var database = { ', '	driver: \'oracle.jdbc.driver.OracleDriver\', //(required) ', '	connUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required) ', '	username: \'admin\', //(required) ', '	password: \'admin\', //(required)', '	isUserEncrypted: \'false\' //(default: true) ', '}; ', 'dbHandler.update({ ', '	database: database, ', '	queries: [ ', '		\'insert into test_table (col) values("test1")\', ', '		\'insert into test_table (col) values("test2")\', ', '		\'insert into test_table (col) values("test3")\' ', '	]', '});'],
+				tag: ['database', 'insert', 'update', 'delete'],
+				visible: true
+			},
+			'void selectAndAppend({ database(required), query(required), delimiter(default: "|"), writer(required) })': {
+				desc: ['지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 곧바로 파일로 출력한다. 출력되는 데이터들의 row간 구분자는 "\\n", column 간 구분자는 delimiter로 구성된다.'],
+				example: ['var database = {', '	driver: \'oracle.jdbc.driver.OracleDriver\', //(required)', '	connUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)', '	username: \'admin\', //(required)', '	password: \'admin\', //(required)', '	isUserEncrypted: \'false\' //(default: true)', '};', 'var writer = fileWriterFactory.getWriter({', '	filename: \'/data/output.txt\',', '	charset: \'utf8\'', '});', 'dbHandler.selectAndAppend({', '	database: database,', '	query: \'select * from test_table\', //(required)', '	delimiter: \'|\', //(default \'|\')', '	writer: writer //(required)', '});'],
+				tag: ['database', 'select'],
+				visible: true
+			},
+			'void selectAndInsert({ srcDatabase(required), selectQuery(required), destDatabase(required), insertQuery(required) })': {
+				desc: ['TODO'],
+				example: ['dbHandler.selectAndInsert({', '	srcDatabase: {', '		driver: \'oracle.jdbc.driver.OracleDriver\', //(required)', '		connUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)', '		username: \'admin\', //(required)', '		password: \'admin\', //(required)', '		isUserEncrypted: \'false\' //(default: true)', '	},', '	selectQuery: \'select srcCol1, srcCol2, srcCol3 from test_src_table\',', '	destDatabase: {', '		driver: \'oracle.jdbc.driver.OracleDriver\', //(required)', '		connUrl: \'jdbc:oracle:thin:@192.168.10.100:1521:test\', //(required)', '		username: \'admintest\', //(required)', '		password: \'admintest\', //(required)', '		isUserEncrypted: \'false\' //(default: true)', '	},', '	insertQuery: \'insert into test_dest_table (destCol1, destCol2, destCol3) values(?, ?, ?)\'', '});'],
+				tag: ['database', 'select', 'insert'],
+				visible: true
+			}
+		}
+	};
+
+	var store = (function () {
+		var listeners = [];
+
+		var actions = {
+			changeKeyword: 'changeKeyword',
+			selectedTags: 'selectedTags'
+		};
+		var dispatch = function dispatch(type, data) {
+			listeners.forEach(function (listener) {
+				listener(type, data);
+			});
+		};
+		var listen = function listen(listener) {
+			listeners.push(listener);
+		};
+
+		return { actions: actions, dispatch: dispatch, listen: listen };
+	})();
 
 	var ApiView = React.createClass({
 		displayName: 'ApiView',
 
 		getInitialState: function getInitialState() {
 			return {
-				keyword: ''
+				apiData: apiData,
+				keyword: '',
+				selectedTags: []
 			};
 		},
 
-		onChangeKeyword: function onChangeKeyword(evt) {
-			this.setState({ keyword: evt.target.value });
+		filterDataApi: function filterDataApi(keyword, selectedTags) {
+			var setVisibleOfMethodData = function setVisibleOfMethodData(methodName, methodData) {
+				if (keyword === '' && selectedTags.length === 0) {
+					methodData.visible = true;
+					return;
+				}
+
+				methodData.visible = false;
+				if (keyword !== '') {
+					var methodDataStr = [methodName];
+					if (methodData.desc) methodDataStr = methodDataStr.concat(methodData.desc);
+					if (methodData.returns) methodDataStr.push(methodData.returns);
+					if (methodData.example) methodDataStr = methodDataStr.concat(methodData.example);
+					methodDataStr.every(function (line) {
+						if (line.indexOf(keyword) > -1) {
+							methodData.visible = true;
+							return false;
+						}
+						return true;
+					});
+				}
+
+				if (methodData.visible === true) return;
+				if (selectedTags.length !== 0) {
+					methodData.tag.every(function (singleTag) {
+						if (selectedTags.indexOf(singleTag) > -1) {
+							methodData.visible = true;
+							return false;
+						}
+						return true;
+					});
+				}
+			};
+
+			Object.keys(apiData).forEach(function (className) {
+				var classData = apiData[className];
+				Object.keys(classData).forEach(function (methodName) {
+					var methodData = classData[methodName];
+					setVisibleOfMethodData(methodName, methodData);
+				});
+			});
+			return apiData;
+		},
+
+		componentDidMount: function componentDidMount() {
+			store.listen((function (type, data) {
+				if (type !== store.actions.changeKeyword) return;
+				var keyword = data;
+				var apiData = this.filterDataApi(keyword, this.state.selectedTags);
+				this.setState({ apiData: apiData, keyword: keyword });
+			}).bind(this));
+
+			store.listen((function (type, data) {
+				if (type !== store.actions.selectedTags) return;
+				var tag = data.tag;
+				var isSelected = data.isSelect;
+				if (isSelected === true) {
+					if (this.state.selectedTags.indexOf(tag) > -1) return;
+					var selectedTags = this.state.selectedTags.concat([tag]);
+					var apiData = this.filterDataApi(this.state.keyword, selectedTags);
+					this.setState({ selectedTags: selectedTags, apiData: apiData });
+				} else {
+					if (this.state.selectedTags.indexOf(tag) === -1) return;
+					var selectedTags = this.state.selectedTags.concat([]).remove(tag);
+					var apiData = this.filterDataApi(this.state.keyword, selectedTags);
+					this.setState({ selectedTags: selectedTags, apiData: apiData });
+				}
+			}).bind(this));
 		},
 
 		render: function render() {
+			var body = [];
+
+			Object.keys(this.state.apiData).forEach((function (className) {
+				var classData = this.state.apiData[className];
+				var isClassVisible = false;
+				Object.keys(classData).every((function (methodName) {
+					var methodVisible = classData[methodName].visible;
+					if (methodVisible === true) {
+						isClassVisible = true;
+						return false;
+					}
+					return true;
+				}).bind(this));
+
+				if (isClassVisible === true) {
+					body.push(React.createElement(ApiClassBox, {
+						key: className,
+						name: className,
+						data: classData }));
+				}
+			}).bind(this));
+
 			return React.createElement(
 				'div',
 				null,
 				React.createElement(
 					'div',
-					null,
-					React.createElement(Search, { onChangeKeyword: this.onChangeKeyword }),
+					{ style: { marginBottom: '10px' } },
+					React.createElement(HashTag, null),
+					React.createElement(Search, null),
 					React.createElement(Clearfix, null)
 				),
 				React.createElement(
 					'div',
 					null,
-					React.Children.map(this.props.children, (function (child) {
-						return React.cloneElement(child, { keyword: this.state.keyword });
-					}).bind(this))
+					body
 				)
+			);
+		}
+	});
+
+	var HashTagBtn = React.createClass({
+		displayName: 'HashTagBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				tag: ''
+			};
+		},
+
+		onToggle: function onToggle(isSelected) {
+			store.dispatch(store.actions.selectedTags, {
+				tag: this.props.tag,
+				isSelect: isSelected
+			});
+		},
+
+		componentDidMount: function componentDidMount() {
+			store.listen((function (type, data) {
+				if (type !== store.actions.selectedTags) return;
+				var tag = data.tag;
+				var isSelected = data.isSelect;
+				if (tag === this.props.tag) this.refs.btn.setClicked(isSelected);
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				DarkBlueSmallToggleBtn,
+				{
+					ref: 'btn',
+					onToggle: this.onToggle },
+				React.createElement(
+					'span',
+					null,
+					'#'
+				),
+				this.props.tag
+			);
+		}
+	});
+
+	var HashTag = React.createClass({
+		displayName: 'HashTag',
+
+		getInitialState: function getInitialState() {
+			return {
+				tags: []
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			var allTags = [];
+			Object.keys(apiData).forEach(function (className) {
+				var classData = apiData[className];
+				Object.keys(classData).forEach(function (methodName) {
+					var methodData = classData[methodName];
+					if (methodData.tag) {
+						methodData.tag.forEach(function (tag) {
+							if (_.contains(allTags, tag) === false) allTags.push(tag);
+						});
+					}
+				});
+			});
+
+			this.setState({ tags: allTags });
+		},
+
+		render: function render() {
+			var body = this.state.tags.map(function (tag) {
+				return React.createElement(HashTagBtn, { tag: tag });
+			});
+
+			return React.createElement(
+				'div',
+				{ style: { float: 'left' } },
+				body
 			);
 		}
 	});
@@ -97,15 +341,22 @@
 	var Search = React.createClass({
 		displayName: 'Search',
 
-		getDefaultProps: function getDefaultProps() {
-			return {
-				onChangeKeyword: null
-			};
+		onChange: function onChange(evt) {
+			var keyword = evt.target.value;
+			store.dispatch(store.actions.changeKeyword, keyword);
 		},
 
 		render: function render() {
-			var inputStyle = { float: 'right' };
-			return React.createElement('input', { style: inputStyle, type: 'text', placeholder: 'search...', onChange: this.props.onChangeKeyword });
+			var inputStyle = {
+				float: 'right',
+				border: '1px dashed ' + color.gray,
+				padding: '3px'
+			};
+			return React.createElement('input', {
+				style: inputStyle,
+				type: 'text',
+				placeholder: 'search...',
+				onChange: this.onChange });
 		}
 	});
 
@@ -114,35 +365,35 @@
 
 		getDefaultProps: function getDefaultProps() {
 			return {
-				apiClassName: '',
-				keyword: ''
+				name: '',
+				data: null
 			};
 		},
 
 		render: function render() {
-			var panelStyle = {};
+			if (this.props.data === null) return null;
 
-			if (this.props.keyword !== '') {
-				var visible = false;
-				for (var refKey in this.refs) if (this.refs[refKey].isVisible(this.props.keyword) === true) visible = true;
-
-				if (visible === false) panelStyle.display = 'none';
-			}
+			var body = [];
+			Object.keys(this.props.data).forEach((function (methodName) {
+				var methodData = this.props.data[methodName];
+				if (methodData.visible === true) body.push(React.createElement(ApiMethodBox, {
+					key: methodName,
+					name: methodName,
+					data: methodData }));
+			}).bind(this));
 
 			return React.createElement(
 				Panel,
-				{ style: panelStyle },
+				null,
 				React.createElement(
 					Panel.Heading,
 					{ glyphicon: 'console' },
-					this.props.apiClassName
+					this.props.name
 				),
 				React.createElement(
 					Panel.Body,
 					null,
-					React.Children.map(this.props.children, (function (child) {
-						return React.cloneElement(child, { ref: _.uniqueId(), keyword: this.props.keyword });
-					}).bind(this))
+					body
 				)
 			);
 		}
@@ -151,29 +402,47 @@
 	var ApiMethodBox = React.createClass({
 		displayName: 'ApiMethodBox',
 
-		isVisible: function isVisible(keyword) {
-			if (keyword === '') return true;
-
-			var visible = false;
-			for (var refKey in this.refs) if (this.refs[refKey].isVisible(keyword) === true) visible = true;
-			return visible;
-		},
-
 		getDefaultProps: function getDefaultProps() {
 			return {
-				methodName: '',
-				keyword: ''
+				name: '',
+				data: null
 			};
 		},
 
 		render: function render() {
 			var outerDivStyle = {
-				borderLeft: '6px solid ' + color.lightBlue,
+				borderLeft: '6px solid ' + color.darkBlue,
 				paddingLeft: '10px',
 				marginBottom: '30px'
 			};
 
-			if (this.isVisible(this.props.keyword) === false) outerDivStyle.display = 'none';
+			var items = [];
+			if (this.props.data.desc) {
+				this.props.data.desc.forEach((function (desc) {
+					items.push(React.createElement(ApiMethodBox.Item, {
+						data: desc,
+						key: desc }));
+				}).bind(this));
+			}
+			if (this.props.data.returns) {
+				items.push(React.createElement(ApiMethodBox.Item, {
+					data: 'returns ' + this.props.data.returns,
+					key: this.props.data.returns }));
+			}
+
+			var body = [];
+			if (items.length !== 0) body.push(React.createElement(
+				'ul',
+				null,
+				items
+			));
+
+			if (this.props.data.example) body.push(React.createElement(ApiMethodBox.Example, { code: this.props.data.example }));
+
+			var tagBtns = [];
+			this.props.data.tag.forEach(function (tag) {
+				tagBtns.push(React.createElement(HashTagBtn, { tag: tag }));
+			});
 
 			return React.createElement(
 				'div',
@@ -181,14 +450,17 @@
 				React.createElement(
 					'h5',
 					null,
-					this.props.methodName
+					this.props.name
 				),
 				React.createElement(
 					'div',
 					null,
-					React.Children.map(this.props.children, function (child) {
-						return React.cloneElement(child, { ref: _.uniqueId() });
-					})
+					tagBtns
+				),
+				React.createElement(
+					'div',
+					null,
+					body
 				)
 			);
 		}
@@ -197,22 +469,11 @@
 	ApiMethodBox.ItemList = React.createClass({
 		displayName: 'ItemList',
 
-		isVisible: function isVisible(keyword) {
-			if (keyword === '') return true;
-
-			var visible = false;
-			for (var refKey in this.refs) if (this.refs[refKey].isVisible(keyword) === true) visible = true;
-
-			return visible;
-		},
-
 		render: function render() {
 			return React.createElement(
 				'ul',
 				null,
-				React.Children.map(this.props.children, function (child) {
-					return React.cloneElement(child, { ref: _.uniqueId() });
-				})
+				this.props.children
 			);
 		}
 	});
@@ -220,17 +481,17 @@
 	ApiMethodBox.Item = React.createClass({
 		displayName: 'Item',
 
-		isVisible: function isVisible(keyword) {
-			if (keyword === '') return true;
-			if (!this.props.children) return false;
-			return this.props.children.indexOf(keyword) > -1;
+		getDefaultProps: function getDefaultProps() {
+			return {
+				data: ''
+			};
 		},
 
 		render: function render() {
 			return React.createElement(
 				'li',
 				{ style: { marginLeft: '25px' } },
-				this.props.children
+				this.props.data
 			);
 		}
 	});
@@ -240,12 +501,9 @@
 
 		editor: null,
 		editorId: null,
-		code: '',
 
-		isVisible: function isVisible(keyword) {
-			if (keyword === '') return true;
-			if (!this.code) return false;
-			return this.code.indexOf(keyword) > -1;
+		getDefaultProps: function getDefaultProps() {
+			return { code: [] };
 		},
 
 		componentWillMount: function componentWillMount() {
@@ -264,10 +522,8 @@
 		},
 
 		render: function render() {
-			this.code = this.props.value.split('\r').filter(function (line) {
-				return line.trim().length !== 0;
-			}).join('\n').replace(/\\t/gi, '\t');
-			var codeLine = this.code.split('\n').length;
+			var codeLine = this.props.code.length;
+			var code = this.props.code.join('\n');
 
 			var outerDivStyle = {
 				position: 'relative',
@@ -288,9 +544,9 @@
 				React.createElement(
 					'pre',
 					{ id: this.editorId, style: innerPreStyle },
-					this.code
+					code
 				),
-				React.createElement('div', { className: 'clearfix' })
+				React.createElement(Clearfix, null)
 			);
 		}
 	});
@@ -298,411 +554,306 @@
 	React.render(React.createElement(
 		Layout,
 		{ active: 'api' },
-		React.createElement(
-			ApiView,
-			null,
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'DateUtil' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'String format(date, format)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'long 형으로 주어진 시간(date)을 포맷(format)에 맞춰서 출력한다.elong형의 시간 값은 DateUtil.parse(), DateUtil.currentTimeMillis()를 통해서 구할 수 있다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Returns 포맷팅된 날짜'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var formattedDate = dateUtil.format(1414460642364, \'yyyyMMddHHmmss\'); // => 20141028104502\r var formattedDate = dateUtil.format(1414460642364, \'yyyyMMdd\'); // => 20141028\r var formattedDate = dateUtil.format(1414460642364, \'yyyy-MM-dd\'); // => 2014-10-28\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'long parse(date, format)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'포맷(format)에 맞춰 포맷팅된 시간값(date)을 long 형태의 시간 값으로 변환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Returns long 타입의 시간 값'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var dateValue = dateUtil.parse(\'20141028104502\', \'yyyyMMddHHmmss\'); // => 1414460642364\r var dateValue = dateUtil.parse(\'20141028\', \'yyyyMMdd\'); // => 1414422000000\r var dateValue = dateUtil.parse(\'2014 10-28\', \'yyyy MM-dd\'); // => 1414422000000\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'long currentTimeMillis()' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'현재 시간을 long 형태의 시간 값으로 변환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Returns long 타입의 시간값'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var currentTime = dateUtil.currentTimeMillis(); // => 1414460642364\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'DbHandler' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void update({ database(required), query(required) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 데이터베이스(database)에 대해 insert, update, delete query를 실행한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var database = {\r \\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)\r \\tusername: \'admin\', //(required)\r \\tpassword: \'admin\', //(required)\r \\tisUserEncrypted: \'false\' //(default: true)\r };\r dbHandler.update({database: database, query: \'delete from test_table\'});\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void batch({ database(required), queries(required) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 데이터베이스(database)에 대해 insert, update, delete query를 배치로 실행한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var database = {\r \\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)\r \\tusername: \'admin\', //(required)\r \\tpassword: \'admin\', //(required)\r \\tisUserEncrypted: \'false\' //(default: true)\r };\r dbHandler.update({\r \\tdatabase: database,\r \\tqueries: [\r \\t\\t\'insert into test_table (col) values(\\\'test1\\\')\', \r \\t\\t\'insert into test_table (col) values(\\\'test2\\\')\',\r \\t\\t\'insert into test_table (col) values(\\\'test3\\\')\'\r \\t] \r });\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void selectAndAppend({ database(required), query(required), delimiter(default: \'|\'), writer(required) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 곧바로 파일로 출력한다. 출력되는 데이터들의 row간 구분자는 \'\\\\n\', column 간 구분자는 delimiter로 구성된다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var database = {\r \\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)\r \\tusername: \'admin\', //(required)\r \\tpassword: \'admin\', //(required)\r \\tisUserEncrypted: \'false\' //(default: true)\r };\r var writer = fileWriterFactory.getWriter({\r \\tfilename: \'/data/output.txt\',\r \\tcharset: \'utf8\'\r });\r dbHandler.selectAndAppend({\r \\tdatabase: database,\r \\tquery: \'select * from test_table\', //(required)\r \\tdelimiter: \'|\', //(default \'|\')\r \\twriter: writer //(required)\r });\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void selectAndInsert({srcDatabase(required), selectQuery(required), destDatabase(required), insertQuery(required) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(ApiMethodBox.Item, null)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r dbHandler.selectAndInsert({\r \\tsrcDatabase: {\r \\t\\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\t\\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)\r \\t\\tusername: \'admin\', //(required)\r \\t\\tpassword: \'admin\', //(required)\r \\t\\tisUserEncrypted: \'false\' //(default: true)\r \\t},\r \\tselectQuery: \'select srcCol1, srcCol2, srcCol3 from test_src_table\',\r \\tdestDatabase: {\r \\t\\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\t\\tconnUrl: \'jdbc:oracle:thin:@192.168.10.100:1521:test\', //(required)\r \\t\\tusername: \'admintest\', //(required)\r \\t\\tpassword: \'admintest\', //(required)\r \\t\\tisUserEncrypted: \'false\' //(default: true)\r \\t},\r \\tinsertQuery: \'insert into test_dest_table (destCol1, destCol2, destCol3) values(?, ?, ?)\'\r });\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'String query({ database(required), query(required), delimiter(default: \'|\'), lineDelimiter(default: \'\\n\')' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 String 형식으로 반환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r dbHandler.query({\r \\tdatabase: {\r \\t\\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\t\\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required)\r \\t\\tusername: \'admin\', //(required)\r \\t\\tpassword: \'admin\', //(required)\r \\t\\tisUserEncrypted: \'false\' //(default: true)\r \\t},\r \\tquery: \'select * from test_table\', //(required)\r \\tdelimiter: \'||\', //(default \'|\')\r \\tlineDelimiter: \'\\n\' //(default \'\\n\')\r });\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void queryCallback({ database(required), query(required), callback(required) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 후에 결과 세트를 callback 함수를 이용하여 처리한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r dbHandler.queryCallback({\r \\tdatabase: {\r \\t\\tdriver: \'oracle.jdbc.driver.OracleDriver\', //(required)\r \\t\\tconnUrl: \'jdbc:oracle:thin:@192.168.10.1:1521:spiderx\', //(required) \r \\t\\tusername: \'admin\', //(required) \r \\t\\tpassword: \'admin\', //(required) \r \\t\\tisUserEncrypted: \'false\' //(default: true) \r \\t},\r \\tquery: \'select idCol, valueCol from test_table\',\r \\tcallback: function(resultset) { \r \\t\\tif(resultset.getString(\'idCol\') !== \'test\') {\r \\t\\t\\tlogger.info(\'filtered value: \' + resultset.getString(\'valueCol\'));\r \\t\\t}\r \\t}\r });\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'fileReaderFactory' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'FileReader getReader({ filename(required), deleteExpiredFile(default: false), charset(default: utf8), timeAdjustSec(default: 0) })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 filename을 읽는 FileReader 객체를 반환한다. filename에는 날짜 지정자($yyyy, $mm, $dd, $hh, $mi, $ss)를 지정할 수 있다. '
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'읽은 파일들을 삭제하려면 deleteExpiredFile: true, 캐릭터 셋을 지정하려면 charset: charset, 날짜 지정자 기준 시간보다 미래/과거의 파일을 읽으려면 timeAdjustSec을 설정해준다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileReader = fileReaderFactory.getReader({\r \\tfilename: \'/data/E_$yyyy$mm$dd$hh.stmp\' //required\r });\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'fileReader' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'String readLine()' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'파일에서 한 줄을 읽는다. 더이상 읽을 라인이 없을 경우 null을 반환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileReader = fileReaderFactory.getReader({\r \\tfilename: \'/data/E_$yyyy$mm$dd$hh.stmp\' //required\r });\r var line = fileReader.readLine();\r logger.info(line);\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void registerListener(callback)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'file에 새로운 line이 append 될 경우 호출될 listener callback을 등록한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileReader = fileReaderFactory.getReader({\r \\tfilename: \'/data/E_$yyyy$mm$dd$hh.stmp\' //required\r });\r fileReader.registerListener(function(line) {\r \\tlogger.info(line);\r });\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'fileWriterFactory' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'FileWriter getWriter({ filename(required), charset(default: \'utf8\') })' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'filename에 데이터를 쓰는 FileWriter 객체를 반환한다. filename에는 날짜 지정자($yyyy, $mm, $dd, $hh, $mi, $ss)를 지정할 수 있다. '
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileWriter = fileWriterFactory.getWriter({\r \\tfilename: \'/data/$yyyy$mm$dd$hh.txt\'\r });\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'fileWriter' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void print(msg)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'file에 msg를 기록한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileWriter = fileWriterFactory.getWriter({\r \\tfilename: \'/data/$yyyy$mm$dd$hh.txt\'\r });\r fileWriter.print(\'test\');\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void println(msg)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'file에 line feed를 포함한 msg를 기록한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var fileWriter = fileWriterFactory.getWriter({\r \\tfilename: \'/data/$yyyy$mm$dd$hh.txt\'\r });\r fileWriter.println(\'test\');\r ' })
-				)
-			),
-			React.createElement(
-				ApiClassBox,
-				{ apiClassName: 'runtimeUtil' },
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void sleep(timeMillis)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'지정된 밀리초만큼 멈춘다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r runtimeUtil.sleep(1000);\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'String exec(cmd)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'시스템 명령어를 실행한 뒤에 그 결과를 반환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var result = runtimeUtil.exec(\'ls -al\');\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'void execAsync(cmd)' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'시스템 명령어를 실행한 뒤에 결과를 기다리지 않고 바로 반환한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r runtimeUtil.execAsyn(\'mkdir /data\');\r ' })
-				),
-				React.createElement(
-					ApiMethodBox,
-					{ methodName: 'String getVersion()' },
-					React.createElement(
-						ApiMethodBox.ItemList,
-						null,
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'버전 정보를 출력한다.'
-						),
-						React.createElement(
-							ApiMethodBox.Item,
-							null,
-							'Example'
-						)
-					),
-					React.createElement(ApiMethodBox.Example, { value: '\r var version = runtimeUtil.getVersion();\r logger.info(\'version: \' + version);\r ' })
-				)
-			)
-		)
+		React.createElement(ApiView, null)
 	), document.body);
+
+	// React.render(
+	// 	<Layout active="api">
+	// 		<ApiView>
+	// 			<ApiClassBox apiClassName="DateUtil">
+	// 				<ApiMethodBox methodName="String format(date, format)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>long 형으로 주어진 시간(date)을 포맷(format)에 맞춰서 출력한다.elong형의 시간 값은 DateUtil.parse(), DateUtil.currentTimeMillis()를 통해서 구할 수 있다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Returns 포맷팅된 날짜</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var formattedDate = dateUtil.format(1414460642364, 'yyyyMMddHHmmss'); // => 20141028104502
+	// 						var formattedDate = dateUtil.format(1414460642364, 'yyyyMMdd'); // => 20141028
+	// 						var formattedDate = dateUtil.format(1414460642364, 'yyyy-MM-dd'); // => 2014-10-28
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="long parse(date, format)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>포맷(format)에 맞춰 포맷팅된 시간값(date)을 long 형태의 시간 값으로 변환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Returns long 타입의 시간 값</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var dateValue = dateUtil.parse('20141028104502', 'yyyyMMddHHmmss'); // => 1414460642364
+	// 						var dateValue = dateUtil.parse('20141028', 'yyyyMMdd'); // => 1414422000000
+	// 						var dateValue = dateUtil.parse('2014 10-28', 'yyyy MM-dd'); // => 1414422000000
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="long currentTimeMillis()">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>현재 시간을 long 형태의 시간 값으로 변환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Returns long 타입의 시간값</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var currentTime = dateUtil.currentTimeMillis(); // => 1414460642364
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="DbHandler">
+	// 				<ApiMethodBox methodName="void update({ database(required), query(required) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 데이터베이스(database)에 대해 insert, update, delete query를 실행한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var database = {
+	// 						\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\tusername: 'admin', //(required)
+	// 						\tpassword: 'admin', //(required)
+	// 						\tisUserEncrypted: 'false' //(default: true)
+	// 						};
+	// 						dbHandler.update({database: database, query: 'delete from test_table'});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void batch({ database(required), queries(required) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 데이터베이스(database)에 대해 insert, update, delete query를 배치로 실행한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var database = {
+	// 						\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\tusername: 'admin', //(required)
+	// 						\tpassword: 'admin', //(required)
+	// 						\tisUserEncrypted: 'false' //(default: true)
+	// 						};
+	// 						dbHandler.update({
+	// 						\tdatabase: database,
+	// 						\tqueries: [
+	// 						\t\t'insert into test_table (col) values(\'test1\')',
+	// 						\t\t'insert into test_table (col) values(\'test2\')',
+	// 						\t\t'insert into test_table (col) values(\'test3\')'
+	// 						\t]
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void selectAndAppend({ database(required), query(required), delimiter(default: '|'), writer(required) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 곧바로 파일로 출력한다. 출력되는 데이터들의 row간 구분자는 '\\n', column 간 구분자는 delimiter로 구성된다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var database = {
+	// 						\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\tusername: 'admin', //(required)
+	// 						\tpassword: 'admin', //(required)
+	// 						\tisUserEncrypted: 'false' //(default: true)
+	// 						};
+	// 						var writer = fileWriterFactory.getWriter({
+	// 						\tfilename: '/data/output.txt',
+	// 						\tcharset: 'utf8'
+	// 						});
+	// 						dbHandler.selectAndAppend({
+	// 						\tdatabase: database,
+	// 						\tquery: 'select * from test_table', //(required)
+	// 						\tdelimiter: '|', //(default '|')
+	// 						\twriter: writer //(required)
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void selectAndInsert({srcDatabase(required), selectQuery(required), destDatabase(required), insertQuery(required) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item></ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						dbHandler.selectAndInsert({
+	// 						\tsrcDatabase: {
+	// 						\t\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\t\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\t\tusername: 'admin', //(required)
+	// 						\t\tpassword: 'admin', //(required)
+	// 						\t\tisUserEncrypted: 'false' //(default: true)
+	// 						\t},
+	// 						\tselectQuery: 'select srcCol1, srcCol2, srcCol3 from test_src_table',
+	// 						\tdestDatabase: {
+	// 						\t\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\t\tconnUrl: 'jdbc:oracle:thin:@192.168.10.100:1521:test', //(required)
+	// 						\t\tusername: 'admintest', //(required)
+	// 						\t\tpassword: 'admintest', //(required)
+	// 						\t\tisUserEncrypted: 'false' //(default: true)
+	// 						\t},
+	// 						\tinsertQuery: 'insert into test_dest_table (destCol1, destCol2, destCol3) values(?, ?, ?)'
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="String query({ database(required), query(required), delimiter(default: '|'), lineDelimiter(default: '\n')">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 String 형식으로 반환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						dbHandler.query({
+	// 						\tdatabase: {
+	// 						\t\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\t\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\t\tusername: 'admin', //(required)
+	// 						\t\tpassword: 'admin', //(required)
+	// 						\t\tisUserEncrypted: 'false' //(default: true)
+	// 						\t},
+	// 						\tquery: 'select * from test_table', //(required)
+	// 						\tdelimiter: '||', //(default '|')
+	// 						\tlineDelimiter: '\n' //(default '\n')
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void queryCallback({ database(required), query(required), callback(required) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 후에 결과 세트를 callback 함수를 이용하여 처리한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						dbHandler.queryCallback({
+	// 						\tdatabase: {
+	// 						\t\tdriver: 'oracle.jdbc.driver.OracleDriver', //(required)
+	// 						\t\tconnUrl: 'jdbc:oracle:thin:@192.168.10.1:1521:spiderx', //(required)
+	// 						\t\tusername: 'admin', //(required)
+	// 						\t\tpassword: 'admin', //(required)
+	// 						\t\tisUserEncrypted: 'false' //(default: true)
+	// 						\t},
+	// 						\tquery: 'select idCol, valueCol from test_table',
+	// 						\tcallback: function(resultset) {
+	// 						\t\tif(resultset.getString('idCol') !== 'test') {
+	// 						\t\t\tlogger.info('filtered value: ' + resultset.getString('valueCol'));
+	// 						\t\t}
+	// 						\t}
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="fileReaderFactory">
+	// 				<ApiMethodBox methodName="FileReader getReader({ filename(required), deleteExpiredFile(default: false), charset(default: utf8), timeAdjustSec(default: 0) })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 filename을 읽는 FileReader 객체를 반환한다. filename에는 날짜 지정자($yyyy, $mm, $dd, $hh, $mi, $ss)를 지정할 수 있다. </ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>읽은 파일들을 삭제하려면 deleteExpiredFile: true, 캐릭터 셋을 지정하려면 charset: charset, 날짜 지정자 기준 시간보다 미래/과거의 파일을 읽으려면 timeAdjustSec을 설정해준다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileReader = fileReaderFactory.getReader({
+	// 						\tfilename: '/data/E_$yyyy$mm$dd$hh.stmp' //required
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="fileReader">
+	// 				<ApiMethodBox methodName="String readLine()">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>파일에서 한 줄을 읽는다. 더이상 읽을 라인이 없을 경우 null을 반환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileReader = fileReaderFactory.getReader({
+	// 						\tfilename: '/data/E_$yyyy$mm$dd$hh.stmp' //required
+	// 						});
+	// 						var line = fileReader.readLine();
+	// 						logger.info(line);
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void registerListener(callback)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>file에 새로운 line이 append 될 경우 호출될 listener callback을 등록한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileReader = fileReaderFactory.getReader({
+	// 						\tfilename: '/data/E_$yyyy$mm$dd$hh.stmp' //required
+	// 						});
+	// 						fileReader.registerListener(function(line) {
+	// 						\tlogger.info(line);
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="fileWriterFactory">
+	// 				<ApiMethodBox methodName="FileWriter getWriter({ filename(required), charset(default: 'utf8') })">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>filename에 데이터를 쓰는 FileWriter 객체를 반환한다. filename에는 날짜 지정자($yyyy, $mm, $dd, $hh, $mi, $ss)를 지정할 수 있다. </ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileWriter = fileWriterFactory.getWriter({
+	// 						\tfilename: '/data/$yyyy$mm$dd$hh.txt'
+	// 						});
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="fileWriter">
+	// 				<ApiMethodBox methodName="void print(msg)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>file에 msg를 기록한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileWriter = fileWriterFactory.getWriter({
+	// 						\tfilename: '/data/$yyyy$mm$dd$hh.txt'
+	// 						});
+	// 						fileWriter.print('test');
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void println(msg)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>file에 line feed를 포함한 msg를 기록한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var fileWriter = fileWriterFactory.getWriter({
+	// 						\tfilename: '/data/$yyyy$mm$dd$hh.txt'
+	// 						});
+	// 						fileWriter.println('test');
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 			<ApiClassBox apiClassName="runtimeUtil">
+	// 				<ApiMethodBox methodName="void sleep(timeMillis)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>지정된 밀리초만큼 멈춘다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						runtimeUtil.sleep(1000);
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="String exec(cmd)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>시스템 명령어를 실행한 뒤에 그 결과를 반환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var result = runtimeUtil.exec('ls -al');
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="void execAsync(cmd)">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>시스템 명령어를 실행한 뒤에 결과를 기다리지 않고 바로 반환한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						runtimeUtil.execAsyn('mkdir /data');
+	// 					" />
+	// 				</ApiMethodBox>
+	// 				<ApiMethodBox methodName="String getVersion()">
+	// 					<ApiMethodBox.ItemList>
+	// 						<ApiMethodBox.Item>버전 정보를 출력한다.</ApiMethodBox.Item>
+	// 						<ApiMethodBox.Item>Example</ApiMethodBox.Item>
+	// 					</ApiMethodBox.ItemList>
+	// 					<ApiMethodBox.Example value="
+	// 						var version = runtimeUtil.getVersion();
+	// 						logger.info('version: ' + version);
+	// 					" />
+	// 				</ApiMethodBox>
+	// 			</ApiClassBox>
+	// 		</ApiView>
+	// 	</Layout>,
+	// 	document.body);
 
 /***/ },
 /* 2 */,
@@ -23461,11 +23612,12 @@
 	'use strict';
 
 	exports.color = {
-		darkBlue: '#385771',
 		blueBlack: '#293a48',
-		lightBlue: '#385771',
-		lightBlue2: '#6c91ba',
+		darkBlue: '#385771',
+		darkBlue2: '#284761',
+		lightBlue: '#486781',
 		lightGray: '#dadada',
+		gray: '#bfbfbf',
 		darkGray: '#5d5d5d'
 	};
 
@@ -23514,7 +23666,7 @@
 		render: function render() {
 			var divStyle = _.extend({
 				padding: '10px',
-				backgroundColor: color.lightBlue,
+				backgroundColor: color.darkBlue,
 				color: 'white'
 			}, this.props.style);
 
@@ -23549,7 +23701,7 @@
 		render: function render() {
 			var outerDivStyle = _.extend({
 				padding: '10px',
-				backgroundColor: color.lightBlue,
+				backgroundColor: color.darkBlue,
 				color: 'white'
 			}, this.props.style);
 			var glySpanStyle = { marginRight: '10px' };
@@ -23639,7 +23791,7 @@
 		render: function render() {
 			var outerDivStyle = _.extend({
 				padding: '10px',
-				backgroundColor: color.lightBlue,
+				backgroundColor: color.darkBlue,
 				color: 'white'
 			}, this.props.style);
 
@@ -23675,6 +23827,256 @@
 	});
 
 	exports.Clearfix = Clearfix;
+
+/***/ },
+/* 167 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(3),
+	    _ = __webpack_require__(163),
+	    color = __webpack_require__(164).color;
+
+	var BtnMixin = {
+		getDefaultProps: function getDefaultProps() {
+			return {
+				backgroundColor: 'white',
+				backgroundColorHover: color.lightGray,
+				backgroundColorMouseDown: color.gray,
+				borderColor: '#ccc',
+				borderColorHover: color.lightGray,
+				borderColorMouseDown: color.gray,
+				padding: '5px 10px',
+				color: '#333',
+				fontSize: '14px'
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				backgroundColor: this.props.backgroundColor,
+				borderColor: this.props.borderColor
+			};
+		},
+
+		getStyle: function getStyle() {
+			return {
+				display: 'inline-block',
+				textAlign: 'center',
+				whiteSpace: 'nowrap',
+				verticalAlign: 'middle',
+				backgroundImage: 'none',
+				backgroundColor: this.state.backgroundColor,
+				border: '1px solid transparent',
+				borderRadius: '4px',
+				borderColor: this.state.borderColor,
+				padding: this.props.padding,
+				color: this.props.color,
+				fontSize: this.props.fontSize
+			};
+		},
+
+		onMouseOver: function onMouseOver(evt) {
+			this.setState({
+				backgroundColor: this.props.backgroundColorHover,
+				borderColor: this.props.borderColorHover
+			});
+		},
+
+		onMouseOut: function onMouseOut(evt) {
+			this.setState({
+				backgroundColor: this.props.backgroundColor,
+				borderColor: this.props.borderColor
+			});
+		},
+
+		onMouseDown: function onMouseDown(evt) {
+			this.setState({
+				backgroundColor: this.props.backgroundColorMouseDown,
+				borderColor: this.props.borderColorMouseDown
+			});
+		},
+
+		onMouseUp: function onMouseUp(evt) {
+			this.onMouseOver(evt);
+		}
+	};
+
+	var Btn = React.createClass({
+		displayName: 'Btn',
+
+		mixins: [BtnMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				onClick: null
+			};
+		},
+
+		render: function render() {
+			return React.createElement(
+				'button',
+				{
+					type: 'button',
+					style: this.getStyle(),
+					onMouseOver: this.onMouseOver,
+					onMouseOut: this.onMouseOut,
+					onMouseDown: this.onMouseDown,
+					onMouseUp: this.onMouseUp,
+					onClick: this.props.onClick },
+				this.props.children
+			);
+		}
+	});
+	exports.Btn = Btn;
+
+	var ToggleBtn = React.createClass({
+		displayName: 'ToggleBtn',
+
+		mixins: [BtnMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				onToggle: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				isClicked: false
+			};
+		},
+
+		onClick: function onClick(evt) {
+			var isClicked = !this.state.isClicked;
+			if (this.props.onToggle) this.props.onToggle(isClicked);
+			this.setState({ isClicked: isClicked });
+		},
+
+		setClicked: function setClicked(isClicked) {
+			this.setState({ isClicked: isClicked });
+		},
+
+		render: function render() {
+			return React.createElement(
+				'button',
+				{
+					type: 'button',
+					style: this.getStyle(),
+					onMouseOver: this.onMouseOver,
+					onMouseOut: this.onMouseOut,
+					onMouseDown: this.onMouseDown,
+					onMouseUp: this.onMouseUp,
+					onClick: this.onClick },
+				React.createElement('span', {
+					className: 'glyphicon glyphicon-ok',
+					style: { marginRight: '10px', opacity: this.state.isClicked === true ? 1 : 0 } }),
+				this.props.children
+			);
+		}
+	});
+	exports.ToggleBtn = ToggleBtn;
+
+	var DarkBlueBtn = React.createClass({
+		displayName: 'DarkBlueBtn',
+
+		render: function render() {
+			return React.createElement(
+				Btn,
+				{
+					backgroundColor: color.darkBlue,
+					backgroundColorHover: color.lightBlue,
+					backgroundColorMouseDown: color.darkBlue2,
+					borderColor: color.darkBlue,
+					borderColorHover: color.lightBlue,
+					borderColorMouseDown: color.darkBlue2,
+					color: 'white' },
+				this.props.children
+			);
+		}
+	});
+	exports.DarkBlueBtn = DarkBlueBtn;
+
+	var DarkBlueToggleBtn = React.createClass({
+		displayName: 'DarkBlueToggleBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onToggle: null };
+		},
+
+		setClicked: function setClicked(isClicked) {
+			this.refs.btn.setClicked(isClicked);
+		},
+
+		render: function render() {
+			return React.createElement(
+				ToggleBtn,
+				{
+					ref: 'btn',
+					backgroundColor: color.darkBlue,
+					backgroundColorHover: color.lightBlue,
+					backgroundColorMouseDown: color.darkBlue2,
+					borderColor: color.darkBlue,
+					borderColorHover: color.lightBlue,
+					borderColorMouseDown: color.darkBlue2,
+					color: 'white',
+					onToggle: this.props.onToggle },
+				this.props.children
+			);
+		}
+	});
+	exports.DarkBlueToggleBtn = DarkBlueToggleBtn;
+
+	var DarkBlueSmallToggleBtn = React.createClass({
+		displayName: 'DarkBlueSmallToggleBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onToggle: null };
+		},
+
+		setClicked: function setClicked(isClicked) {
+			this.refs.btn.setClicked(isClicked);
+		},
+
+		render: function render() {
+			return React.createElement(
+				ToggleBtn,
+				{
+					ref: 'btn',
+					backgroundColor: color.darkBlue,
+					backgroundColorHover: color.lightBlue,
+					backgroundColorMouseDown: color.darkBlue2,
+					borderColor: color.darkBlue,
+					borderColorHover: color.lightBlue,
+					borderColorMouseDown: color.darkBlue2,
+					color: 'white',
+					padding: '3px 6px',
+					fontSize: '12px',
+					onToggle: this.props.onToggle },
+				this.props.children
+			);
+		}
+	});
+	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
+
+/***/ },
+/* 168 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
 
 /***/ }
 /******/ ]);

@@ -1,10 +1,13 @@
 var React = require('react'),
 	_ = require('underscore'),
+	util = require('util'),
 	Panel = require('./comps/panel.jsx').Panel,
 	Layout = require('./comps/layout.jsx').Layout,
 	Clearfix = require('./comps/clearfix.jsx').Clearfix,
-	color = require('./utils/util.js').color;
+	color = require('./utils/util.js').color,
+	DarkBlueSmallToggleBtn = require('./comps/btn.jsx').DarkBlueSmallToggleBtn;
 
+Array.prototype.remove = require('array-remove-by-value');
 
 
 var apiData = {
@@ -17,6 +20,7 @@ var apiData = {
 				'var formattedDate = dateUtil.format(1414460642364, \'yyyyMMdd\'); // => 20141028 ',
 				'var formattedDate = dateUtil.format(1414460642364, \'yyyy-MM-dd\'); // => 2014-10-28'
 			],
+			tag: [ 'date' ],
 			visible: true
 		},
 		'long parse(date, format)': {
@@ -27,6 +31,7 @@ var apiData = {
 				'var dateValue = dateUtil.parse(\'20141028\', \'yyyyMMdd\'); // => 1414422000000 ',
 				'var dateValue = dateUtil.parse(\'2014 10-28\', \'yyyy MM-dd\'); // => 1414422000000'
 			],
+			tag: [ 'date' ],
 			visible: true
 		},
 		'long currentTimeMillis()': {
@@ -35,6 +40,7 @@ var apiData = {
 			example: [
 				'var currentTime = dateUtil.currentTimeMillis(); // => 1414460642364'
 			],
+			tag: [ 'date' ],
 			visible: true
 		}
 	},
@@ -51,6 +57,7 @@ var apiData = {
 				'};',
 				'dbHandler.update({database: database, query: \'delete from test_table\'});'
 			],
+			tag: [ 'database', 'insert', 'update', 'delete' ],
 			visible: true
 		},
 		'void batch({ database(required), queries(required) })': {
@@ -72,11 +79,12 @@ var apiData = {
 				'	]',
 				'});'
 			],
+			tag: [ 'database', 'insert', 'update', 'delete' ],
 			visible: true
 		},
 		'void selectAndAppend({ database(required), query(required), delimiter(default: "|"), writer(required) })': {
 			desc: [
-				'지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 곧바로 파일로 출력한다. 출력되는 데이터들의 row간 구분자는 '\\n', column 간 구분자는 delimiter로 구성된다.'
+				'지정된 데이터베이스(database)에 대해서 select 쿼리를 실행한 결과를 곧바로 파일로 출력한다. 출력되는 데이터들의 row간 구분자는 "\\n", column 간 구분자는 delimiter로 구성된다.'
 			],
 			example: [
 				'var database = {',
@@ -97,6 +105,7 @@ var apiData = {
 				'	writer: writer //(required)',
 				'});'
 			],
+			tag: [ 'database', 'select' ],
 			visible: true
 		},
 		'void selectAndInsert({ srcDatabase(required), selectQuery(required), destDatabase(required), insertQuery(required) })': {
@@ -123,60 +132,110 @@ var apiData = {
 				'	insertQuery: \'insert into test_dest_table (destCol1, destCol2, destCol3) values(?, ?, ?)\'',
 				'});'
 			],
+			tag: [ 'database', 'select', 'insert' ],
 			visible: true
 		}
 	}
 };
 
-	
+
+var store = (function() {
+	var listeners = [];
+
+	var actions = {
+		changeKeyword: 'changeKeyword',
+		selectedTags: 'selectedTags'
+	};
+	var dispatch = function(type, data) {
+		listeners.forEach(function(listener) {
+			listener(type, data);
+		});
+	};
+	var listen = function(listener) {
+		listeners.push(listener);
+	};
+
+	return { actions: actions, dispatch: dispatch, listen: listen };
+})();
 
 
 var ApiView = React.createClass({
 	getInitialState() {
 		return {
-			apiData: apiData
+			apiData: apiData,
+			keyword: '',
+			selectedTags: []
 		};
 	},
 
-	filterDataApi(keyword) {
-		for(var className: apiData) {
-			var classData = apiData[className];
-			for(var methodName: classData) {
-				var methodData = classData[methodName];
-				methodData.visible = false;
-				if(methodData.desc) {
-					methodData.desc.every(function(singleDesc) {
-						if(singleDesc.indexOf(keyword) > -1) {
-							methodData.visible = true;
-							return false;
-						}
-						return true;
-					});
-				}
-
-				if(methodData.visible === false && methodData.returns) {
-					if(methodData.returns.indexOf(keyword) > -1)
-						methodData.visible = true;
-				}
-
-				if(methodData.visible === false && methodData.example) {
-					methodData.example.every(function(singleExample) {
-						if(singleExample.indexOf(keyword) > -1) {
-							methodData.visible = true;
-							return false;
-						}
-						return true;
-					});
-				}
+	filterDataApi(keyword, selectedTags) {
+		var setVisibleOfMethodData = function(methodName, methodData) {
+			if(keyword === '' && selectedTags.length === 0) {
+				methodData.visible = true;
+				return;
 			}
-		}
+
+			methodData.visible = false;
+			if(keyword !== '') {
+				var methodDataStr = [ methodName ];
+				if(methodData.desc) methodDataStr = methodDataStr.concat(methodData.desc);
+				if(methodData.returns) methodDataStr.push(methodData.returns);
+				if(methodData.example) methodDataStr = methodDataStr.concat(methodData.example);
+				methodDataStr.every(function(line) {
+					if(line.indexOf(keyword) > -1) {
+						methodData.visible = true;
+						return false;
+					}
+					return true;
+				});
+			}
+
+			if(methodData.visible === true) return;
+			if(selectedTags.length !== 0) {
+				methodData.tag.every(function(singleTag) {
+					if(selectedTags.indexOf(singleTag) > -1) {
+						methodData.visible = true;
+						return false;
+					}
+					return true;
+				});
+			}
+		};
+
+		Object.keys(apiData).forEach(function(className) {
+			var classData = apiData[className];
+			Object.keys(classData).forEach(function(methodName) {
+				var methodData = classData[methodName];
+				setVisibleOfMethodData(methodName, methodData);
+			});
+		});
 		return apiData;
 	},
 
-	onChangeKeyword(evt) {
-		var keyword = evt.target.value;
-		var apiData = filterDataApi(keyword);
-		this.setState({ apiData: apiData });
+	componentDidMount() {
+		store.listen(function(type, data) {
+			if(type !== store.actions.changeKeyword) return;
+			var keyword = data;
+			var apiData = this.filterDataApi(keyword, this.state.selectedTags);
+			this.setState({ apiData: apiData, keyword: keyword });
+		}.bind(this));
+
+		store.listen(function(type, data) {
+			if(type !== store.actions.selectedTags) return;
+			var tag = data.tag;
+			var isSelected = data.isSelect;
+			if(isSelected === true) {
+				if(this.state.selectedTags.indexOf(tag) > -1) return;
+				var selectedTags = this.state.selectedTags.concat([ tag ]);
+				var apiData = this.filterDataApi(this.state.keyword, selectedTags);
+				this.setState({ selectedTags: selectedTags, apiData: apiData });
+			} else {
+				if(this.state.selectedTags.indexOf(tag) === -1) return;
+				var selectedTags = this.state.selectedTags.concat([]).remove(tag);
+				var apiData = this.filterDataApi(this.state.keyword, selectedTags);
+				this.setState({ selectedTags: selectedTags, apiData: apiData });
+			}
+		}.bind(this));
 	},
 
 	render() {
@@ -192,16 +251,23 @@ var ApiView = React.createClass({
 					return false;
 				}
 				return true;
-			});
+			}.bind(this));
 
-			if(isClassVisible === true)
-				body.push(<ApiClassBox key={className} name={className} data={classData} />);
-		});
+			if(isClassVisible === true) {
+				body.push(
+					<ApiClassBox 
+						key={className} 
+						name={className} 
+						data={classData} />
+				);
+			}
+		}.bind(this));
 
 		return (
 			<div>
-				<div>
-					<Search onChangeKeyword={this.onChangeKeyword} />
+				<div style={{ marginBottom: '10px' }}>
+					<HashTag />
+					<Search />
 					<Clearfix />
 				</div>
 				<div>
@@ -213,16 +279,100 @@ var ApiView = React.createClass({
 });
 
 
-var Search = React.createClass({
+
+var HashTagBtn = React.createClass({
 	getDefaultProps() {
 		return {
-			onChangeKeyword: null
+			tag: ''
 		};
 	},
 
+	onToggle(isSelected) {
+		store.dispatch(store.actions.selectedTags, {
+			tag: this.props.tag,
+			isSelect: isSelected
+		});
+	},
+
+	componentDidMount() {
+		store.listen(function(type, data) {
+			if(type !== store.actions.selectedTags) return;
+			var tag = data.tag;
+			var isSelected = data.isSelect;
+			if(tag === this.props.tag)
+				this.refs.btn.setClicked(isSelected);
+		}.bind(this));
+	},
+
 	render() {
-		var inputStyle = { float: 'right' };
-		return (<input style={inputStyle} type="text" placeholder="search..." onChange={this.props.onChangeKeyword} /> );
+		return (
+			<DarkBlueSmallToggleBtn 
+				ref="btn"
+				onToggle={this.onToggle}>
+				<span>#</span>
+				{this.props.tag}
+			</DarkBlueSmallToggleBtn>
+		);
+	}
+});
+
+
+var HashTag = React.createClass({
+	getInitialState() {
+		return {
+			tags: []
+		}
+	},
+
+	componentDidMount() {
+		var allTags = [];
+		Object.keys(apiData).forEach(function(className) {
+			var classData = apiData[className];
+			Object.keys(classData).forEach(function(methodName) {
+				var methodData = classData[methodName];
+				if(methodData.tag) {
+					methodData.tag.forEach(function(tag) {
+						if(_.contains(allTags, tag) === false)
+							allTags.push(tag);
+					});
+				}
+			});
+		});
+
+		this.setState({ tags: allTags });
+	},
+
+	render() {
+		var body = this.state.tags.map(function(tag) {
+			return (<HashTagBtn tag={tag} />);
+		});
+
+		return (
+			<div style={{ float: 'left' }}>{body}</div>
+		);
+	}
+});
+
+
+var Search = React.createClass({
+	onChange(evt) {
+		var keyword = evt.target.value;
+		store.dispatch(store.actions.changeKeyword, keyword);
+	},
+
+	render() {
+		var inputStyle = { 
+			float: 'right',
+			border: '1px dashed ' + color.gray,
+			padding: '3px'		
+		};
+		return (
+			<input 
+				style={inputStyle} 
+				type="text" 
+				placeholder="search..." 
+				onChange={this.onChange} /> 
+		);
 	}
 });
 
@@ -242,8 +392,13 @@ var ApiClassBox = React.createClass({
 		Object.keys(this.props.data).forEach(function(methodName) {
 			var methodData = this.props.data[methodName];
 			if(methodData.visible === true)
-				body.push(<ApiMethodBox key={methodName} name={methodName} data={methodData} />);
-		});
+				body.push(
+					<ApiMethodBox 
+						key={methodName} 
+						name={methodName} 
+						data={methodData} />
+				);
+		}.bind(this));
 
 		return (
 			<Panel>
@@ -267,7 +422,7 @@ var ApiMethodBox = React.createClass({
 
 	render() {
 		var outerDivStyle = {
-			borderLeft: '6px solid ' + color.lightBlue,
+			borderLeft: '6px solid ' + color.darkBlue,
 			paddingLeft: '10px',
 			marginBottom: '30px'
 		};
@@ -275,11 +430,20 @@ var ApiMethodBox = React.createClass({
 		var items = [];
 		if(this.props.data.desc) {
 			this.props.data.desc.forEach(function(desc) {
-				items.push(<ApiMethodBox.Item data={desc} key={desc} />);
-			});
+				items.push(
+					<ApiMethodBox.Item 
+						data={desc} 
+						key={desc} />
+				);
+			}.bind(this));
 		}
-		if(this.props.data.returns)
-			items.push(<ApiMethodBox.Item data={'returns ' + this.props.data.returns} key={this.props.data.returns} />);
+		if(this.props.data.returns) {
+			items.push(
+				<ApiMethodBox.Item 
+					data={'returns ' + this.props.data.returns} 
+					key={this.props.data.returns} />
+			);
+		}
 
 		var body = [];
 		if(items.length !== 0)
@@ -288,12 +452,16 @@ var ApiMethodBox = React.createClass({
 		if(this.props.data.example)
 			body.push(<ApiMethodBox.Example code={this.props.data.example} />);
 
+		var tagBtns = [];
+		this.props.data.tag.forEach(function(tag) {
+			tagBtns.push( <HashTagBtn tag={tag} /> );
+		});
+
 		return (
 			<div style={outerDivStyle}>
 				<h5>{this.props.name}</h5>
-				<div>
-					{body}
-				</div>
+				<div>{tagBtns}</div>
+				<div>{body}</div>
 			</div>
 		);
 	}
@@ -309,7 +477,9 @@ ApiMethodBox.ItemList = React.createClass({
 
 ApiMethodBox.Item = React.createClass({
 	getDefaultProps() {
-		return { data: '' };
+		return { 
+			data: ''
+		};
 	},
 
 	render() {

@@ -33,7 +33,7 @@ Panel.Heading = React.createClass({
 	render() {
 		var divStyle = _.extend({ 
 			padding: '10px',
-			backgroundColor: color.lightBlue,
+			backgroundColor: color.darkBlue,
 			color: 'white'
 		}, this.props.style);
 
@@ -63,7 +63,7 @@ Panel.HeadingWithIndicators = React.createClass({
 	render() {
 		var outerDivStyle = _.extend({
 			padding: '10px',
-			backgroundColor: color.lightBlue,
+			backgroundColor: color.darkBlue,
 			color: 'white'
 		}, this.props.style);
 		var glySpanStyle = { marginRight: '10px' };
@@ -142,7 +142,7 @@ Panel.Footer = React.createClass({
 	render() {
 		var outerDivStyle = _.extend({
 			padding: '10px',
-			backgroundColor: color.lightBlue,
+			backgroundColor: color.darkBlue,
 			color: 'white'
 		}, this.props.style);
 

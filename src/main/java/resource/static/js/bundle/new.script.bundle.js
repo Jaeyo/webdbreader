@@ -22815,11 +22815,12 @@
 	'use strict';
 
 	exports.color = {
-		darkBlue: '#385771',
 		blueBlack: '#293a48',
-		lightBlue: '#385771',
-		lightBlue2: '#6c91ba',
+		darkBlue: '#385771',
+		darkBlue2: '#284761',
+		lightBlue: '#486781',
 		lightGray: '#dadada',
+		gray: '#bfbfbf',
 		darkGray: '#5d5d5d'
 	};
 
