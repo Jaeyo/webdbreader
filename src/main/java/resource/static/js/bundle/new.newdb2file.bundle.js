@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(170);
+	module.exports = __webpack_require__(169);
 
 
 /***/ },
@@ -23375,8 +23375,7 @@
 
 /***/ },
 /* 168 */,
-/* 169 */,
-/* 170 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23385,394 +23384,63 @@
 	    Layout = __webpack_require__(165).Layout,
 	    Panel = __webpack_require__(162).Panel,
 	    Btn = __webpack_require__(167).Btn,
-	    GlyphiconBtn = __webpack_require__(167).GlyphiconBtn,
-	    Clearfix = __webpack_require__(166).Clearfix,
-	    jsUtil = __webpack_require__(163),
-	    handleError = jsUtil.handleError,
-	    handleResp = jsUtil.handleResp;
+	    DarkBlueBtn = __webpack_require__(167).DarkBlueBtn,
+	    Clearfix = __webpack_require__(166).Clearfix;
 
-	var TotalChartPanel = React.createClass({
-		displayName: 'TotalChartPanel',
-
-		getInitialState: function getInitialState() {
-			return {
-				isChartLoaded: false
-			};
+	var store = {
+		actions: {},
+		listeners: [],
+		listen: function listen(listener) {
+			this.listeners.push(listener);
 		},
+		dispatch: function dispatch(action, data) {
+			this.listeners.forEach(function (listener) {
+				listener(action, data);
+			});
+		}
+	};
 
-		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Chart/ScriptScoreStatistics/Total/', {}).fail(handleError).done(handleResp((function (resp) {
-				this.setState({
-					isChartLoaded: true,
-					chartData: resp.data.data,
-					chartXKey: 'timestamp',
-					chartYKey: resp.data.yKeys,
-					labels: resp.data.yKeys
-				});
-			}).bind(this)));
-		},
-
-		componentDidUpdate: function componentDidUpdate() {
-			if (this.state.isChartLoaded === true && this.state.chartData.length !== 0) {
-				$('#totalStatisticsChart').empty();
-				new Morris.Line({
-					element: 'totalStatisticsChart',
-					data: this.state.chartData,
-					xkey: this.state.chartXKey,
-					ykeys: this.state.chartYKey,
-					labels: this.state.labels
-				});
-			} //if
-		},
+	var NewDb2FileView = React.createClass({
+		displayName: 'NewDb2FileView',
 
 		render: function render() {
-			var body = null;
-			if (this.state.isChartLoaded === false) {
-				body = React.createElement(
-					'div',
-					{ style: {
-							width: '100%',
-							textAlign: 'center',
-							padding: '50px 0 50px 0'
-						} },
-					'loading...'
-				);
-			} else if (this.state.chartData.length === 0) {
-				body = React.createElement(
-					'div',
-					{ style: {
-							width: '100%',
-							textAlign: 'center',
-							padding: '50px 0 50px 0'
-						} },
-					'no data'
-				);
-			} else {
-				body = React.createElement('div', { id: 'totalStatisticsChart' });
-			}
-
 			return React.createElement(
-				Panel,
-				{ style: { marginBottom: '20px' } },
-				React.createElement(
-					Panel.Heading,
-					{ glyphicon: 'stats' },
-					'total chart'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					body
-				)
+				'div',
+				null,
+				React.createElement(InputDatabasePanel, null)
 			);
 		}
 	});
 
-	var ScriptListPanel = React.createClass({
-		displayName: 'ScriptListPanel',
+	var InputDatabasePanel = React.createClass({
+		displayName: 'InputDatabasePanel',
 
-		getInitialState: function getInitialState() {
-			return { isNewScriptBtnsVisible: false };
+		next: function next(evt) {
+			//TODO
 		},
-
-		newScript: function newScript(evt) {
-			this.setState({ isNewScriptBtnsVisible: !this.state.isNewScriptBtnsVisible });
-		},
-
 		render: function render() {
-			var newScriptBtns = this.state.isNewScriptBtnsVisible === true ? React.createElement(
-				'div',
-				{ style: { float: 'right' } },
-				React.createElement(NewScriptBtns, null)
-			) : null;
-
 			return React.createElement(
 				Panel,
 				null,
 				React.createElement(
-					Panel.Heading,
+					Panel.HeadingWithIndicators,
 					{ glyphicon: 'console' },
-					'scripts'
+					'input database'
 				),
+				React.createElement(Panel.Body, null),
 				React.createElement(
-					Panel.Body,
+					Panel.Footer,
 					null,
-					React.createElement(ScriptList, null),
 					React.createElement(
-						'div',
+						'span',
 						{ style: { float: 'right' } },
 						React.createElement(
-							GlyphiconBtn,
-							{ onClick: this.newScript, glyphicon: 'plus' },
-							'new script'
+							Btn,
+							{ onClick: this.next },
+							'next'
 						)
 					),
-					newScriptBtns,
 					React.createElement(Clearfix, null)
-				)
-			);
-		}
-	});
-
-	var ScriptList = React.createClass({
-		displayName: 'ScriptList',
-
-		getInitialState: function getInitialState() {
-			return { scriptInfos: [] };
-		},
-
-		componentDidMount: function componentDidMount() {
-			$.getJSON('/REST/Script/Info/', {}).fail(handleError).done(handleResp((function (resp) {
-				this.setState({ scriptInfos: resp.scriptInfos });
-			}).bind(this)).bind(this));
-		},
-
-		render: function render() {
-			if (this.state.scriptInfos.length === 0) {
-				return React.createElement(
-					'div',
-					{
-						style: {
-							width: '100%',
-							textAlign: 'center',
-							padding: '50px 0 50px 0'
-						} },
-					'no script'
-				);
-			}
-
-			var body = this.state.scriptInfos.map(function (scriptInfo) {
-				return React.createElement(ScriptListItem, {
-					scriptName: scriptInfo.SCRIPT_NAME,
-					isRunning: scriptInfo.IS_RUNNING,
-					regdate: scriptInfo.REGDATE });
-			});
-
-			return React.createElement(
-				'div',
-				null,
-				body
-			);
-		}
-	});
-
-	var ScriptListItem = React.createClass({
-		displayName: 'ScriptListItem',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				scriptName: '',
-				isRunning: false,
-				regdate: ''
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isMouseOver: false };
-		},
-
-		onMouseOver: function onMouseOver() {
-			this.setState({ isMouseOver: true });
-		},
-
-		onMouseOut: function onMouseOut() {
-			this.setState({ isMouseOver: false });
-		},
-
-		render: function render() {
-			var outerDivStyle = {
-				width: '100%',
-				height: '100px'
-			};
-			if (this.state.isMouseOver === true) outerDivStyle.backgroundColor = 'gray';
-
-			return React.createElement(
-				'div',
-				{ style: outerDivStyle },
-				React.createElement(ScriptListItem.RunningBar, { isRunning: this.props.isRunning }),
-				React.createElement(
-					'div',
-					{ style: { float: 'left' } },
-					React.createElement(
-						'h3',
-						null,
-						this.props.scriptName
-					),
-					React.createElement(
-						'label',
-						null,
-						this.props.regdate
-					)
-				),
-				React.createElement(
-					'div',
-					{ style: { float: 'right' } },
-					this.state.isMouseOver === true ? React.createElement(ScriptListItem.Btns, null) : null,
-					React.createElement(ScriptListItem.Statistics, null)
-				)
-			);
-		}
-	});
-
-	ScriptListItem.RunningBar = React.createClass({
-		displayName: 'RunningBar',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				isRunning: false
-			};
-		},
-
-		render: function render() {
-			var style = {
-				backgroundColor: this.props.isRunning === true ? 'blue' : 'red',
-				display: 'inline-block',
-				width: '10px',
-				height: '100%',
-				float: 'left'
-			};
-
-			return React.createElement('div', { style: style });
-		}
-	});
-
-	ScriptListItem.Btns = React.createClass({
-		displayName: 'Btns',
-
-		editScript: function editScript(evt) {
-			//TODO
-		},
-
-		renameScript: function renameScript(evt) {
-			//TODO
-		},
-
-		deleteScript: function deleteScript(evt) {
-			//TODO
-		},
-
-		startScript: function startScript(evt) {
-			//TODO
-		},
-
-		stopScript: function stopScript(evt) {
-			//TODO
-		},
-
-		render: function render() {
-			var body = [];
-			if (this.props.isRunning === true) {
-				body.push(React.createElement(
-					GlyphiconBtn,
-					{ onClick: this.stopScript, glyphicon: 'off' },
-					'stop'
-				));
-			} else {
-				body.push(React.createElement(
-					GlyphiconBtn,
-					{ onClick: this.startScript, glyphicon: 'off' },
-					'start'
-				));
-			}
-
-			body.push(React.createElement(
-				GlyphiconBtn,
-				{ onClick: this.editScript, glyphicon: 'pencil' },
-				'edit'
-			));
-			body.push(React.createElement(
-				GlyphiconBtn,
-				{ onClick: this.renameScript, glyphicon: 'edit' },
-				'rename'
-			));
-			body.push(React.createElement(
-				GlyphiconBtn,
-				{ onClick: this.deleteScript, glyphicon: 'remove' },
-				'delete'
-			));
-
-			return React.createElement(
-				'div',
-				null,
-				body
-			);
-		}
-	});
-
-	ScriptListItem.Statistics = React.createClass({
-		displayName: 'Statistics',
-
-		getInitialState: function getInitialState() {
-			return {
-				inputCount: '-',
-				outputCount: '-'
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			//TODO IMME
-		},
-
-		render: function render() {
-			var outerDivStyle = { padding: '2px 4px' };
-			var inputStyle = {
-				padding: '3px 8px',
-				backgroundColor: 'green'
-			};
-			var outputStyle = {
-				padding: '3px 8px',
-				backgroundColor: 'yellow'
-			};
-			return React.createElement(
-				'div',
-				{ style: outerDivStyle },
-				React.createElement(
-					'span',
-					{ style: inputStyle },
-					this.state.inputCount
-				),
-				React.createElement(
-					'span',
-					{ style: outputStyle },
-					this.state.outputCount
-				)
-			);
-		}
-	});
-
-	var NewScriptBtns = React.createClass({
-		displayName: 'NewScriptBtns',
-
-		newDb2File: function newDb2File(evt) {
-			window.location.href = '/Script/NewDb2File';
-		},
-
-		newDb2Db: function newDb2Db(evt) {
-			//TODO
-		},
-
-		importScript: function importScript(evt) {
-			//TODO
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: { marginRight: '5px' } },
-				React.createElement(
-					Btn,
-					{ onClick: this.newDb2File },
-					'db2file'
-				),
-				React.createElement(
-					Btn,
-					{ onClick: this.newDb2Db },
-					'db2db'
-				),
-				React.createElement(
-					Btn,
-					{ onClick: this.importScript },
-					'import script'
 				)
 			);
 		}
@@ -23781,8 +23449,7 @@
 	React.render(React.createElement(
 		Layout,
 		{ active: 'script' },
-		React.createElement(TotalChartPanel, null),
-		React.createElement(ScriptListPanel, null)
+		React.createElement(NewDb2FileView, null)
 	), document.body);
 
 /***/ }

@@ -258,7 +258,8 @@ var ApiView = React.createClass({
 					<ApiClassBox 
 						key={className} 
 						name={className} 
-						data={classData} />
+						data={classData}
+						selectedTags={this.state.selectedTags} />
 				);
 			}
 		}.bind(this));
@@ -283,7 +284,8 @@ var ApiView = React.createClass({
 var HashTagBtn = React.createClass({
 	getDefaultProps() {
 		return {
-			tag: ''
+			tag: '',
+			isClicked: false
 		};
 	},
 
@@ -294,21 +296,12 @@ var HashTagBtn = React.createClass({
 		});
 	},
 
-	componentDidMount() {
-		store.listen(function(type, data) {
-			if(type !== store.actions.selectedTags) return;
-			var tag = data.tag;
-			var isSelected = data.isSelect;
-			if(tag === this.props.tag)
-				this.refs.btn.setClicked(isSelected);
-		}.bind(this));
-	},
-
 	render() {
 		return (
 			<DarkBlueSmallToggleBtn 
 				ref="btn"
-				onToggle={this.onToggle}>
+				onToggle={this.onToggle}
+				isClicked={this.props.isClicked}>
 				<span>#</span>
 				{this.props.tag}
 			</DarkBlueSmallToggleBtn>
@@ -344,7 +337,7 @@ var HashTag = React.createClass({
 
 	render() {
 		var body = this.state.tags.map(function(tag) {
-			return (<HashTagBtn tag={tag} />);
+			return (<HashTagBtn key={tag} tag={tag} />);
 		});
 
 		return (
@@ -381,7 +374,8 @@ var ApiClassBox = React.createClass({
 	getDefaultProps() {
 		return {
 			name: '',
-			data: null
+			data: null,
+			selectedTags: []
 		};
 	},
 
@@ -391,13 +385,13 @@ var ApiClassBox = React.createClass({
 		var body = [];
 		Object.keys(this.props.data).forEach(function(methodName) {
 			var methodData = this.props.data[methodName];
-			if(methodData.visible === true)
-				body.push(
-					<ApiMethodBox 
-						key={methodName} 
-						name={methodName} 
-						data={methodData} />
-				);
+			body.push(
+				<ApiMethodBox 
+					key={methodName} 
+					name={methodName} 
+					data={methodData}
+					selectedTags={this.props.selectedTags} />
+			);
 		}.bind(this));
 
 		return (
@@ -416,7 +410,8 @@ var ApiMethodBox = React.createClass({
 	getDefaultProps() {
 		return { 
 			name: '',
-			data: null
+			data: null,
+			selectedTags: []
 		};
 	},
 
@@ -426,6 +421,8 @@ var ApiMethodBox = React.createClass({
 			paddingLeft: '10px',
 			marginBottom: '30px'
 		};
+		if(this.props.data.visible === false)
+			outerDivStyle.display = 'none';
 
 		var items = [];
 		if(this.props.data.desc) {
@@ -447,15 +444,21 @@ var ApiMethodBox = React.createClass({
 
 		var body = [];
 		if(items.length !== 0)
-			body.push(<ul>{items}</ul>);
+			body.push(<ul key={this.props.name}>{items}</ul>);
 
 		if(this.props.data.example)
-			body.push(<ApiMethodBox.Example code={this.props.data.example} />);
+			body.push(
+				<ApiMethodBox.Example 
+					key={this.props.data.example} 
+					code={this.props.data.example} />
+			);
 
 		var tagBtns = [];
 		this.props.data.tag.forEach(function(tag) {
-			tagBtns.push( <HashTagBtn tag={tag} /> );
-		});
+			var isSelected = this.props.selectedTags.indexOf(tag) > -1;
+			var key = util.format('%s_%s', this.props.name, tag);
+			tagBtns.push( <HashTagBtn key={key} tag={tag} isClicked={isSelected} /> );
+		}.bind(this));
 
 		return (
 			<div style={outerDivStyle}>

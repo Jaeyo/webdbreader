@@ -11,6 +11,7 @@ module.exports = {
 		// index: [ './src/main/java/resource/jsx/index.jsx' ], //old
 
 		script: [ './src/main/java/resource/jsx-new/script.jsx' ],
+		newdb2file: [ './src/main/java/resource/jsx-new/new-db2file.jsx' ],
 		api: [ './src/main/java/resource/jsx-new/api.jsx' ]
 	},
 	output: {

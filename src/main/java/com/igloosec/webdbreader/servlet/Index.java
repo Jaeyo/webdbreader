@@ -29,6 +29,10 @@ public class Index extends HtmlHttpServlet {
 		try{
 			if(new UriTemplate("/").match(uri, pathParams)){
 				viewWithBundleJs(resp, "new.script.bundle.js");
+			} else if(new UriTemplate("/Script").match(uri, pathParams)){
+				viewWithBundleJs(resp, "new.script.bundle.js");
+			} else if(new UriTemplate("/Script/NewDb2File").match(uri, pathParams)){
+				viewWithBundleJs(resp, "new.newdb2file.bundle.js");
 			} else if(new UriTemplate("/Api").match(uri, pathParams)){
 				viewWithBundleJs(resp, "new.api.bundle.js");
 			} else {

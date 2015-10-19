@@ -41,7 +41,7 @@ var Noti = React.createClass({
 						z_index: 1031,
 						delay: 4000,
 						timer: 1000,
-						url_target: '_black',
+						url_target: '_blank',
 						type: 'danger'
 					});
 					break;

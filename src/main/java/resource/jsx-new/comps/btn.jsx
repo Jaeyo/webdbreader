@@ -93,20 +93,57 @@ var Btn = React.createClass({
 });
 exports.Btn = Btn;
 
+var GlyphiconBtn = React.createClass({
+	mixins: [BtnMixin],
+
+	getDefaultProps() {
+		return {
+			onClick: null,
+			glyphicon: ''
+		}
+	},
+	
+	render() {
+		return (
+			<button 
+				type="button"
+				style={this.getStyle()}
+				onMouseOver={this.onMouseOver}
+				onMouseOut={this.onMouseOut}
+				onMouseDown={this.onMouseDown}
+				onMouseUp={this.onMouseUp}
+				onClick={this.props.onClick}>
+				<span 
+					className={'glyphicon glyphicon-' + this.props.glyphicon}
+					style={{ marginRight: '3px' }} />
+				{this.props.children}
+			</button>
+		);
+	}
+});
+exports.GlyphiconBtn = GlyphiconBtn;
+
 
 var ToggleBtn = React.createClass({
 	mixins: [BtnMixin],
 
 	getDefaultProps() {
 		return {
-			onToggle: null
+			onToggle: null,
+			isClicked: false
 		};
 	},
 
 	getInitialState() {
 		return {
-			isClicked: false
+			isClicked: this.props.isClicked
 		};
+	},
+
+	componentWillReceiveProps(nextProps) {
+		if(nextProps.isClicked && (nextProps.isClicked !== this.state.isClicked)) {
+			this.setState({ isClicked: nextProps.isClicked });
+		}
 	},
 
 	onClick(evt) {
@@ -162,7 +199,7 @@ exports.DarkBlueBtn = DarkBlueBtn;
 
 var DarkBlueToggleBtn = React.createClass({
 	getDefaultProps() {
-		return { onToggle: null }
+		return { onToggle: null, isClicked: false }
 	},
 
 	setClicked(isClicked) {
@@ -180,7 +217,8 @@ var DarkBlueToggleBtn = React.createClass({
 				borderColorHover={color.lightBlue}
 				borderColorMouseDown={color.darkBlue2}
 				color='white'
-				onToggle={this.props.onToggle}>
+				onToggle={this.props.onToggle}
+				isClicked={this.props.isClicked}>
 				{this.props.children}
 			</ToggleBtn>
 		);
@@ -191,7 +229,7 @@ exports.DarkBlueToggleBtn = DarkBlueToggleBtn;
 
 var DarkBlueSmallToggleBtn = React.createClass({
 	getDefaultProps() {
-		return { onToggle: null };
+		return { onToggle: null, isClicked: false };
 	},
 
 	setClicked(isClicked) {
@@ -211,7 +249,8 @@ var DarkBlueSmallToggleBtn = React.createClass({
 				color='white'
 				padding='3px 6px'
 				fontSize='12px'
-				onToggle={this.props.onToggle}>
+				onToggle={this.props.onToggle}
+				isClicked={this.props.isClicked}>
 				{this.props.children}
 			</ToggleBtn>
 		);
