@@ -72,7 +72,8 @@ var Btn = React.createClass({
 
 	getDefaultProps() {
 		return {
-			onClick: null
+			onClick: null,
+			style: {}
 		}
 	},
 	
@@ -80,7 +81,7 @@ var Btn = React.createClass({
 		return (
 			<button 
 				type="button"
-				style={this.getStyle()}
+				style={_.extend(this.getStyle(), this.props.style)}
 				onMouseOver={this.onMouseOver}
 				onMouseOut={this.onMouseOut}
 				onMouseDown={this.onMouseDown}
@@ -99,7 +100,8 @@ var GlyphiconBtn = React.createClass({
 	getDefaultProps() {
 		return {
 			onClick: null,
-			glyphicon: ''
+			glyphicon: '',
+			style: {}
 		}
 	},
 	
@@ -107,7 +109,7 @@ var GlyphiconBtn = React.createClass({
 		return (
 			<button 
 				type="button"
-				style={this.getStyle()}
+				style={_.extend(this.getStyle(), this.props.style)}
 				onMouseOver={this.onMouseOver}
 				onMouseOut={this.onMouseOut}
 				onMouseDown={this.onMouseDown}
@@ -130,7 +132,8 @@ var ToggleBtn = React.createClass({
 	getDefaultProps() {
 		return {
 			onToggle: null,
-			isClicked: false
+			isClicked: false,
+			style: {}
 		};
 	},
 
@@ -161,7 +164,7 @@ var ToggleBtn = React.createClass({
 		return (
 			<button 
 				type="button"
-				style={this.getStyle()}
+				style={_.extend(this.getStyle(), this.props.style)}
 				onMouseOver={this.onMouseOver}
 				onMouseOut={this.onMouseOut}
 				onMouseDown={this.onMouseDown}
@@ -179,6 +182,10 @@ exports.ToggleBtn = ToggleBtn;
 
 
 var DarkBlueBtn = React.createClass({
+	getDefaultProps() {
+		return { onClick: null, style: {} };
+	},
+
 	render() {
 		return (
 			<Btn
@@ -188,7 +195,9 @@ var DarkBlueBtn = React.createClass({
 				borderColor={color.darkBlue}
 				borderColorHover={color.lightBlue}
 				borderColorMouseDown={color.darkBlue2}
-				color='white'>
+				color='white'
+				onClick={this.props.onClick}
+				style={this.props.style}>
 				{this.props.children}
 			</Btn>
 		);
@@ -199,7 +208,7 @@ exports.DarkBlueBtn = DarkBlueBtn;
 
 var DarkBlueToggleBtn = React.createClass({
 	getDefaultProps() {
-		return { onToggle: null, isClicked: false }
+		return { onToggle: null, isClicked: false, style: {} }
 	},
 
 	setClicked(isClicked) {
@@ -218,7 +227,8 @@ var DarkBlueToggleBtn = React.createClass({
 				borderColorMouseDown={color.darkBlue2}
 				color='white'
 				onToggle={this.props.onToggle}
-				isClicked={this.props.isClicked}>
+				isClicked={this.props.isClicked}
+				style={this.props.style}>
 				{this.props.children}
 			</ToggleBtn>
 		);
@@ -229,7 +239,7 @@ exports.DarkBlueToggleBtn = DarkBlueToggleBtn;
 
 var DarkBlueSmallToggleBtn = React.createClass({
 	getDefaultProps() {
-		return { onToggle: null, isClicked: false };
+		return { onToggle: null, isClicked: false, style: {} };
 	},
 
 	setClicked(isClicked) {
@@ -250,7 +260,8 @@ var DarkBlueSmallToggleBtn = React.createClass({
 				padding='3px 6px'
 				fontSize='12px'
 				onToggle={this.props.onToggle}
-				isClicked={this.props.isClicked}>
+				isClicked={this.props.isClicked}
+				style={this.props.style}>
 				{this.props.children}
 			</ToggleBtn>
 		);

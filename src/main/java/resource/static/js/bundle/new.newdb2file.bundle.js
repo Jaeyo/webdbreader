@@ -23182,7 +23182,8 @@
 
 		getDefaultProps: function getDefaultProps() {
 			return {
-				onClick: null
+				onClick: null,
+				style: {}
 			};
 		},
 
@@ -23191,7 +23192,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23211,7 +23212,8 @@
 		getDefaultProps: function getDefaultProps() {
 			return {
 				onClick: null,
-				glyphicon: ''
+				glyphicon: '',
+				style: {}
 			};
 		},
 
@@ -23220,7 +23222,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23243,7 +23245,8 @@
 		getDefaultProps: function getDefaultProps() {
 			return {
 				onToggle: null,
-				isClicked: false
+				isClicked: false,
+				style: {}
 			};
 		},
 
@@ -23274,7 +23277,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23292,6 +23295,10 @@
 	var DarkBlueBtn = React.createClass({
 		displayName: 'DarkBlueBtn',
 
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
 		render: function render() {
 			return React.createElement(
 				Btn,
@@ -23302,7 +23309,9 @@
 					borderColor: color.darkBlue,
 					borderColorHover: color.lightBlue,
 					borderColorMouseDown: color.darkBlue2,
-					color: 'white' },
+					color: 'white',
+					onClick: this.props.onClick,
+					style: this.props.style },
 				this.props.children
 			);
 		}
@@ -23313,7 +23322,7 @@
 		displayName: 'DarkBlueToggleBtn',
 
 		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false };
+			return { onToggle: null, isClicked: false, style: {} };
 		},
 
 		setClicked: function setClicked(isClicked) {
@@ -23333,7 +23342,8 @@
 					borderColorMouseDown: color.darkBlue2,
 					color: 'white',
 					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked },
+					isClicked: this.props.isClicked,
+					style: this.props.style },
 				this.props.children
 			);
 		}
@@ -23344,7 +23354,7 @@
 		displayName: 'DarkBlueSmallToggleBtn',
 
 		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false };
+			return { onToggle: null, isClicked: false, style: {} };
 		},
 
 		setClicked: function setClicked(isClicked) {
@@ -23366,7 +23376,8 @@
 					padding: '3px 6px',
 					fontSize: '12px',
 					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked },
+					isClicked: this.props.isClicked,
+					style: this.props.style },
 				this.props.children
 			);
 		}
@@ -23381,14 +23392,19 @@
 	'use strict';
 
 	var React = __webpack_require__(2),
+	    _ = __webpack_require__(158),
 	    Layout = __webpack_require__(165).Layout,
-	    Panel = __webpack_require__(162).Panel,
-	    Btn = __webpack_require__(167).Btn,
-	    DarkBlueBtn = __webpack_require__(167).DarkBlueBtn,
-	    Clearfix = __webpack_require__(166).Clearfix;
+	    CurtainLoadingView = __webpack_require__(178).CurtainLoadingView,
+	    CurtainLoadingModalBox = __webpack_require__(178).CurtainLoadingModalBox,
+	    InputDatabasePanel = __webpack_require__(177).InputDatabasePanel;
 
-	var store = {
-		actions: {},
+	window.store = {
+		actions: {
+			START_LOADING: 'start_loading',
+			STOP_LOADING: 'stop_loading',
+			INPUT_DATABASE_INFO: 'input_database_info',
+			OPEN_MODAL: 'open_modal'
+		},
 		listeners: [],
 		listen: function listen(listener) {
 			this.listeners.push(listener);
@@ -23403,44 +23419,87 @@
 	var NewDb2FileView = React.createClass({
 		displayName: 'NewDb2FileView',
 
+		test: function test() {
+			window.store.dispatch(window.store.actions.OPEN_MODAL, { msg: 'test' });
+		},
+
 		render: function render() {
 			return React.createElement(
 				'div',
-				null,
-				React.createElement(InputDatabasePanel, null)
+				{ style: { position: 'relative', width: '100%', height: '100%' } },
+				React.createElement(InputDatabasePanel, { nextCallback: this.test })
 			);
 		}
 	});
 
-	var InputDatabasePanel = React.createClass({
-		displayName: 'InputDatabasePanel',
+	var CurtainLoadingViewWrapper = React.createClass({
+		displayName: 'CurtainLoadingViewWrapper',
 
-		next: function next(evt) {
-			//TODO
+		getInitialState: function getInitialState() {
+			return { visible: false };
+		},
+		componentDidMount: function componentDidMount() {
+			window.store.listen((function (action, data) {
+				if (action !== window.store.actions.START_LOADING) return;
+				this.setState({ visible: true });
+			}).bind(this));
 		},
 		render: function render() {
 			return React.createElement(
-				Panel,
-				null,
+				'div',
+				{ style: {
+						position: 'absolute',
+						left: '0',
+						top: '0',
+						height: '100%',
+						width: '100%',
+						display: this.state.visible === true ? 'block' : 'none'
+					} },
+				React.createElement(CurtainLoadingView, null)
+			);
+		}
+	});
+
+	var CurtainModalWrapper = React.createClass({
+		displayName: 'CurtainModalWrapper',
+
+		onCloseCallback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				msg: ''
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			window.store.listen((function (action, data) {
+				if (action !== window.store.actions.OPEN_MODAL) return;
+				this.onCloseCallback = data.callback;
+				this.setState({ visible: true, msg: data.msg });
+			}).bind(this));
+		},
+
+		onClose: function onClose() {
+			this.setState({ visible: false });
+			if (this.onCloseCallback) this.onCloseCallback();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: {
+						position: 'absolute',
+						left: '0',
+						top: '0',
+						height: '100%',
+						width: '100%',
+						display: this.state.visible === true ? 'block' : 'none'
+					} },
 				React.createElement(
-					Panel.HeadingWithIndicators,
-					{ glyphicon: 'console' },
-					'input database'
-				),
-				React.createElement(Panel.Body, null),
-				React.createElement(
-					Panel.Footer,
-					null,
-					React.createElement(
-						'span',
-						{ style: { float: 'right' } },
-						React.createElement(
-							Btn,
-							{ onClick: this.next },
-							'next'
-						)
-					),
-					React.createElement(Clearfix, null)
+					CurtainLoadingModalBox,
+					{ onClick: this.onClose },
+					this.state.msg
 				)
 			);
 		}
@@ -23449,8 +23508,1001 @@
 	React.render(React.createElement(
 		Layout,
 		{ active: 'script' },
-		React.createElement(NewDb2FileView, null)
+		React.createElement(NewDb2FileView, null),
+		React.createElement(CurtainLoadingViewWrapper, null),
+		React.createElement(CurtainModalWrapper, null)
 	), document.body);
+
+/***/ },
+/* 170 */,
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2);
+
+	var ContentEditable = React.createClass({
+		displayName: 'ContentEditable',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				html: '',
+				style: {},
+				onChange: null
+			};
+		},
+		emitChange: function emitChange(evt) {
+			var html = this.getDOMNode().innerHTML;
+			if (this.props.onChange) this.props.onChange(html);
+		},
+		render: function render() {
+			return React.createElement('div', {
+				onInput: this.emitChange,
+				onBlur: this.emitChange,
+				contentEditable: true,
+				style: this.props.style,
+				dangerouslySetInnerHTML: { __html: this.props.html } });
+		}
+	});
+	exports.ContentEditable = ContentEditable;
+
+/***/ },
+/* 172 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(163).color;
+
+	var TextBox = React.createClass({
+		displayName: 'TextBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				type: 'text',
+				placeholder: '',
+				value: '',
+				style: {},
+				onChange: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return { value: this.props.value };
+		},
+
+		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+			if (nextProps.value) this.setState({ value: nextProps.value });
+		},
+
+		onChange: function onChange(evt) {
+			this.setState({ value: evt.target.value });
+			this.props.onChange(evt);
+		},
+
+		render: function render() {
+			return React.createElement('input', {
+				type: this.props.type,
+				style: this.props.style,
+				placeholder: this.props.placeholder,
+				value: this.state.value,
+				onChange: this.onChange });
+		}
+	});
+	exports.TextBox = TextBox;
+
+	var DashedTextBox = React.createClass({
+		displayName: 'DashedTextBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				type: 'text',
+				placeholder: '',
+				value: '',
+				style: {},
+				onChange: null
+			};
+		},
+
+		render: function render() {
+			var style = _.extend({
+				padding: '5px',
+				border: '1px dashed ' + color.gray,
+				outline: 'none',
+				borderRadius: '5px'
+			}, this.props.style);
+
+			return React.createElement(TextBox, {
+				type: this.props.type,
+				placeholder: this.props.placeholder,
+				value: this.props.value,
+				style: style,
+				onChange: this.props.onChange });
+		}
+	});
+	exports.DashedTextBox = DashedTextBox;
+
+/***/ },
+/* 173 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(163).color;
+
+	var SelectBox = React.createClass({
+		displayName: 'SelectBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				values: [],
+				value: null,
+				onChange: null,
+				style: {}
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				value: this.props.value
+			};
+		},
+
+		onChange: function onChange(evt) {
+			this.setState({ value: evt.target.value });
+			if (this.props.onChange) this.props.onChange(evt);
+		},
+
+		render: function render() {
+			var body = this.props.values.map(function (value) {
+				return React.createElement(
+					'option',
+					{ value: value },
+					value
+				);
+			});
+
+			return React.createElement(
+				'select',
+				{
+					style: this.props.style,
+					value: this.state.value,
+					onChange: this.onChange },
+				body
+			);
+		}
+	});
+	exports.SelectBox = SelectBox;
+
+	var DashedSelectBox = React.createClass({
+		displayName: 'DashedSelectBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				value: null,
+				values: [],
+				onChange: null,
+				style: {}
+			};
+		},
+
+		render: function render() {
+			var style = _.extend({
+				padding: '3px 5px',
+				borderRadius: '6px',
+				WebKitBorderRadius: '6px',
+				msBorderRadius: '6px',
+				border: '1px dashed ' + color.gray,
+				outline: 'none',
+				WebkitAppearance: 'none',
+				msAppearance: 'none'
+			}, this.props.style);
+
+			return React.createElement(SelectBox, {
+				style: style,
+				value: this.props.value,
+				values: this.props.values,
+				onChange: this.props.onChange });
+		}
+	});
+	exports.DashedSelectBox = DashedSelectBox;
+
+/***/ },
+/* 174 */,
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function webpackUniversalModuleDefinition(root, factory) {
+		if(true)
+			module.exports = factory(__webpack_require__(2));
+		else if(typeof define === 'function' && define.amd)
+			define(["react"], factory);
+		else if(typeof exports === 'object')
+			exports["Loading"] = factory(require("react"));
+		else
+			root["Loading"] = factory(root["React"]);
+	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
+	return /******/ (function(modules) { // webpackBootstrap
+	/******/ 	// The module cache
+	/******/ 	var installedModules = {};
+
+	/******/ 	// The require function
+	/******/ 	function __webpack_require__(moduleId) {
+
+	/******/ 		// Check if module is in cache
+	/******/ 		if(installedModules[moduleId])
+	/******/ 			return installedModules[moduleId].exports;
+
+	/******/ 		// Create a new module (and put it into the cache)
+	/******/ 		var module = installedModules[moduleId] = {
+	/******/ 			exports: {},
+	/******/ 			id: moduleId,
+	/******/ 			loaded: false
+	/******/ 		};
+
+	/******/ 		// Execute the module function
+	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+	/******/ 		// Flag the module as loaded
+	/******/ 		module.loaded = true;
+
+	/******/ 		// Return the exports of the module
+	/******/ 		return module.exports;
+	/******/ 	}
+
+
+	/******/ 	// expose the modules object (__webpack_modules__)
+	/******/ 	__webpack_require__.m = modules;
+
+	/******/ 	// expose the module cache
+	/******/ 	__webpack_require__.c = installedModules;
+
+	/******/ 	// __webpack_public_path__
+	/******/ 	__webpack_require__.p = "";
+
+	/******/ 	// Load entry module and return exports
+	/******/ 	return __webpack_require__(0);
+	/******/ })
+	/************************************************************************/
+	/******/ ([
+	/* 0 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		Object.defineProperty(exports, '__esModule', {
+		  value: true
+		});
+
+		var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+		var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+		function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+		function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+		function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+		var _react = __webpack_require__(1);
+
+		var _react2 = _interopRequireDefault(_react);
+
+		var _svg = __webpack_require__(2);
+
+		var svgSources = _interopRequireWildcard(_svg);
+
+		var Loading = (function (_Component) {
+		  function Loading() {
+		    _classCallCheck(this, Loading);
+
+		    _get(Object.getPrototypeOf(Loading.prototype), 'constructor', this).call(this);
+		    this.state = {
+		      delayed: false
+		    };
+		  }
+
+		  _inherits(Loading, _Component);
+
+		  _createClass(Loading, [{
+		    key: 'componentWillMount',
+		    value: function componentWillMount() {
+		      var _this = this;
+
+		      var delayed = this.props.delay > 0;
+
+		      if (delayed) {
+		        this.setState({ delayed: true });
+		        setTimeout(function () {
+		          _this.setState({ delayed: false });
+		        }, this.props.delay);
+		      }
+		    }
+		  }, {
+		    key: 'render',
+		    value: function render() {
+		      var type = this.state.delayed ? 'blank' : this.props.type;
+		      var svg = svgSources[type];
+		      var svgStyle = {
+		        fill: this.props.color,
+		        height: this.props.height,
+		        width: this.props.width
+		      };
+
+		      return _react2['default'].createElement('img', { style: svgStyle, src: 'data:image/svg+xml;utf8,' + svg });
+		    }
+		  }]);
+
+		  return Loading;
+		})(_react.Component);
+
+		exports['default'] = Loading;
+
+		Loading.propTypes = {
+		  color: _react.PropTypes.string,
+		  delay: _react.PropTypes.number,
+		  height: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]),
+		  type: _react.PropTypes.string,
+		  width: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string])
+		};
+		Loading.defaultProps = {
+		  color: '#fff',
+		  delay: 1000,
+		  height: 64,
+		  type: 'balls',
+		  width: 64
+		};
+		module.exports = exports['default'];
+
+	/***/ },
+	/* 1 */
+	/***/ function(module, exports) {
+
+		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+	/***/ },
+	/* 2 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		Object.defineProperty(exports, '__esModule', {
+		  value: true
+		});
+
+		function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
+
+		var _blankSvg = __webpack_require__(11);
+
+		exports.blank = _interopRequire(_blankSvg);
+
+		var _loadingBallsSvg = __webpack_require__(4);
+
+		exports.balls = _interopRequire(_loadingBallsSvg);
+
+		var _loadingBarsSvg = __webpack_require__(5);
+
+		exports.bars = _interopRequire(_loadingBarsSvg);
+
+		var _loadingBubblesSvg = __webpack_require__(6);
+
+		exports.bubbles = _interopRequire(_loadingBubblesSvg);
+
+		var _loadingCubesSvg = __webpack_require__(7);
+
+		exports.cubes = _interopRequire(_loadingCubesSvg);
+
+		var _loadingCylonSvg = __webpack_require__(3);
+
+		exports.cylon = _interopRequire(_loadingCylonSvg);
+
+		var _loadingSpinSvg = __webpack_require__(8);
+
+		exports.spin = _interopRequire(_loadingSpinSvg);
+
+		var _loadingSpinningBubblesSvg = __webpack_require__(9);
+
+		exports.spinningBubbles = _interopRequire(_loadingSpinningBubblesSvg);
+
+		var _loadingSpokesSvg = __webpack_require__(10);
+
+		exports.spokes = _interopRequire(_loadingSpokesSvg);
+
+	/***/ },
+	/* 3 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.5\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.1s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.25\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.2s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 4 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg class=\"icon-loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 5 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(2)\" d=\"M0 12 V20 H4 V12z\"> \n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(8)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.2\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(14)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.4\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(20)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(26)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.8\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 6 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle transform=\"translate(8 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(16 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.3\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(24 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
+
+	/***/ },
+	/* 7 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 8 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".25\" d=\"M16 0 A16 16 0 0 0 16 32 A16 16 0 0 0 16 0 M16 4 A12 12 0 0 1 16 28 A12 12 0 0 1 16 4\"/>\n  <path d=\"M16 0 A16 16 0 0 1 32 16 L28 16 A12 12 0 0 0 16 4z\">\n    <animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 16 16\" to=\"360 16 16\" dur=\"0.8s\" repeatCount=\"indefinite\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 9 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(45 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(90 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(135 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(225 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.625s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(270 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(315 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
+
+	/***/ },
+	/* 10 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg id=\"loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(0 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(45 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(90 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(135 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(180 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(225 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.675s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(270 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(315 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\"/>\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 11 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg class=\"icon-blank\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"></svg>\n"
+
+	/***/ }
+	/******/ ])
+	});
+	;
+
+/***/ },
+/* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    util = __webpack_require__(159),
+	    color = __webpack_require__(163).color;
+
+	var STAGE_SIZE = 20;
+
+	var StageMap = React.createClass({
+		displayName: 'StageMap',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				stages: [],
+				pos: 0
+			};
+		},
+
+		makeStage: function makeStage(left, isActive) {
+			var style = {
+				display: 'inline-block',
+				position: 'absolute',
+				top: '40%',
+				left: left,
+				transform: 'translate(-50%, -50%)',
+				height: STAGE_SIZE + 'px'
+			};
+			return React.createElement(
+				'div',
+				{ style: style },
+				React.createElement(Stage, { isActive: isActive })
+			);
+		},
+
+		render: function render() {
+			if (this.props.stages.length < 2) return null;
+
+			var outerDivStyle = {
+				backgroundColor: color.darkBlue,
+				position: 'relative',
+				width: '100%',
+				height: '100%'
+			};
+
+			var body = [];
+			for (var i = 0; i < this.props.stages.length; i++) {
+				var left = null;
+				if (i == 0) {
+					left = '10%';
+				} else if (i == this.props.stages.length - 1) {
+					left = '90%';
+				} else {
+					left = 80 / (this.props.stages.length - 1) + 10 + '%';
+				}
+
+				body.push(this.makeStage(left, this.props.pos === i));
+
+				var desc = this.props.stages[i];
+				var descStyle = {
+					display: 'inline-block',
+					position: 'absolute',
+					top: util.format('calc(40% + %spx)', STAGE_SIZE / 2),
+					left: left,
+					transform: 'translate(-50%, 0)',
+					paddingTop: '3px',
+					color: color.lightGray,
+					fontSize: '70%'
+				};
+				body.push(React.createElement(
+					'div',
+					{ style: descStyle },
+					this.props.stages[i]
+				));
+			}
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement(Line, null),
+				body
+			);
+		}
+	});
+	exports.StageMap = StageMap;
+
+	var Line = React.createClass({
+		displayName: 'Line',
+
+		render: function render() {
+			var style = {
+				backgroundColor: color.lightGray,
+				height: STAGE_SIZE / 3 + 'px',
+				position: 'absolute',
+				left: '10%',
+				right: '10%',
+				top: '40%',
+				transform: 'translateY(-50%)'
+			};
+
+			return React.createElement('div', { style: style });
+		}
+	});
+
+	var Stage = React.createClass({
+		displayName: 'Stage',
+
+		getDefaultProps: function getDefaultProps() {
+			return { isActive: false };
+		},
+
+		render: function render() {
+			var outerDivStyle = {
+				width: STAGE_SIZE + 'px',
+				height: STAGE_SIZE + 'px',
+				borderRadius: '50%',
+				backgroundColor: color.lightGray,
+				position: 'relative',
+				display: 'inline-block'
+			};
+
+			var innerDivStyle = {
+				width: STAGE_SIZE / 2 + 'px',
+				height: STAGE_SIZE / 2 + 'px',
+				borderRadius: '50%',
+				backgroundColor: this.props.isActive === true ? color.darkBlue : color.lightGray,
+				position: 'absolute',
+				zIndex: '1',
+				top: '50%',
+				left: '50%',
+				transform: 'translate(-50%, -50%)',
+				display: 'inline-block'
+			};
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement('div', { style: innerDivStyle })
+			);
+		}
+	});
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    _ = __webpack_require__(158),
+	    Layout = __webpack_require__(165).Layout,
+	    Panel = __webpack_require__(162).Panel,
+	    Btn = __webpack_require__(167).Btn,
+	    DarkBlueBtn = __webpack_require__(167).DarkBlueBtn,
+	    Clearfix = __webpack_require__(166).Clearfix,
+	    ContentEditable = __webpack_require__(171).ContentEditable,
+	    DashedTextBox = __webpack_require__(172).DashedTextBox,
+	    DashedSelectBox = __webpack_require__(173).DashedSelectBox,
+	    LoadingView = __webpack_require__(178).LoadingView,
+	    StageMap = __webpack_require__(176).StageMap;
+
+	var InputDatabasePanel = React.createClass({
+		displayName: 'InputDatabasePanel',
+
+		jdbcTmpl: {
+			oracle: {
+				driver: 'oracle.jdbc.driver.OracleDriver',
+				connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
+				port: 1521
+			},
+			mysql: {
+				driver: 'com.mysql.jdbc.Driver',
+				connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
+				port: 3306
+			},
+			mssql: {
+				driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+				connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
+				port: 1433
+			},
+			db2: {
+				driver: 'com.ibm.db2.jcc.DB2Driver',
+				connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+				port: 50000
+			},
+			tibero: {
+				driver: 'com.ibm.db2.jcc.DB2Driver',
+				connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+				port: 8629
+			}
+		},
+
+		getDefaultProps: function getDefaultProps() {
+			return { nextCallback: null };
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				dbVendor: 'oracle',
+				dbIp: '',
+				dbPort: this.jdbcTmpl.oracle.port,
+				dbSid: '',
+				jdbcDriver: this.jdbcTmpl.oracle.driver,
+				jdbcConnUrl: this.jdbcTmpl.oracle.connUrl.replace('{ip}', '').replace('{port}', '').replace('{database}', ''),
+				jdbcUsername: '',
+				jdbcPassword: ''
+			};
+		},
+
+		next: function next(evt) {
+			window.store.dispatch(window.store.actions.INPUT_DATABASE_INFO, {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid,
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword
+			});
+
+			this.props.nextCallback();
+		},
+
+		onChangeDbVendor: function onChangeDbVendor(evt) {
+			var newState = { dbVendor: evt.target.value };
+			if (newState.dbVendor !== 'etc') {
+				newState.jdbcDriver = this.jdbcTmpl[newState.dbVendor].driver;
+				newState.dbPort = this.jdbcTmpl[newState.dbVendor].port;
+				newState.jdbcConnUrl = this.jdbcTmpl[newState.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', newState.dbPort).replace('{database}', this.state.dbSid);
+			}
+			this.setState(newState);
+		},
+
+		onChangedbIp: function onChangedbIp(evt) {
+			var newState = { dbIp: evt.target.value };
+			if (this.state.dbVendor !== 'etc') {
+				newState.jdbcConnUrl = this.jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', newState.dbIp).replace('{port}', this.state.dbPort).replace('{database}', this.state.dbSid);
+			}
+			this.setState(newState);
+		},
+
+		onChangedbPort: function onChangedbPort(evt) {
+			var newState = { dbPort: evt.target.value };
+			if (this.state.dbVendor !== 'etc') {
+				newState.jdbcConnUrl = this.jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', newState.dbPort).replace('{database}', this.state.dbSid);
+			}
+			this.setState(newState);
+		},
+
+		onChangeDbSid: function onChangeDbSid(evt) {
+			var newState = { dbSid: evt.target.value };
+			if (this.state.dbVendor !== 'etc') {
+				newState.jdbcConnUrl = this.jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', newState.dbSid);
+			}
+			this.setState(newState);
+		},
+
+		onChangeJdbcDriver: function onChangeJdbcDriver(evt) {
+			this.setState({ jdbcDriver: evt.target.value });
+		},
+
+		onChangeJdbcConnUrl: function onChangeJdbcConnUrl(evt) {
+			this.setState({ jdbcConnUrl: evt.target.value });
+		},
+
+		onChangeJdbcUsername: function onChangeJdbcUsername(evt) {
+			this.setState({ jdbcUsername: evt.target.value });
+		},
+
+		onChangeJdbcPassword: function onChangeJdbcPassword(evt) {
+			this.setState({ jdbcPassword: evt.target.value });
+		},
+
+		render: function render() {
+			var outerDivStyle = {
+				position: 'absolute',
+				width: '700px',
+				top: '50%',
+				left: '50%',
+				transform: 'translate(-50%, -50%)'
+			};
+
+			var divLineStyle = { marginBottom: '8px' };
+
+			var labelStyle = {
+				width: '160px',
+				textAlign: 'right',
+				marginRight: '10px'
+			};
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement(
+					'div',
+					{ style: { width: '100%', height: '70px' } },
+					React.createElement(StageMap, {
+						stages: ['데이터베이스 정보 입력', 'blabla', '테스트 페이지'],
+						pos: 0 })
+				),
+				React.createElement(
+					Panel,
+					null,
+					React.createElement(
+						Panel.HeadingWithIndicators,
+						{ glyphicon: 'console' },
+						'input database'
+					),
+					React.createElement(
+						Panel.Body,
+						null,
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'database vendor'
+							),
+							React.createElement(DashedSelectBox, {
+								style: { width: '488px' },
+								values: ['oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc'],
+								value: this.state.dbVendor,
+								onChange: this.onChangeDbVendor })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'database address'
+							),
+							React.createElement(DashedTextBox, {
+								placeholder: 'database ip',
+								value: this.state.dbIp,
+								onChange: this.onChangedbIp,
+								style: { width: '417px', marginRight: '10px' } }),
+							React.createElement(DashedTextBox, {
+								placeholder: 'port',
+								value: this.state.dbPort,
+								onChange: this.onChangedbPort,
+								style: { width: '60px' } })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'database(sid)'
+							),
+							React.createElement(DashedTextBox, {
+								placeholder: 'database',
+								value: this.state.sid,
+								onChange: this.onChangeDbSid,
+								style: { width: '488px' } })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'jdbc driver'
+							),
+							React.createElement(DashedTextBox, {
+								placeholder: 'jdbc driver',
+								value: this.state.jdbcDriver,
+								onChange: this.onChangeJdbcDriver,
+								style: { width: '488px' } })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'jdbc connection url'
+							),
+							React.createElement(DashedTextBox, {
+								placeholder: 'jdbc connection url',
+								value: this.state.jdbcConnUrl,
+								onChange: this.onChangeJdbcConnUrl,
+								style: { width: '488px' } })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'jdbc username'
+							),
+							React.createElement(DashedTextBox, {
+								placeholder: 'jdbc username',
+								value: this.state.jdbcUsername,
+								onChange: this.onChangeJdbcUsername,
+								style: { width: '488px' } })
+						),
+						React.createElement(
+							'div',
+							{ style: divLineStyle },
+							React.createElement(
+								'label',
+								{ style: labelStyle },
+								'jdbc password'
+							),
+							React.createElement(DashedTextBox, {
+								type: 'password',
+								placeholder: 'jdbc password',
+								value: this.state.jdbcPassword,
+								onChange: this.onChangeJdbcPassword,
+								style: { width: '488px' } })
+						)
+					),
+					React.createElement(
+						Panel.Footer,
+						null,
+						React.createElement(
+							'span',
+							{ style: { float: 'right' } },
+							React.createElement(
+								Btn,
+								{ onClick: this.next },
+								'next'
+							)
+						),
+						React.createElement(Clearfix, null)
+					)
+				)
+			);
+		}
+	});
+	exports.InputDatabasePanel = InputDatabasePanel;
+
+/***/ },
+/* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    Loading = __webpack_require__(175),
+	    DarkBlueBtn = __webpack_require__(167).DarkBlueBtn;
+
+	var CurtainLoadingView = React.createClass({
+		displayName: 'CurtainLoadingView',
+
+		render: function render() {
+			var outerDivStyle = {
+				position: 'relative',
+				zIndex: 999,
+				width: '100%',
+				height: '100%',
+				backgroundColor: 'gray',
+				opacity: '0.6'
+			};
+
+			var innerSpanStyle = {
+				position: 'absolute',
+				left: '50%',
+				top: '50%',
+				transform: 'translate(-50%, -50%)'
+			};
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement(
+					'span',
+					{ style: innerSpanStyle },
+					React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
+				)
+			);
+		}
+	});
+	exports.CurtainLoadingView = CurtainLoadingView;
+
+	var CurtainMsgModalLodingBox = React.createClass({
+		displayName: 'CurtainMsgModalLodingBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null };
+		},
+
+		render: function render() {
+			var outerDivStyle = {
+				position: 'relative',
+				zIndex: 999,
+				width: '100%',
+				height: '100%',
+				backgroundColor: 'gray',
+				opacity: '0.6'
+			};
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'label',
+							null,
+							this.props.children
+						)
+					),
+					React.createElement(
+						'div',
+						{ style: { textAlign: 'center' } },
+						React.createElement(
+							DarkBlueBtn,
+							{ style: { width: '100px' }, onClick: this.props.onClick },
+							'ok'
+						)
+					)
+				)
+			);
+		}
+	});
+	exports.CurtainMsgModalLodingBox = CurtainMsgModalLodingBox;
 
 /***/ }
 /******/ ]);

@@ -23182,7 +23182,8 @@
 
 		getDefaultProps: function getDefaultProps() {
 			return {
-				onClick: null
+				onClick: null,
+				style: {}
 			};
 		},
 
@@ -23191,7 +23192,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23211,7 +23212,8 @@
 		getDefaultProps: function getDefaultProps() {
 			return {
 				onClick: null,
-				glyphicon: ''
+				glyphicon: '',
+				style: {}
 			};
 		},
 
@@ -23220,7 +23222,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23243,7 +23245,8 @@
 		getDefaultProps: function getDefaultProps() {
 			return {
 				onToggle: null,
-				isClicked: false
+				isClicked: false,
+				style: {}
 			};
 		},
 
@@ -23274,7 +23277,7 @@
 				'button',
 				{
 					type: 'button',
-					style: this.getStyle(),
+					style: _.extend(this.getStyle(), this.props.style),
 					onMouseOver: this.onMouseOver,
 					onMouseOut: this.onMouseOut,
 					onMouseDown: this.onMouseDown,
@@ -23292,6 +23295,10 @@
 	var DarkBlueBtn = React.createClass({
 		displayName: 'DarkBlueBtn',
 
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
 		render: function render() {
 			return React.createElement(
 				Btn,
@@ -23302,7 +23309,9 @@
 					borderColor: color.darkBlue,
 					borderColorHover: color.lightBlue,
 					borderColorMouseDown: color.darkBlue2,
-					color: 'white' },
+					color: 'white',
+					onClick: this.props.onClick,
+					style: this.props.style },
 				this.props.children
 			);
 		}
@@ -23313,7 +23322,7 @@
 		displayName: 'DarkBlueToggleBtn',
 
 		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false };
+			return { onToggle: null, isClicked: false, style: {} };
 		},
 
 		setClicked: function setClicked(isClicked) {
@@ -23333,7 +23342,8 @@
 					borderColorMouseDown: color.darkBlue2,
 					color: 'white',
 					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked },
+					isClicked: this.props.isClicked,
+					style: this.props.style },
 				this.props.children
 			);
 		}
@@ -23344,7 +23354,7 @@
 		displayName: 'DarkBlueSmallToggleBtn',
 
 		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false };
+			return { onToggle: null, isClicked: false, style: {} };
 		},
 
 		setClicked: function setClicked(isClicked) {
@@ -23366,7 +23376,8 @@
 					padding: '3px 6px',
 					fontSize: '12px',
 					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked },
+					isClicked: this.props.isClicked,
+					style: this.props.style },
 				this.props.children
 			);
 		}

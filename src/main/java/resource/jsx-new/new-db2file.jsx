@@ -1,12 +1,16 @@
 var React = require('react'),
+	_ = require('underscore'),
 	Layout = require('./comps/layout.jsx').Layout,
-	Panel = require('./comps/panel.jsx').Panel,
-	Btn = require('./comps/btn.jsx').Btn,
-	DarkBlueBtn = require('./comps/btn.jsx').DarkBlueBtn,
-	Clearfix = require('./comps/clearfix.jsx').Clearfix;
+	CurtainLoadingView = require('./comps/modal.jsx').CurtainLoadingView,
+	CurtainLoadingModalBox = require('./comps/modal.jsx').CurtainLoadingModalBox,
+	InputDatabasePanel = require('./view-comps/new-db2file/input-database-panel.jsx').InputDatabasePanel;
 
-var store = {
+window.store = {
 	actions: {
+		START_LOADING: 'start_loading',
+		STOP_LOADING: 'stop_loading',
+		INPUT_DATABASE_INFO: 'input_database_info',
+		OPEN_MODAL: 'open_modal'
 	},
 	listeners: [],
 	listen(listener) {
@@ -20,32 +24,80 @@ var store = {
 };
 
 var NewDb2FileView = React.createClass({
+	test() {
+		window.store.dispatch(window.store.actions.OPEN_MODAL, { msg: 'test' });
+	},
+
 	render() {
 		return (
-			<div>
-				<InputDatabasePanel />
+			<div style={{ position: 'relative', width: '100%', height: '100%' }}>
+				<InputDatabasePanel nextCallback={this.test} />
 			</div>
 		);
 	}
 });
 
-var InputDatabasePanel = React.createClass({
-	next(evt) {
-		//TODO
+var CurtainLoadingViewWrapper = React.createClass({
+	getInitialState() {
+		return { visible: false };
+	},
+	componentDidMount() {
+		window.store.listen(function(action, data) {
+			if(action !== window.store.actions.START_LOADING) return;
+			this.setState({ visible: true });
+		}.bind(this));
 	},
 	render() {
 		return (
-			<Panel>
-				<Panel.HeadingWithIndicators glyphicon="console">input database</Panel.HeadingWithIndicators>
-				<Panel.Body>
-				</Panel.Body>
-				<Panel.Footer>
-					<span style={{ float: 'right' }}>
-						<Btn onClick={this.next}>next</Btn>
-					</span>
-					<Clearfix />
-				</Panel.Footer>
-			</Panel>
+			<div style={{
+				position: 'absolute',
+				left: '0',
+				top: '0',
+				height: '100%',
+				width: '100%',
+				display: this.state.visible === true ? 'block' : 'none'
+			}}>
+				<CurtainLoadingView  />
+			</div>
+		);
+	}
+});
+
+var CurtainModalWrapper = React.createClass({
+	onCloseCallback: null,
+
+	getInitialState() {
+		return {
+			visible: false,
+			msg: ''
+		};
+	},
+
+	componentDidMount() {
+		window.store.listen(function(action, data) {
+			if(action !== window.store.actions.OPEN_MODAL) return;
+			this.onCloseCallback = data.callback;
+			this.setState({ visible: true, msg: data.msg });
+		}.bind(this));
+	},
+
+	onClose() {
+		this.setState({ visible: false });
+		if(this.onCloseCallback) this.onCloseCallback();
+	},
+
+	render() {
+		return (
+			<div style={{
+				position: 'absolute',
+				left: '0',
+				top: '0',
+				height: '100%',
+				width: '100%',
+				display: this.state.visible === true ? 'block' : 'none'
+			}}>
+				<CurtainLoadingModalBox onClick={this.onClose}>{this.state.msg}</CurtainLoadingModalBox>
+			</div>
 		);
 	}
 });
@@ -53,6 +105,8 @@ var InputDatabasePanel = React.createClass({
 React.render(
 	<Layout active="script">
 		<NewDb2FileView />
+		<CurtainLoadingViewWrapper />
+		<CurtainModalWrapper />
 	</Layout>,
 	document.body
 );
