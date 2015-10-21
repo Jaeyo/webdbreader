@@ -205,6 +205,59 @@ var DarkBlueBtn = React.createClass({
 });
 exports.DarkBlueBtn = DarkBlueBtn;
 
+var DarkBlueSmallBtn = React.createClass({
+	getDefaultProps() {
+		return { onClick: null, style: {} };
+	},
+
+	render() {
+		return (
+			<Btn
+				backgroundColor={color.darkBlue}
+				backgroundColorHover={color.lightBlue}
+				backgroundColorMouseDown={color.darkBlue2}
+				borderColor={color.darkBlue}
+				borderColorHover={color.lightBlue}
+				borderColorMouseDown={color.darkBlue2}
+				color='white'
+				padding='3px 6px'
+				fontSize='12px'
+				onClick={this.props.onClick}
+				style={this.props.style}>
+				{this.props.children}
+			</Btn>
+		);
+	}
+});
+exports.DarkBlueSmallBtn = DarkBlueSmallBtn;
+
+
+var DarkBlueXSBtn = React.createClass({
+	getDefaultProps() {
+		return { onClick: null, style: {} };
+	},
+
+	render() {
+		return (
+			<Btn
+				backgroundColor={color.darkBlue}
+				backgroundColorHover={color.lightBlue}
+				backgroundColorMouseDown={color.darkBlue2}
+				borderColor={color.darkBlue}
+				borderColorHover={color.lightBlue}
+				borderColorMouseDown={color.darkBlue2}
+				color='white'
+				padding='2px 4px'
+				fontSize='8px'
+				onClick={this.props.onClick}
+				style={this.props.style}>
+				{this.props.children}
+			</Btn>
+		);
+	}
+});
+exports.DarkBlueXSBtn = DarkBlueXSBtn;
+
 
 var DarkBlueToggleBtn = React.createClass({
 	getDefaultProps() {

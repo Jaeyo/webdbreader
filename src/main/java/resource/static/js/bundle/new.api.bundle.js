@@ -23643,6 +23643,12 @@
 		};
 	};
 
+	exports.assertNotNullAndEmpty = function (obj) {
+		if (obj == null) return false;
+		if (typeof obj === 'string' && obj.length == 0) return false;
+		return true;
+	};
+
 	exports.color = {
 		blueBlack: '#293a48',
 		darkBlue: '#385771',
@@ -24126,6 +24132,62 @@
 		}
 	});
 	exports.DarkBlueBtn = DarkBlueBtn;
+
+	var DarkBlueSmallBtn = React.createClass({
+		displayName: 'DarkBlueSmallBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
+		render: function render() {
+			return React.createElement(
+				Btn,
+				{
+					backgroundColor: color.darkBlue,
+					backgroundColorHover: color.lightBlue,
+					backgroundColorMouseDown: color.darkBlue2,
+					borderColor: color.darkBlue,
+					borderColorHover: color.lightBlue,
+					borderColorMouseDown: color.darkBlue2,
+					color: 'white',
+					padding: '3px 6px',
+					fontSize: '12px',
+					onClick: this.props.onClick,
+					style: this.props.style },
+				this.props.children
+			);
+		}
+	});
+	exports.DarkBlueSmallBtn = DarkBlueSmallBtn;
+
+	var DarkBlueXSBtn = React.createClass({
+		displayName: 'DarkBlueXSBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
+		render: function render() {
+			return React.createElement(
+				Btn,
+				{
+					backgroundColor: color.darkBlue,
+					backgroundColorHover: color.lightBlue,
+					backgroundColorMouseDown: color.darkBlue2,
+					borderColor: color.darkBlue,
+					borderColorHover: color.lightBlue,
+					borderColorMouseDown: color.darkBlue2,
+					color: 'white',
+					padding: '2px 4px',
+					fontSize: '8px',
+					onClick: this.props.onClick,
+					style: this.props.style },
+				this.props.children
+			);
+		}
+	});
+	exports.DarkBlueXSBtn = DarkBlueXSBtn;
 
 	var DarkBlueToggleBtn = React.createClass({
 		displayName: 'DarkBlueToggleBtn',

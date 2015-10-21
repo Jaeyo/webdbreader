@@ -1,5 +1,11 @@
 var React = require('react'),
 	_ = require('underscore'),
+	precond = require('precond').checkArgument,
+	Promise = require('promise'),
+	util = require('util'),
+	assertNotNullAndEmpty = require('../../utils/util.js').assertNotNullAndEmpty,
+	handleError = require('../../utils/util.js').handleError,
+	handleResp = require('../../utils/util.js').handleResp,
 	Layout = require('../../comps/layout.jsx').Layout,
 	Panel = require('../../comps/panel.jsx').Panel,
 	Btn = require('../../comps/btn.jsx').Btn,
@@ -8,7 +14,6 @@ var React = require('react'),
 	ContentEditable = require('../../comps/content-editable.jsx').ContentEditable,
 	DashedTextBox = require('../../comps/textbox.jsx').DashedTextBox,
 	DashedSelectBox = require('../../comps/select-box.jsx').DashedSelectBox,
-	LoadingView = require('../../comps/modal.jsx').LoadingView,
 	StageMap = require('../../comps/stage-map.jsx').StageMap;
 
 var InputDatabasePanel = React.createClass({
@@ -41,7 +46,7 @@ var InputDatabasePanel = React.createClass({
 	},
 
 	getDefaultProps() {
-		return { nextCallback: null };
+		return { nextCallback: null, visible: false };
 	},
 
 	getInitialState() {
@@ -61,7 +66,44 @@ var InputDatabasePanel = React.createClass({
 		};
 	},
 
-	next(evt) {
+	validationCheck() {
+		try {
+			precond(assertNotNullAndEmpty(this.state.dbVendor), 'invalid database vendor');
+			precond(assertNotNullAndEmpty(this.state.dbIp), 'invalid database ip');
+			precond(assertNotNullAndEmpty(this.state.dbPort), 'invalid database port');
+			precond(assertNotNullAndEmpty(this.state.dbSid), 'invalid database(sid)');
+			precond(assertNotNullAndEmpty(this.state.jdbcDriver), 'invalid jdbc driver');
+			precond(assertNotNullAndEmpty(this.state.jdbcConnUrl), 'invalid jdbc connection url');
+			precond(assertNotNullAndEmpty(this.state.jdbcUsername), 'invalid jdbc username');
+			precond(assertNotNullAndEmpty(this.state.jdbcPassword), 'invalid jdbc password');
+		} catch(err) {
+			var errmsg = err.message;
+			window.curtainAlert.show({ msg: errmsg });
+			return false;
+		}
+		return true;
+	},
+
+	connectTest() {
+		return new Promise(function(resolve, reject) {
+			window.curtainLoadingAlert.show({ msg: 'database connect test ...' });
+			$.getJSON('/REST/Database/Tables/', {
+				driver: this.state.jdbcDriver,
+				connUrl: this.state.jdbcConnUrl,
+				username: this.state.jdbcUsername,
+				password: this.state.jdbcPassword
+			}).fail(function(err) {
+				window.curtainLoadingAlert.hide();
+				reject(err.statusText);
+			}).done(function(resp) {
+				window.curtainLoadingAlert.hide();
+				if(resp.success !== 1) reject(resp.errmsg);
+				else resolve(true);
+			});
+		}.bind(this));
+	},
+
+	dispatch() {
 		window.store.dispatch(window.store.actions.INPUT_DATABASE_INFO, {
 			dbVendor: this.state.dbVendor,
 			dbIp: this.state.dbIp,
@@ -72,8 +114,34 @@ var InputDatabasePanel = React.createClass({
 			jdbcUsername: this.state.jdbcUsername,
 			jdbcPassword: this.state.jdbcPassword
 		});
+	},
 
-		this.props.nextCallback();
+	next(evt) {
+		if(this.validationCheck() === false) return;
+
+		window.curtainYesOrNo.show({
+			msg: '데이터베이스 connect test를 진행할까요?',
+			onClick: function(result) {
+				if(result === true) {
+					this.connectTest().then(function(result) {
+						window.curtainAlert.show({ 
+							msg: '데이터베이스 connect test 성공',
+							onClick: function() {
+								this.dispatch();
+								this.props.nextCallback();
+							}.bind(this)
+						});
+					}.bind(this)).catch(function(err) {
+						window.curtainAlert.show({ 
+							msg: util.format('데이터베이스 connect test 실패 (%s)', err)
+						});
+					}.bind(this));
+				} else {
+					this.dispatch();
+					this.props.nextCallback();
+				}
+			}.bind(this)
+		});
 	},
 
 	onChangeDbVendor(evt) {
@@ -148,8 +216,11 @@ var InputDatabasePanel = React.createClass({
 			width: '700px',
 			top: '50%',
 			left: '50%',
-			transform: 'translate(-50%, -50%)'
+			transform: 'translate(-50%, -50%)',
+			display: this.props.visible === true ? 'block' : 'none'
 		};
+
+		var stages = [ 'DB정보 입력', '테이블 선택', '블라블라' ];
 
 		var divLineStyle = { marginBottom: '8px' };
 
@@ -162,16 +233,10 @@ var InputDatabasePanel = React.createClass({
 		return (
 			<div style={outerDivStyle}>
 				<div style={{ width: '100%', height: '70px' }}>
-					<StageMap 
-						stages={[
-							'데이터베이스 정보 입력',
-							'blabla',
-							'테스트 페이지'
-						]} 
-						pos={0} />
+					<StageMap stages={stages} pos={0} />
 				</div>
 				<Panel>
-					<Panel.HeadingWithIndicators glyphicon="console">input database</Panel.HeadingWithIndicators>
+					<Panel.Heading glyphicon="console">DB정보 입력</Panel.Heading>
 					<Panel.Body>
 						<div style={divLineStyle}>
 							<label style={labelStyle}>database vendor</label>

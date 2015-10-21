@@ -26,7 +26,7 @@ var SelectBox = React.createClass({
 	
 	render() {
 		var body = this.props.values.map(function(value) {
-			return <option value={value}>{value}</option>;
+			return <option key={value} value={value}>{value}</option>;
 		});
 
 		return (

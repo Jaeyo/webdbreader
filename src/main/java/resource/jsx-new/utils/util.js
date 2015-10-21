@@ -31,6 +31,12 @@ exports.handleRespPromise = function(reject, onSuccess) {
 	};
 };
 
+exports.assertNotNullAndEmpty = function(obj) {
+	if(obj == null) return false;
+	if(typeof obj === 'string' && obj.length == 0) return false;
+	return true;
+};
+
 exports.color = {
 	blueBlack: '#293a48',
 	darkBlue: '#385771',

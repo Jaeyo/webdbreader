@@ -21,7 +21,7 @@ var StageMap = React.createClass({
 			transform: 'translate(-50%, -50%)',
 			height: STAGE_SIZE + 'px'
 		};
-		return (<div style={style}><Stage isActive={isActive} /></div>);
+		return (<div key={left} style={style}><Stage isActive={isActive} /></div>);
 	},
 
 	render() {
@@ -58,7 +58,11 @@ var StageMap = React.createClass({
 				color: color.lightGray,
 				fontSize: '70%'
 			};
-			body.push(<div style={descStyle}>{this.props.stages[i]}</div>);
+			body.push(
+				<div key={this.props.stages[i]} style={descStyle}>
+					{this.props.stages[i]}
+				</div>
+			);
 		}
 
 		return (

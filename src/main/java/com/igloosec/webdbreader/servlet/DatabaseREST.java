@@ -50,6 +50,7 @@ public class DatabaseREST extends JadeHttpServlet{
 				resp.getWriter().flush();
 			} //if
 		} catch(IllegalArgumentException e){
+			e.printStackTrace();
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());

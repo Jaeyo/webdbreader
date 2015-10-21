@@ -29,8 +29,8 @@ public class DatabaseService {
 		Connection conn = null;
 		ResultSet rs = null;
 		
-		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
-		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		String username = jdbcParams.getString("username");
+		String password = jdbcParams.getString("password");
 		
 		try{
 			Class.forName(jdbcParams.getString("driver"));
@@ -71,8 +71,8 @@ public class DatabaseService {
 		Connection conn = null;
 		ResultSet rs = null;
 		
-		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
-		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		String username = jdbcParams.getString("username");
+		String password = jdbcParams.getString("password");
 		
 		try{
 			Class.forName(jdbcParams.getString("driver"));
