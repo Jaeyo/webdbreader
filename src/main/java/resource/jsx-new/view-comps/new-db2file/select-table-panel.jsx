@@ -96,7 +96,7 @@ var SelectTablePanel = React.createClass({
 			display: this.props.visible === true ? 'block' : 'none'
 		};
 
-		var stages = [ 'DB정보 입력', '테이블 선택', '블라블라' ];
+		var stages = [ 'DB정보 입력', '테이블 선택', '컬럼 선택' ];
 
 		return (
 			<div style={outerDivStyle}>
@@ -116,7 +116,7 @@ var SelectTablePanel = React.createClass({
 							<Btn onCLick={this.prev}>prev</Btn>
 						</span>
 						<span style={{ float: 'right' }}>
-							<Btn onCLick={this.next}>next</Btn>
+							<Btn onClick={this.next}>next</Btn>
 						</span>
 						<Clearfix />
 					</Panel.Footer>

@@ -3,7 +3,8 @@ var React = require('react'),
 	Layout = require('./comps/layout.jsx').Layout,
 	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
 	InputDatabasePanel = require('./view-comps/new-db2file/input-database-panel.jsx').InputDatabasePanel,
-	SelectTablePanel = require('./view-comps/new-db2file/select-table-panel.jsx').SelectTablePanel;
+	SelectTablePanel = require('./view-comps/new-db2file/select-table-panel.jsx').SelectTablePanel,
+	SelectColumnPanel = require('./view-comps/new-db2file/select-column-panel.jsx').SelectColumnPanel;
 
 window.store = {
 	actions: {
@@ -35,6 +36,14 @@ var NewDb2FileView = React.createClass({
 	},
 
 	selectTablePanelNext() {
+		this.setState({ currentPage: 'selectColumnPanel' });
+	},
+
+	selectColumnPanelPrev() {
+		this.setState({ currentPage: 'selectTablePanel' });
+	},
+
+	selectColumnPanelNext() {
 		//TODO
 	},
 
@@ -48,6 +57,11 @@ var NewDb2FileView = React.createClass({
 					visible={this.state.currentPage === 'selectTablePanel'}
 					prevCallback={this.selectTablePanelPrev}
 					nextCallback={this.selectTablePanelNext} />
+				<SelectColumnPanel
+					visible={this.state.currentPage === 'selectColumnPanel'}
+					prevCallback={this.selectColumnPanelPrev}
+					nextCallback={this.selectColumnPanelNext} />
+
 			</div>
 		);
 	}

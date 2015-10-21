@@ -23447,7 +23447,24 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 168 */,
+/* 168 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
 /* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23458,7 +23475,8 @@
 	    Layout = __webpack_require__(165).Layout,
 	    LayerPopup = __webpack_require__(170).LayerPopup,
 	    InputDatabasePanel = __webpack_require__(172).InputDatabasePanel,
-	    SelectTablePanel = __webpack_require__(189).SelectTablePanel;
+	    SelectTablePanel = __webpack_require__(189).SelectTablePanel,
+	    SelectColumnPanel = __webpack_require__(190).SelectColumnPanel;
 
 	window.store = {
 		actions: {
@@ -23492,6 +23510,14 @@
 		},
 
 		selectTablePanelNext: function selectTablePanelNext() {
+			this.setState({ currentPage: 'selectColumnPanel' });
+		},
+
+		selectColumnPanelPrev: function selectColumnPanelPrev() {
+			this.setState({ currentPage: 'selectTablePanel' });
+		},
+
+		selectColumnPanelNext: function selectColumnPanelNext() {
 			//TODO
 		},
 
@@ -23505,7 +23531,11 @@
 				React.createElement(SelectTablePanel, {
 					visible: this.state.currentPage === 'selectTablePanel',
 					prevCallback: this.selectTablePanelPrev,
-					nextCallback: this.selectTablePanelNext })
+					nextCallback: this.selectTablePanelNext }),
+				React.createElement(SelectColumnPanel, {
+					visible: this.state.currentPage === 'selectColumnPanel',
+					prevCallback: this.selectColumnPanelPrev,
+					nextCallback: this.selectColumnPanelNext })
 			);
 		}
 	});
@@ -24289,7 +24319,7 @@
 				display: this.props.visible === true ? 'block' : 'none'
 			};
 
-			var stages = ['DB정보 입력', '테이블 선택', '블라블라'];
+			var stages = ['DB정보 입력', '테이블 선택', '컬럼 선택'];
 
 			var divLineStyle = { marginBottom: '8px' };
 
@@ -25771,7 +25801,7 @@
 				display: this.props.visible === true ? 'block' : 'none'
 			};
 
-			var stages = ['DB정보 입력', '테이블 선택', '블라블라'];
+			var stages = ['DB정보 입력', '테이블 선택', '컬럼 선택'];
 
 			return React.createElement(
 				'div',
@@ -25814,7 +25844,7 @@
 							{ style: { float: 'right' } },
 							React.createElement(
 								Btn,
-								{ onCLick: this.next },
+								{ onClick: this.next },
 								'next'
 							)
 						),
@@ -25890,6 +25920,601 @@
 			);
 		}
 	});
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    Promise = __webpack_require__(176),
+	    util = __webpack_require__(159),
+	    StageMap = __webpack_require__(188).StageMap,
+	    Btn = __webpack_require__(167).Btn,
+	    Clearfix = __webpack_require__(166).Clearfix,
+	    Panel = __webpack_require__(162).Panel,
+	    DashedTagTextBox = __webpack_require__(192).DashedTagTextBox,
+	    DarkBlueXSBtn = __webpack_require__(167).DarkBlueXSBtn,
+	    color = __webpack_require__(163).color;
+
+	Array.prototype.remove = __webpack_require__(168);
+
+	var SelectColumnPanel = React.createClass({
+		displayName: 'SelectColumnPanel',
+
+		selectedTableName: '',
+		jdbcInfo: {},
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				visible: false,
+				prevCallback: null,
+				nextCallback: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				selectedColumns: [],
+				columns: []
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			window.store.listen((function (action, data) {
+				if (action !== window.store.actions.SELECT_TABLE) return;
+				this.selectedTableName = data;
+			}).bind(this));
+
+			window.store.listen((function (action, data) {
+				if (action !== window.store.actions.INPUT_DATABASE_INFO) return;
+				this.jdbcInfo = {
+					driver: data.jdbcDriver,
+					connUrl: data.jdbcConnUrl,
+					username: data.jdbcUsername,
+					password: data.jdbcPassword
+				};
+			}).bind(this));
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			if (prevProps.visible !== false || this.props.visible !== true) return;
+
+			window.curtainYesOrNo.show({
+				msg: '컬럼 목록을 자동으로 불러올까요?',
+				onClick: (function (result) {
+					if (result === true) {
+						this.loadColumns().then((function (columns) {
+							this.setState({ columns: columns, selectedColumns: [] });
+						}).bind(this))['catch']((function (err) {
+							window.curtainAlert.show({ msg: util.format('컬럼 목록 로드에 실패했습니다. (%s)', err) });
+						}).bind(this));
+					} else {
+						this.setState({ columns: [] });
+					}
+				}).bind(this)
+			});
+		},
+
+		next: function next() {
+			this.props.nextCallback();
+		},
+
+		prev: function prev() {
+			this.props.prevCallback();
+		},
+
+		loadColumns: function loadColumns() {
+			return new Promise((function (resolve, reject) {
+				window.curtainLoadingAlert.show({ msg: '컬럼을 불러오는 중...' });
+				$.getJSON(util.format('/REST/Database/Columns/%s/', this.selectedTableName), this.jdbcInfo).fail(function (err) {
+					window.curtainLoadingAlert.hide();
+					reject(err.statusText);
+				}).done(function (resp) {
+					window.curtainLoadingAlert.hide();
+					if (resp.success !== 1) reject(resp.errmsg);else resolve(resp.columns);
+				});
+			}).bind(this));
+		},
+
+		addSelectedColumn: function addSelectedColumn(column) {
+			this.setState({
+				selectedColumns: this.state.selectedColumns.concat([column])
+			});
+		},
+
+		removeSelectedColumn: function removeSelectedColumn(column) {
+			var selectedColumns = this.state.selectedColumns;
+			selectedColumns.remove(column);
+			this.setState({ selectedColumns: selectedColumns });
+		},
+
+		render: function render() {
+			var outerDivStyle = {
+				position: 'absolute',
+				width: '700px',
+				top: '50%',
+				left: '50%',
+				transform: 'translate(-50%, -50%)',
+				display: this.props.visible === true ? 'block' : 'none'
+			};
+
+			var stages = ['DB정보 입력', '테이블 선택', '컬럼 선택'];
+
+			return React.createElement(
+				'div',
+				{ style: outerDivStyle },
+				React.createElement(
+					'div',
+					{ style: { width: '100%', height: '70px' } },
+					React.createElement(StageMap, { stages: stages, pos: 2 })
+				),
+				React.createElement(
+					Panel,
+					null,
+					React.createElement(
+						Panel.Heading,
+						{ glyphicon: 'console' },
+						'컬럼 선택'
+					),
+					React.createElement(
+						Panel.Body,
+						null,
+						React.createElement(
+							'label',
+							null,
+							'컬럼 입력: '
+						),
+						React.createElement(DashedTagTextBox, {
+							tags: this.state.selectedColumns,
+							addTagCallback: this.addSelectedColumn,
+							removeTagCallback: this.removeSelectedColumn }),
+						React.createElement(ColumnBox, {
+							columns: this.state.columns,
+							selectColumnCallback: this.addSelectedColumn })
+					),
+					React.createElement(
+						Panel.Footer,
+						null,
+						React.createElement(
+							'span',
+							{ style: { float: 'left' } },
+							React.createElement(
+								Btn,
+								{ onClick: this.prev },
+								'prev'
+							)
+						),
+						React.createElement(
+							'span',
+							{ style: { float: 'right' } },
+							React.createElement(
+								Btn,
+								{ onClick: this.next },
+								'next'
+							)
+						),
+						React.createElement(Clearfix, null)
+					)
+				)
+			);
+		}
+	});
+	exports.SelectColumnPanel = SelectColumnPanel;
+
+	var ColumnBox = React.createClass({
+		displayName: 'ColumnBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				columns: [],
+				selectColumnCallback: null
+			};
+		},
+
+		render: function render() {
+			var columns = this.props.columns.map((function (column) {
+				var selectFn = (function () {
+					this.props.selectColumnCallback(column.columnName);
+				}).bind(this);
+
+				return React.createElement(
+					'div',
+					{
+						key: column.columnName,
+						style: {
+							padding: '1px 15px',
+							borderBottom: '1px dotted ' + color.lightGray
+						} },
+					React.createElement(
+						'label',
+						{ style: { marginRight: '3px' } },
+						util.format('%s (%s)', column.columnName, column.columnType),
+						React.createElement(
+							DarkBlueXSBtn,
+							{ onClick: selectFn },
+							'선택'
+						)
+					)
+				);
+			}).bind(this));
+
+			return React.createElement(
+				'div',
+				{ style: { maxHeight: '200px', overflow: 'auto' } },
+				columns
+			);
+		}
+	});
+
+/***/ },
+/* 191 */,
+/* 192 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    striptags = __webpack_require__(193),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(163).color,
+	    DarkBlueSmallBtn = __webpack_require__(167).DarkBlueSmallBtn;
+
+	Array.prototype.remove = __webpack_require__(168);
+
+	var endsWith = function endsWith(str, suffix) {
+		return str.indexOf(suffix, str.length - suffix.length) !== -1;
+	};
+
+	var DashedTagTextBox = React.createClass({
+		displayName: 'DashedTagTextBox',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				tags: [],
+				addTagCallback: null,
+				removeTagCallback: null,
+				style: {}
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				text: ''
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.refs.inputText.getDOMNode().focus();
+		},
+
+		onInput: function onInput(evt) {
+			var text = this.refs.inputText.getDOMNode().innerHTML;
+			if (endsWith(text, '&nbsp;') || endsWith(text, ' ') || endsWith(text, '<br>') || endsWith(text, '<br />') || endsWith(text, '\n')) {
+				var newTag = text.replace(/&nbsp;/gi, '').replace(/ /gi, '').replace(/<br>/gi, '').replace(/<br \/>/gi, '').replace(/\n/gi, '');
+				this.setState({ text: '' });
+				this.props.addTagCallback(newTag);
+			} else {
+				this.setState({ text: text });
+			}
+		},
+
+		render: function render() {
+			var style = _.extend({
+				display: 'inline-block',
+				border: '1px dashed ' + color.lightGray
+			}, this.props.style);
+
+			var innerDivStyle = {
+				display: 'inline-block',
+				padding: '3px',
+				minWidth: '20px',
+				width: '100%'
+			};
+
+			var tags = this.props.tags.map((function (tag) {
+				return React.createElement(TagBtn, { key: tag, text: tag, removeCallback: this.props.removeTagCallback });
+			}).bind(this));
+
+			return React.createElement(
+				'div',
+				{ style: style },
+				tags,
+				React.createElement(
+					'div',
+					{
+						style: innerDivStyle,
+						contentEditable: true,
+						onInput: this.onInput,
+						ref: 'inputText' },
+					this.state.text
+				)
+			);
+		}
+	});
+	exports.DashedTagTextBox = DashedTagTextBox;
+
+	var TagBtn = React.createClass({
+		displayName: 'TagBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				text: '',
+				removeCallback: null
+			};
+		},
+
+		onClick: function onClick(evt) {
+			this.props.removeCallback(this.props.text);
+		},
+
+		render: function render() {
+			return React.createElement(
+				DarkBlueSmallBtn,
+				{
+					style: { margin: '4px' },
+					onClick: this.onClick },
+				this.props.text,
+				React.createElement('span', {
+					style: { marginLeft: '3px' },
+					className: 'glyphicon glyphicon-remove' })
+			);
+		}
+	});
+
+/***/ },
+/* 193 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(194);
+
+
+/***/ },
+/* 194 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var STATE_OUTPUT       = 0,
+	    STATE_HTML         = 1,
+	    STATE_PRE_COMMENT  = 2,
+	    STATE_COMMENT      = 3,
+	    WHITESPACE         = /\s/,
+	    ALLOWED_TAGS_REGEX = /<(\w*)>/g;
+
+	function striptags(html, allowableTags) {
+	    var html = html || '',
+	        state = STATE_OUTPUT,
+	        depth = 0,
+	        output = '',
+	        tagBuffer = '',
+	        inQuote = false,
+	        i, length, c;
+
+	    if (typeof allowableTags === 'string') {
+	        // Parse the string into an array of tags
+	        allowableTags = parseAllowableTags(allowableTags);
+	    } else if (!Array.isArray(allowableTags)) {
+	        // If it is not an array, explicitly set to null
+	        allowableTags = null;
+	    }
+
+	    for (i = 0, length = html.length; i < length; i++) {
+	        c = html[i];
+
+	        switch (c) {
+	            case '<': {
+	                // ignore '<' if inside a quote
+	                if (inQuote) {
+	                    break;
+	                }
+
+	                // '<' followed by a space is not a valid tag, continue
+	                if (html[i + 1] == ' ') {
+	                    consumeCharacter(c);
+	                    break;
+	                }
+
+	                // change to STATE_HTML
+	                if (state == STATE_OUTPUT) {
+	                    state = STATE_HTML;
+
+	                    consumeCharacter(c);
+	                    break;
+	                }
+
+	                // ignore additional '<' characters when inside a tag
+	                if (state == STATE_HTML) {
+	                    depth++;
+	                    break;
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            case '>': {
+	                // something like this is happening: '<<>>'
+	                if (depth) {
+	                    depth--;
+	                    break;
+	                }
+
+	                // ignore '>' if inside a quote
+	                if (inQuote) {
+	                    break;
+	                }
+
+	                // an HTML tag was closed
+	                if (state == STATE_HTML) {
+	                    inQuote = state = 0;
+
+	                    if (allowableTags) {
+	                        tagBuffer += '>';
+	                        flushTagBuffer();
+	                    }
+
+	                    break;
+	                }
+
+	                // '<!' met its ending '>'
+	                if (state == STATE_PRE_COMMENT) {
+	                    inQuote = state = 0;
+	                    tagBuffer = '';
+	                    break;
+	                }
+
+	                // if last two characters were '--', then end comment
+	                if (state == STATE_COMMENT &&
+	                    html[i - 1] == '-' &&
+	                    html[i - 2] == '-') {
+
+	                    inQuote = state = 0;
+	                    tagBuffer = '';
+	                    break;
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            // catch both single and double quotes
+	            case '"':
+	            case '\'': {
+	                if (state == STATE_HTML) {
+	                    if (inQuote == c) {
+	                        // end quote found
+	                        inQuote = false;
+	                    } else if (!inQuote) {
+	                        // start quote only if not already in one
+	                        inQuote = c;
+	                    }
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            case '!': {
+	                if (state == STATE_HTML &&
+	                    html[i - 1] == '<') {
+
+	                    // looks like we might be starting a comment
+	                    state = STATE_PRE_COMMENT;
+	                    break;
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            case '-': {
+	                // if the previous two characters were '!-', this is a comment
+	                if (state == STATE_PRE_COMMENT &&
+	                    html[i - 1] == '-' &&
+	                    html[i - 2] == '!') {
+
+	                    state = STATE_COMMENT;
+	                    break;
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            case 'E':
+	            case 'e': {
+	                // check for DOCTYPE, because it looks like a comment and isn't
+	                if (state == STATE_PRE_COMMENT &&
+	                    html.substr(i - 6, 7).toLowerCase() == 'doctype') {
+
+	                    state = STATE_HTML;
+	                    break;
+	                }
+
+	                consumeCharacter(c);
+	                break;
+	            }
+
+	            default: {
+	                consumeCharacter(c);
+	            }
+	        }
+	    }
+
+	    function consumeCharacter(c) {
+	        if (state == STATE_OUTPUT) {
+	            output += c;
+	        } else if (allowableTags && state == STATE_HTML) {
+	            tagBuffer += c;
+	        }
+	    }
+
+	    function flushTagBuffer() {
+	        var normalized = '',
+	            nonWhitespaceSeen = false,
+	            i, length, c;
+
+	        normalizeTagBuffer:
+	        for (i = 0, length = tagBuffer.length; i < length; i++) {
+	            c = tagBuffer[i].toLowerCase();
+
+	            switch (c) {
+	                case '<': {
+	                    break;
+	                }
+
+	                case '>': {
+	                    break normalizeTagBuffer;
+	                }
+
+	                case '/': {
+	                    nonWhitespaceSeen = true;
+	                    break;
+	                }
+
+	                default: {
+	                    if (!c.match(WHITESPACE)) {
+	                        nonWhitespaceSeen = true;
+	                        normalized += c;
+	                    } else if (nonWhitespaceSeen) {
+	                        break normalizeTagBuffer;
+	                    }
+	                }
+	            }
+	        }
+
+	        if (allowableTags.indexOf(normalized) !== -1) {
+	            output += tagBuffer;
+	        }
+
+	        tagBuffer = '';
+	    }
+
+	    return output;
+	}
+
+	/**
+	 * Return an array containing tags that are allowed to pass through the
+	 * algorithm.
+	 *
+	 * @param string allowableTags A string of tags to allow (e.g. "<b><strong>").
+	 * @return array|null An array of allowed tags or null if none.
+	 */
+	function parseAllowableTags(allowableTags) {
+	    var tagsArray = [],
+	        match;
+
+	    while ((match = ALLOWED_TAGS_REGEX.exec(allowableTags)) !== null) {
+	        tagsArray.push(match[1]);
+	    }
+
+	    return tagsArray.length !== 0 ? tagsArray : null;
+	}
+
+	module.exports = striptags;
+
 
 /***/ }
 /******/ ]);

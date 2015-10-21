@@ -13,13 +13,15 @@ var endsWith = function(str, suffix) {
 var DashedTagTextBox = React.createClass({
 	getDefaultProps() {
 		return {
-			style: {}
+			tags: [],
+			addTagCallback: null,
+			removeTagCallback: null,
+			style: {},
 		};
 	},
 
 	getInitialState() {
 		return {
-			tags: [],
 			text: ''
 		};
 	},
@@ -36,11 +38,9 @@ var DashedTagTextBox = React.createClass({
 			endsWith(text, '<br />') ||
 			endsWith(text, '\n')) {
 			var newTag = text.replace(/&nbsp;/gi, '').replace(/ /gi, '').replace(/<br>/gi, '')
-						.replace(/<br >/gi, '').replace(/\n/gi, '');
-			this.setState({
-				tags: this.state.tags.concat([ newTag ]),
-				text: ''
-			});
+						.replace(/<br \/>/gi, '').replace(/\n/gi, '');
+			this.setState({ text: '' });
+			this.props.addTagCallback(newTag);
 		} else {
 			this.setState({ text: text });
 		}
@@ -55,17 +55,12 @@ var DashedTagTextBox = React.createClass({
 		var innerDivStyle = {
 			display: 'inline-block',
 			padding: '3px',
-			minWidth: '20px'
+			minWidth: '20px',
+			width: '100%'
 		};
 
-		var tags = this.state.tags.map(function(tag) {
-			var removeFn = function() {
-				var tags = this.state.tags;
-				tags.remove(tag);
-				this.setState({ tags: tags });
-				this.refs.inputText.getDOMNode().focus();
-			}.bind(this);
-			return (<TagBtn key={tag} text={tag} removeCallback={removeFn} />);
+		var tags = this.props.tags.map(function(tag) {
+			return (<TagBtn key={tag} text={tag} removeCallback={this.props.removeTagCallback} />);
 		}.bind(this));
 
 		return (
@@ -91,11 +86,15 @@ var TagBtn = React.createClass({
 		};
 	},
 
+	onClick(evt) {
+		this.props.removeCallback(this.props.text);
+	},
+
 	render() {
 		return (
 			<DarkBlueSmallBtn
 				style={{ margin: '4px' }}
-				onClick={this.props.removeCallback}>
+				onClick={this.onClick}>
 				{this.props.text}
 				<span 
 					style={{ marginLeft: '3px' }}

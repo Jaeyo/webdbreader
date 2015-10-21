@@ -220,7 +220,7 @@ var InputDatabasePanel = React.createClass({
 			display: this.props.visible === true ? 'block' : 'none'
 		};
 
-		var stages = [ 'DB정보 입력', '테이블 선택', '블라블라' ];
+		var stages = [ 'DB정보 입력', '테이블 선택', '컬럼 선택' ];
 
 		var divLineStyle = { marginBottom: '8px' };
 
