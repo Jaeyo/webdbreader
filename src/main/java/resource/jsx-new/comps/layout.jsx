@@ -15,11 +15,10 @@ var Layout = React.createClass({
 	},
 
 	render() {
-		var outerDivStyle = {
-			backgroundColor: color.darkBlue,
+		var outerDivStyle = _.extend({
 			height: '100%',
 			width: '100%',
-		};
+		}, color.background);
 
 		var innerDivStyle = {
 			marginLeft: 'auto',
@@ -102,7 +101,7 @@ Nav.Btn = React.createClass({
 			padding: '15px',
 			textAlign: 'center'		
 		}, this.state.isActive === true ? {
-			backgroundColor: 'white',
+			backgroundColor: color.transparentWhite,
 			color: color.darkBlue,
 		} : {
 			color: 'white'
@@ -138,7 +137,7 @@ var Container = React.createClass({
 			height: '100%'
 		};
 		var innerDivStyle = {
-			backgroundColor: 'white',
+			backgroundColor: color.transparentWhite,
 			width: '100%',
 			height: '100%',
 			overflow: 'auto',

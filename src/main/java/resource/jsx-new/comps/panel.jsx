@@ -21,13 +21,11 @@ var Panel = React.createClass({
 		);
 	}
 });
+exports.Panel = Panel;
 
 Panel.Heading = React.createClass({
 	getDefaultProps() {
-		return {
-			glyphicon: '',
-			style: {}
-		};
+		return { glyphicon: '', style: {} };
 	},
 
 	render() {
@@ -46,6 +44,21 @@ Panel.Heading = React.createClass({
 				<span>{this.props.children}</span>
 			</div>
 		);
+	}
+});
+
+
+Panel.SmallHeading = React.createClass({
+	getDefaultProps() {
+		return { glyphicon: '', style: {} };
+	},
+
+	render() {
+		var style = _.extend({
+			padding: '5px',
+			fontSize: '90%'
+		}, this.props.style);
+		return (<Panel.Heading glyphicon={this.props.glyphicon} style={style}>{this.props.children}</Panel.Heading>);
 	}
 });
 
@@ -153,5 +166,3 @@ Panel.Footer = React.createClass({
 		);
 	}
 });
-
-exports.Panel = Panel;

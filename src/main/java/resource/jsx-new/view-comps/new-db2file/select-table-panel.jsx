@@ -15,8 +15,8 @@ var SelectTablePanel = React.createClass({
 	getDefaultProps() {
 		return {
 			visible: false,
-			prevCallback: null,
-			nextCallback: null
+			onPrev: null,
+			onNext: null
 		};
 	},
 
@@ -57,14 +57,18 @@ var SelectTablePanel = React.createClass({
 		});
 	},
 
-	prev() {
-		this.setState({ tableName: '' });
-		this.props.prevCallback();
+	beforePrev() {
+		return new Promise(function(resolve, reject) {
+			this.setState({ tableName: '' });
+			resolve(true);
+		}.bind(this));
 	},
 
-	next() {
-		window.store.dispatch(window.store.actions.SELECT_TABLE, this.state.tableName);
-		this.props.nextCallback();
+	beforeNext() {
+		return new Promise(function(resolve, reject) {
+			window.store.dispatch(window.store.actions.SELECT_TABLE, this.state.tableName);
+			resolve(true);
+		}.bind(this));
 	},
 
 	setTableName(tableName) {
@@ -88,15 +92,12 @@ var SelectTablePanel = React.createClass({
 
 	render() {
 		var outerDivStyle = {
-			position: 'absolute',
-			width: '700px',
-			top: '50%',
-			left: '50%',
-			transform: 'translate(-50%, -50%)',
-			display: this.props.visible === true ? 'block' : 'none'
+			display: this.props.visible === true ? 'block' : 'none',
+			float: 'left',
+			width: 'calc(100% - 150px)'
 		};
 
-		var stages = [ 'DB정보 입력', '테이블 선택', '컬럼 선택' ];
+		var stages = [ 'database 설정', 'table 설정', 'column 설정', 'binding type 설정', '기타 설정', 'script 확인' ];
 
 		return (
 			<div style={outerDivStyle}>
@@ -113,10 +114,10 @@ var SelectTablePanel = React.createClass({
 					</Panel.Body>
 					<Panel.Footer>
 						<span style={{ float: 'left' }}>
-							<Btn onCLick={this.prev}>prev</Btn>
+							<Btn onClick={this.props.onPrev}>prev</Btn>
 						</span>
 						<span style={{ float: 'right' }}>
-							<Btn onClick={this.next}>next</Btn>
+							<Btn onClick={this.props.onNext}>next</Btn>
 						</span>
 						<Clearfix />
 					</Panel.Footer>

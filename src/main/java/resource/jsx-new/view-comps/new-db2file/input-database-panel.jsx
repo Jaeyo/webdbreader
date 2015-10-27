@@ -46,7 +46,7 @@ var InputDatabasePanel = React.createClass({
 	},
 
 	getDefaultProps() {
-		return { nextCallback: null, visible: false };
+		return { visible: false, onNext: null };
 	},
 
 	getInitialState() {
@@ -116,32 +116,38 @@ var InputDatabasePanel = React.createClass({
 		});
 	},
 
-	next(evt) {
-		if(this.validationCheck() === false) return;
+	beforeNext() {
+		return new Promise(function(resolve, reject) {
+			if(this.validationCheck() === false) {
+				resolve(false);
+				return;
+			}
 
-		window.curtainYesOrNo.show({
-			msg: '데이터베이스 connect test를 진행할까요?',
-			onClick: function(result) {
-				if(result === true) {
-					this.connectTest().then(function(result) {
-						window.curtainAlert.show({ 
-							msg: '데이터베이스 connect test 성공',
-							onClick: function() {
-								this.dispatch();
-								this.props.nextCallback();
-							}.bind(this)
-						});
-					}.bind(this)).catch(function(err) {
-						window.curtainAlert.show({ 
-							msg: util.format('데이터베이스 connect test 실패 (%s)', err)
-						});
-					}.bind(this));
-				} else {
-					this.dispatch();
-					this.props.nextCallback();
-				}
-			}.bind(this)
-		});
+			window.curtainYesOrNo.show({
+				msg: '데이터베이스 connect test를 진행할까요?',
+				onClick: function(result) {
+					if(result === true) {
+						this.connectTest().then(function(result) {
+							window.curtainAlert.show({ 
+								msg: '데이터베이스 connect test 성공',
+								onClick: function() {
+									resolve(true);
+									this.dispatch();
+								}.bind(this)
+							});
+						}.bind(this)).catch(function(err) {
+							window.curtainAlert.show({ 
+								msg: util.format('데이터베이스 connect test 실패 (%s)', err)
+							});
+							resolve(false);
+						}.bind(this));
+					} else {
+						this.dispatch();
+						resolve(true);
+					}
+				}.bind(this)
+			});
+		}.bind(this));
 	},
 
 	onChangeDbVendor(evt) {
@@ -211,16 +217,13 @@ var InputDatabasePanel = React.createClass({
 	},
 
 	render() {
-		var outerDivStyle = {
-			position: 'absolute',
-			width: '700px',
-			top: '50%',
-			left: '50%',
-			transform: 'translate(-50%, -50%)',
-			display: this.props.visible === true ? 'block' : 'none'
+		var outerDivStyle = { 
+			display: this.props.visible === true ? 'block' : 'none',
+			float: 'left',
+			width: 'calc(100% - 150px)'
 		};
 
-		var stages = [ 'DB정보 입력', '테이블 선택', '컬럼 선택' ];
+		var stages = [ 'database 설정', 'table 설정', 'column 설정', 'binding type 설정', '기타 설정', 'script 확인' ];
 
 		var divLineStyle = { marginBottom: '8px' };
 
@@ -303,7 +306,7 @@ var InputDatabasePanel = React.createClass({
 					</Panel.Body>
 					<Panel.Footer>
 						<span style={{ float: 'right' }}>
-							<Btn onClick={this.next}>next</Btn>
+							<Btn onClick={this.props.onNext}>next</Btn>
 						</span>
 						<Clearfix />
 					</Panel.Footer>

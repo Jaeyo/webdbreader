@@ -25,13 +25,22 @@ var SelectBox = React.createClass({
 	},
 	
 	render() {
+		var style = _.extend({
+			backgroundColor: color.transparentLightGray,
+			border: 'none',
+			padding: '6px',
+			outline: 'none',
+			WebkitAppearance: 'none',
+			msAppearance: 'none'
+		}, this.props.style);
+
 		var body = this.props.values.map(function(value) {
 			return <option key={value} value={value}>{value}</option>;
 		});
 
 		return (
 			<select 
-				style={this.props.style}
+				style={style}
 				value={this.state.value}
 				onChange={this.onChange}>
 				{body}

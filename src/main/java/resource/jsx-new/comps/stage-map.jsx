@@ -1,6 +1,8 @@
 var React = require('react'),
 	util = require('util'),
-	color = require('../utils/util.js').color;
+	jsUtil = require('../utils/util.js'),
+	color = jsUtil.color,
+	boxShadow = jsUtil.boxShadow;
 
 var STAGE_SIZE = 20;
 
@@ -19,7 +21,8 @@ var StageMap = React.createClass({
 			top: '40%',
 			left: left,
 			transform: 'translate(-50%, -50%)',
-			height: STAGE_SIZE + 'px'
+			height: STAGE_SIZE + 'px',
+			boxShadow: boxShadow.default
 		};
 		return (<div key={left} style={style}><Stage isActive={isActive} /></div>);
 	},
@@ -42,7 +45,7 @@ var StageMap = React.createClass({
 			} else if(i == this.props.stages.length-1) {
 				left = '90%';
 			} else {
-				left = 80 / (this.props.stages.length-1) + 10 + '%';
+				left = ((80 / (this.props.stages.length-1)) * i) + 10 + '%';
 			}
 
 			body.push(this.makeStage(left, this.props.pos === i));
@@ -84,7 +87,8 @@ var Line = React.createClass({
 			left: '10%',
 			right: '10%',
 			top: '40%',
-			transform: 'translateY(-50%)'
+			transform: 'translateY(-50%)',
+			boxShadow: boxShadow.default
 		};
 
 		return ( <div style={style} /> );
@@ -103,7 +107,8 @@ var Stage = React.createClass({
 			borderRadius: '50%',
 			backgroundColor: color.lightGray,
 			position: 'relative',
-			display: 'inline-block'
+			display: 'inline-block',
+			boxShadow: boxShadow.default
 		};
 
 		var innerDivStyle = {
@@ -118,6 +123,7 @@ var Stage = React.createClass({
 			transform: 'translate(-50%, -50%)',
 			display: 'inline-block'
 		};
+		if(this.props.isActive === true) innerDivStyle.boxshadow = boxShadow.default;
 
 		return (
 			<div style={outerDivStyle}>

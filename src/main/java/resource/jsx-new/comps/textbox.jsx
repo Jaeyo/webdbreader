@@ -28,10 +28,17 @@ var TextBox = React.createClass({
 	},
 	
 	render() {
+		var style = _.extend({
+			backgroundColor: color.transparentLightGray,
+			border: 'none',
+			padding: '6px',
+			outline: 'none'
+		}, this.props.style);
+
 		return (
 			<input 
 				type={this.props.type}
-				style={this.props.style}
+				style={style}
 				placeholder={this.props.placeholder}
 				value={this.state.value}
 				onChange={this.onChange} />

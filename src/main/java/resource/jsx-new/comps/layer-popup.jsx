@@ -1,6 +1,7 @@
 var React = require('react'),
 	Loading = require('react-loading'),
-	DarkBlueBtn = require('./btn.jsx').DarkBlueBtn;
+	DarkBlueBtn = require('./btn.jsx').DarkBlueBtn,
+	boxShadow = require('../utils/util.js').boxShadow;
 
 var Z_INDEX_CURTAIN = 100;
 var Z_INDEX_OVER_CURTAIN = 200;
@@ -17,10 +18,12 @@ var modalMixin = {
 			backgroundColor: 'white',
 			width: '400px',
 			padding: '20px 30px 15px 30px',
-			borderRadius: '5px'
+			borderRadius: '5px',
+			boxShadow: boxShadow.modalBox
 		};
 	}
 };
+exports.modalMixin = modalMixin;
 
 var CurtainLoadingView = React.createClass({
 	getInitialState() {
@@ -253,3 +256,4 @@ var Curtain = React.createClass({
 		);
 	}
 });
+exports.Curtain = Curtain;

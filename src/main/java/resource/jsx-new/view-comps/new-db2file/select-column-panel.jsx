@@ -18,8 +18,8 @@ var SelectColumnPanel = React.createClass({
 	getDefaultProps() {
 		return {
 			visible: false,
-			prevCallback: null,
-			nextCallback: null
+			onPrev: null,
+			onNext: null
 		}
 	},
 
@@ -28,6 +28,18 @@ var SelectColumnPanel = React.createClass({
 			selectedColumns: [],
 			columns: []
 		};
+	},
+
+	beforeNext() {
+		return new Promise(function(resolve, reject) {
+			resolve(true);
+		}.bind(this));
+	},
+
+	beforePrev() {
+		return new Promise(function(resolve, reject) {
+			resolve(true);
+		}.bind(this));
 	},
 
 	componentDidMount() {
@@ -68,14 +80,6 @@ var SelectColumnPanel = React.createClass({
 		});
 	},
 
-	next() {
-		this.props.nextCallback();
-	},
-
-	prev() {
-		this.props.prevCallback();
-	},
-
 	loadColumns() {
 		return new Promise(function(resolve, reject) {
 			window.curtainLoadingAlert.show({ msg: '컬럼을 불러오는 중...' });
@@ -103,17 +107,26 @@ var SelectColumnPanel = React.createClass({
 		this.setState({ selectedColumns: selectedColumns });
 	},
 
+	selectAll(evt) {
+		var columns = [];
+		this.state.columns.forEach(function(column) {
+			if(this.state.selectedColumns.indexOf(column.columnName) === -1)
+				columns.push(column.columnName);
+		}.bind(this));
+
+		this.setState({
+			selectedColumns: this.state.selectedColumns.concat(columns)
+		});
+	},
+
 	render() {
-		var outerDivStyle = {
-			position: 'absolute',
-			width: '700px',
-			top: '50%',
-			left: '50%',
-			transform: 'translate(-50%, -50%)',
-			display: this.props.visible === true ? 'block' : 'none'
+		var outerDivStyle = { 
+			display: this.props.visible === true ? 'block' : 'none',
+			float: 'left',
+			width: 'calc(100% - 150px)'
 		};
 
-		var stages = [ 'DB정보 입력', '테이블 선택', '컬럼 선택' ];
+		var stages = [ 'database 설정', 'table 설정', 'column 설정', 'binding type 설정', '기타 설정', 'script 확인' ];
 
 		return (
 			<div style={outerDivStyle}>
@@ -131,13 +144,17 @@ var SelectColumnPanel = React.createClass({
 						<ColumnBox 
 							columns={this.state.columns}
 							selectColumnCallback={this.addSelectedColumn} />
+						<div style={{ float: 'right' }}>
+							<Btn onClick={this.selectAll}>전체 선택</Btn>
+						</div>
+						<Clearfix />
 					</Panel.Body>
 					<Panel.Footer>
 						<span style={{ float: 'left' }}>
-							<Btn onClick={this.prev}>prev</Btn>
+							<Btn onClick={this.props.onPrev}>prev</Btn>
 						</span>
 						<span style={{ float: 'right' }}>
-							<Btn onClick={this.next}>next</Btn>
+							<Btn onClick={this.props.onNext}>next</Btn>
 						</span>
 						<Clearfix />
 					</Panel.Footer>

@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(191);
+	module.exports = __webpack_require__(170);
 
 
 /***/ },
@@ -22642,15 +22642,13 @@
 			);
 		}
 	});
+	exports.Panel = Panel;
 
 	Panel.Heading = React.createClass({
 		displayName: 'Heading',
 
 		getDefaultProps: function getDefaultProps() {
-			return {
-				glyphicon: '',
-				style: {}
-			};
+			return { glyphicon: '', style: {} };
 		},
 
 		render: function render() {
@@ -22672,6 +22670,26 @@
 					null,
 					this.props.children
 				)
+			);
+		}
+	});
+
+	Panel.SmallHeading = React.createClass({
+		displayName: 'SmallHeading',
+
+		getDefaultProps: function getDefaultProps() {
+			return { glyphicon: '', style: {} };
+		},
+
+		render: function render() {
+			var style = _.extend({
+				padding: '5px',
+				fontSize: '90%'
+			}, this.props.style);
+			return React.createElement(
+				Panel.Heading,
+				{ glyphicon: this.props.glyphicon, style: style },
+				this.props.children
 			);
 		}
 	});
@@ -22793,8 +22811,6 @@
 		}
 	});
 
-	exports.Panel = Panel;
-
 /***/ },
 /* 163 */
 /***/ function(module, exports, __webpack_require__) {
@@ -22845,9 +22861,21 @@
 		darkBlue: '#385771',
 		darkBlue2: '#284761',
 		lightBlue: '#486781',
-		lightGray: '#dadada',
-		gray: '#bfbfbf',
-		darkGray: '#5d5d5d'
+		lightGray: 'rgb(218, 218, 218)',
+		transparentLightGray: 'rgba(222, 222, 222, 0.8)',
+		gray: 'rgb(191, 191, 191)',
+		darkGray: 'rgb(93, 93, 93)',
+		transparentWhite: 'rgba(255, 255, 255, 0.9)',
+		background: {
+			background: 'linear-gradient(to right,  rgba(64,83,114,1) 0%,rgba(81,124,104,1) 64%,rgba(82,94,61,1) 100%)',
+			filter: 'progid:DXImageTransform.Microsoft.gradient( startColorstr="#405372", endColorstr="#525e3d",GradientType=1 )'
+		}
+
+	};
+
+	exports.boxShadow = {
+		'default': '0 0 3px rgba(66,66,66,0.4)',
+		modalBox: '0 0 15px rgba(66,66,66,0.8)'
 	};
 
 /***/ },
@@ -22922,11 +22950,10 @@
 		},
 
 		render: function render() {
-			var outerDivStyle = {
-				backgroundColor: color.darkBlue,
+			var outerDivStyle = _.extend({
 				height: '100%',
 				width: '100%'
-			};
+			}, color.background);
 
 			var innerDivStyle = {
 				marginLeft: 'auto',
@@ -23019,7 +23046,7 @@
 				padding: '15px',
 				textAlign: 'center'
 			}, this.state.isActive === true ? {
-				backgroundColor: 'white',
+				backgroundColor: color.transparentWhite,
 				color: color.darkBlue
 			} : {
 				color: 'white'
@@ -23063,7 +23090,7 @@
 				height: '100%'
 			};
 			var innerDivStyle = {
-				backgroundColor: 'white',
+				backgroundColor: color.transparentWhite,
 				width: '100%',
 				height: '100%',
 				overflow: 'auto',
@@ -23449,28 +23476,7 @@
 /***/ },
 /* 168 */,
 /* 169 */,
-/* 170 */,
-/* 171 */,
-/* 172 */,
-/* 173 */,
-/* 174 */,
-/* 175 */,
-/* 176 */,
-/* 177 */,
-/* 178 */,
-/* 179 */,
-/* 180 */,
-/* 181 */,
-/* 182 */,
-/* 183 */,
-/* 184 */,
-/* 185 */,
-/* 186 */,
-/* 187 */,
-/* 188 */,
-/* 189 */,
-/* 190 */,
-/* 191 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
