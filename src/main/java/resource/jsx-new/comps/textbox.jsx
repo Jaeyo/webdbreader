@@ -9,7 +9,8 @@ var TextBox = React.createClass({
 			placeholder: '',
 			value: '',
 			style: {},
-			onChange: null
+			onChange: null,
+			onClick: null
 		};
 	},
 	
@@ -41,7 +42,8 @@ var TextBox = React.createClass({
 				style={style}
 				placeholder={this.props.placeholder}
 				value={this.state.value}
-				onChange={this.onChange} />
+				onChange={this.onChange}
+				onClick={this.props.onClick} />
 		);
 	}
 });

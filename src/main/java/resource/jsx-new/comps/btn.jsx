@@ -94,6 +94,27 @@ var Btn = React.createClass({
 });
 exports.Btn = Btn;
 
+
+var XSBtn = React.createClass({
+	getDefaultProps() {
+		return { onClick: null, style: {} };
+	},
+
+	render() {
+		return (
+			<Btn
+				padding='2px 4px'
+				fontSize='8px'
+				onClick={this.props.onClick}
+				style={this.props.style}>
+				{this.props.children}
+			</Btn>
+		);
+	}
+});
+exports.XSBtn = XSBtn;
+
+
 var GlyphiconBtn = React.createClass({
 	mixins: [BtnMixin],
 

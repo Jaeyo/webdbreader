@@ -22612,206 +22612,7 @@
 
 
 /***/ },
-/* 162 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    color = __webpack_require__(163).color,
-	    _ = __webpack_require__(158);
-
-	var Panel = React.createClass({
-		displayName: 'Panel',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				className: '',
-				style: {}
-			};
-		},
-
-		render: function render() {
-			var divStyle = _.extend({ border: '1px solid ' + color.lightGray }, this.props.style);
-
-			return React.createElement(
-				'div',
-				{ className: this.props.className,
-					style: divStyle },
-				this.props.children
-			);
-		}
-	});
-	exports.Panel = Panel;
-
-	Panel.Heading = React.createClass({
-		displayName: 'Heading',
-
-		getDefaultProps: function getDefaultProps() {
-			return { glyphicon: '', style: {} };
-		},
-
-		render: function render() {
-			var divStyle = _.extend({
-				padding: '10px',
-				backgroundColor: color.darkBlue,
-				color: 'white'
-			}, this.props.style);
-
-			var spanStyle = { marginRight: '10px' };
-
-			return React.createElement(
-				'div',
-				{ style: divStyle },
-				React.createElement('span', { className: 'glyphicon glyphicon-' + this.props.glyphicon,
-					style: spanStyle }),
-				React.createElement(
-					'span',
-					null,
-					this.props.children
-				)
-			);
-		}
-	});
-
-	Panel.SmallHeading = React.createClass({
-		displayName: 'SmallHeading',
-
-		getDefaultProps: function getDefaultProps() {
-			return { glyphicon: '', style: {} };
-		},
-
-		render: function render() {
-			var style = _.extend({
-				padding: '5px',
-				fontSize: '90%'
-			}, this.props.style);
-			return React.createElement(
-				Panel.Heading,
-				{ glyphicon: this.props.glyphicon, style: style },
-				this.props.children
-			);
-		}
-	});
-
-	Panel.HeadingWithIndicators = React.createClass({
-		displayName: 'HeadingWithIndicators',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				glyphicon: '',
-				style: {},
-				indicatorTotal: 0,
-				indicatorCurrent: 0
-			};
-		},
-
-		render: function render() {
-			var outerDivStyle = _.extend({
-				padding: '10px',
-				backgroundColor: color.darkBlue,
-				color: 'white'
-			}, this.props.style);
-			var glySpanStyle = { marginRight: '10px' };
-			var stageIndicatorDivStyle = { float: 'right' };
-
-			return React.createElement(
-				'div',
-				{ style: outerDivStyle },
-				React.createElement('span', { className: 'glyphicon glyphicon-' + this.props.glyphicon,
-					style: glySpanStyle }),
-				React.createElement(
-					'span',
-					null,
-					this.props.children
-				),
-				React.createElement(
-					'div',
-					{ style: stageIndicatorDivStyle },
-					React.createElement(StageIndicator, { total: this.props.indicatorTotal,
-						current: this.props.indicatorCurrent })
-				)
-			);
-		}
-	});
-
-	var StageIndicator = React.createClass({
-		displayName: 'StageIndicator',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				total: 0,
-				current: 0
-			};
-		},
-
-		render: function render() {
-			var indicators = [];
-			for (var i = 1; i <= this.props.total; i++) {
-				indicators.push(React.createElement('span', { style: _.extend({
-						display: 'inline-block',
-						width: '10px',
-						height: '10px',
-						borderRadius: '100%',
-						opacity: '0.5',
-						margin: '0 2px 0 2px'
-					}, i === this.props.current ? {
-						background: 'black'
-					} : {
-						background: 'gray'
-					}) }));
-			}
-			return React.createElement(
-				'div',
-				null,
-				indicators
-			);
-		}
-	});
-
-	Panel.Body = React.createClass({
-		displayName: 'Body',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				style: {}
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: _.extend({ padding: '15px' }, this.props.style) },
-				this.props.children
-			);
-		}
-	});
-
-	Panel.Footer = React.createClass({
-		displayName: 'Footer',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				style: {}
-			};
-		},
-
-		render: function render() {
-			var outerDivStyle = _.extend({
-				padding: '10px',
-				backgroundColor: color.darkBlue,
-				color: 'white'
-			}, this.props.style);
-
-			return React.createElement(
-				'div',
-				{ style: outerDivStyle },
-				this.props.children
-			);
-		}
-	});
-
-/***/ },
+/* 162 */,
 /* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23111,29 +22912,7 @@
 	exports.Container = Container;
 
 /***/ },
-/* 166 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2);
-
-	var Clearfix = React.createClass({
-		displayName: 'Clearfix',
-
-		render: function render() {
-			return React.createElement('div', {
-				style: {
-					content: '',
-					display: 'table',
-					clear: 'both'
-				} });
-		}
-	});
-
-	exports.Clearfix = Clearfix;
-
-/***/ },
+/* 166 */,
 /* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23236,6 +23015,27 @@
 		}
 	});
 	exports.Btn = Btn;
+
+	var XSBtn = React.createClass({
+		displayName: 'XSBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
+		render: function render() {
+			return React.createElement(
+				Btn,
+				{
+					padding: '2px 4px',
+					fontSize: '8px',
+					onClick: this.props.onClick,
+					style: this.props.style },
+				this.props.children
+			);
+		}
+	});
+	exports.XSBtn = XSBtn;
 
 	var GlyphiconBtn = React.createClass({
 		displayName: 'GlyphiconBtn',
@@ -23485,12 +23285,9 @@
 	    jsUtil = __webpack_require__(163),
 	    color = jsUtil.color,
 	    Layout = __webpack_require__(165).Layout,
-	    TextBox = __webpack_require__(171).TextBox,
-	    SelectBox = __webpack_require__(172).SelectBox,
-	    Panel = __webpack_require__(162).Panel,
-	    DarkBlueSmallBtn = __webpack_require__(167).DarkBlueSmallBtn,
-	    Clearfix = __webpack_require__(166).Clearfix,
-	    LayerPopup = __webpack_require__(173).LayerPopup;
+	    LayerPopup = __webpack_require__(172).LayerPopup,
+	    DatabaseConfigPanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/database-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
+	    BindingTypePanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/binding-type-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 	window.store = {
 		actions: {},
@@ -23502,34 +23299,6 @@
 			this.listeners.forEach(function (listener) {
 				listener(action, data);
 			});
-		}
-	};
-
-	var jdbcTmpl = {
-		oracle: {
-			driver: 'oracle.jdbc.driver.OracleDriver',
-			connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
-			port: 1521
-		},
-		mysql: {
-			driver: 'com.mysql.jdbc.Driver',
-			connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
-			port: 3306
-		},
-		mssql: {
-			driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-			connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
-			port: 1433
-		},
-		db2: {
-			driver: 'com.ibm.db2.jcc.DB2Driver',
-			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 50000
-		},
-		tibero: {
-			driver: 'com.ibm.db2.jcc.DB2Driver',
-			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 8629
 		}
 	};
 
@@ -23559,216 +23328,8 @@
 					null,
 					'database 설정'
 				),
-				React.createElement(JdbcConfigPanel, null)
-			);
-		}
-	});
-
-	var JdbcConfigPanel = React.createClass({
-		displayName: 'JdbcConfigPanel',
-
-		getInitialState: function getInitialState() {
-			return {
-				dbVendor: 'oracle',
-				jdbcDriver: '',
-				jdbcConnUrl: '',
-				jdbcUsername: '',
-				jdbcPassword: ''
-			};
-		},
-
-		configureDatabase: function configureDatabase() {
-			this.refs.databaseConfigModal.show();
-		},
-
-		onDbVendorChange: function onDbVendorChange(evt) {
-			var state = { dbVendor: evt.target.value };
-
-			if (state.dbVendor !== 'etc') {
-				var tmpl = jdbcTmpl[this.state.dbVendor];
-				state.driver = tmpl.driver;
-			}
-
-			this.setState(state);
-		},
-
-		onDatabaseConfigModalChange: function onDatabaseConfigModalChange(args) {
-			if (this.state.dbVendor === 'etc') return;
-			if (!args.ip) args.ip = '';
-			if (!args.port) args.port = '';
-			if (!args.sid) args.sid = '';
-			var tmpl = jdbcTmpl[this.state.dbVendor];
-			var connUrl = tmpl.connUrl.replace('{ip}', args.ip).replace('{port}', args.port).replace('{database}', args.sid);
-			this.setState({ jdbcConnUrl: connUrl });
-		},
-
-		render: function render() {
-			var leftStyle = {
-				width: '100px',
-				float: 'left',
-				textAligh: 'right',
-				textSize: '90%'
-			};
-
-			return React.createElement(
-				Panel,
-				null,
-				React.createElement(
-					Panel.SmallHeading,
-					{ glyphicon: 'cog' },
-					'jdbc 설정'
-				),
-				React.createElement(
-					Panel.Body,
-					{ style: { position: 'relative' } },
-					React.createElement(
-						KeyValueLine,
-						{ label: '데이터베이스' },
-						React.createElement(SelectBox, {
-							values: ['oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc'],
-							value: this.state.dbVendor,
-							onChange: this.onDbVendorChange }),
-						React.createElement(
-							DarkBlueSmallBtn,
-							{ onClick: this.configureDatabase },
-							'설정'
-						),
-						React.createElement(TextBox, {
-							placeholder: 'jdbc driver',
-							value: this.state.jdbcDriver }),
-						React.createElement(TextBox, {
-							placeholder: 'jdbc connection url',
-							value: this.state.jdbcConnUrl }),
-						React.createElement(TextBox, {
-							placeholder: 'jdbc username',
-							value: this.state.jdbcUsername }),
-						React.createElement(TextBox, {
-							type: 'password',
-							placeholder: 'jdbc password',
-							value: this.state.jdbcPassword })
-					)
-				),
-				React.createElement(DatabaseConfigModal, {
-					ref: 'databaseConfigModal',
-					dbVendor: this.state.dbVendor,
-					onChange: this.onDatabaseConfigModalChange })
-			);
-		}
-	});
-
-	var DatabaseConfigModal = React.createClass({
-		displayName: 'DatabaseConfigModal',
-
-		mixins: [LayerPopup.modalMixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				dbVendor: 'oracle',
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				ip: '',
-				port: '',
-				sid: ''
-			};
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-			if (this.props.dbVendor !== nextProps.dbVendor && nextProps.dbVendor !== 'etc') {
-				this.setState({
-					port: jdbcTmpl[nextProps.dbVendor].port
-				});
-			}
-		},
-
-		onIpChange: function onIpChange(evt) {
-			this.setState({ ip: evt.target.value });
-			if (this.props.onChange) this.props.onChange({ ip: evt.target.value });
-		},
-
-		onPortChange: function onPortChange(evt) {
-			this.setState({ port: evt.target.value });
-			if (this.props.onChange) this.props.onChange({ port: evt.target.value });
-		},
-
-		onSidChange: function onSidChange(evt) {
-			this.setState({ sid: evt.target.value });
-			if (this.props.onChange) this.props.onChange({ sid: evt.target.value });
-		},
-
-		show: function show() {
-			this.setState({ visible: true });
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: { display: this.state.visible === true ? 'block' : 'none' } },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'div',
-					{ style: this.getModalDivStyle() },
-					React.createElement(TextBox, {
-						placeholder: 'database ip',
-						value: this.state.ip,
-						onChange: this.onIpChange }),
-					React.createElement(TextBox, {
-						placeholder: 'port',
-						value: this.state.port,
-						onChange: this.onPortChange }),
-					React.createElement(TextBox, {
-						placeholder: 'database',
-						value: this.state.sid,
-						onChange: this.onSidChange }),
-					React.createElement(
-						DarkBlueSmallBtn,
-						{ onClick: this.hide },
-						'ok'
-					)
-				)
-			);
-		}
-	});
-
-	var KeyValueLine = React.createClass({
-		displayName: 'KeyValueLine',
-
-		getDefaultProps: function getDefaultProps() {
-			return { label: '' };
-		},
-
-		render: function render() {
-			var leftStyle = {
-				float: 'left',
-				wkdth: '100px',
-				textAlign: 'right'
-			};
-			var rightStyle = {
-				float: 'left'
-			};
-
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'div',
-					{ style: leftStyle },
-					this.props.label
-				),
-				React.createElement(
-					'div',
-					{ style: rightStyle },
-					this.props.children
-				),
-				React.createElement(Clearfix, null)
+				React.createElement(DatabaseConfigPanel, null),
+				React.createElement(BindingTypePanel, null)
 			);
 		}
 	});
@@ -23782,194 +23343,14 @@
 
 /***/ },
 /* 170 */,
-/* 171 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    _ = __webpack_require__(158),
-	    color = __webpack_require__(163).color;
-
-	var TextBox = React.createClass({
-		displayName: 'TextBox',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { value: this.props.value };
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-			if (nextProps.value) this.setState({ value: nextProps.value });
-		},
-
-		onChange: function onChange(evt) {
-			this.setState({ value: evt.target.value });
-			this.props.onChange(evt);
-		},
-
-		render: function render() {
-			var style = _.extend({
-				backgroundColor: color.transparentLightGray,
-				border: 'none',
-				padding: '6px',
-				outline: 'none'
-			}, this.props.style);
-
-			return React.createElement('input', {
-				type: this.props.type,
-				style: style,
-				placeholder: this.props.placeholder,
-				value: this.state.value,
-				onChange: this.onChange });
-		}
-	});
-	exports.TextBox = TextBox;
-
-	var DashedTextBox = React.createClass({
-		displayName: 'DashedTextBox',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null
-			};
-		},
-
-		render: function render() {
-			var style = _.extend({
-				padding: '5px',
-				border: '1px dashed ' + color.gray,
-				outline: 'none',
-				borderRadius: '5px'
-			}, this.props.style);
-
-			return React.createElement(TextBox, {
-				type: this.props.type,
-				placeholder: this.props.placeholder,
-				value: this.props.value,
-				style: style,
-				onChange: this.props.onChange });
-		}
-	});
-	exports.DashedTextBox = DashedTextBox;
-
-/***/ },
+/* 171 */,
 /* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2),
-	    _ = __webpack_require__(158),
-	    color = __webpack_require__(163).color;
-
-	var SelectBox = React.createClass({
-		displayName: 'SelectBox',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				values: [],
-				value: null,
-				onChange: null,
-				style: {}
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				value: this.props.value
-			};
-		},
-
-		onChange: function onChange(evt) {
-			this.setState({ value: evt.target.value });
-			if (this.props.onChange) this.props.onChange(evt);
-		},
-
-		render: function render() {
-			var style = _.extend({
-				backgroundColor: color.transparentLightGray,
-				border: 'none',
-				padding: '6px',
-				outline: 'none',
-				WebkitAppearance: 'none',
-				msAppearance: 'none'
-			}, this.props.style);
-
-			var body = this.props.values.map(function (value) {
-				return React.createElement(
-					'option',
-					{ key: value, value: value },
-					value
-				);
-			});
-
-			return React.createElement(
-				'select',
-				{
-					style: style,
-					value: this.state.value,
-					onChange: this.onChange },
-				body
-			);
-		}
-	});
-	exports.SelectBox = SelectBox;
-
-	var DashedSelectBox = React.createClass({
-		displayName: 'DashedSelectBox',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				value: null,
-				values: [],
-				onChange: null,
-				style: {}
-			};
-		},
-
-		render: function render() {
-			var style = _.extend({
-				padding: '3px 5px',
-				borderRadius: '6px',
-				WebKitBorderRadius: '6px',
-				msBorderRadius: '6px',
-				border: '1px dashed ' + color.gray,
-				outline: 'none',
-				WebkitAppearance: 'none',
-				msAppearance: 'none'
-			}, this.props.style);
-
-			return React.createElement(SelectBox, {
-				style: style,
-				value: this.props.value,
-				values: this.props.values,
-				onChange: this.props.onChange });
-		}
-	});
-	exports.DashedSelectBox = DashedSelectBox;
-
-/***/ },
-/* 173 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    Loading = __webpack_require__(174),
+	    Loading = __webpack_require__(173),
 	    DarkBlueBtn = __webpack_require__(167).DarkBlueBtn,
 	    boxShadow = __webpack_require__(163).boxShadow;
 
@@ -24269,7 +23650,7 @@
 	exports.Curtain = Curtain;
 
 /***/ },
-/* 174 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {

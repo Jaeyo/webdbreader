@@ -24046,6 +24046,27 @@
 	});
 	exports.Btn = Btn;
 
+	var XSBtn = React.createClass({
+		displayName: 'XSBtn',
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null, style: {} };
+		},
+
+		render: function render() {
+			return React.createElement(
+				Btn,
+				{
+					padding: '2px 4px',
+					fontSize: '8px',
+					onClick: this.props.onClick,
+					style: this.props.style },
+				this.props.children
+			);
+		}
+	});
+	exports.XSBtn = XSBtn;
+
 	var GlyphiconBtn = React.createClass({
 		displayName: 'GlyphiconBtn',
 
