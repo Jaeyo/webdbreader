@@ -1,26 +1,41 @@
 var React = require('react'),
-	_ = require('underscore');
+	ReactCSS = require('reactcss'),
+	_ = require('underscore'),
+	Clearfix = require('./clearfix.jsx').Clearfix;
 
 exports.getKeyValueLine = function(width) {
 	return React.createClass({
+		mixins: [ ReactCSS.mixin ],
+
 		getDefaultProps() {
 			return { label: '', style: {} };
 		},
 
-		render() {
-			var leftStyle = {
-				float: 'left',
-				width: width,
-				textAlign: 'right'
-			};
-			var rightStyle = _.extend({
-				float: 'left'
-			}, this.props.style);
+		classes() {
+			return {
+				'default': {
+					left: {
+						float: 'left',
+						width: width,
+						textAlign: 'right',
+						marginRight: '15px'
+					},
+					right: _.extend({
+						float: 'left'
+					}, this.props.style)
+				}
+			}
+		},
 
+		styles() {
+			return this.css();
+		},
+
+		render() {
 			return (
 				<div>
-					<div style={leftStyle}>{this.props.label}</div>
-					<div style={rightStyle}>{this.props.children}</div>
+					<div is="left">{this.props.label}</div>
+					<div is="right">{this.props.children}</div>
 					<Clearfix />
 				</div>
 			);
@@ -30,6 +45,8 @@ exports.getKeyValueLine = function(width) {
 
 
 exports.ListItem = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return { 
 			name: '',
@@ -49,17 +66,32 @@ exports.ListItem = React.createClass({
 		this.setState({ isMouseOver: false });
 	},
 
-	render() {
-		var outer = {
-			borderBottom: '1px solid ' + color.lightGray,
-			padding: '3px 6px',
-			cursor: 'pointer',
-			backgroundColor: this.state.isMouseOver === true ? color.lightGray : 'inherit'
-		};
+	classes() {
+		return {
+			'default': {
+				outer: {
+					borderBottom: '1px solid ' + color.lightGray,
+					padding: '3px 6px',
+					cursor: 'pointer',
+					// backgroundColor: this.state.isMouseOver === true ? color.lightGray : 'inherit'
+				}
+			},
+			'isMouseOver-true': {
+				backgroundColor: color.lightGray
+			}
+		}
+	},
 
+	styles() {
+		return this.css({
+			'isMouseOver': this.state.isMouseOver
+		});
+	},
+
+	render() {
 		return (
 			<div 
-				style={outer} 
+				is="outer"
 				onMouseOver={this.onMouseOver}
 				onMouseOut={this.onMouseOut}>
 				onClick={this.props.onClick}

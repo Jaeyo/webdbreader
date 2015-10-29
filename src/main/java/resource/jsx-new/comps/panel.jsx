@@ -1,8 +1,11 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	color = require('../utils/util.js').color,
 	_ = require('underscore');
 
 var Panel = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			className: '',
@@ -10,12 +13,25 @@ var Panel = React.createClass({
 		};
 	},
 
-	render() {
-		var divStyle = _.extend({ border: '1px solid ' + color.lightGray }, this.props.style);
+	classes() {
+		return {
+			'default': {
+				div: _.extend({
+					border: '1px solid ' + color.lightGray
+				}, this.props.style)
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		return (
-			<div className={this.props.className}
-				style={divStyle}>
+			<div 
+				className={this.props.className}
+				is="div">
 				{this.props.children}
 			</div>	
 		);
@@ -24,23 +40,35 @@ var Panel = React.createClass({
 exports.Panel = Panel;
 
 Panel.Heading = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return { glyphicon: '', style: {} };
 	},
 
+	classes() {
+		return {
+			'default': {
+				div: _.extend({
+					padding: '10px',
+					backgroundColor: color.darkBlue,
+					color: 'white'
+				}, this.props.style),
+				span: {
+					marginRight: '10px'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
-		var divStyle = _.extend({ 
-			padding: '10px',
-			backgroundColor: color.darkBlue,
-			color: 'white'
-		}, this.props.style);
-
-		var spanStyle = { marginRight: '10px' };
-
 		return (
-			<div style={divStyle}>
-				<span className={'glyphicon glyphicon-' + this.props.glyphicon}
-					style={spanStyle} />
+			<div is="div">
+				<span className={'glyphicon glyphicon-' + this.props.glyphicon} is="span" />
 				<span>{this.props.children}</span>
 			</div>
 		);
@@ -49,21 +77,36 @@ Panel.Heading = React.createClass({
 
 
 Panel.SmallHeading = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return { glyphicon: '', style: {} };
 	},
 
+	classes() {
+		return {
+			'default': {
+				Heading: {
+					padding: '5px',
+					fontSize: '90%'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
-		var style = _.extend({
-			padding: '5px',
-			fontSize: '90%'
-		}, this.props.style);
-		return (<Panel.Heading glyphicon={this.props.glyphicon} style={style}>{this.props.children}</Panel.Heading>);
+		return (<Panel.Heading glyphicon={this.props.glyphicon} is="Heading">{this.props.children}</Panel.Heading>);
 	}
 });
 
 
 Panel.HeadingWithIndicators = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			glyphicon: '',
@@ -73,22 +116,38 @@ Panel.HeadingWithIndicators = React.createClass({
 		};
 	},
 
-	render() {
-		var outerDivStyle = _.extend({
-			padding: '10px',
-			backgroundColor: color.darkBlue,
-			color: 'white'
-		}, this.props.style);
-		var glySpanStyle = { marginRight: '10px' };
-		var stageIndicatorDivStyle = { float: 'right' };
+	classes() {
+		return {
+			'default': {
+				outer: _.extend({
+					padding: '10px',
+					backgroundColor: color.darkBlue,
+					color: 'white'
+				}, this.props.style),
+				glySpan: {
+					marginRight: '10px'
+				},
+				stageIndicatorDiv: {
+					float: 'right'
+				}
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		return (
-			<div style={outerDivStyle}>
-				<span className={'glyphicon glyphicon-' + this.props.glyphicon}
-					style={glySpanStyle} />
+			<div is="outer">
+				<span 
+					className={'glyphicon glyphicon-' + this.props.glyphicon}
+					is="glySpan" />
 				<span>{this.props.children}</span>
-				<div style={stageIndicatorDivStyle}>
-					<StageIndicator total={this.props.indicatorTotal}
+				<div is="stageIndicatorDiv">
+					<StageIndicator 
+						total={this.props.indicatorTotal}
 						current={this.props.indicatorCurrent} />
 				</div>
 			</div>
@@ -129,15 +188,31 @@ var StageIndicator = React.createClass({
 
 
 Panel.Body = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			style: {}
 		};
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: _.extend({
+					padding: '15px'
+				}, this.props.style)
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={_.extend({ padding: '15px' }, this.props.style)}>
+			<div is="outer">
 				{this.props.children}
 			</div>
 		);
@@ -146,21 +221,33 @@ Panel.Body = React.createClass({
 
 
 Panel.Footer = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			style: {}
 		};
 	},
 
-	render() {
-		var outerDivStyle = _.extend({
-			padding: '10px',
-			backgroundColor: color.darkBlue,
-			color: 'white'
-		}, this.props.style);
+	classes() {
+		return {
+			'default': {
+				outer: _.extend({
+					padding: '10px',
+					backgroundColor: color.darkBlue,
+					color: 'white'
+				}, this.props.style)
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		return (
-			<div style={outerDivStyle}>
+			<div is="outer">
 				{this.props.children}
 			</div>
 		);

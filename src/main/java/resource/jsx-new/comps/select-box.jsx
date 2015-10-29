@@ -1,8 +1,11 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	color = require('../utils/util.js').color;
 
 var SelectBox = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			values: [],
@@ -23,24 +26,34 @@ var SelectBox = React.createClass({
 		if(this.props.onChange) 
 			this.props.onChange(evt);
 	},
-	
-	render() {
-		var style = _.extend({
-			backgroundColor: color.transparentLightGray,
-			border: 'none',
-			padding: '6px',
-			outline: 'none',
-			WebkitAppearance: 'none',
-			msAppearance: 'none'
-		}, this.props.style);
 
+	classes() {
+		return {
+			'default': {
+				select: _.extend({
+					backgroundColor: color.transparentLightGray,
+					border: 'none',
+					padding: '6px',
+					outline: 'none',
+					WebkitAppearance: 'none',
+					msAppearance: 'none'
+				}, this.props.style)
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		var body = this.props.values.map(function(value) {
 			return <option key={value} value={value}>{value}</option>;
 		});
 
 		return (
 			<select 
-				style={style}
+				is="select"
 				value={this.state.value}
 				onChange={this.onChange}>
 				{body}
@@ -51,6 +64,8 @@ var SelectBox = React.createClass({
 exports.SelectBox = SelectBox;
 
 var DashedSelectBox = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			value: null,
@@ -60,21 +75,31 @@ var DashedSelectBox = React.createClass({
 		};
 	},
 
-	render() {
-		var style = _.extend({
-			padding: '3px 5px',
-			borderRadius: '6px',
-			WebKitBorderRadius: '6px',
-			msBorderRadius: '6px',
-			border: '1px dashed ' + color.gray,
-			outline: 'none',
-			WebkitAppearance: 'none',
-			msAppearance: 'none'
-		}, this.props.style);
+	classes() {
+		return {
+			'default': {
+				SelectBox: _.extend({
+					padding: '3px 5px',
+					borderRadius: '6px',
+					WebKitBorderRadius: '6px',
+					msBorderRadius: '6px',
+					border: '1px dashed ' + color.gray,
+					outline: 'none',
+					WebkitAppearance: 'none',
+					msAppearance: 'none'
+				}, this.props.style)
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		return (
 			<SelectBox
-				style={style}
+				is="SelectBox"
 				value={this.props.value}
 				values={this.props.values}
 				onChange={this.props.onChange} />

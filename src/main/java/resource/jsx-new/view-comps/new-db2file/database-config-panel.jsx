@@ -1,12 +1,18 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
+	util = require('util'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
+	server = require('../../utils/server.js'),
 	SelectBox = require('../../comps/select-box.jsx').SelectBox,
+	TextBox = require('../../comps/textbox.jsx').TextBox,
 	Panel = require('../../comps/panel.jsx').Panel,
 	DarkBlueSmallBtn = require('../../comps/btn.jsx').DarkBlueSmallBtn,
 	Clearfix = require('../../comps/clearfix.jsx').Clearfix,
 	LayerPopup = require('../../comps/layer-popup.jsx').LayerPopup,
+	modalMixin = require('../../comps/layer-popup.jsx').modalMixin,
+	Curtain = require('../../comps/layer-popup.jsx').Curtain,
 	KeyValueLine = require('../../comps/etc.jsx').getKeyValueLine('100px'),
 	ListItem = require('../../comps/etc.jsx').ListItem;
 
@@ -42,6 +48,8 @@ var jdbcTmpl = {
 
 
 var DatabaseConfigPanel = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getInitialState() {
 		return {
 			dbVendor: 'oracle',
@@ -50,7 +58,7 @@ var DatabaseConfigPanel = React.createClass({
 			jdbcUsername: '',
 			jdbcPassword: '',
 			table: '',
-			columns: []
+			columns: ''
 		};
 	},
 
@@ -63,29 +71,58 @@ var DatabaseConfigPanel = React.createClass({
 
 		if(state.dbVendor !== 'etc') {
 			var tmpl = jdbcTmpl[this.state.dbVendor];
-			state.driver = tmpl.driver;
+			state.jdbcDriver = tmpl.driver;
 		}
 
 		this.setState(state);
+		window.store.dbVendor.dispatch({ dbVendor: state.dbVendor });
+		window.store.jdbc.dispatch({ driver: state.jdbcDriver });
+	},
+
+	onJdbcDriverChanged(evt) {
+		this.setState({ jdbcDriver: evt.target.value });
+		window.store.jdbc.dispatch({ driver: evt.target.value });
+	},
+
+	onJdbcConnUrlChanged(evt) {
+		this.setState({ connUrl: evt.target.value });
+		window.store.jdbc.dispatch({ connUrl: evt.target.value });
+	},
+
+	onJdbcUsernameChanged(evt) {
+		this.setState({ jdbcUsername: evt.target.value });
+		window.store.jdbc.dispatch({ username: evt.target.value });
+	},
+
+	onJdbcPasswordChanged(evt) {
+		this.setState({ jdbcPassword: evt.target.value });
+		window.store.jdbc.dispatch({ password: evt.target.value });
 	},
 
 	onDatabaseConfigModalChange(args) {
 		if(this.state.dbVendor === 'etc') return;
-		if(!args.ip) args.ip = '';
-		if(!args.port) args.port = '';
-		if(!args.sid) args.sid = '';
+
 		var tmpl = jdbcTmpl[this.state.dbVendor];
-		var connUrl = tmpl.connUrl.replace('{ip}', args.ip)
-								.replace('{port}', args.port)
-								.replace('{database}', args.sid);
-		this.setState({ jdbcConnUrl: connUrl });
+		var connUrl = tmpl.connUrl.replace('{ip}', args.ip != null ? args.ip : '')
+								.replace('{port}', args.port != null ? args.port : '')
+								.replace('{database}', args.sid != null ? args.sid : '');
+
+		this.setState({ jdbcConnUrl: connUrl }); 
+
+		var newData = { connUrl: connUrl };
+		if(args.ip) newData.ip = args.ip;
+		if(args.port) newData.port = args.port;
+		if(args.sid) newData.sid = args.sid;
+		window.store.jdbc.dispatch(newData);
 	},
 
 	onTableConfigModalChange(table) {
 		this.setState({ table: table });
+		window.store.table.dispatch({ table: table });
 	},
 
 	onColumnConfigModalChange(column) {
+		//TODO IMME modify
 		var columns = JSON.parse(JSON.stringify(this.state.columns));
 		if(columns.indexOf(column) > -1)
 			columns.remove(column);
@@ -102,70 +139,103 @@ var DatabaseConfigPanel = React.createClass({
 		this.refs.columnConfigModal.show();
 	},
 
+	classes() {
+		return {
+			'default': {
+				Panel: {
+					style: {
+						marginBottom: '10px'
+					}
+				},
+				DbVendorSelectBox: {
+					style: {
+						width: '400px',
+						marginRight: '10px'
+					}
+				},
+				border: {
+					display: 'inline-block',
+					border: '1px dashed ' + color.lightGray,
+					padding: '10px',
+					margin: '10px 0'
+				},
+				TextBox: {
+					style: {
+						display: 'block',
+						width: '400px',
+						marginBottom: '3px'
+					}
+				},
+				JdbcTextBox: {
+					style: {
+						display: 'block',
+						width: '350px',
+						marginBottom: '3px'
+					}
+				}
+			}
+		};
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
-		var leftStyle = {
-			width: '100px',
-			float: 'left',
-			textAligh: 'right',
-			textSize: '90%'
-		};
-
-		var jdbcInfo = {
-			driver: this.state.jdbcDriver,
-			connUrl: this.state.jdbcConnUrl,
-			username: this.state.jdbcUsername,
-			password: this.state.jdbcPassword
-		};
-
 		return (
-			<Panel>
+			<Panel is="Panel">
 				<Panel.SmallHeading glyphicon="cog">jdbc 설정</Panel.SmallHeading>
 				<Panel.Body>
 					<KeyValueLine label="데이터베이스">
-						<SelectBox 
-							values={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]} 
-							value={this.state.dbVendor}
-							onChange={this.onDbVendorChange} />
-						<DarkBlueSmallBtn onClick={this.onClickDbVendorBtn}>설정</DarkBlueSmallBtn>
-						<TextBox 
-							placeholder="jdbc driver" 
-							value={this.state.jdbcDriver} />
-						<TextBox
-							placeholder="jdbc connection url"
-							value={this.state.jdbcConnUrl} />
-						<TextBox
-							placeholder="jdbc username"
-							value={this.state.jdbcUsername} />
-						<TextBox
-							type="password"
-							placeholder="jdbc password"
-							value={this.state.jdbcPassword} />
+						<div>
+							<SelectBox is="DbVendorSelectBox"
+								values={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]} 
+								value={this.state.dbVendor}
+								onChange={this.onDbVendorChange} />
+							<DarkBlueSmallBtn onClick={this.onClickDbVendorBtn}>설정</DarkBlueSmallBtn>
+						</div>
+						<div is="border">
+							<TextBox is="JdbcTextBox"
+								placeholder="jdbc driver" 
+								value={this.state.jdbcDriver}
+								onChange={this.onJdbcDriverChanged} />
+							<TextBox is="JdbcTextBox"
+								placeholder="jdbc connection url"
+								value={this.state.jdbcConnUrl}
+								onChange={this.onJdbcConnUrlChanged} />
+							<TextBox is="JdbcTextBox"
+								placeholder="jdbc username"
+								value={this.state.jdbcUsername}
+								onChange={this.onJdbcUsernameChanged} />
+							<TextBox is="JdbcTextBox"
+								type="password"
+								placeholder="jdbc password"
+								value={this.state.jdbcPassword}
+								onChange={this.onJdbcPasswordChanged} />
+						</div>
 					</KeyValueLine>
 					<KeyValueLine label="테이블">
-						<TextBox
+						<TextBox is="TextBox"
 							placeholder="table"
 							value={this.state.table}
 							onClick={this.onClickTableTextbox} />
 					</KeyValueLine>
 					<KeyValueLine label="컬럼">
-						<TextBox
+						<TextBox is="TextBox"
 							placeholder="columns"
-							value={this.state.columns.join(',')}
+							value={this.state.columns}
 							onClick={this.onClickColumnTextbox} />
 					</KeyValueLine>
 				</Panel.Body>
 				<DatabaseConfigModal 
 					ref="databaseConfigModal"
-					dbVendor={this.state.dbVendor}
 					onChange={this.onDatabaseConfigModalChange} />
 				<TableConfigModal 
 					ref="tableConfigModal"
-					jdbc={jdbc}
 					table={this.state.table}
 					onChange={this.onTableConfigModalChange} />
 				<ColumnConfigModal 
 					ref="columnConfigModal"
-					jdbc={jdbc}
 					columns={this.state.columns}
 					onChange={this.onColumnConfigModalChange} />
 			</Panel>
@@ -174,11 +244,10 @@ var DatabaseConfigPanel = React.createClass({
 });
 
 var DatabaseConfigModal = React.createClass({
-	mixins: [ LayerPopup.modalMixin ],
+	mixins: [ modalMixin, ReactCSS.mixin ],
 
 	getDefaultProps() {
 		return { 
-			dbVendor: 'oracle',
 			onChange: null
 		};
 	},
@@ -192,12 +261,10 @@ var DatabaseConfigModal = React.createClass({
 		};
 	},
 
-	componentWillReceiveProps(nextProps) {
-		if(this.props.dbVendor !== nextProps.dbVendor && nextProps.dbVendor !== 'etc') {
-			this.setState({
-				port: jdbcTmpl[nextProps.dbVendor].port
-			});
-		}
+	componentDidMount() {
+		window.store.dbVendor.listen(function(data) {
+			this.setState({ port: jdbcTmpl[data.dbVendor].port });
+		}.bind(this));
 	},
 
 	onIpChange(evt) {
@@ -226,9 +293,23 @@ var DatabaseConfigModal = React.createClass({
 		this.setState({ visible: false });
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					display: this.state.visible === true ? 'block' : 'none'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+			<div is="outer">
 				<Curtain />
 				<div style={this.getModalDivStyle()}>
 					<TextBox 
@@ -252,13 +333,13 @@ var DatabaseConfigModal = React.createClass({
 
 
 var TableConfigModal = React.createClass({
-	mixins: [ LayerPopup.modalMixin ],
+	mixins: [ ReactCSS.mixin, modalMixin ],
+	jdbc: {},
 
 	getDefaultProps() {
 		return { 
 			onChange: null,
-			table: '',
-			jdbc: {}
+			table: ''
 		};
 	},
 
@@ -271,7 +352,8 @@ var TableConfigModal = React.createClass({
 	},
 
 	onChangeTable(evt) {
-		this.setState({ table: evt.target.value });
+		if(this.props.onChange)
+			this.props.onChange(evt.target.value);
 	},
 
 	show() {
@@ -281,43 +363,62 @@ var TableConfigModal = React.createClass({
 
 	hide() {
 		this.setState({ visible: false });
+		window.store.table.dispatch({ table: this.state.table });
 	},
 
 	loadTables() {
-		$.getJSON('/REST/Database/Tables/', this.props.jdbc)
-		.fail(function(err) {
-			console.error(err);
-			this.setState({ loadedTablesStatus: 'fail' });
-		}.bind(this)).done(function(resp) {
-			if(resp.success !== 1) {
-				console.error(resp);
-				this.setState({ loadedTablesStatus: 'fail' });
-				return;
-			}
+		server.loadTables(this.jdbc).then(function(tables) {
 			this.setState({ 
 				loadedTablesStatus: 'loaded',
 				loadedTables: resp.tables
 			});
+		}.bind(this)).catch(function(err) {
+			this.setState({ loadedTablesStatus: 'fail' });
 		}.bind(this));
+	},
+
+	componentDidMount() {
+		window.store.jdbc.listen(function(data) {
+			this.jdbc = data;
+		}.bind(this));
+	},
+
+	classes() {
+		return {
+			'default': {
+				outer: {
+					display: this.state.visible === true ? 'block' : 'none'
+				},
+				loadingBox: {
+					textAlign: 'center',
+					padding: '10px',
+					fontSize: '90%'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
 	},
 
 	render() {
 		var loadedTables = null;
 		if(this.state.loadedTablesStatus === 'loading') {
-			loadedTables = ( <div style={{ textAlign: 'center', padding: '10px', fontSize: '90%' }}>loading...</div> );
+			loadedTables = ( <div is="loadingBox">loading...</div> );
 		} else if(this.state.loadedTablesStatus === 'failed') {
-			loadedTables = ( <div style={{ textAlign: 'center', padding: '10px', fontSize: '90%' }}>load fail</div> );
+			loadedTables = ( <div is="loadingBox">load fail</div> );
 		} else if(this.state.loadedTablesStatus === 'loaded') {
 			loadedTables = (
 				<TableList 
 					items={this.state.loadedTables}
-					onTableChange={this.props.onChange}
+					onChange={this.props.onChange}
 					tableText={this.props.table} />
 			);
 		}
 
 		return (
-			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+			<div is="outer">
 				<Curtain />
 				<div style={this.getModalDivStyle()}>
 					<TextBox 
@@ -335,33 +436,45 @@ var TableConfigModal = React.createClass({
 
 
 var TableList = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return { 
 			items: [],
-			onTableChange: null,
+			onChange: null,
 			tableText: ''
 		};
 	},
 
-	render() {
-		var outer = {
-			height: '100px',
-			overflow: 'auto'
-		};
+	classes() {
+		return {
+			'default': {
+				outer: {
+					height: '100px',
+					overflow: 'auto'
+				}
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		var body = [];
 		this.props.items.forEach(function(item) {
 			if(tableText !== '' && item.toLowerCase().indexOf(tableText.toLowerCase()) === -1) return;
 
 			var onClickFn = function() {
-				this.props.onTableChange(item);
+				this.props.onChange(item);
 			}.bind(this);
 
 			body.push(<ListItem key={item} name={item} onClick={onClickFn} />);
 		});
 
 		return (
-			<div style={outer}>
+			<div is="outer">
 				{body}
 			</div>
 		);
@@ -370,13 +483,14 @@ var TableList = React.createClass({
 
 
 var ColumnConfigModal = React.createClass({
-	mixins: [ LayerPopup.modalMixin ],
+	mixins: [ ReactCSS.mixin, modalMixin ],
+	jdbc: {},
+	table: '',
 
 	getDefaultProps() {
 		return { 
-			onChange: null,
 			columns: '',
-			jdbc: {}
+			onChange: null
 		};
 	},
 
@@ -398,87 +512,125 @@ var ColumnConfigModal = React.createClass({
 	},
 
 	loadColumns() {
-		$.getJSON(util.format('/REST/Database/Columns/%s/', this.selectedTableName), this.props.jdbc)
-		.fail(function(err) {
-			console.error(err);
-			this.setState({ loadedColumnsStatus: 'failed' });
-		}.bind(this)).done(function(resp) {
-			if(resp.success !== 1) {
-				console.error(resp);
-				this.setState({ loadedColumnsStatus: 'failed' });
-				return;
-			}
-
+		server.loadColumns(this.jdbc, this.table).then(function(columns) {
 			this.setState({
 				loadedColumnsStatus: 'loaded',
-				columns: resp.columns
+				loadedColumns: columns
 			});
+		}.bind(this)).catch(function(err) {
+			this.setState({ loadedColumnsStatus: 'failed' });
 		}.bind(this));
 	},
 
-	render() {
-		return (
-			var loadedColumns = null;
-			if(this.state.loadedColumnsStatus === 'loading') {
-				loadedColumns = ( <div style={{ textAlign: 'center', padding: '10px', fontSize: '90%' }}>loading...</div> );
-			} else if(this.state.loadedColumnsStatus === 'failed') {
-				loadedColumns = ( <div style={{ textAlign: 'center', padding: '10px', fontSize: '90%' }}>load fail</div> );
-			} else if(this.state.loadedColumnsStatus === 'loaded') {
-				loadedColumns = (
-					<ColumnList 
-						items={this.state.loadedColumns}
-						onColumnChange={this.props.onChange} />
-				);
-			}
+	onListChange(column) {
+		column = column.columnName;
 
-			return (
-				<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
-					<Curtain />
-					<div style={this.getModalDivStyle()}>
-						<TextBox 
-							placeholder="table"
-							value={this.props.table}
-							onChange={this.onChangeTable} />
-						<hr />
-						{loadedColumns}
-						<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>
-					</div>
-				</div>
+		var columns = this.props.columns.split(',').map(function(column) {
+			return column.trim();
+		});
+
+		if(columns.indexOf(column) === -1) columns.push(column);
+		else columns.remove(column);
+
+		this.props.onChange(columns.join(','));
+	},
+
+	componentDidMount() {
+		window.store.jdbc.listen(function(data) {
+			this.jdbc = data;
+		}.bind(this));
+		window.store.table.listen(function(data) {
+			this.table = data.table;
+		}.bind(this))
+	},
+
+	classes() {
+		return {
+			'default': {
+				loadingBox: {
+					textAlign: 'center',
+					padding: '10px',
+					fontSize: '90%'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
+	render() {
+		var loadedColumns = null;
+		if(this.state.loadedColumnsStatus === 'loading') {
+			loadedColumns = ( <div is="loadingBox">loading...</div> );
+		} else if(this.state.loadedColumnsStatus === 'failed') {
+			loadedColumns = ( <div is="loadingBox">load fail</div> );
+		} else if(this.state.loadedColumnsStatus === 'loaded') {
+			loadedColumns = (
+				<ColumnList 
+					items={this.state.loadedColumns}
+					onChange={this.props.onChange} />
 			);
+		}
+
+		return (
+			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+				<Curtain />
+				<div style={this.getModalDivStyle()}>
+					<TextBox 
+						placeholder="table"
+						value={this.props.columns}
+						onListChange={this.onListChange} />
+					<hr />
+					{loadedColumns}
+					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>
+				</div>
+			</div>
 		);
 	}
 });
 
 
 var ColumnList = React.createClass({
+	mixins: [ ReactCSS.mixin ],
 	getDefaultProps() {
 		return { 
 			items: [],
-			onColumnChange: null
+			onListChange: null
 		};
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					height: '100px',
+					overflow: 'auto'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
+		var body = [];
+		this.props.items.forEach(function(item) {
+			var onClickFn = function() {
+				this.props.onListChange(item);
+			}.bind(this);
+
+			var name = util.format('%s (%s)', item.columnName, item.columnType);
+			body.push(<ListItem key={name} name={name} onClick={onClickFn} />);
+		});
+
 		return (
-			var outer = {
-				height: '100px',
-				overflow: 'auto'
-			};
-
-			var body = [];
-			this.props.items.forEach(function(item) {
-				var onClickFn = function() {
-					this.props.onColumnChange(item);
-				}.bind(this);
-
-				body.push(<ListItem key={item} name={item} onClick={onClickFn} />);
-			});
-
-			return (
-				<div style={outer}>
-					{body}
-				</div>
-			);
+			<div is="outer">
+				{body}
+			</div>
 		);
 	}
 });

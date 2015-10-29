@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	util = require('util'),
 	jsUtil = require('../utils/util.js'),
 	color = jsUtil.color,
@@ -7,6 +8,8 @@ var React = require('react'),
 var STAGE_SIZE = 20;
 
 var StageMap = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			stages: [],
@@ -27,15 +30,35 @@ var StageMap = React.createClass({
 		return (<div key={left} style={style}><Stage isActive={isActive} /></div>);
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					backgroundColor: color.darkBlue,
+					position: 'relative',
+					width: '100%',
+					height: '100%'
+				},
+				desc: {
+					display: 'inline-block',
+					position: 'absolute',
+					top: util.format('calc(40% + %spx)', STAGE_SIZE / 2),
+					left: left,
+					transform: 'translate(-50%, 0)',
+					paddingTop: '3px',
+					color: color.lightGray,
+					fontSize: '70%'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		if(this.props.stages.length < 2) return null;
-
-		var outerDivStyle = {
-			backgroundColor: color.darkBlue,
-			position: 'relative',
-			width: '100%',
-			height: '100%'
-		};
 
 		var body = [];
 		for(var i=0; i<this.props.stages.length; i++) {
@@ -51,25 +74,11 @@ var StageMap = React.createClass({
 			body.push(this.makeStage(left, this.props.pos === i));
 
 			var desc = this.props.stages[i];
-			var descStyle = {
-				display: 'inline-block',
-				position: 'absolute',
-				top: util.format('calc(40% + %spx)', STAGE_SIZE / 2),
-				left: left,
-				transform: 'translate(-50%, 0)',
-				paddingTop: '3px',
-				color: color.lightGray,
-				fontSize: '70%'
-			};
-			body.push(
-				<div key={this.props.stages[i]} style={descStyle}>
-					{this.props.stages[i]}
-				</div>
-			);
+			body.push( <div key={desc} is="desc">{desc}</div> );
 		}
 
 		return (
-			<div style={outerDivStyle}>
+			<div is="outer">
 				<Line />
 				{body}
 			</div>
@@ -79,55 +88,83 @@ var StageMap = React.createClass({
 exports.StageMap = StageMap;
 
 var Line = React.createClass({
-	render() {
-		var style = {
-			backgroundColor: color.lightGray,
-			height: (STAGE_SIZE/3) + 'px',
-			position: 'absolute',
-			left: '10%',
-			right: '10%',
-			top: '40%',
-			transform: 'translateY(-50%)',
-			boxShadow: boxShadow.default
-		};
+	mixins: [ ReactCSS.mixin ],
 
-		return ( <div style={style} /> );
+	classes() {
+		return {
+			'default': {
+				outer: {
+					backgroundColor: color.lightGray,
+					height: (STAGE_SIZE/3) + 'px',
+					position: 'absolute',
+					left: '10%',
+					right: '10%',
+					top: '40%',
+					transform: 'translateY(-50%)',
+					boxShadow: boxShadow.default
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
+	render() {
+		return ( <div is="outer" /> );
 	}
 });
 
 var Stage = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return { isActive: false };
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					width: STAGE_SIZE + 'px',
+					height: STAGE_SIZE + 'px',
+					borderRadius: '50%',
+					backgroundColor: color.lightGray,
+					position: 'relative',
+					display: 'inline-block',
+					boxShadow: boxShadow.default
+				},
+				inner: {
+					width: (STAGE_SIZE/2) + 'px',
+					height: (STAGE_SIZE/2) + 'px', 
+					borderRadius: '50%',
+					backgroundColor: color.lightGray,
+					position: 'absolute',
+					zIndex: '1',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					display: 'inline-block'
+				}
+			},
+			'isActive-true': {
+				inner: {
+					backgroundColor: 'color.darkBlue',
+					boxShadow: boxShadow.default
+				}
+			},
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
-		var outerDivStyle = {
-			width: STAGE_SIZE + 'px',
-			height: STAGE_SIZE + 'px',
-			borderRadius: '50%',
-			backgroundColor: color.lightGray,
-			position: 'relative',
-			display: 'inline-block',
-			boxShadow: boxShadow.default
-		};
-
-		var innerDivStyle = {
-			width: (STAGE_SIZE/2) + 'px',
-			height: (STAGE_SIZE/2) + 'px', 
-			borderRadius: '50%',
-			backgroundColor: this.props.isActive === true ? color.darkBlue : color.lightGray,
-			position: 'absolute',
-			zIndex: '1',
-			top: '50%',
-			left: '50%',
-			transform: 'translate(-50%, -50%)',
-			display: 'inline-block'
-		};
-		if(this.props.isActive === true) innerDivStyle.boxshadow = boxShadow.default;
-
 		return (
-			<div style={outerDivStyle}>
-				<div style={innerDivStyle} />
+			<div is="outer">
+				<div is="inner" />
 			</div>
 		);
 	}

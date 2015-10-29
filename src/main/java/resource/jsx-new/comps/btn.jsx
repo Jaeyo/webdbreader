@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	color = require('../utils/util.js').color;
 
@@ -68,7 +69,7 @@ var BtnMixin = {
 };
 
 var Btn = React.createClass({
-	mixins: [BtnMixin],
+	mixins: [ BtnMixin ],
 
 	getDefaultProps() {
 		return {
@@ -103,8 +104,8 @@ var XSBtn = React.createClass({
 	render() {
 		return (
 			<Btn
-				padding='2px 4px'
-				fontSize='8px'
+				padding="2px 4px"
+				fontSize="8px"
 				onClick={this.props.onClick}
 				style={this.props.style}>
 				{this.props.children}

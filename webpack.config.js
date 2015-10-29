@@ -23,8 +23,8 @@ module.exports = {
 	},
 	module: {
 		loaders: [
-			{ test: /\.jsx$/, loader: 'jsx-loader!babel-loader', exclude: /node_modules/ },
-			{ test: /\.js$/, loader: 'jsx-loader!babel-loader', exclude: /node_modules/ },
+			{ test: /\.jsx$/, loaders: [ 'jsx-loader', 'babel-loader', 'react-map-styles' ], exclude: /node_modules/ },
+			{ test: /\.js$/, loaders: [ 'jsx-loader', 'babel-loader', 'react-map-styles' ], exclude: /node_modules/ },
 			{ test: /\.css$/, loader: 'style-loader!css-loader', exclude: /node_modules/ }
 		]
 	},

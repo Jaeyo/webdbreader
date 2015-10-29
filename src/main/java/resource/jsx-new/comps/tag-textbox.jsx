@@ -1,4 +1,5 @@
 var React = require('react'),
+ 	ReactCSS = require('reactcss'),
 	striptags = require('striptags'),
 	_ = require('underscore'),
 	color = require('../utils/util.js').color,
@@ -11,6 +12,8 @@ var endsWith = function(str, suffix) {
 };
 
 var DashedTagTextBox = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getDefaultProps() {
 		return {
 			tags: [],
@@ -46,28 +49,37 @@ var DashedTagTextBox = React.createClass({
 		}
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: _.extend({
+					display: 'inline-block',
+					border: '1px dashed ' + color.lightGray
+				}, this.props.style),
+				inner: {
+					display: 'inline-block',
+					padding: '3px',
+					minWidth: '20px',
+					width: '100%'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
-		var style = _.extend({
-			display: 'inline-block',
-			border: '1px dashed ' + color.lightGray
-		}, this.props.style);
-
-		var innerDivStyle = {
-			display: 'inline-block',
-			padding: '3px',
-			minWidth: '20px',
-			width: '100%'
-		};
-
 		var tags = this.props.tags.map(function(tag) {
 			return (<TagBtn key={tag} text={tag} removeCallback={this.props.removeTagCallback} />);
 		}.bind(this));
 
 		return (
-			<div style={style}>
+			<div is="outer">
 				{tags}
 				<div
-					style={innerDivStyle}
+					is="inner"
 					contentEditable={true}
 					onInput={this.onInput}
 					ref="inputText">

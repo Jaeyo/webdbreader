@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	Layout = require('./comps/layout.jsx').Layout,
 	Panel = require('./comps/panel.jsx').Panel,
 	Btn = require('./comps/btn.jsx').Btn,
@@ -10,6 +11,8 @@ var React = require('react'),
 
 
 var TotalChartPanel = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getInitialState() {
 		return {
 			isChartLoaded: false
@@ -43,28 +46,37 @@ var TotalChartPanel = React.createClass({
 		} //if
 	},
 
+	classes() {
+		return {
+			'default': {
+				Panel: {
+					marginBottom: '20px'
+				},
+				loadingBox: {
+					width: '100%',
+					textAlign: 'center',
+					padding: '50px 0'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		var body = null;
 		if(this.state.isChartLoaded === false) {
-			body = 
-				<div style={{ 
-					width: '100%', 
-					textAlign: 'center', 
-					padding: '50px 0 50px 0'
-				}}>loading...</div>;
+			body = <div is="loadingBox">loading...</div>;
 		} else if(this.state.chartData.length === 0) {
-			body = 
-				<div style={{ 
-					width: '100%', 
-					textAlign: 'center', 
-					padding: '50px 0 50px 0'
-				}}>no data</div>;
+			body = <div is="loadingBox">no data</div>;
 		} else {
 			body = <div id="totalStatisticsChart" />;
 		}
 
 		return (
-			<Panel style={{ marginBottom: '20px' }}>
+			<Panel is="Panel">
 				<Panel.Heading glyphicon="stats">total chart</Panel.Heading>
 				<Panel.Body>{body}</Panel.Body>
 			</Panel>

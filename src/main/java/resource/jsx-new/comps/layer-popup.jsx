@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactCSS = require('reactcss'),
 	Loading = require('react-loading'),
 	DarkBlueBtn = require('./btn.jsx').DarkBlueBtn,
 	boxShadow = require('../utils/util.js').boxShadow;
@@ -26,6 +27,8 @@ var modalMixin = {
 exports.modalMixin = modalMixin;
 
 var CurtainLoadingView = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
 	getInitialState() {
 		return { visible: false };
 	},
@@ -38,18 +41,28 @@ var CurtainLoadingView = React.createClass({
 		this.setState({ visible: false });
 	},
 
-	render() {
-		var innerSpanStyle = {
-			position: 'absolute',
-			left: '50%',
-			top: '50%',
-			transform: 'translate(-50%, -50%)'
-		};
+	classes() {
+		return {
+			'default': {
+				innerSpan: {
+					position: 'absolute',
+					left: '50%',
+					top: '50%',
+					transform: 'translate(-50%, -50%)'
+				}			
+			}
+		}
+	},
 
+	styles() {
+		return this.css();
+	},
+
+	render() {
 		return (
 			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
 				<Curtain />
-				<span style={innerSpanStyle}>
+				<span is="innerSpanStyle">
 					<Loading type="bubbles" color="#e4e4e4" />
 				</span>
 			</div>
@@ -59,7 +72,7 @@ var CurtainLoadingView = React.createClass({
 
 
 var CurtainLoadingAlert = React.createClass({
-	mixins: [ modalMixin ],
+	mixins: [ ReactCSS.mixin, modalMixin ],
 
 	getInitialState() {
 		return { 
@@ -76,9 +89,23 @@ var CurtainLoadingAlert = React.createClass({
 		this.setState({ visible: false });
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					display: this.state.visible === true ? 'block' : 'none'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+			<div is="outer">
 				<Curtain />
 				<div style={this.getModalDivStyle()}>
 					<div>
@@ -95,7 +122,8 @@ var CurtainLoadingAlert = React.createClass({
 
 
 var CurtainAlert = React.createClass({
-	mixins: [ modalMixin ],
+	mixins: [ ReactCSS.mixin, modalMixin ],
+
 	getInitialState() {
 		return { 
 			visible: false,
@@ -128,9 +156,23 @@ var CurtainAlert = React.createClass({
 		if(this.state.onClick) this.state.onClick();
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					display: this.state.visible === true ? 'block' : 'none'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+			<div is="outer">
 				<Curtain />
 				<div style={this.getModalDivStyle()}>
 					<div>
@@ -152,7 +194,7 @@ var CurtainAlert = React.createClass({
 
 
 var CurtainYesOrNo = React.createClass({
-	mixins: [ modalMixin ],
+	mixins: [ ReactCSS.mixin, modalMixin ],
 	getInitialState() {
 		return {
 			visible: false,
@@ -191,9 +233,23 @@ var CurtainYesOrNo = React.createClass({
 		this.state.onClick(false);
 	},
 
+	classes() {
+		return {
+			'default': {
+				outer: {
+					display: this.state.visible === true ? 'block' : 'none'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={{ display: this.state.visible === true ? 'block' : 'none' }}>
+			<div is="outer">
 				<Curtain />
 				<div style={this.getModalDivStyle()}>
 					<div>
@@ -241,18 +297,32 @@ var LayerPopup = React.createClass({
 exports.LayerPopup = LayerPopup;
 
 var Curtain = React.createClass({
+	mixins: [ ReactCSS.mixin ],
+
+	classes() {
+		return {
+			'default': {
+				outer: {
+					position: 'absolute',
+					zIndex: Z_INDEX_CURTAIN,
+					left: '0',
+					top: '0',
+					width: '100%',
+					height: '100%',
+					backgroundColor: 'gray',
+					opacity: '0.6'
+				}
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
 	render() {
 		return (
-			<div style={{
-				position: 'absolute',
-				zIndex: Z_INDEX_CURTAIN,
-				left: '0',
-				top: '0',
-				width: '100%',
-				height: '100%',
-				backgroundColor: 'gray',
-				opacity: '0.6'
-			}} />
+			<div is="outer" />
 		);
 	}
 });
