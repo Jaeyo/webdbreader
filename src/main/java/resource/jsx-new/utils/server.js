@@ -26,8 +26,8 @@ exports.loadTables = function(jdbc) {
 			reject(err);
 		}).done(function(resp) {
 			if(resp.success !== 1) {
-				console.error(resp);
-				reject(err);
+				console.error(resp.errmsg);
+				reject(resp.errmsg);
 			} else {
 				resolve(resp.tables)
 			}

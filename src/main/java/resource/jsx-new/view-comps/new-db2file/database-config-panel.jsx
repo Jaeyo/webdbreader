@@ -52,9 +52,12 @@ var DatabaseConfigPanel = React.createClass({
 
 	getInitialState() {
 		return {
-			dbVendor: 'oracle',
-			jdbcDriver: '',
-			jdbcConnUrl: '',
+			dbVendor: '',
+			dbIp: 'localhost',
+			dbPort: jdbcTmpl.oracle.port,
+			dbSid: '',
+			jdbcDriver: jdbcTmpl.oracle.driver,
+			jdbcConnUrl: jdbcTmpl.oracle.connUrl.replace('{ip}', '').replace('{port}', '').replace('{database}', ''),
 			jdbcUsername: '',
 			jdbcPassword: '',
 			table: '',
@@ -62,7 +65,7 @@ var DatabaseConfigPanel = React.createClass({
 		};
 	},
 
-	onClickDbVendorBtn(evt) {
+	onClickDbVendorConfigBtn(evt) {
 		this.refs.databaseConfigModal.show();
 	},
 
@@ -70,64 +73,54 @@ var DatabaseConfigPanel = React.createClass({
 		var state = { dbVendor: evt.target.value };
 
 		if(state.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.state.dbVendor];
+			var tmpl = jdbcTmpl[state.dbVendor];
 			state.jdbcDriver = tmpl.driver;
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.state.dbIp)
+											.replace('{port}', this.state.dbPort)
+											.replace('{database}', this.state.dbSid);
 		}
 
 		this.setState(state);
-		window.store.dbVendor.dispatch({ dbVendor: state.dbVendor });
-		window.store.jdbc.dispatch({ driver: state.jdbcDriver });
 	},
 
 	onJdbcDriverChanged(evt) {
 		this.setState({ jdbcDriver: evt.target.value });
-		window.store.jdbc.dispatch({ driver: evt.target.value });
 	},
 
 	onJdbcConnUrlChanged(evt) {
 		this.setState({ connUrl: evt.target.value });
-		window.store.jdbc.dispatch({ connUrl: evt.target.value });
 	},
 
 	onJdbcUsernameChanged(evt) {
 		this.setState({ jdbcUsername: evt.target.value });
-		window.store.jdbc.dispatch({ username: evt.target.value });
 	},
 
 	onJdbcPasswordChanged(evt) {
 		this.setState({ jdbcPassword: evt.target.value });
-		window.store.jdbc.dispatch({ password: evt.target.value });
 	},
 
 	onDatabaseConfigModalChange(args) {
-		if(this.state.dbVendor === 'etc') return;
+		var newState = {
+			dbIp: args.dbIp != null ? args.dbIp : this.state.dbIp
+			dbPort: args.dbPort != null ? args.dbPort : this.state.dbPort
+			dbSid: args.dbSid != null ? args.dbSid : this.state.dbSid
+		};
 
-		var tmpl = jdbcTmpl[this.state.dbVendor];
-		var connUrl = tmpl.connUrl.replace('{ip}', args.ip != null ? args.ip : '')
-								.replace('{port}', args.port != null ? args.port : '')
-								.replace('{database}', args.sid != null ? args.sid : '');
+		if(this.state.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.state.dbVendor];
+			newState.jdbcConnUrl = tmpl.connUrl.replace('{ip}', newState.dbIp)
+												.replace('{port}', newState.dbPort)
+												.replace('{database}', newState.dbSid);
+		}
 
-		this.setState({ jdbcConnUrl: connUrl }); 
-
-		var newData = { connUrl: connUrl };
-		if(args.ip) newData.ip = args.ip;
-		if(args.port) newData.port = args.port;
-		if(args.sid) newData.sid = args.sid;
-		window.store.jdbc.dispatch(newData);
+		this.setState(newState);
 	},
 
 	onTableConfigModalChange(table) {
 		this.setState({ table: table });
-		window.store.table.dispatch({ table: table });
 	},
 
-	onColumnConfigModalChange(column) {
-		//TODO IMME modify
-		var columns = JSON.parse(JSON.stringify(this.state.columns));
-		if(columns.indexOf(column) > -1)
-			columns.remove(column);
-		else
-			columns.push(column);
+	onColumnConfigModalChange(columns) {
 		this.setState({ columns: columns });
 	},
 
@@ -192,7 +185,7 @@ var DatabaseConfigPanel = React.createClass({
 								values={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]} 
 								value={this.state.dbVendor}
 								onChange={this.onDbVendorChange} />
-							<DarkBlueSmallBtn onClick={this.onClickDbVendorBtn}>설정</DarkBlueSmallBtn>
+							<DarkBlueSmallBtn onClick={this.onClickDbVendorConfigBtn}>설정</DarkBlueSmallBtn>
 						</div>
 						<div is="border">
 							<TextBox is="JdbcTextBox"
@@ -229,9 +222,16 @@ var DatabaseConfigPanel = React.createClass({
 				</Panel.Body>
 				<DatabaseConfigModal 
 					ref="databaseConfigModal"
+					dbIp={this.state.dbIp}
+					dbPort={this.state.dbPort}
+					dbSid={this.state.dbSid}
 					onChange={this.onDatabaseConfigModalChange} />
 				<TableConfigModal 
 					ref="tableConfigModal"
+					jdbcDriver={this.state.jdbcDriver}
+					jdbcConnUrl={this.state.jdbcConnUrl}
+					jdbcUsername={this.state.jdbcUsername}
+					jdbcPassword={this.state.jdbcPassword}
 					table={this.state.table}
 					onChange={this.onTableConfigModalChange} />
 				<ColumnConfigModal 
@@ -248,45 +248,35 @@ var DatabaseConfigModal = React.createClass({
 
 	getDefaultProps() {
 		return { 
+			dbIp: '',
+			dbPort: '',
+			dbSid: '',
 			onChange: null
 		};
 	},
 
 	getInitialState() {
-		return { 
-			visible: false,
-			ip: '',
-			port: '',
-			sid: ''
-		};
-	},
-
-	componentDidMount() {
-		window.store.dbVendor.listen(function(data) {
-			this.setState({ port: jdbcTmpl[data.dbVendor].port });
-		}.bind(this));
+		return { visible: false };
 	},
 
 	onIpChange(evt) {
-		this.setState({ ip: evt.target.value });
 		if(this.props.onChange) 
 			this.props.onChange({ ip: evt.target.value });
 	},
 
 	onPortChange(evt) {
-		this.setState({ port: evt.target.value });
 		if(this.props.onChange) 
 			this.props.onChange({ port: evt.target.value });
 	},
 
 	onSidChange(evt) {
-		this.setState({ sid: evt.target.value });
 		if(this.props.onChange) 
 			this.props.onChange({ sid: evt.target.value });
 	},
 
 	show() {
 		this.setState({ visible: true });
+		this.refs.dbIpTextBox.getDOMNode().focus();
 	},
 
 	hide() {
@@ -298,6 +288,21 @@ var DatabaseConfigModal = React.createClass({
 			'default': {
 				outer: {
 					display: this.state.visible === true ? 'block' : 'none'
+				},
+				modal: _.extend(this.getModalDivStyle(), {
+					width: '800px'
+				}),
+				dbIpTextBox: {
+					width: '200px',
+					marginRight: '3px'
+				},
+				dbPortTextBox: {
+					width: '50px',
+					marginRigth: '3px'
+				},
+				dbSidTextBox: {
+					width: '120px',
+					marginRight: '3px'
 				}
 			}
 		}
@@ -311,18 +316,22 @@ var DatabaseConfigModal = React.createClass({
 		return (
 			<div is="outer">
 				<Curtain />
-				<div style={this.getModalDivStyle()}>
+				<div id="modal">
 					<TextBox 
+						ref="dbIpTextBox"
+						is="dbIpTextBox"
 						placeholder="database ip" 
-						value={this.state.ip}
+						value={this.props.dbIp}
 						onChange={this.onIpChange} />
 					<TextBox
+						is="dbPortTextBox"
 						placeholder="port"
-						value={this.state.port}
+						value={this.props.dbPort}
 						onChange={this.onPortChange} />
 					<TextBox
+						is="dbSidTextBox"
 						placeholder="database"
-						value={this.state.sid}
+						value={this.props.dbSid}
 						onChange={this.onSidChange} />
 					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>				
 				</div>
@@ -334,10 +343,13 @@ var DatabaseConfigModal = React.createClass({
 
 var TableConfigModal = React.createClass({
 	mixins: [ ReactCSS.mixin, modalMixin ],
-	jdbc: {},
 
 	getDefaultProps() {
 		return { 
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
 			onChange: null,
 			table: ''
 		};
@@ -351,19 +363,17 @@ var TableConfigModal = React.createClass({
 		};
 	},
 
-	onChangeTable(evt) {
-		if(this.props.onChange)
-			this.props.onChange(evt.target.value);
-	},
-
 	show() {
-		loadTables();
-		this.setState({ visible: true });
+		this.setState({ 
+			visible: true,
+			loadedTablesStatus: 'loading',
+			loadedTables: []
+		});
+		this.loadTables();
 	},
 
 	hide() {
 		this.setState({ visible: false });
-		window.store.table.dispatch({ table: this.state.table });
 	},
 
 	loadTables() {
@@ -377,10 +387,9 @@ var TableConfigModal = React.createClass({
 		}.bind(this));
 	},
 
-	componentDidMount() {
-		window.store.jdbc.listen(function(data) {
-			this.jdbc = data;
-		}.bind(this));
+	onTableChange(evt) {
+		if(this.props.onChange)
+			this.props.onChange(evt.target.value);
 	},
 
 	classes() {
@@ -424,7 +433,7 @@ var TableConfigModal = React.createClass({
 					<TextBox 
 						placeholder="table"
 						value={this.props.table}
-						onChange={this.onChangeTable} />
+						onChange={this.onTableChange} />
 					<hr />
 					{loadedTables}
 					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>

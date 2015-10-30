@@ -299,6 +299,10 @@ exports.LayerPopup = LayerPopup;
 var Curtain = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 
+	getDefaultProps() {
+		return { onClick: null };
+	},
+
 	classes() {
 		return {
 			'default': {
@@ -316,13 +320,18 @@ var Curtain = React.createClass({
 		}
 	},
 
+	onClick() {
+		if(this.props.onClick)
+			this.props.onClick();
+	},
+
 	styles() {
 		return this.css();
 	},
 
 	render() {
 		return (
-			<div is="outer" />
+			<div is="outer" onClick={this.onClick} />
 		);
 	}
 });

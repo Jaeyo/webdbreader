@@ -10,7 +10,7 @@ var React = require('react'),
 
 
 window.store = {};
-[ 'dbVendor', 'jdbc', 'table' ].forEach(function(action) {
+[ 'dbVendor', 'jdbc', 'table', 'columns' ].forEach(function(action) {
 	window.store[action] = {
 		storedData: {},
 		listeners: [],
@@ -22,7 +22,7 @@ window.store = {};
 			this.storedData = _.extend(this.storedData, data);
 			this.listeners.forEach(function(listener) {
 				listener(this.storedData);
-			});
+			}.bind(this));
 		}
 	};
 });
@@ -38,6 +38,7 @@ window.store.jdbc.storedData = {
 	password: ''
 };
 window.store.table.storedData = { table: '' };
+window.store.columns.storedData = { columns: '' };
 
 
 
