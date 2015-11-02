@@ -50,18 +50,19 @@ var jdbcTmpl = {
 var DatabaseConfigPanel = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 
-	getInitialState() {
+	getDefaultProps() {
 		return {
-			dbVendor: 'oracle',
-			dbIp: 'localhost',
-			dbPort: jdbcTmpl.oracle.port,
+			dbVendor: '',
+			dbIp: '',
+			dbPort: '',
 			dbSid: '',
-			jdbcDriver: jdbcTmpl.oracle.driver,
-			jdbcConnUrl: jdbcTmpl.oracle.connUrl.replace('{ip}', 'localhost').replace('{port}', jdbcTmpl.oracle.port).replace('{database}', ''),
+			jdbcDriver: '',
+			jdbcConnUrl: '',
 			jdbcUsername: '',
 			jdbcPassword: '',
 			table: '',
-			columns: ''
+			columns: '',
+			onChange: null
 		};
 	},
 
@@ -80,48 +81,48 @@ var DatabaseConfigPanel = React.createClass({
 											.replace('{database}', this.state.dbSid);
 		}
 
-		this.setState(state);
+		this.props.onChange(state);
 	},
 
 	onJdbcDriverChanged(evt) {
-		this.setState({ jdbcDriver: evt.target.value });
+		this.props.onChange({ jdbcDriver: evt.target.value });
 	},
 
 	onJdbcConnUrlChanged(evt) {
-		this.setState({ connUrl: evt.target.value });
+		this.props.onChange({ connUrl: evt.target.value });
 	},
 
 	onJdbcUsernameChanged(evt) {
-		this.setState({ jdbcUsername: evt.target.value });
+		this.props.onChange({ jdbcUsername: evt.target.value });
 	},
 
 	onJdbcPasswordChanged(evt) {
-		this.setState({ jdbcPassword: evt.target.value });
+		this.props.onChange({ jdbcPassword: evt.target.value });
 	},
 
 	onDatabaseConfigModalChange(args) {
 		var newState = {
-			dbIp: args.dbIp != null ? args.dbIp : this.state.dbIp,
-			dbPort: args.dbPort != null ? args.dbPort : this.state.dbPort,
-			dbSid: args.dbSid != null ? args.dbSid : this.state.dbSid
+			dbIp: args.dbIp != null ? args.dbIp : this.props.dbIp,
+			dbPort: args.dbPort != null ? args.dbPort : this.props.dbPort,
+			dbSid: args.dbSid != null ? args.dbSid : this.props.dbSid
 		};
 
-		if(this.state.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.state.dbVendor];
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
 			newState.jdbcConnUrl = tmpl.connUrl.replace('{ip}', newState.dbIp)
 												.replace('{port}', newState.dbPort)
 												.replace('{database}', newState.dbSid);
 		}
 
-		this.setState(newState);
+		this.props.onChange(newState);
 	},
 
 	onTableChange(table) {
-		this.setState({ table: table });
+		this.props.onChange({ table: table });
 	},
 
 	onColumnChange(columns) {
-		this.setState({ columns: columns });
+		this.props.onChange({ columns: columns });
 	},
 
 	onClickTableTextbox(evt) {
@@ -183,67 +184,67 @@ var DatabaseConfigPanel = React.createClass({
 						<div>
 							<SelectBox is="DbVendorSelectBox"
 								values={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]} 
-								value={this.state.dbVendor}
+								value={this.props.dbVendor}
 								onChange={this.onDbVendorChange} />
 							<DarkBlueSmallBtn onClick={this.onClickDbVendorConfigBtn}>설정</DarkBlueSmallBtn>
 						</div>
 						<div is="border">
 							<TextBox is="JdbcTextBox"
 								placeholder="jdbc driver" 
-								value={this.state.jdbcDriver}
+								value={this.props.jdbcDriver}
 								onChange={this.onJdbcDriverChanged} />
 							<TextBox is="JdbcTextBox"
 								placeholder="jdbc connection url"
-								value={this.state.jdbcConnUrl}
+								value={this.props.jdbcConnUrl}
 								onChange={this.onJdbcConnUrlChanged} />
 							<TextBox is="JdbcTextBox"
 								placeholder="jdbc username"
-								value={this.state.jdbcUsername}
+								value={this.props.jdbcUsername}
 								onChange={this.onJdbcUsernameChanged} />
 							<TextBox is="JdbcTextBox"
 								type="password"
 								placeholder="jdbc password"
-								value={this.state.jdbcPassword}
+								value={this.props.jdbcPassword}
 								onChange={this.onJdbcPasswordChanged} />
 						</div>
 					</KeyValueLine>
 					<KeyValueLine label="테이블">
 						<TextBox is="TextBox"
 							placeholder="table"
-							value={this.state.table}
+							value={this.props.table}
 							onClick={this.onClickTableTextbox}
 							onFocus={this.onClickTableTextbox} />
 					</KeyValueLine>
 					<KeyValueLine label="컬럼">
 						<TextBox is="TextBox"
 							placeholder="columns"
-							value={this.state.columns}
+							value={this.props.columns}
 							onClick={this.onClickColumnTextbox}
 							onFocus={this.onClickColumnTextbox} />
 					</KeyValueLine>
 				</Panel.Body>
 				<DatabaseConfigModal 
 					ref="databaseConfigModal"
-					dbIp={this.state.dbIp}
-					dbPort={this.state.dbPort}
-					dbSid={this.state.dbSid}
+					dbIp={this.props.dbIp}
+					dbPort={this.props.dbPort}
+					dbSid={this.props.dbSid}
 					onChange={this.onDatabaseConfigModalChange} />
 				<TableConfigModal 
 					ref="tableConfigModal"
-					jdbcDriver={this.state.jdbcDriver}
-					jdbcConnUrl={this.state.jdbcConnUrl}
-					jdbcUsername={this.state.jdbcUsername}
-					jdbcPassword={this.state.jdbcPassword}
-					table={this.state.table}
+					jdbcDriver={this.props.jdbcDriver}
+					jdbcConnUrl={this.props.jdbcConnUrl}
+					jdbcUsername={this.props.jdbcUsername}
+					jdbcPassword={this.props.jdbcPassword}
+					table={this.props.table}
 					onChange={this.onTableChange} />
 				<ColumnConfigModal 
 					ref="columnConfigModal"
-					jdbcDriver={this.state.jdbcDriver}
-					jdbcConnUrl={this.state.jdbcConnUrl}
-					jdbcUsername={this.state.jdbcUsername}
-					jdbcPassword={this.state.jdbcPassword}
-					table={this.state.table}
-					columns={this.state.columns}
+					jdbcDriver={this.props.jdbcDriver}
+					jdbcConnUrl={this.props.jdbcConnUrl}
+					jdbcUsername={this.props.jdbcUsername}
+					jdbcPassword={this.props.jdbcPassword}
+					table={this.props.table}
+					columns={this.props.columns}
 					onChange={this.onColumnChange} />
 			</Panel>
 		);
@@ -547,7 +548,7 @@ var ColumnConfigModal = React.createClass({
 	show() {
 		this.setState({ 
 			visible: true,
-			loadedColumnsStatus: 'loading'
+			loadedColumnsStatus: 'loading',
 			loadedColumns: []
 		});
 
@@ -615,6 +616,7 @@ var ColumnConfigModal = React.createClass({
 		} else if(this.state.loadedColumnsStatus === 'loaded') {
 			loadedColumns = (
 				<ColumnList 
+					columns={this.props.columns}
 					items={this.state.loadedColumns}
 					onListChange={this.onListChange} />
 			);
@@ -642,6 +644,7 @@ var ColumnList = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 	getDefaultProps() {
 		return { 
+			columns: '',
 			items: [],
 			onListChange: null
 		};
@@ -670,7 +673,13 @@ var ColumnList = React.createClass({
 			}.bind(this);
 
 			var name = util.format('%s (%s)', item.columnName, item.columnType);
-			body.push(<ListItem key={name} name={name} onClick={onClickFn} />);
+			body.push(
+				<ListItem 
+					key={name} 
+					name={name} 
+					onClick={onClickFn}
+					isSelected={this.props.columns. TODO IMME} />
+			);
 		}.bind(this));
 
 		return (

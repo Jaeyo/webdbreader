@@ -52,7 +52,8 @@ exports.ListItem = React.createClass({
 	getDefaultProps() {
 		return { 
 			name: '',
-			onClick: null
+			onClick: null,
+			isSelected: false
 		};
 	},
 
@@ -78,6 +79,11 @@ exports.ListItem = React.createClass({
 				}
 			},
 			'isMouseOver': {
+				outer: {
+					backgroundColor: color.lightGray
+				}
+			},
+			'isSelected-true': {
 				outer: {
 					backgroundColor: color.lightGray
 				}

@@ -3,7 +3,9 @@ package com.igloosec.webdbreader.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,6 +72,8 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("username", req.getParameter("username"))
 		.put("password", req.getParameter("password"));
 	
+		Iterator<Entry<String, String[]>> iter = req.getParameterMap().entrySet().iterator();
+		
 		Preconditions.checkArgument(jdbcParams.isNull("driver") == false, "driver is null");
 		Preconditions.checkArgument(jdbcParams.isNull("connUrl") == false, "connUrl is null");
 		Preconditions.checkArgument(jdbcParams.isNull("username") == false, "username is null");

@@ -14,9 +14,9 @@ var NewDb2FileView = React.createClass({
 		return {
 			dbVendor: 'oracle',
 			dbIp: 'localhost',
-			dbPort: '1521'
+			dbPort: '1521',
 			dbSid: '',
-			jdbcDriver: 'oracle.jdbc.driver.OracleDriver'
+			jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
 			jdbcConnUrl: 'jdbc:oracle:thin:@localhost:1521:',
 			jdbcUsername: '',
 			jdbcPassword: '',
@@ -31,7 +31,7 @@ var NewDb2FileView = React.createClass({
 
 	render() {
 		return (
-			<BuilderView visible={true} onChange={this.onChange} />
+			<BuilderView visible={true} onChange={this.onChange} {...this.state} />
 		);
 	}
 });
@@ -42,6 +42,16 @@ var BuilderView = React.createClass({
 
 	getDefaultProps() {
 		return { 
+			dbVendor: '',
+			dbIp: '',
+			dbPort: '',
+			dbSid: '',
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
+			table: '',
+			columns: '',
 			visible: false,
 			onChange: null
 		};
@@ -65,11 +75,25 @@ var BuilderView = React.createClass({
 	},
 
 	render() {
+		var params = {
+			dbVendor: this.props.dbVendor,
+			dbIp: this.props.dbIp,
+			dbPort: this.props.dbPort,
+			dbSid: this.props.dbSid,
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword,
+			table: this.props.table,
+			columns: this.props.columns,
+			onChange: this.props.onChange
+		};
+
 		return (
 			<div is="outer">
 				<h3 is="header">database 설정</h3>
-				<DatabaseConfigPanel onChange={this.props.onChange} TODO props />
-				<BindingTypePanel onChange={this.props.onChange} />
+				<DatabaseConfigPanel {...params} />
+				<BindingTypePanel {...params} />
 			</div>
 		);
 	}
