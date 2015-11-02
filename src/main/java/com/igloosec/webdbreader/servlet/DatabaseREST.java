@@ -69,12 +69,13 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("connUrl", req.getParameter("connUrl"))
 		.put("username", req.getParameter("username"))
 		.put("password", req.getParameter("password"));
-
-		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
-		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
-		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
-		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+	
+		Preconditions.checkArgument(jdbcParams.isNull("driver") == false, "driver is null");
+		Preconditions.checkArgument(jdbcParams.isNull("connUrl") == false, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.isNull("username") == false, "username is null");
+		Preconditions.checkArgument(jdbcParams.isNull("password") == false, "password is null");
 		
+		logger.debug(String.format("jdbcParams: %s", jdbcParams.toString()));
 		JSONArray tables = databaseService.getTables(jdbcParams);
 		return new JSONObject().put("success", 1).put("tables", tables).toString();
 	} //tables
@@ -87,12 +88,13 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("password", req.getParameter("password"));
 		String tableName = pathParams.get("tableName");
 
-		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
-		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
-		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
-		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+		Preconditions.checkArgument(jdbcParams.isNull("driver") == false, "driver is null");
+		Preconditions.checkArgument(jdbcParams.isNull("connUrl") == false, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.isNull("username") == false, "username is null");
+		Preconditions.checkArgument(jdbcParams.isNull("password") == false, "password is null");
 		Preconditions.checkArgument(tableName != null, "tableName is null");
 		
+		logger.debug(String.format("jdbcParams: %s", jdbcParams.toString()));
 		JSONArray columns = databaseService.getColumns(jdbcParams, tableName);
 		return new JSONObject().put("success", 1).put("columns", columns).toString();
 	} //column
@@ -106,13 +108,14 @@ public class DatabaseREST extends JadeHttpServlet{
 		String query = req.getParameter("query");
 		int rowCount = Integer.parseInt(req.getParameter("rowCount"));
 	
-		Preconditions.checkArgument(jdbcParams.get("driver") != null, "driver is null");
-		Preconditions.checkArgument(jdbcParams.get("connUrl") != null, "connUrl is null");
-		Preconditions.checkArgument(jdbcParams.get("username") != null, "username is null");
-		Preconditions.checkArgument(jdbcParams.get("password") != null, "password is null");
+		Preconditions.checkArgument(jdbcParams.isNull("driver") == false, "driver is null");
+		Preconditions.checkArgument(jdbcParams.isNull("connUrl") == false, "connUrl is null");
+		Preconditions.checkArgument(jdbcParams.isNull("username") == false, "username is null");
+		Preconditions.checkArgument(jdbcParams.isNull("password") == false, "password is null");
 		Preconditions.checkArgument(query != null, "query is null");
 		Preconditions.checkArgument(rowCount > 0, "invalid row count: " + rowCount);
 
+		logger.debug(String.format("jdbcParams: %s, query: %s, rowCount: %s", jdbcParams.toString(), query, rowCount));
 		JSONArray sampleData = databaseService.querySampleData(jdbcParams, query, rowCount);
 		return new JSONObject().put("success", 1).put("sampleData", sampleData).toString();
 	} //querySampleData

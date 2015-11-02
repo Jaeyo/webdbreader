@@ -9,43 +9,29 @@ var React = require('react'),
 	BindingTypePanel = require('./view-comps/new-db2file/binding-type-panel.jsx');
 
 
-window.store = {};
-[ 'dbVendor', 'jdbc', 'table', 'columns' ].forEach(function(action) {
-	window.store[action] = {
-		storedData: {},
-		listeners: [],
-		listen(listener) {
-			this.listeners.push(listener);
-			listener(this.storedData);
-		},
-		dispatch(data) {
-			this.storedData = _.extend(this.storedData, data);
-			this.listeners.forEach(function(listener) {
-				listener(this.storedData);
-			}.bind(this));
-		}
-	};
-});
-
-window.store.dbVendor.storedData = { dbVendor: 'oracle' };
-window.store.jdbc.storedData = { 
-	ip: 'localhost',
-	port: '1521',
-	sid: '',
-	driver: 'oracle.jdbc.driver.OracleDriver',
-	connUrl: 'jdbc:oracle:thin:@localhost:1521:',
-	username: '',
-	password: ''
-};
-window.store.table.storedData = { table: '' };
-window.store.columns.storedData = { columns: '' };
-
-
-
 var NewDb2FileView = React.createClass({
+	getInitialState() {
+		return {
+			dbVendor: 'oracle',
+			dbIp: 'localhost',
+			dbPort: '1521'
+			dbSid: '',
+			jdbcDriver: 'oracle.jdbc.driver.OracleDriver'
+			jdbcConnUrl: 'jdbc:oracle:thin:@localhost:1521:',
+			jdbcUsername: '',
+			jdbcPassword: '',
+			table: '',
+			columns: ''
+		};
+	},
+
+	onChange(args) {
+		this.setState(args);
+	},
+
 	render() {
 		return (
-			<BuilderView visible={true} />
+			<BuilderView visible={true} onChange={this.onChange} />
 		);
 	}
 });
@@ -55,7 +41,10 @@ var BuilderView = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 
 	getDefaultProps() {
-		return { visible: false };
+		return { 
+			visible: false,
+			onChange: null
+		};
 	},
 
 	classes() {
@@ -79,8 +68,8 @@ var BuilderView = React.createClass({
 		return (
 			<div is="outer">
 				<h3 is="header">database 설정</h3>
-				<DatabaseConfigPanel />
-				<BindingTypePanel />
+				<DatabaseConfigPanel onChange={this.props.onChange} TODO props />
+				<BindingTypePanel onChange={this.props.onChange} />
 			</div>
 		);
 	}

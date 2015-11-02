@@ -1,6 +1,8 @@
 var React = require('react'),
 	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
+	jsUtil = require('../utils/util.js'),
+	color = jsUtil.color,
 	Clearfix = require('./clearfix.jsx').Clearfix;
 
 exports.getKeyValueLine = function(width) {
@@ -72,12 +74,13 @@ exports.ListItem = React.createClass({
 				outer: {
 					borderBottom: '1px solid ' + color.lightGray,
 					padding: '3px 6px',
-					cursor: 'pointer',
-					// backgroundColor: this.state.isMouseOver === true ? color.lightGray : 'inherit'
+					cursor: 'pointer'
 				}
 			},
-			'isMouseOver-true': {
-				backgroundColor: color.lightGray
+			'isMouseOver': {
+				outer: {
+					backgroundColor: color.lightGray
+				}
 			}
 		}
 	},
@@ -93,8 +96,8 @@ exports.ListItem = React.createClass({
 			<div 
 				is="outer"
 				onMouseOver={this.onMouseOver}
-				onMouseOut={this.onMouseOut}>
-				onClick={this.props.onClick}
+				onMouseOut={this.onMouseOut}
+				onClick={this.props.onClick}>
 				{this.props.name}
 			</div>
 		);

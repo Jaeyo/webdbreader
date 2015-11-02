@@ -35,7 +35,26 @@ var BindingTypePanel = React.createClass({
 		this.refs.bindingColumnModal.show();
 	},
 
+	classes() {
+		return {
+			default: {
+				BindingColumnLine: {
+					display: this.state.bindingType === 'simple' ? 'none' : 'display'
+				}
+			}
+		};
+	},
+
 	render() {
+		var bindingColumnLine = 
+			this.state.bindingType === 'simple' ? null : 
+				(<KeyValueLine label="바인딩 컬럼">
+					<TextBox 
+						placeholder="binding column"
+						value={this.state.bindingColumn}
+						onClick={this.onBindingColumnTextBoxClicked} />
+				</KeyValueLine>);
+
 		return (
 			<Panel>
 				<Panel.SmallHeading glyphicon="cog">바인딩 타입</Panel.SmallHeading>
@@ -54,12 +73,7 @@ var BindingTypePanel = React.createClass({
 							isClicked={this.state.bindingType === 'seq'} 
 							onChange={this.onBindingTypeChanged} />
 					</KeyValueLine>
-					<KeyValueLine label="바인딩 컬럼" style={{ display: this.state.bindingType === 'simple' ? 'none' : 'display' }}>
-						<TextBox 
-							placeholder="binding column"
-							value={this.state.bindingColumn}
-							onClick={this.onBindingColumnTextBoxClicked} />
-					</KeyValueLine>
+					{bindingColumnLine}
 				</Panel.Body>
 				<BindingColumnModal 
 					ref="bindingColumnModal"
@@ -94,15 +108,16 @@ var BindingTypeBtn = React.createClass({
 	},
 
 	onClick() {
-		if(this.props.isClicked === false && this.props.onChange)
-			this.props.onChange(name);
+		if(this.props.isClicked === false && this.props.onChange != null)
+			this.props.onChange(this.props.name);
 	},
 
 	classes() {
 		return {
 			'default': {
 				outer: {
-					width: '100px',
+					display: 'inline-block',
+					width: '200px',
 					height: '100px',
 					cursor: 'pointer',
 					textAlign: 'center',
@@ -112,7 +127,12 @@ var BindingTypeBtn = React.createClass({
 					border: '1px solid ' + color.lightGray
 				},
 				title: {
-					fontSize: '150%'
+					cursor: 'pointer',
+					fontSize: '150%',
+					display: 'block'
+				},
+				label: {
+					cursor: 'pointer'
 				}
 			},
 			'isClicked-true': {
@@ -142,8 +162,14 @@ var BindingTypeBtn = React.createClass({
 				onMouseOver={this.onMouseOver}
 				onMouseOut={this.onMouseOut}
 				onClick={this.onClick}>
-				<label is="title">{this.props.name}</label>
-				<label>binding type</label>
+				<label is="title"
+					onClick={this.onClick}>
+					{this.props.name}
+				</label>
+				<label is="label"
+					onClick={this.onClick}>
+					binding type
+				</label>
 			</div>
 		);
 	}
@@ -152,8 +178,6 @@ var BindingTypeBtn = React.createClass({
 
 var BindingColumnModal = React.createClass({
 	mixins: [ ReactCSS.mixin, modalMixin ],
-	jdbc: {},
-	table: '',
 
 	getDefaultProps() {
 		return {
@@ -192,16 +216,6 @@ var BindingColumnModal = React.createClass({
 	onListChange(column) {
 		this.props.onChange(column.columnName);
 		this.hide();
-	},
-
-	componentDidMount() {
-		window.store.jdbc.listen(function(data) {
-			this.jdbc = data;
-		}.bind(this));
-
-		window.store.table.listen(function(data) {
-			this.table = data.table;
-		}.bind(this));
 	},
 
 	classes() {

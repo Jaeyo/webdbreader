@@ -13,7 +13,9 @@ var TextBox = React.createClass({
 			value: '',
 			style: {},
 			onChange: null,
-			onClick: null
+			onClick: null,
+			onFocus: null,
+			onKeyUp: null
 		};
 	},
 	
@@ -22,7 +24,7 @@ var TextBox = React.createClass({
 	},
 
 	componentWillReceiveProps(nextProps) {
-		if(nextProps.value)
+		if(nextProps.value != null)
 			this.setState({ value: nextProps.value });
 	},
 	
@@ -56,7 +58,9 @@ var TextBox = React.createClass({
 				placeholder={this.props.placeholder}
 				value={this.state.value}
 				onChange={this.onChange}
-				onClick={this.props.onClick} />
+				onClick={this.props.onClick}
+				onFocus={this.props.onFocus}
+				onKeyUp={this.props.onKeyUp} />
 		);
 	}
 });
@@ -71,7 +75,8 @@ var DashedTextBox = React.createClass({
 			placeholder: '',
 			value: '',
 			style: {},
-			onChange: null
+			onChange: null,
+			onFocus: null
 		};
 	},
 
@@ -99,7 +104,8 @@ var DashedTextBox = React.createClass({
 				placeholder={this.props.placeholder}
 				value={this.props.value}
 				is="textbox"
-				onChange={this.props.onChange} />
+				onChange={this.props.onChange}
+				onFocus={this.props.onFocus} />
 		);
 	}
 });
