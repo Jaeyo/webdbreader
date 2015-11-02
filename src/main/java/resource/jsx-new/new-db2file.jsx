@@ -21,7 +21,9 @@ var NewDb2FileView = React.createClass({
 			jdbcUsername: '',
 			jdbcPassword: '',
 			table: '',
-			columns: ''
+			columns: '',
+			bindingType: 'simple',
+			bindingColumn: ''
 		};
 	},
 
@@ -53,6 +55,8 @@ var BuilderView = React.createClass({
 			table: '',
 			columns: '',
 			visible: false,
+			bindingType: '',
+			bindingColumn: '',
 			onChange: null
 		};
 	},
@@ -75,7 +79,7 @@ var BuilderView = React.createClass({
 	},
 
 	render() {
-		var params = {
+		var dbConfigPanelParams = {
 			dbVendor: this.props.dbVendor,
 			dbIp: this.props.dbIp,
 			dbPort: this.props.dbPort,
@@ -89,11 +93,17 @@ var BuilderView = React.createClass({
 			onChange: this.props.onChange
 		};
 
+		var bindingTypePanelParams = {
+			bindingType: this.props.bindingType,
+			bindingColumn: this.props.bindingColumn,
+			onChange: this.props.onChange
+		};
+
 		return (
 			<div is="outer">
 				<h3 is="header">database 설정</h3>
-				<DatabaseConfigPanel {...params} />
-				<BindingTypePanel {...params} />
+				<DatabaseConfigPanel {...dbConfigPanelParams} />
+				<BindingTypePanel {...bindingTypePanelParams} />
 			</div>
 		);
 	}

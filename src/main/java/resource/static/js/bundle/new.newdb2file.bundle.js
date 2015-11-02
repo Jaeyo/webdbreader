@@ -36246,7 +36246,24 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 178 */,
+/* 178 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
 /* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -36261,7 +36278,7 @@
 	    color = jsUtil.color,
 	    Layout = __webpack_require__(175).Layout,
 	    LayerPopup = __webpack_require__(180).LayerPopup,
-	    DatabaseConfigPanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/database-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
+	    DatabaseConfigPanel = __webpack_require__(182),
 	    BindingTypePanel = __webpack_require__(183);
 
 	var NewDb2FileView = React.createClass({
@@ -36278,7 +36295,9 @@
 				jdbcUsername: '',
 				jdbcPassword: '',
 				table: '',
-				columns: ''
+				columns: '',
+				bindingType: 'simple',
+				bindingColumn: ''
 			};
 		},
 
@@ -36309,6 +36328,8 @@
 				table: '',
 				columns: '',
 				visible: false,
+				bindingType: '',
+				bindingColumn: '',
 				onChange: null
 			};
 		},
@@ -36331,7 +36352,7 @@
 		},
 
 		render: function render() {
-			var params = {
+			var dbConfigPanelParams = {
 				dbVendor: this.props.dbVendor,
 				dbIp: this.props.dbIp,
 				dbPort: this.props.dbPort,
@@ -36345,6 +36366,12 @@
 				onChange: this.props.onChange
 			};
 
+			var bindingTypePanelParams = {
+				bindingType: this.props.bindingType,
+				bindingColumn: this.props.bindingColumn,
+				onChange: this.props.onChange
+			};
+
 			return React.createElement(
 				'div',
 				{ style: this.styles().outer },
@@ -36353,8 +36380,8 @@
 					{ style: this.styles().header },
 					'database 설정'
 				),
-				React.createElement(DatabaseConfigPanel, params),
-				React.createElement(BindingTypePanel, params)
+				React.createElement(DatabaseConfigPanel, dbConfigPanelParams),
+				React.createElement(BindingTypePanel, bindingTypePanelParams)
 			);
 		}
 	});
@@ -37012,11 +37039,758 @@
 	;
 
 /***/ },
-/* 182 */,
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    _ = __webpack_require__(158),
+	    util = __webpack_require__(159),
+	    jsUtil = __webpack_require__(173),
+	    color = jsUtil.color,
+	    server = __webpack_require__(184),
+	    SelectBox = __webpack_require__(197).SelectBox,
+	    TextBox = __webpack_require__(195).TextBox,
+	    Panel = __webpack_require__(162).Panel,
+	    DarkBlueSmallBtn = __webpack_require__(177).DarkBlueSmallBtn,
+	    Clearfix = __webpack_require__(176).Clearfix,
+	    LayerPopup = __webpack_require__(180).LayerPopup,
+	    modalMixin = __webpack_require__(180).modalMixin,
+	    Curtain = __webpack_require__(180).Curtain,
+	    KeyValueLine = __webpack_require__(194).getKeyValueLine('100px'),
+	    ListItem = __webpack_require__(194).ListItem;
+
+	Array.prototype.remove = __webpack_require__(178);
+
+	var jdbcTmpl = {
+		oracle: {
+			driver: 'oracle.jdbc.driver.OracleDriver',
+			connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
+			port: 1521
+		},
+		mysql: {
+			driver: 'com.mysql.jdbc.Driver',
+			connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
+			port: 3306
+		},
+		mssql: {
+			driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+			connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
+			port: 1433
+		},
+		db2: {
+			driver: 'com.ibm.db2.jcc.DB2Driver',
+			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+			port: 50000
+		},
+		tibero: {
+			driver: 'com.ibm.db2.jcc.DB2Driver',
+			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+			port: 8629
+		}
+	};
+
+	var DatabaseConfigPanel = React.createClass({
+		displayName: 'DatabaseConfigPanel',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				dbVendor: '',
+				dbIp: '',
+				dbPort: '',
+				dbSid: '',
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				table: '',
+				columns: '',
+				onChange: null
+			};
+		},
+
+		onClickDbVendorConfigBtn: function onClickDbVendorConfigBtn(evt) {
+			this.refs.databaseConfigModal.show();
+		},
+
+		onDbVendorChange: function onDbVendorChange(evt) {
+			var state = { dbVendor: evt.target.value };
+
+			if (state.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[state.dbVendor];
+				state.jdbcDriver = tmpl.driver;
+				state.dbPort = tmpl.port;
+				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', state.dbPort).replace('{database}', this.props.dbSid);
+			}
+
+			this.props.onChange(state);
+		},
+
+		onJdbcDriverChanged: function onJdbcDriverChanged(evt) {
+			this.props.onChange({ jdbcDriver: evt.target.value });
+		},
+
+		onJdbcConnUrlChanged: function onJdbcConnUrlChanged(evt) {
+			this.props.onChange({ connUrl: evt.target.value });
+		},
+
+		onJdbcUsernameChanged: function onJdbcUsernameChanged(evt) {
+			this.props.onChange({ jdbcUsername: evt.target.value });
+		},
+
+		onJdbcPasswordChanged: function onJdbcPasswordChanged(evt) {
+			this.props.onChange({ jdbcPassword: evt.target.value });
+		},
+
+		onDatabaseConfigModalChange: function onDatabaseConfigModalChange(args) {
+			var newState = {
+				dbIp: args.dbIp != null ? args.dbIp : this.props.dbIp,
+				dbPort: args.dbPort != null ? args.dbPort : this.props.dbPort,
+				dbSid: args.dbSid != null ? args.dbSid : this.props.dbSid
+			};
+
+			if (this.props.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[this.props.dbVendor];
+				newState.jdbcConnUrl = tmpl.connUrl.replace('{ip}', newState.dbIp).replace('{port}', newState.dbPort).replace('{database}', newState.dbSid);
+			}
+
+			this.props.onChange(newState);
+		},
+
+		onTableChange: function onTableChange(table) {
+			this.props.onChange({ table: table });
+		},
+
+		onColumnChange: function onColumnChange(columns) {
+			this.props.onChange({ columns: columns });
+		},
+
+		onClickTableTextbox: function onClickTableTextbox(evt) {
+			this.refs.tableConfigModal.show();
+		},
+
+		onClickColumnTextbox: function onClickColumnTextbox(evt) {
+			this.refs.columnConfigModal.show();
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					Panel: {
+						style: {
+							marginBottom: '10px'
+						}
+					},
+					DbVendorSelectBox: {
+						style: {
+							width: '400px',
+							marginRight: '10px'
+						}
+					},
+					border: {
+						display: 'inline-block',
+						border: '1px dashed ' + color.lightGray,
+						padding: '10px',
+						margin: '10px 0'
+					},
+					TextBox: {
+						style: {
+							display: 'block',
+							width: '400px',
+							marginBottom: '3px'
+						}
+					},
+					JdbcTextBox: {
+						style: {
+							display: 'block',
+							width: '350px',
+							marginBottom: '3px'
+						}
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				this.styles().Panel,
+				React.createElement(
+					Panel.SmallHeading,
+					{ glyphicon: 'cog' },
+					'jdbc 설정'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					React.createElement(
+						KeyValueLine,
+						{ label: '데이터베이스' },
+						React.createElement(
+							'div',
+							null,
+							React.createElement(SelectBox, _extends({}, this.styles().DbVendorSelectBox, {
+								values: ['oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc'],
+								value: this.props.dbVendor,
+								onChange: this.onDbVendorChange })),
+							React.createElement(
+								DarkBlueSmallBtn,
+								{ onClick: this.onClickDbVendorConfigBtn },
+								'설정'
+							)
+						),
+						React.createElement(
+							'div',
+							{ style: this.styles().border },
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc driver',
+								value: this.props.jdbcDriver,
+								onChange: this.onJdbcDriverChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc connection url',
+								value: this.props.jdbcConnUrl,
+								onChange: this.onJdbcConnUrlChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc username',
+								value: this.props.jdbcUsername,
+								onChange: this.onJdbcUsernameChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								type: 'password',
+								placeholder: 'jdbc password',
+								value: this.props.jdbcPassword,
+								onChange: this.onJdbcPasswordChanged }))
+						)
+					),
+					React.createElement(
+						KeyValueLine,
+						{ label: '테이블' },
+						React.createElement(TextBox, _extends({}, this.styles().TextBox, {
+							placeholder: 'table',
+							value: this.props.table,
+							onClick: this.onClickTableTextbox,
+							onFocus: this.onClickTableTextbox }))
+					),
+					React.createElement(
+						KeyValueLine,
+						{ label: '컬럼' },
+						React.createElement(TextBox, _extends({}, this.styles().TextBox, {
+							placeholder: 'columns',
+							value: this.props.columns,
+							onClick: this.onClickColumnTextbox,
+							onFocus: this.onClickColumnTextbox }))
+					)
+				),
+				React.createElement(DatabaseConfigModal, {
+					ref: 'databaseConfigModal',
+					dbIp: this.props.dbIp,
+					dbPort: this.props.dbPort,
+					dbSid: this.props.dbSid,
+					onChange: this.onDatabaseConfigModalChange }),
+				React.createElement(TableConfigModal, {
+					ref: 'tableConfigModal',
+					jdbcDriver: this.props.jdbcDriver,
+					jdbcConnUrl: this.props.jdbcConnUrl,
+					jdbcUsername: this.props.jdbcUsername,
+					jdbcPassword: this.props.jdbcPassword,
+					table: this.props.table,
+					onChange: this.onTableChange }),
+				React.createElement(ColumnConfigModal, {
+					ref: 'columnConfigModal',
+					jdbcDriver: this.props.jdbcDriver,
+					jdbcConnUrl: this.props.jdbcConnUrl,
+					jdbcUsername: this.props.jdbcUsername,
+					jdbcPassword: this.props.jdbcPassword,
+					table: this.props.table,
+					columns: this.props.columns,
+					onChange: this.onColumnChange })
+			);
+		}
+	});
+
+	var DatabaseConfigModal = React.createClass({
+		displayName: 'DatabaseConfigModal',
+
+		mixins: [modalMixin, ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				dbIp: '',
+				dbPort: '',
+				dbSid: '',
+				onChange: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return { visible: false };
+		},
+
+		onIpChange: function onIpChange(evt) {
+			if (this.props.onChange) this.props.onChange({ dbIp: evt.target.value });
+		},
+
+		onPortChange: function onPortChange(evt) {
+			if (this.props.onChange) this.props.onChange({ dbPort: evt.target.value });
+		},
+
+		onSidChange: function onSidChange(evt) {
+			if (this.props.onChange) this.props.onChange({ dbSid: evt.target.value });
+		},
+
+		onKeyUp: function onKeyUp(evt) {
+			if (evt.keyCode === 13) this.hide();
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			if (prevState.visible === false && this.state.visible === true) React.findDOMNode(this.refs.dbIpTextBox).focus();
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					},
+					modal: _.extend(this.getModalDivStyle(), {
+						width: '500px',
+						textAlign: 'center'
+					}),
+					dbIpTextBox: {
+						width: '200px',
+						marginRight: '3px'
+					},
+					dbPortTextBox: {
+						width: '50px',
+						marginRight: '3px'
+					},
+					dbSidTextBox: {
+						width: '120px',
+						marginRight: '3px'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.styles().modal },
+					React.createElement(TextBox, {
+						ref: 'dbIpTextBox',
+						style: this.styles().dbIpTextBox,
+						placeholder: 'database ip',
+						value: this.props.dbIp,
+						onChange: this.onIpChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(TextBox, {
+						style: this.styles().dbPortTextBox,
+						placeholder: 'port',
+						value: this.props.dbPort,
+						onChange: this.onPortChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(TextBox, {
+						style: this.styles().dbSidTextBox,
+						placeholder: 'database',
+						value: this.props.dbSid,
+						onChange: this.onSidChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+
+	var TableConfigModal = React.createClass({
+		displayName: 'TableConfigModal',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				onChange: null,
+				table: ''
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				loadedTablesStatus: 'loading',
+				loadedTables: []
+			};
+		},
+
+		show: function show() {
+			this.setState({
+				visible: true,
+				loadedTablesStatus: 'loading',
+				loadedTables: []
+			});
+			this.loadTables();
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		loadTables: function loadTables() {
+			var jdbc = {
+				driver: this.props.jdbcDriver,
+				connUrl: this.props.jdbcConnUrl,
+				username: this.props.jdbcUsername,
+				password: this.props.jdbcPassword
+			};
+
+			server.loadTables(jdbc).then((function (tables) {
+				this.setState({
+					loadedTablesStatus: 'loaded',
+					loadedTables: tables
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error({ err: err });
+				this.setState({ loadedTablesStatus: 'failed' });
+			}).bind(this));
+		},
+
+		onTableChange: function onTableChange(evt) {
+			if (this.props.onChange) this.props.onChange(evt.target.value);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					},
+					loadingBox: {
+						textAlign: 'center',
+						padding: '10px',
+						fontSize: '90%'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var loadedTables = null;
+			if (this.state.loadedTablesStatus === 'loading') {
+				loadedTables = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'loading...'
+				);
+			} else if (this.state.loadedTablesStatus === 'failed') {
+				loadedTables = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'load fail'
+				);
+			} else if (this.state.loadedTablesStatus === 'loaded') {
+				loadedTables = React.createElement(TableList, {
+					items: this.state.loadedTables,
+					onChange: this.props.onChange,
+					tableText: this.props.table });
+			}
+
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(TextBox, {
+						placeholder: 'table',
+						value: this.props.table,
+						onChange: this.onTableChange }),
+					React.createElement('hr', null),
+					loadedTables,
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+
+	var TableList = React.createClass({
+		displayName: 'TableList',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				items: [],
+				onChange: null,
+				tableText: ''
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						height: '100px',
+						overflow: 'auto'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var body = [];
+			this.props.items.forEach((function (item) {
+				if (this.props.tableText !== '' && item.toLowerCase().indexOf(this.props.tableText.toLowerCase()) === -1) return;
+
+				var onClickFn = (function () {
+					this.props.onChange(item);
+				}).bind(this);
+
+				body.push(React.createElement(ListItem, { key: item, name: item, onClick: onClickFn }));
+			}).bind(this));
+
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				body
+			);
+		}
+	});
+
+	var ColumnConfigModal = React.createClass({
+		displayName: 'ColumnConfigModal',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				table: '',
+				columns: '',
+				onChange: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				loadedColumnsStatus: 'loading',
+				loadedColumns: []
+			};
+		},
+
+		show: function show() {
+			this.setState({
+				visible: true,
+				loadedColumnsStatus: 'loading',
+				loadedColumns: []
+			});
+
+			this.loadColumns();
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		loadColumns: function loadColumns() {
+			var jdbc = {
+				driver: this.props.jdbcDriver,
+				connUrl: this.props.jdbcConnUrl,
+				username: this.props.jdbcUsername,
+				password: this.props.jdbcPassword
+			};
+
+			server.loadColumns(jdbc, this.props.table).then((function (columns) {
+				this.setState({
+					loadedColumnsStatus: 'loaded',
+					loadedColumns: columns
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error({ err: err });
+				this.setState({ loadedColumnsStatus: 'failed' });
+			}).bind(this));
+		},
+
+		onListChange: function onListChange(column) {
+			var columns = this.props.columns.trim() === '' ? [] : this.props.columns.split(',');
+
+			if (columns.indexOf(column) === -1) columns.push(column);else columns.remove(column);
+
+			this.props.onChange(columns.join(','));
+		},
+
+		onColumnTextChange: function onColumnTextChange(evt) {
+			this.props.onChange(evt.target.value);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					loadingBox: {
+						textAlign: 'center',
+						padding: '10px',
+						fontSize: '90%'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var loadedColumns = null;
+			if (this.state.loadedColumnsStatus === 'loading') {
+				loadedColumns = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'loading...'
+				);
+			} else if (this.state.loadedColumnsStatus === 'failed') {
+				loadedColumns = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'load fail'
+				);
+			} else if (this.state.loadedColumnsStatus === 'loaded') {
+				loadedColumns = React.createElement(ColumnList, {
+					columns: this.props.columns,
+					items: this.state.loadedColumns,
+					onListChange: this.onListChange });
+			}
+
+			return React.createElement(
+				'div',
+				{ style: { display: this.state.visible === true ? 'block' : 'none' } },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(TextBox, {
+						placeholder: 'columns',
+						value: this.props.columns,
+						onChange: this.onColumnTextChange }),
+					React.createElement('hr', null),
+					loadedColumns,
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+
+	var ColumnList = React.createClass({
+		displayName: 'ColumnList',
+
+		mixins: [ReactCSS.mixin],
+		getDefaultProps: function getDefaultProps() {
+			return {
+				columns: '',
+				items: [],
+				onListChange: null
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						height: '100px',
+						overflow: 'auto'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var body = [];
+			var columnsArr = this.props.columns.split(',');
+			this.props.items.forEach((function (item) {
+				var onClickFn = (function () {
+					this.props.onListChange(item.columnName);
+				}).bind(this);
+
+				var name = util.format('%s (%s)', item.columnName, item.columnType);
+				body.push(React.createElement(ListItem, {
+					key: name,
+					name: name,
+					onClick: onClickFn,
+					isSelected: columnsArr.indexOf(item.columnName) !== -1 }));
+			}).bind(this));
+
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				body
+			);
+		}
+	});
+
+	module.exports = DatabaseConfigPanel;
+
+/***/ },
 /* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(2),
 	    ReactCSS = __webpack_require__(163),
@@ -37037,19 +37811,20 @@
 
 		mixins: [ReactCSS.mixin],
 
-		getInitialState: function getInitialState() {
+		getDefaultProps: function getDefaultProps() {
 			return {
 				bindingType: 'simple',
-				bindingColumn: ''
+				bindingColumn: '',
+				onChange: null
 			};
 		},
 
 		onBindingTypeChanged: function onBindingTypeChanged(bindingType) {
-			this.setState({ bindingType: bindingType });
+			this.props.onChange({ bindingType: bindingType });
 		},
 
 		onBindingColumnChanged: function onBindingColumnChanged(columnName) {
-			this.setState({ bindingColumn: columnName });
+			this.props.onChange({ bindingColumn: columnName });
 		},
 
 		onBindingColumnTextBoxClicked: function onBindingColumnTextBoxClicked() {
@@ -37059,21 +37834,25 @@
 		classes: function classes() {
 			return {
 				'default': {
-					BindingColumnLine: {
-						display: this.state.bindingType === 'simple' ? 'none' : 'display'
+					BindingTypeLine: {
+						textAlign: 'center',
+						padding: '10px'
+					},
+					BindingColumnTextBox: {
+						width: '400px'
 					}
 				}
 			};
 		},
 
 		render: function render() {
-			var bindingColumnLine = this.state.bindingType === 'simple' ? null : React.createElement(
+			var bindingColumnLine = this.props.bindingType === 'simple' ? null : React.createElement(
 				KeyValueLine,
 				{ label: '바인딩 컬럼' },
-				React.createElement(TextBox, {
+				React.createElement(TextBox, _extends({}, this.styles().BindingColumnTextBox, {
 					placeholder: 'binding column',
-					value: this.state.bindingColumn,
-					onClick: this.onBindingColumnTextBoxClicked })
+					value: this.props.bindingColumn,
+					onClick: this.onBindingColumnTextBoxClicked }))
 			);
 
 			return React.createElement(
@@ -37089,18 +37868,18 @@
 					null,
 					React.createElement(
 						KeyValueLine,
-						{ label: '바인딩 타입', style: { textAlign: 'center', padding: '10px' } },
+						{ label: '바인딩 타입' },
 						React.createElement(BindingTypeBtn, {
 							name: 'simple',
-							isClicked: this.state.bindingType === 'simple',
+							isClicked: this.props.bindingType === 'simple',
 							onChange: this.onBindingTypeChanged }),
 						React.createElement(BindingTypeBtn, {
 							name: 'date',
-							isClicked: this.state.bindingType === 'date',
+							isClicked: this.props.bindingType === 'date',
 							onChange: this.onBindingTypeChanged }),
 						React.createElement(BindingTypeBtn, {
 							name: 'seq',
-							isClicked: this.state.bindingType === 'seq',
+							isClicked: this.props.bindingType === 'seq',
 							onChange: this.onBindingTypeChanged })
 					),
 					bindingColumnLine
@@ -37150,7 +37929,7 @@
 						height: '100px',
 						cursor: 'pointer',
 						textAlign: 'center',
-						padding: '30px 10px',
+						padding: '20px',
 						overflow: 'hidden',
 						backgroundColor: 'inherit',
 						border: '1px solid ' + color.lightGray
@@ -37326,14 +38105,14 @@
 			};
 
 			var body = [];
-			this.props.items.forEach(function (item) {
+			this.props.items.forEach((function (item) {
 				var onClickFn = (function () {
 					this.props.onChange(item);
 				}).bind(this);
 
 				var name = util.format('%s (%s)', item.columnName, item.columnType);
 				body.push(React.createElement(ListItem, { key: name, name: name, onClick: onClickFn }));
-			});
+			}).bind(this));
 
 			return React.createElement(
 				'div',
@@ -38377,6 +39156,129 @@
 		}
 	});
 	exports.DashedTextBox = DashedTextBox;
+
+/***/ },
+/* 196 */,
+/* 197 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(173).color;
+
+	var SelectBox = React.createClass({
+		displayName: 'SelectBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				values: [],
+				value: null,
+				onChange: null,
+				style: {}
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				value: this.props.value
+			};
+		},
+
+		onChange: function onChange(evt) {
+			this.setState({ value: evt.target.value });
+			if (this.props.onChange) this.props.onChange(evt);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					select: _.extend({
+						backgroundColor: color.transparentLightGray,
+						border: 'none',
+						padding: '6px',
+						outline: 'none',
+						WebkitAppearance: 'none',
+						msAppearance: 'none'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var body = this.props.values.map(function (value) {
+				return React.createElement(
+					'option',
+					{ key: value, value: value },
+					value
+				);
+			});
+
+			return React.createElement(
+				'select',
+				{
+					style: this.styles().select,
+					value: this.state.value,
+					onChange: this.onChange },
+				body
+			);
+		}
+	});
+	exports.SelectBox = SelectBox;
+
+	var DashedSelectBox = React.createClass({
+		displayName: 'DashedSelectBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				value: null,
+				values: [],
+				onChange: null,
+				style: {}
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					SelectBox: _.extend({
+						padding: '3px 5px',
+						borderRadius: '6px',
+						WebKitBorderRadius: '6px',
+						msBorderRadius: '6px',
+						border: '1px dashed ' + color.gray,
+						outline: 'none',
+						WebkitAppearance: 'none',
+						msAppearance: 'none'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(SelectBox, _extends({}, this.styles().SelectBox, {
+				value: this.props.value,
+				values: this.props.values,
+				onChange: this.props.onChange }));
+		}
+	});
+	exports.DashedSelectBox = DashedSelectBox;
 
 /***/ }
 /******/ ]);

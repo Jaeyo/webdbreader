@@ -30,6 +30,7 @@
     "react": "^0.13.3",
     "react-loading": "0.0.7",
     "react-map-styles": "^0.3.0",
+    "reactcss": "^0.4.1",
     "striptags": "^2.0.4",
     "style-loader": "^0.12.4",
     "underscore": "^1.8.3",

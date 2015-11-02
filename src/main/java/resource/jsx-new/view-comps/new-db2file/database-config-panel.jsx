@@ -76,9 +76,10 @@ var DatabaseConfigPanel = React.createClass({
 		if(state.dbVendor !== 'etc') {
 			var tmpl = jdbcTmpl[state.dbVendor];
 			state.jdbcDriver = tmpl.driver;
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.state.dbIp)
-											.replace('{port}', this.state.dbPort)
-											.replace('{database}', this.state.dbSid);
+			state.dbPort = tmpl.port;
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
+											.replace('{port}', state.dbPort)
+											.replace('{database}', this.props.dbSid);
 		}
 
 		this.props.onChange(state);
@@ -667,6 +668,7 @@ var ColumnList = React.createClass({
 
 	render() {
 		var body = [];
+		var columnsArr = this.props.columns.split(',');
 		this.props.items.forEach(function(item) {
 			var onClickFn = function() {
 				this.props.onListChange(item.columnName);
@@ -678,7 +680,7 @@ var ColumnList = React.createClass({
 					key={name} 
 					name={name} 
 					onClick={onClickFn}
-					isSelected={this.props.columns. TODO IMME} />
+					isSelected={columnsArr.indexOf(item.columnName) !== -1} />
 			);
 		}.bind(this));
 

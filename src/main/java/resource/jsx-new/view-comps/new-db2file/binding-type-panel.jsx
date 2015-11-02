@@ -16,19 +16,20 @@ var React = require('react'),
 var BindingTypePanel = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 
-	getInitialState() {
+	getDefaultProps() {
 		return {
 			bindingType: 'simple',
-			bindingColumn: ''
+			bindingColumn: '',
+			onChange: null
 		};
 	},
 
 	onBindingTypeChanged(bindingType) {
-		this.setState({ bindingType: bindingType });
+		this.props.onChange({ bindingType: bindingType });
 	},
 
 	onBindingColumnChanged(columnName) {
-		this.setState({ bindingColumn: columnName });
+		this.props.onChange({ bindingColumn: columnName });
 	},
 
 	onBindingColumnTextBoxClicked() {
@@ -38,8 +39,12 @@ var BindingTypePanel = React.createClass({
 	classes() {
 		return {
 			default: {
-				BindingColumnLine: {
-					display: this.state.bindingType === 'simple' ? 'none' : 'display'
+				BindingTypeLine: {
+					textAlign: 'center',
+					padding: '10px'
+				},
+				BindingColumnTextBox: {
+					width: '400px'
 				}
 			}
 		};
@@ -47,11 +52,12 @@ var BindingTypePanel = React.createClass({
 
 	render() {
 		var bindingColumnLine = 
-			this.state.bindingType === 'simple' ? null : 
+			this.props.bindingType === 'simple' ? null : 
 				(<KeyValueLine label="바인딩 컬럼">
 					<TextBox 
+						is="BindingColumnTextBox"
 						placeholder="binding column"
-						value={this.state.bindingColumn}
+						value={this.props.bindingColumn}
 						onClick={this.onBindingColumnTextBoxClicked} />
 				</KeyValueLine>);
 
@@ -59,18 +65,18 @@ var BindingTypePanel = React.createClass({
 			<Panel>
 				<Panel.SmallHeading glyphicon="cog">바인딩 타입</Panel.SmallHeading>
 				<Panel.Body>
-					<KeyValueLine label="바인딩 타입" style={{ textAlign: 'center', padding: '10px' }}>
+					<KeyValueLine label="바인딩 타입">
 						<BindingTypeBtn 
 							name="simple" 
-							isClicked={this.state.bindingType === 'simple'} 
+							isClicked={this.props.bindingType === 'simple'} 
 							onChange={this.onBindingTypeChanged} />
 						<BindingTypeBtn 
 							name="date" 
-							isClicked={this.state.bindingType === 'date'} 
+							isClicked={this.props.bindingType === 'date'} 
 							onChange={this.onBindingTypeChanged} />
 						<BindingTypeBtn 
 							name="seq" 
-							isClicked={this.state.bindingType === 'seq'} 
+							isClicked={this.props.bindingType === 'seq'} 
 							onChange={this.onBindingTypeChanged} />
 					</KeyValueLine>
 					{bindingColumnLine}
@@ -121,7 +127,7 @@ var BindingTypeBtn = React.createClass({
 					height: '100px',
 					cursor: 'pointer',
 					textAlign: 'center',
-					padding: '30px 10px',
+					padding: '20px',
 					overflow: 'hidden',
 					backgroundColor: 'inherit',
 					border: '1px solid ' + color.lightGray
@@ -186,7 +192,7 @@ var BindingColumnModal = React.createClass({
 	},
 
 	getInitialState() {
-		return { 
+		return {
 			visible: false,
 			loadedColumnsStatus: 'loading',
 			loadedColumns: []
@@ -245,7 +251,7 @@ var BindingColumnModal = React.createClass({
 			loadedColumns = ( <div is="loadingBox">load fail</div> );
 		} else if(this.state.loadedColumnsStatus === 'loaded') {
 			loadedColumns = (
-				<ColumnList 
+				<ColumnList
 					items={this.state.loadedColumns}
 					onChange={this.props.onChange} />
 			);
@@ -285,7 +291,7 @@ var ColumnList = React.createClass({
 
 			var name = util.format('%s (%s)', item.columnName, item.columnType);
 			body.push(<ListItem key={name} name={name} onClick={onClickFn} />);
-		});
+		}.bind(this));
 
 		return (
 			<div style={outer}>
