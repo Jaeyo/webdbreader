@@ -36247,7 +36247,24 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 178 */,
+/* 178 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
 /* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -36262,8 +36279,8 @@
 	    color = jsUtil.color,
 	    Layout = __webpack_require__(175).Layout,
 	    LayerPopup = __webpack_require__(180).LayerPopup,
-	    DatabaseConfigPanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/database-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
-	    BindingTypePanel = __webpack_require__(183);
+	    DatabaseConfigPanel = __webpack_require__(184),
+	    BindingTypePanel = __webpack_require__(198);
 
 	var NewDb2FileView = React.createClass({
 		displayName: 'NewDb2FileView',
@@ -36391,6 +36408,7 @@
 	var React = __webpack_require__(2),
 	    ReactCSS = __webpack_require__(163),
 	    Loading = __webpack_require__(181),
+	    Layer = __webpack_require__(182),
 	    DarkBlueBtn = __webpack_require__(177).DarkBlueBtn,
 	    boxShadow = __webpack_require__(173).boxShadow;
 
@@ -36462,6 +36480,90 @@
 			);
 		}
 	});
+
+	var CurtainCancelableLoadingAlert = React.createClass({
+		displayName: 'CurtainCancelableLoadingAlert',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				msg: '',
+				hide: null
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					msgDiv: {
+						padding: '10px',
+						textAlign: 'center'
+					},
+					loadingDiv: {
+						padding: '10px',
+						textAlign: 'center'
+					},
+					btnDiv: {
+						padding: '10px',
+						textAlign: 'center'
+					},
+					cancelBtn: {
+						width: '100px'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.styles().msgDiv },
+					this.props.msg
+				),
+				React.createElement(
+					'div',
+					{ style: this.styles().loadingDiv },
+					React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
+				),
+				React.createElement(
+					'div',
+					{ style: this.styles().btnDiv },
+					React.createElement(
+						DarkBlueBtn,
+						{ style: this.styles().cancelBtn, onClick: this.props.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+	exports.getCurtainCancelableLoadingAlert = function (msg) {
+		var hideFn = function hideFn() {
+			layer.destroy();
+		};
+
+		var layer = new Layer(document.body, function () {
+			return React.createElement(CurtainCancelableLoadingAlert, { msg: msg, hide: hideFn });
+		});
+
+		return {
+			show: function show() {
+				layer.render();
+			},
+			hide: function hide() {
+				layer.destroy();
+			}
+		};
+	};
 
 	var CurtainLoadingAlert = React.createClass({
 		displayName: 'CurtainLoadingAlert',
@@ -37028,8 +37130,100 @@
 	;
 
 /***/ },
-/* 182 */,
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var babelHelpers = __webpack_require__(183);
+	var React = __webpack_require__(2);
+
+	module.exports = (function () {
+	  function Layer(container, render) {
+	    babelHelpers.classCallCheck(this, Layer);
+
+	    this._container = container;
+	    this._render = render;
+	  }
+
+	  babelHelpers.createClass(Layer, {
+	    render: {
+	      value: function render(cb) {
+	        if (!this._mountPoint) this._createMountPoint();
+
+	        var child = this._render();
+
+	        return React.render(child, this._mountPoint, cb);
+	      }
+	    },
+	    unmount: {
+	      value: function unmount() {
+	        if (!this._mountPoint) {
+	          return;
+	        }React.unmountComponentAtNode(this._mountPoint);
+	      }
+	    },
+	    destroy: {
+	      value: function destroy() {
+	        this.unmount();
+
+	        if (this._mountPoint) {
+	          this._container.removeChild(this._mountPoint);
+	          this._mountPoint = null;
+	        }
+	      }
+	    },
+	    _createMountPoint: {
+	      value: function _createMountPoint() {
+	        this._mountPoint = document.createElement("div");
+	        this._container.appendChild(this._mountPoint);
+	      }
+	    }
+	  });
+	  return Layer;
+	})();
+
+/***/ },
 /* 183 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports === "object") {
+	    factory(exports);
+	  } else {
+	    factory(root.babelHelpers = {});
+	  }
+	})(this, function (global) {
+	  var babelHelpers = global;
+
+	  babelHelpers.createClass = (function () {
+	    function defineProperties(target, props) {
+	      for (var key in props) {
+	        var prop = props[key];
+	        prop.configurable = true;
+	        if (prop.value) prop.writable = true;
+	      }
+
+	      Object.defineProperties(target, props);
+	    }
+
+	    return function (Constructor, protoProps, staticProps) {
+	      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	      if (staticProps) defineProperties(Constructor, staticProps);
+	      return Constructor;
+	    };
+	  })();
+
+	  babelHelpers.classCallCheck = function (instance, Constructor) {
+	    if (!(instance instanceof Constructor)) {
+	      throw new TypeError("Cannot call a class as a function");
+	    }
+	  };
+	})
+
+/***/ },
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37038,19 +37232,2153 @@
 
 	var React = __webpack_require__(2),
 	    ReactCSS = __webpack_require__(163),
-	    Layer = __webpack_require__(184),
+	    _ = __webpack_require__(158),
+	    util = __webpack_require__(159),
+	    Loading = __webpack_require__(181),
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color,
-	    server = __webpack_require__(186),
+	    server = __webpack_require__(185),
+	    SelectBox = __webpack_require__(195).SelectBox,
+	    TextBox = __webpack_require__(196).TextBox,
 	    Panel = __webpack_require__(162).Panel,
-	    KeyValueLine = __webpack_require__(196).getKeyValueLine('100px'),
-	    TextBox = __webpack_require__(197).TextBox,
+	    DarkBlueSmallBtn = __webpack_require__(177).DarkBlueSmallBtn,
+	    Clearfix = __webpack_require__(176).Clearfix,
+	    LayerPopup = __webpack_require__(180).LayerPopup,
+	    modalMixin = __webpack_require__(180).modalMixin,
+	    Curtain = __webpack_require__(180).Curtain,
+	    KeyValueLine = __webpack_require__(197).getKeyValueLine('100px'),
+	    ListItem = __webpack_require__(197).ListItem;
+
+	Array.prototype.remove = __webpack_require__(178);
+
+	var jdbcTmpl = {
+		oracle: {
+			driver: 'oracle.jdbc.driver.OracleDriver',
+			connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
+			port: 1521
+		},
+		mysql: {
+			driver: 'com.mysql.jdbc.Driver',
+			connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
+			port: 3306
+		},
+		mssql: {
+			driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+			connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
+			port: 1433
+		},
+		db2: {
+			driver: 'com.ibm.db2.jcc.DB2Driver',
+			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+			port: 50000
+		},
+		tibero: {
+			driver: 'com.ibm.db2.jcc.DB2Driver',
+			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+			port: 8629
+		}
+	};
+
+	var DatabaseConfigPanel = React.createClass({
+		displayName: 'DatabaseConfigPanel',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				dbVendor: '',
+				dbIp: '',
+				dbPort: '',
+				dbSid: '',
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				table: '',
+				columns: '',
+				onChange: null
+			};
+		},
+
+		onClickDbVendorConfigBtn: function onClickDbVendorConfigBtn(evt) {
+			this.refs.databaseConfigModal.show();
+		},
+
+		onDbVendorChange: function onDbVendorChange(evt) {
+			var state = { dbVendor: evt.target.value };
+
+			if (state.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[state.dbVendor];
+				state.jdbcDriver = tmpl.driver;
+				state.dbPort = tmpl.port;
+				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', state.dbPort).replace('{database}', this.props.dbSid);
+			}
+
+			this.props.onChange(state);
+		},
+
+		onJdbcDriverChanged: function onJdbcDriverChanged(evt) {
+			this.props.onChange({ jdbcDriver: evt.target.value });
+		},
+
+		onJdbcConnUrlChanged: function onJdbcConnUrlChanged(evt) {
+			this.props.onChange({ connUrl: evt.target.value });
+		},
+
+		onJdbcUsernameChanged: function onJdbcUsernameChanged(evt) {
+			this.props.onChange({ jdbcUsername: evt.target.value });
+		},
+
+		onJdbcPasswordChanged: function onJdbcPasswordChanged(evt) {
+			this.props.onChange({ jdbcPassword: evt.target.value });
+		},
+
+		onClickTableTextbox: function onClickTableTextbox(evt) {
+			this.refs.tableConfigModal.show();
+		},
+
+		onClickColumnTextbox: function onClickColumnTextbox(evt) {
+			this.refs.columnConfigModal.show();
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					Panel: {
+						style: {
+							marginBottom: '10px'
+						}
+					},
+					DbVendorSelectBox: {
+						style: {
+							width: '400px',
+							marginRight: '10px'
+						}
+					},
+					border: {
+						display: 'inline-block',
+						border: '1px dashed ' + color.lightGray,
+						padding: '10px',
+						margin: '10px 0'
+					},
+					TextBox: {
+						style: {
+							display: 'block',
+							width: '400px',
+							marginBottom: '3px'
+						}
+					},
+					JdbcTextBox: {
+						style: {
+							display: 'block',
+							width: '350px',
+							marginBottom: '3px'
+						}
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				Panel,
+				this.styles().Panel,
+				React.createElement(
+					Panel.SmallHeading,
+					{ glyphicon: 'cog' },
+					'jdbc 설정'
+				),
+				React.createElement(
+					Panel.Body,
+					null,
+					React.createElement(
+						KeyValueLine,
+						{ label: '데이터베이스' },
+						React.createElement(
+							'div',
+							null,
+							React.createElement(SelectBox, _extends({}, this.styles().DbVendorSelectBox, {
+								values: ['oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc'],
+								value: this.props.dbVendor,
+								onChange: this.onDbVendorChange })),
+							React.createElement(
+								DarkBlueSmallBtn,
+								{ onClick: this.onClickDbVendorConfigBtn },
+								'설정'
+							)
+						),
+						React.createElement(
+							'div',
+							{ style: this.styles().border },
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc driver',
+								value: this.props.jdbcDriver,
+								onChange: this.onJdbcDriverChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc connection url',
+								value: this.props.jdbcConnUrl,
+								onChange: this.onJdbcConnUrlChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								placeholder: 'jdbc username',
+								value: this.props.jdbcUsername,
+								onChange: this.onJdbcUsernameChanged })),
+							React.createElement(TextBox, _extends({}, this.styles().JdbcTextBox, {
+								type: 'password',
+								placeholder: 'jdbc password',
+								value: this.props.jdbcPassword,
+								onChange: this.onJdbcPasswordChanged }))
+						)
+					),
+					React.createElement(
+						KeyValueLine,
+						{ label: '테이블' },
+						React.createElement(TextBox, _extends({}, this.styles().TextBox, {
+							placeholder: 'table',
+							value: this.props.table,
+							onClick: this.onClickTableTextbox,
+							onFocus: this.onClickTableTextbox }))
+					),
+					React.createElement(
+						KeyValueLine,
+						{ label: '컬럼' },
+						React.createElement(TextBox, _extends({}, this.styles().TextBox, {
+							placeholder: 'columns',
+							value: this.props.columns,
+							onClick: this.onClickColumnTextbox,
+							onFocus: this.onClickColumnTextbox }))
+					)
+				),
+				React.createElement(DatabaseConfigModal, {
+					ref: 'databaseConfigModal',
+					dbVendor: this.props.dbVendor,
+					dbIp: this.props.dbIp,
+					dbPort: this.props.dbPort,
+					dbSid: this.props.dbSid,
+					onChange: this.props.onChange }),
+				React.createElement(TableConfigModal, {
+					ref: 'tableConfigModal',
+					jdbcDriver: this.props.jdbcDriver,
+					jdbcConnUrl: this.props.jdbcConnUrl,
+					jdbcUsername: this.props.jdbcUsername,
+					jdbcPassword: this.props.jdbcPassword,
+					table: this.props.table,
+					onChange: this.props.onChange }),
+				React.createElement(ColumnConfigModal, {
+					ref: 'columnConfigModal',
+					jdbcDriver: this.props.jdbcDriver,
+					jdbcConnUrl: this.props.jdbcConnUrl,
+					jdbcUsername: this.props.jdbcUsername,
+					jdbcPassword: this.props.jdbcPassword,
+					table: this.props.table,
+					columns: this.props.columns,
+					onChange: this.props.onChange })
+			);
+		}
+	});
+
+	var DatabaseConfigModal = React.createClass({
+		displayName: 'DatabaseConfigModal',
+
+		mixins: [modalMixin, ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				dbVendor: '',
+				dbIp: '',
+				dbPort: '',
+				dbSid: '',
+				onChange: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return { visible: false };
+		},
+
+		onIpChange: function onIpChange(evt) {
+			var state = { dbIp: evt.target.value };
+
+			if (this.props.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[this.props.dbVendor];
+				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp).replace('{port}', this.props.dbPort).replace('{sid}', this.props.dbSid);
+			}
+
+			this.props.onChange(state);
+		},
+
+		onPortChange: function onPortChange(evt) {
+			var state = { dbPort: evt.target.value };
+
+			if (this.props.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[this.props.dbVendor];
+				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', state.dbPort).replace('{sid}', this.props.dbSid);
+			}
+
+			this.props.onChange(state);
+		},
+
+		onSidChange: function onSidChange(evt) {
+			var state = { dbSid: evt.target.value };
+
+			if (this.props.dbVendor !== 'etc') {
+				var tmpl = jdbcTmpl[this.props.dbVendor];
+				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', this.props.dbPort).replace('{sid}', state.dbSid);
+			}
+
+			this.props.onChange(state);
+		},
+
+		onKeyUp: function onKeyUp(evt) {
+			if (evt.keyCode === 13) this.hide();
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			if (prevState.visible === false && this.state.visible === true) React.findDOMNode(this.refs.dbIpTextBox).focus();
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					},
+					modal: _.extend(this.getModalDivStyle(), {
+						width: '500px',
+						textAlign: 'center'
+					}),
+					dbIpTextBox: {
+						width: '200px',
+						marginRight: '3px'
+					},
+					dbPortTextBox: {
+						width: '50px',
+						marginRight: '3px'
+					},
+					dbSidTextBox: {
+						width: '120px',
+						marginRight: '3px'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.styles().modal },
+					React.createElement(TextBox, {
+						ref: 'dbIpTextBox',
+						style: this.styles().dbIpTextBox,
+						placeholder: 'database ip',
+						value: this.props.dbIp,
+						onChange: this.onIpChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(TextBox, {
+						style: this.styles().dbPortTextBox,
+						placeholder: 'port',
+						value: this.props.dbPort,
+						onChange: this.onPortChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(TextBox, {
+						style: this.styles().dbSidTextBox,
+						placeholder: 'database',
+						value: this.props.dbSid,
+						onChange: this.onSidChange,
+						onKeyUp: this.onKeyUp }),
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+
+	var TableColumnConfigModal = {
+		clazz: React.createClass({
+			displayName: 'clazz',
+
+			mixins: [modalMixin, ReactCSS.mixin],
+
+			getDefaultProps: function getDefaultProps() {
+				return {
+					jdbcDriver: '',
+					jdbcConnUrl: '',
+					jdbcUsername: '',
+					jdbcPassword: '',
+					table: '',
+					columns: '',
+					onChange: null,
+					hide: null
+				};
+			},
+
+			getInitialState: function getInitialState() {
+				return {
+					loadingTableStatus: 'loading', // loading / failed / loaded
+					loadedTables: [],
+					loadingTableDataStatus: 'none', // none / loading / failed / loaded
+					loadedColumns: [],
+					loadedTableData: []
+				};
+			},
+
+			componentDidMount: function componentDidMount() {
+				this.loadTables();
+			},
+
+			loadTables: function loadTables() {
+				var loadingLayer = LayerPopup.getCurtainCancelableLoadingAlert('loading tables');
+				loadingLayer.show();
+
+				var jdbc = {
+					driver: this.props.jdbcDriver,
+					connUrl: this.props.jdbcConnUrl,
+					username: this.props.jdbcUsername,
+					password: this.props.jdbcPassword
+				};
+
+				server.loadTables(jdbc).then((function (tables) {
+					loadingLayer.hide();
+					this.setState({
+						loadingTableStatus: 'loaded',
+						loadedTables: tables
+					});
+				}).bind(this))['catch']((function (err) {
+					loadingLayer.hide();
+					console.error(err);
+					this.setState({ loadingTableStatus: 'failed' });
+					if (typeof err !== 'string') err = JSON.stringify(err);
+					//TODO layer popup alert error
+					alert(err);
+				}).bind(this));
+			},
+
+			loadTableData: function loadTableData() {
+				//TODO
+			},
+
+			classes: function classes() {
+				return {
+					'default': {
+						outer: _.extend(this.getModalDivStyle(), {
+							width: '510px',
+							height: '300px',
+							position: 'relative'
+						}),
+						tableArea: {
+							position: 'absolute',
+							top: '10px',
+							right: '310px',
+							bottom: '10px',
+							left: '10px'
+						},
+						columnArea: {
+							position: 'absolute',
+							top: '10px',
+							right: '10px',
+							bottom: '10px',
+							left: '210px'
+						}
+					}
+				};
+			},
+
+			styles: function styles() {
+				return this.css();
+			},
+
+			onTableChange: function onTableChange(evt) {
+				this.props.onChange({ table: evt.target.value });
+			},
+
+			onColumnsChange: function onColumnsChange(evt) {
+				this.props.onChange({ columns: evt.target.value });
+			},
+
+			renderTableList: function renderTableList() {
+				switch (this.state.loadingTableStatus) {
+					case 'loading':
+						return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
+					case 'failed':
+						return React.createElement(
+							'label',
+							null,
+							'failed'
+						);
+					case 'loaded':
+						if (this.state.loadedTables.length === 0) {
+							return React.createElement(
+								'label',
+								null,
+								'no tables'
+							);
+						} else {
+							var body = [];
+							this.props.loadedTables.forEach((function (table) {
+								if (this.props.table !== '' && this.props.table.toLowerCase().indexOf(table.toLowerCase()) !== -1) return;
+
+								var onClick = (function () {
+									this.props.onChange({ table: table });
+								}).bind(this);
+
+								body.push(React.createElement(ListItem, { name: table, onClick: onClick }));
+							}).bind(this));
+
+							return React.createElement(
+								'div',
+								{ style: { width: '100%', height: '100%', overflow: 'auto' } },
+								body
+							);
+						}
+				}
+			},
+
+			renderColumnList: function renderColumnList() {
+				switch (this.state.loadingColumnsStatus) {
+					case 'none':
+						return null;
+					case 'loading':
+						return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
+					case 'failed':
+						return React.createElement(
+							'label',
+							null,
+							'failed'
+						);
+					case 'loaded':
+						var th = [];
+						this.state.loadedColumns.forEach((function (loadedColumn) {
+							th.push(React.createElement(this.columnListItem, {
+								type: 'th',
+								msg: loadedColumn.columnName,
+								inColumn: loadedColumn.columnName,
+								columns: this.props.columns,
+								onChange: this.props.onChange }));
+						}).bind(this));
+						var thead = React.createElement(
+							'tr',
+							null,
+							th
+						);
+
+						var tbody = [];
+						this.state.loadedTableData.forEach((function (tableRowData) {
+							var td = [];
+							Object.keys(tableRowData).forEach((function (column) {
+								var data = tableRowData[column];
+								td.push(React.createElement(this.columnListItem, {
+									msg: data,
+									inColumn: column,
+									columns: this.props.columns,
+									onChange: this.props.onChange }));
+							}).bind(this));
+							tbody.push(React.createElement(
+								'tr',
+								null,
+								td
+							));
+						}).bind(this));
+
+						return React.createElement(
+							'div',
+							{ style: { width: '100%', height: '100%', overflow: 'auto' } },
+							React.createElement(
+								'table',
+								null,
+								React.createElement(
+									'thead',
+									null,
+									thead
+								),
+								React.createElement(
+									'tbody',
+									null,
+									tbody
+								)
+							)
+						);
+				}
+			},
+
+			columnListItem: React.createClass({
+				displayName: 'columnListItem',
+
+				getDefaultProps: function getDefaultProps() {
+					return {
+						type: 'td',
+						msg: '',
+						inColumn: '',
+						columns: '',
+						onChange: null
+					};
+				},
+				getInitialState: function getInitialState() {
+					return { isMouseOver: false };
+				},
+				onClick: function onClick(evt) {
+					//TODO
+				},
+				onMouseOver: function onMouseOver(evt) {
+					this.setState({ isMouseOver: true });
+				},
+				onMouseOut: function onMouseOut(evt) {
+					this.setState({ isMouseOver: false });
+				},
+				render: function render() {
+					var isSelected = columns.toLowerCase().split(',').indexOf(inColumn.toLowerCase()) !== -1;
+
+					var props = {
+						onClick: this.onClick,
+						onMouseOver: this.onMouseOver,
+						onMouseOut: this.onMouseOut,
+						style: isSelected === true ? {
+							backgroundColor: color.lightGray
+						} : {}
+					};
+
+					switch (this.props.type) {
+						case 'td':
+							return React.createElement(
+								'td',
+								props,
+								this.props.msg
+							);
+						case 'th':
+							return React.createElement(
+								'th',
+								props,
+								this.props.msg
+							);
+					}
+				}
+			}),
+
+			render: function render() {
+				return React.createElement(
+					'div',
+					null,
+					React.createElement(Curtain, { onClick: this.props.hide }),
+					React.createElement(
+						'div',
+						{ style: this.styles().modal },
+						React.createElement(
+							'div',
+							{ style: this.styles().tableArea },
+							React.createElement(
+								'div',
+								null,
+								React.createElement(TextBox, { placeholder: 'table', value: this.props.table, onChange: this.onTableChange }),
+								React.createElement(
+									DarkBlueSmallBtn,
+									{ onClick: this.loadTableData },
+									'테이블 로드'
+								)
+							),
+							this.renderTableList()
+						),
+						React.createElement(
+							'div',
+							{ style: this.styles().columnArea },
+							React.createElement(
+								'div',
+								null,
+								React.createElement(TextBox, { placeholder: 'columns', value: this.props.columns, onChange: this.onColumnsChange })
+							),
+							this.renderColumnList()
+						)
+					)
+				);
+			}
+		}),
+		layer: null,
+		show: function show(props) {
+			props = _.extend(props, {
+				hide: this.hide
+			});
+
+			this.layer = new Layer(document.body, (function () {
+				return React.createElement(this.clazz, props);
+			}).bind(this));
+
+			this.layer.render();
+		},
+		hide: function hide() {
+			this.layer.destroy();
+			this.layer = null;
+		}
+	};
+
+	var TableColumnConfigModal = React.createClass({
+		displayName: 'TableColumnConfigModal'
+	});
+
+	var TableConfigModal = React.createClass({
+		displayName: 'TableConfigModal',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				onChange: null,
+				table: ''
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				loadedTablesStatus: 'loading',
+				loadedTables: []
+			};
+		},
+
+		show: function show() {
+			this.setState({
+				visible: true,
+				loadedTablesStatus: 'loading',
+				loadedTables: []
+			});
+			this.loadTables();
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		loadTables: function loadTables() {
+			var jdbc = {
+				driver: this.props.jdbcDriver,
+				connUrl: this.props.jdbcConnUrl,
+				username: this.props.jdbcUsername,
+				password: this.props.jdbcPassword
+			};
+
+			server.loadTables(jdbc).then((function (tables) {
+				this.setState({
+					loadedTablesStatus: 'loaded',
+					loadedTables: tables
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error({ err: err });
+				this.setState({ loadedTablesStatus: 'failed' });
+			}).bind(this));
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					},
+					loadingBox: {
+						textAlign: 'center',
+						padding: '10px',
+						fontSize: '90%'
+					},
+					tableListOuter: {
+						height: '150px',
+						overflow: 'auto'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var loadedTables = null;
+			if (this.state.loadedTablesStatus === 'loading') {
+				loadedTables = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'loading...'
+				);
+			} else if (this.state.loadedTablesStatus === 'failed') {
+				loadedTables = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'load fail'
+				);
+			} else if (this.state.loadedTablesStatus === 'loaded') {
+				var tableArr = [];
+				this.state.loadedTables.forEach((function (table) {
+					if (this.props.table !== '' && table.toLowerCase().indexOf(this.props.table.toLowerCase()) === -1) return;
+					var onClick = (function () {
+						this.props.onChange({ table: table });
+					}).bind(this);
+					tableArr.push(React.createElement(ListItem, { key: table, name: table, onClick: onClick }));
+				}).bind(this));
+				loadedTables = React.createElement(
+					'div',
+					{ style: this.styles().tableListOuter },
+					tableArr
+				);
+			}
+
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(TextBox, {
+						placeholder: 'table',
+						value: this.props.table,
+						onChange: this.onTableChange }),
+					React.createElement('hr', null),
+					loadedTables,
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+
+	var ColumnConfigModal = React.createClass({
+		displayName: 'ColumnConfigModal',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				jdbcDriver: '',
+				jdbcConnUrl: '',
+				jdbcUsername: '',
+				jdbcPassword: '',
+				table: '',
+				columns: '',
+				onChange: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				loadedColumnsStatus: 'loading',
+				loadedColumns: []
+			};
+		},
+
+		show: function show() {
+			this.setState({
+				visible: true,
+				loadedColumnsStatus: 'loading',
+				loadedColumns: []
+			});
+
+			this.loadColumns();
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		loadColumns: function loadColumns() {
+			var jdbc = {
+				driver: this.props.jdbcDriver,
+				connUrl: this.props.jdbcConnUrl,
+				username: this.props.jdbcUsername,
+				password: this.props.jdbcPassword
+			};
+
+			server.loadColumns(jdbc, this.props.table).then((function (columns) {
+				this.setState({
+					loadedColumnsStatus: 'loaded',
+					loadedColumns: columns
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error({ err: err });
+				this.setState({ loadedColumnsStatus: 'failed' });
+			}).bind(this));
+		},
+
+		onColumnTextChange: function onColumnTextChange(evt) {
+			this.props.onChange({ columns: evt.target.value });
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					loadingBox: {
+						textAlign: 'center',
+						padding: '10px',
+						fontSize: '90%'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var loadedColumns = null;
+			if (this.state.loadedColumnsStatus === 'loading') {
+				loadedColumns = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'loading...'
+				);
+			} else if (this.state.loadedColumnsStatus === 'failed') {
+				loadedColumns = React.createElement(
+					'div',
+					{ style: this.styles().loadingBox },
+					'load fail'
+				);
+			} else if (this.state.loadedColumnsStatus === 'loaded') {
+				var columnArr = [];
+				var selectedColumns = this.props.columns.split(',');
+				this.props.columns.forEach((function (columnItem) {
+					var name = util.format('%s (%s)', columnItem.columnName, columnItem.columnType);
+
+					var onClick = (function () {
+						if (selectedColumns.indexOf(columnItem.columnName) !== -1) selectedColumns.remove(columnItem.columnName);else selectedColumns.push(columnItem.columnName);
+						this.props.onChange({ columns: selectedColumns.join(',') });
+					}).bind(this);
+
+					columnArr.push(React.createElement(ListItem, {
+						key: name,
+						name: name,
+						onClick: onClick,
+						isSelected: selectedColumns.indexOf(columnItem.columnName) !== -1 }));
+				}).bind(this));
+			}
+
+			return React.createElement(
+				'div',
+				{ style: { display: this.state.visible === true ? 'block' : 'none' } },
+				React.createElement(Curtain, { onClick: this.hide }),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(TextBox, {
+						placeholder: 'columns',
+						value: this.props.columns,
+						onChange: this.onColumnTextChange }),
+					React.createElement('hr', null),
+					loadedColumns,
+					React.createElement(
+						DarkBlueSmallBtn,
+						{ onClick: this.hide },
+						'ok'
+					)
+				)
+			);
+		}
+	});
+	module.exports = DatabaseConfigPanel;
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(186),
+	    util = __webpack_require__(159);
+
+	exports.loadColumns = function (jdbc, table) {
+		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
+		table = decodeURI(table);
+
+		return new Promise(function (resolve, reject) {
+			$.getJSON(util.format('/REST/Database/Columns/%s/', table), jdbc).fail(function (err) {
+				console.error({ err: err });
+				reject(err);
+			}).done(function (resp) {
+				if (resp.success !== 1) {
+					console.error(resp.errmsg);
+					reject(resp.errmsg);
+				} else {
+					resolve(resp.columns);
+				}
+			});
+		});
+	};
+
+	exports.loadTables = function (jdbc) {
+		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
+
+		return new Promise(function (resolve, reject) {
+			$.getJSON('/REST/Database/Tables/', jdbc).fail(function (err) {
+				console.error({ err: err });
+				reject(err);
+			}).done(function (resp) {
+				if (resp.success !== 1) {
+					console.error(resp.errmsg);
+					reject(resp.errmsg);
+				} else {
+					resolve(resp.tables);
+				}
+			});
+		});
+	};
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(187)
+
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(188);
+	__webpack_require__(190);
+	__webpack_require__(191);
+	__webpack_require__(192);
+	__webpack_require__(193);
+
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var asap = __webpack_require__(189);
+
+	function noop() {}
+
+	// States:
+	//
+	// 0 - pending
+	// 1 - fulfilled with _value
+	// 2 - rejected with _value
+	// 3 - adopted the state of another promise, _value
+	//
+	// once the state is no longer pending (0) it is immutable
+
+	// All `_` prefixed properties will be reduced to `_{random number}`
+	// at build time to obfuscate them and discourage their use.
+	// We don't use symbols or Object.defineProperty to fully hide them
+	// because the performance isn't good enough.
+
+
+	// to avoid using try/catch inside critical functions, we
+	// extract them to here.
+	var LAST_ERROR = null;
+	var IS_ERROR = {};
+	function getThen(obj) {
+	  try {
+	    return obj.then;
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+
+	function tryCallOne(fn, a) {
+	  try {
+	    return fn(a);
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+	function tryCallTwo(fn, a, b) {
+	  try {
+	    fn(a, b);
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+
+	module.exports = Promise;
+
+	function Promise(fn) {
+	  if (typeof this !== 'object') {
+	    throw new TypeError('Promises must be constructed via new');
+	  }
+	  if (typeof fn !== 'function') {
+	    throw new TypeError('not a function');
+	  }
+	  this._37 = 0;
+	  this._12 = null;
+	  this._59 = [];
+	  if (fn === noop) return;
+	  doResolve(fn, this);
+	}
+	Promise._99 = noop;
+
+	Promise.prototype.then = function(onFulfilled, onRejected) {
+	  if (this.constructor !== Promise) {
+	    return safeThen(this, onFulfilled, onRejected);
+	  }
+	  var res = new Promise(noop);
+	  handle(this, new Handler(onFulfilled, onRejected, res));
+	  return res;
+	};
+
+	function safeThen(self, onFulfilled, onRejected) {
+	  return new self.constructor(function (resolve, reject) {
+	    var res = new Promise(noop);
+	    res.then(resolve, reject);
+	    handle(self, new Handler(onFulfilled, onRejected, res));
+	  });
+	};
+	function handle(self, deferred) {
+	  while (self._37 === 3) {
+	    self = self._12;
+	  }
+	  if (self._37 === 0) {
+	    self._59.push(deferred);
+	    return;
+	  }
+	  asap(function() {
+	    var cb = self._37 === 1 ? deferred.onFulfilled : deferred.onRejected;
+	    if (cb === null) {
+	      if (self._37 === 1) {
+	        resolve(deferred.promise, self._12);
+	      } else {
+	        reject(deferred.promise, self._12);
+	      }
+	      return;
+	    }
+	    var ret = tryCallOne(cb, self._12);
+	    if (ret === IS_ERROR) {
+	      reject(deferred.promise, LAST_ERROR);
+	    } else {
+	      resolve(deferred.promise, ret);
+	    }
+	  });
+	}
+	function resolve(self, newValue) {
+	  // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+	  if (newValue === self) {
+	    return reject(
+	      self,
+	      new TypeError('A promise cannot be resolved with itself.')
+	    );
+	  }
+	  if (
+	    newValue &&
+	    (typeof newValue === 'object' || typeof newValue === 'function')
+	  ) {
+	    var then = getThen(newValue);
+	    if (then === IS_ERROR) {
+	      return reject(self, LAST_ERROR);
+	    }
+	    if (
+	      then === self.then &&
+	      newValue instanceof Promise
+	    ) {
+	      self._37 = 3;
+	      self._12 = newValue;
+	      finale(self);
+	      return;
+	    } else if (typeof then === 'function') {
+	      doResolve(then.bind(newValue), self);
+	      return;
+	    }
+	  }
+	  self._37 = 1;
+	  self._12 = newValue;
+	  finale(self);
+	}
+
+	function reject(self, newValue) {
+	  self._37 = 2;
+	  self._12 = newValue;
+	  finale(self);
+	}
+	function finale(self) {
+	  for (var i = 0; i < self._59.length; i++) {
+	    handle(self, self._59[i]);
+	  }
+	  self._59 = null;
+	}
+
+	function Handler(onFulfilled, onRejected, promise){
+	  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+	  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+	  this.promise = promise;
+	}
+
+	/**
+	 * Take a potentially misbehaving resolver function and make sure
+	 * onFulfilled and onRejected are only called once.
+	 *
+	 * Makes no guarantees about asynchrony.
+	 */
+	function doResolve(fn, promise) {
+	  var done = false;
+	  var res = tryCallTwo(fn, function (value) {
+	    if (done) return;
+	    done = true;
+	    resolve(promise, value);
+	  }, function (reason) {
+	    if (done) return;
+	    done = true;
+	    reject(promise, reason);
+	  })
+	  if (!done && res === IS_ERROR) {
+	    done = true;
+	    reject(promise, LAST_ERROR);
+	  }
+	}
+
+
+/***/ },
+/* 189 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
+
+	// Use the fastest means possible to execute a task in its own turn, with
+	// priority over other events including IO, animation, reflow, and redraw
+	// events in browsers.
+	//
+	// An exception thrown by a task will permanently interrupt the processing of
+	// subsequent tasks. The higher level `asap` function ensures that if an
+	// exception is thrown by a task, that the task queue will continue flushing as
+	// soon as possible, but if you use `rawAsap` directly, you are responsible to
+	// either ensure that no exceptions are thrown from your task, or to manually
+	// call `rawAsap.requestFlush` if an exception is thrown.
+	module.exports = rawAsap;
+	function rawAsap(task) {
+	    if (!queue.length) {
+	        requestFlush();
+	        flushing = true;
+	    }
+	    // Equivalent to push, but avoids a function call.
+	    queue[queue.length] = task;
+	}
+
+	var queue = [];
+	// Once a flush has been requested, no further calls to `requestFlush` are
+	// necessary until the next `flush` completes.
+	var flushing = false;
+	// `requestFlush` is an implementation-specific method that attempts to kick
+	// off a `flush` event as quickly as possible. `flush` will attempt to exhaust
+	// the event queue before yielding to the browser's own event loop.
+	var requestFlush;
+	// The position of the next task to execute in the task queue. This is
+	// preserved between calls to `flush` so that it can be resumed if
+	// a task throws an exception.
+	var index = 0;
+	// If a task schedules additional tasks recursively, the task queue can grow
+	// unbounded. To prevent memory exhaustion, the task queue will periodically
+	// truncate already-completed tasks.
+	var capacity = 1024;
+
+	// The flush function processes all tasks that have been scheduled with
+	// `rawAsap` unless and until one of those tasks throws an exception.
+	// If a task throws an exception, `flush` ensures that its state will remain
+	// consistent and will resume where it left off when called again.
+	// However, `flush` does not make any arrangements to be called again if an
+	// exception is thrown.
+	function flush() {
+	    while (index < queue.length) {
+	        var currentIndex = index;
+	        // Advance the index before calling the task. This ensures that we will
+	        // begin flushing on the next task the task throws an error.
+	        index = index + 1;
+	        queue[currentIndex].call();
+	        // Prevent leaking memory for long chains of recursive calls to `asap`.
+	        // If we call `asap` within tasks scheduled by `asap`, the queue will
+	        // grow, but to avoid an O(n) walk for every task we execute, we don't
+	        // shift tasks off the queue after they have been executed.
+	        // Instead, we periodically shift 1024 tasks off the queue.
+	        if (index > capacity) {
+	            // Manually shift all values starting at the index back to the
+	            // beginning of the queue.
+	            for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
+	                queue[scan] = queue[scan + index];
+	            }
+	            queue.length -= index;
+	            index = 0;
+	        }
+	    }
+	    queue.length = 0;
+	    index = 0;
+	    flushing = false;
+	}
+
+	// `requestFlush` is implemented using a strategy based on data collected from
+	// every available SauceLabs Selenium web driver worker at time of writing.
+	// https://docs.google.com/spreadsheets/d/1mG-5UYGup5qxGdEMWkhP6BWCz053NUb2E1QoUTU16uA/edit#gid=783724593
+
+	// Safari 6 and 6.1 for desktop, iPad, and iPhone are the only browsers that
+	// have WebKitMutationObserver but not un-prefixed MutationObserver.
+	// Must use `global` instead of `window` to work in both frames and web
+	// workers. `global` is a provision of Browserify, Mr, Mrs, or Mop.
+	var BrowserMutationObserver = global.MutationObserver || global.WebKitMutationObserver;
+
+	// MutationObservers are desirable because they have high priority and work
+	// reliably everywhere they are implemented.
+	// They are implemented in all modern browsers.
+	//
+	// - Android 4-4.3
+	// - Chrome 26-34
+	// - Firefox 14-29
+	// - Internet Explorer 11
+	// - iPad Safari 6-7.1
+	// - iPhone Safari 7-7.1
+	// - Safari 6-7
+	if (typeof BrowserMutationObserver === "function") {
+	    requestFlush = makeRequestCallFromMutationObserver(flush);
+
+	// MessageChannels are desirable because they give direct access to the HTML
+	// task queue, are implemented in Internet Explorer 10, Safari 5.0-1, and Opera
+	// 11-12, and in web workers in many engines.
+	// Although message channels yield to any queued rendering and IO tasks, they
+	// would be better than imposing the 4ms delay of timers.
+	// However, they do not work reliably in Internet Explorer or Safari.
+
+	// Internet Explorer 10 is the only browser that has setImmediate but does
+	// not have MutationObservers.
+	// Although setImmediate yields to the browser's renderer, it would be
+	// preferrable to falling back to setTimeout since it does not have
+	// the minimum 4ms penalty.
+	// Unfortunately there appears to be a bug in Internet Explorer 10 Mobile (and
+	// Desktop to a lesser extent) that renders both setImmediate and
+	// MessageChannel useless for the purposes of ASAP.
+	// https://github.com/kriskowal/q/issues/396
+
+	// Timers are implemented universally.
+	// We fall back to timers in workers in most engines, and in foreground
+	// contexts in the following browsers.
+	// However, note that even this simple case requires nuances to operate in a
+	// broad spectrum of browsers.
+	//
+	// - Firefox 3-13
+	// - Internet Explorer 6-9
+	// - iPad Safari 4.3
+	// - Lynx 2.8.7
+	} else {
+	    requestFlush = makeRequestCallFromTimer(flush);
+	}
+
+	// `requestFlush` requests that the high priority event queue be flushed as
+	// soon as possible.
+	// This is useful to prevent an error thrown in a task from stalling the event
+	// queue if the exception handled by Node.js’s
+	// `process.on("uncaughtException")` or by a domain.
+	rawAsap.requestFlush = requestFlush;
+
+	// To request a high priority event, we induce a mutation observer by toggling
+	// the text of a text node between "1" and "-1".
+	function makeRequestCallFromMutationObserver(callback) {
+	    var toggle = 1;
+	    var observer = new BrowserMutationObserver(callback);
+	    var node = document.createTextNode("");
+	    observer.observe(node, {characterData: true});
+	    return function requestCall() {
+	        toggle = -toggle;
+	        node.data = toggle;
+	    };
+	}
+
+	// The message channel technique was discovered by Malte Ubl and was the
+	// original foundation for this library.
+	// http://www.nonblocking.io/2011/06/windownexttick.html
+
+	// Safari 6.0.5 (at least) intermittently fails to create message ports on a
+	// page's first load. Thankfully, this version of Safari supports
+	// MutationObservers, so we don't need to fall back in that case.
+
+	// function makeRequestCallFromMessageChannel(callback) {
+	//     var channel = new MessageChannel();
+	//     channel.port1.onmessage = callback;
+	//     return function requestCall() {
+	//         channel.port2.postMessage(0);
+	//     };
+	// }
+
+	// For reasons explained above, we are also unable to use `setImmediate`
+	// under any circumstances.
+	// Even if we were, there is another bug in Internet Explorer 10.
+	// It is not sufficient to assign `setImmediate` to `requestFlush` because
+	// `setImmediate` must be called *by name* and therefore must be wrapped in a
+	// closure.
+	// Never forget.
+
+	// function makeRequestCallFromSetImmediate(callback) {
+	//     return function requestCall() {
+	//         setImmediate(callback);
+	//     };
+	// }
+
+	// Safari 6.0 has a problem where timers will get lost while the user is
+	// scrolling. This problem does not impact ASAP because Safari 6.0 supports
+	// mutation observers, so that implementation is used instead.
+	// However, if we ever elect to use timers in Safari, the prevalent work-around
+	// is to add a scroll event listener that calls for a flush.
+
+	// `setTimeout` does not call the passed callback if the delay is less than
+	// approximately 7 in web workers in Firefox 8 through 18, and sometimes not
+	// even then.
+
+	function makeRequestCallFromTimer(callback) {
+	    return function requestCall() {
+	        // We dispatch a timeout with a specified delay of 0 for engines that
+	        // can reliably accommodate that request. This will usually be snapped
+	        // to a 4 milisecond delay, but once we're flushing, there's no delay
+	        // between events.
+	        var timeoutHandle = setTimeout(handleTimer, 0);
+	        // However, since this timer gets frequently dropped in Firefox
+	        // workers, we enlist an interval handle that will try to fire
+	        // an event 20 times per second until it succeeds.
+	        var intervalHandle = setInterval(handleTimer, 50);
+
+	        function handleTimer() {
+	            // Whichever timer succeeds will cancel both timers and
+	            // execute the callback.
+	            clearTimeout(timeoutHandle);
+	            clearInterval(intervalHandle);
+	            callback();
+	        }
+	    };
+	}
+
+	// This is for `asap.js` only.
+	// Its name will be periodically randomized to break any code that depends on
+	// its existence.
+	rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
+
+	// ASAP was originally a nextTick shim included in Q. This was factored out
+	// into this ASAP package. It was later adapted to RSVP which made further
+	// amendments. These decisions, particularly to marginalize MessageChannel and
+	// to capture the MutationObserver implementation in a closure, were integrated
+	// back into ASAP proper.
+	// https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(188);
+
+	module.exports = Promise;
+	Promise.prototype.done = function (onFulfilled, onRejected) {
+	  var self = arguments.length ? this.then.apply(this, arguments) : this;
+	  self.then(null, function (err) {
+	    setTimeout(function () {
+	      throw err;
+	    }, 0);
+	  });
+	};
+
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(188);
+
+	module.exports = Promise;
+	Promise.prototype['finally'] = function (f) {
+	  return this.then(function (value) {
+	    return Promise.resolve(f()).then(function () {
+	      return value;
+	    });
+	  }, function (err) {
+	    return Promise.resolve(f()).then(function () {
+	      throw err;
+	    });
+	  });
+	};
+
+
+/***/ },
+/* 192 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	//This file contains the ES6 extensions to the core Promises/A+ API
+
+	var Promise = __webpack_require__(188);
+
+	module.exports = Promise;
+
+	/* Static Functions */
+
+	var TRUE = valuePromise(true);
+	var FALSE = valuePromise(false);
+	var NULL = valuePromise(null);
+	var UNDEFINED = valuePromise(undefined);
+	var ZERO = valuePromise(0);
+	var EMPTYSTRING = valuePromise('');
+
+	function valuePromise(value) {
+	  var p = new Promise(Promise._99);
+	  p._37 = 1;
+	  p._12 = value;
+	  return p;
+	}
+	Promise.resolve = function (value) {
+	  if (value instanceof Promise) return value;
+
+	  if (value === null) return NULL;
+	  if (value === undefined) return UNDEFINED;
+	  if (value === true) return TRUE;
+	  if (value === false) return FALSE;
+	  if (value === 0) return ZERO;
+	  if (value === '') return EMPTYSTRING;
+
+	  if (typeof value === 'object' || typeof value === 'function') {
+	    try {
+	      var then = value.then;
+	      if (typeof then === 'function') {
+	        return new Promise(then.bind(value));
+	      }
+	    } catch (ex) {
+	      return new Promise(function (resolve, reject) {
+	        reject(ex);
+	      });
+	    }
+	  }
+	  return valuePromise(value);
+	};
+
+	Promise.all = function (arr) {
+	  var args = Array.prototype.slice.call(arr);
+
+	  return new Promise(function (resolve, reject) {
+	    if (args.length === 0) return resolve([]);
+	    var remaining = args.length;
+	    function res(i, val) {
+	      if (val && (typeof val === 'object' || typeof val === 'function')) {
+	        if (val instanceof Promise && val.then === Promise.prototype.then) {
+	          while (val._37 === 3) {
+	            val = val._12;
+	          }
+	          if (val._37 === 1) return res(i, val._12);
+	          if (val._37 === 2) reject(val._12);
+	          val.then(function (val) {
+	            res(i, val);
+	          }, reject);
+	          return;
+	        } else {
+	          var then = val.then;
+	          if (typeof then === 'function') {
+	            var p = new Promise(then.bind(val));
+	            p.then(function (val) {
+	              res(i, val);
+	            }, reject);
+	            return;
+	          }
+	        }
+	      }
+	      args[i] = val;
+	      if (--remaining === 0) {
+	        resolve(args);
+	      }
+	    }
+	    for (var i = 0; i < args.length; i++) {
+	      res(i, args[i]);
+	    }
+	  });
+	};
+
+	Promise.reject = function (value) {
+	  return new Promise(function (resolve, reject) {
+	    reject(value);
+	  });
+	};
+
+	Promise.race = function (values) {
+	  return new Promise(function (resolve, reject) {
+	    values.forEach(function(value){
+	      Promise.resolve(value).then(resolve, reject);
+	    });
+	  });
+	};
+
+	/* Prototype Methods */
+
+	Promise.prototype['catch'] = function (onRejected) {
+	  return this.then(null, onRejected);
+	};
+
+
+/***/ },
+/* 193 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// This file contains then/promise specific extensions that are only useful
+	// for node.js interop
+
+	var Promise = __webpack_require__(188);
+	var asap = __webpack_require__(194);
+
+	module.exports = Promise;
+
+	/* Static Functions */
+
+	Promise.denodeify = function (fn, argumentCount) {
+	  argumentCount = argumentCount || Infinity;
+	  return function () {
+	    var self = this;
+	    var args = Array.prototype.slice.call(arguments, 0,
+	        argumentCount > 0 ? argumentCount : 0);
+	    return new Promise(function (resolve, reject) {
+	      args.push(function (err, res) {
+	        if (err) reject(err);
+	        else resolve(res);
+	      })
+	      var res = fn.apply(self, args);
+	      if (res &&
+	        (
+	          typeof res === 'object' ||
+	          typeof res === 'function'
+	        ) &&
+	        typeof res.then === 'function'
+	      ) {
+	        resolve(res);
+	      }
+	    })
+	  }
+	}
+	Promise.nodeify = function (fn) {
+	  return function () {
+	    var args = Array.prototype.slice.call(arguments);
+	    var callback =
+	      typeof args[args.length - 1] === 'function' ? args.pop() : null;
+	    var ctx = this;
+	    try {
+	      return fn.apply(this, arguments).nodeify(callback, ctx);
+	    } catch (ex) {
+	      if (callback === null || typeof callback == 'undefined') {
+	        return new Promise(function (resolve, reject) {
+	          reject(ex);
+	        });
+	      } else {
+	        asap(function () {
+	          callback.call(ctx, ex);
+	        })
+	      }
+	    }
+	  }
+	}
+
+	Promise.prototype.nodeify = function (callback, ctx) {
+	  if (typeof callback != 'function') return this;
+
+	  this.then(function (value) {
+	    asap(function () {
+	      callback.call(ctx, null, value);
+	    });
+	  }, function (err) {
+	    asap(function () {
+	      callback.call(ctx, err);
+	    });
+	  });
+	}
+
+
+/***/ },
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	// rawAsap provides everything we need except exception management.
+	var rawAsap = __webpack_require__(189);
+	// RawTasks are recycled to reduce GC churn.
+	var freeTasks = [];
+	// We queue errors to ensure they are thrown in right order (FIFO).
+	// Array-as-queue is good enough here, since we are just dealing with exceptions.
+	var pendingErrors = [];
+	var requestErrorThrow = rawAsap.makeRequestCallFromTimer(throwFirstError);
+
+	function throwFirstError() {
+	    if (pendingErrors.length) {
+	        throw pendingErrors.shift();
+	    }
+	}
+
+	/**
+	 * Calls a task as soon as possible after returning, in its own event, with priority
+	 * over other events like animation, reflow, and repaint. An error thrown from an
+	 * event will not interrupt, nor even substantially slow down the processing of
+	 * other events, but will be rather postponed to a lower priority event.
+	 * @param {{call}} task A callable object, typically a function that takes no
+	 * arguments.
+	 */
+	module.exports = asap;
+	function asap(task) {
+	    var rawTask;
+	    if (freeTasks.length) {
+	        rawTask = freeTasks.pop();
+	    } else {
+	        rawTask = new RawTask();
+	    }
+	    rawTask.task = task;
+	    rawAsap(rawTask);
+	}
+
+	// We wrap tasks with recyclable task objects.  A task object implements
+	// `call`, just like a function.
+	function RawTask() {
+	    this.task = null;
+	}
+
+	// The sole purpose of wrapping the task is to catch the exception and recycle
+	// the task object after its single use.
+	RawTask.prototype.call = function () {
+	    try {
+	        this.task.call();
+	    } catch (error) {
+	        if (asap.onerror) {
+	            // This hook exists purely for testing purposes.
+	            // Its name will be periodically randomized to break any code that
+	            // depends on its existence.
+	            asap.onerror(error);
+	        } else {
+	            // In a web browser, exceptions are not fatal. However, to avoid
+	            // slowing down the queue of pending tasks, we rethrow the error in a
+	            // lower priority turn.
+	            pendingErrors.push(error);
+	            requestErrorThrow();
+	        }
+	    } finally {
+	        this.task = null;
+	        freeTasks[freeTasks.length] = this;
+	    }
+	};
+
+
+/***/ },
+/* 195 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(173).color;
+
+	var SelectBox = React.createClass({
+		displayName: 'SelectBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				values: [],
+				value: null,
+				onChange: null,
+				style: {}
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				value: this.props.value
+			};
+		},
+
+		onChange: function onChange(evt) {
+			this.setState({ value: evt.target.value });
+			if (this.props.onChange) this.props.onChange(evt);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					select: _.extend({
+						backgroundColor: color.transparentLightGray,
+						border: 'none',
+						padding: '6px',
+						outline: 'none',
+						WebkitAppearance: 'none',
+						msAppearance: 'none'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			var body = this.props.values.map(function (value) {
+				return React.createElement(
+					'option',
+					{ key: value, value: value },
+					value
+				);
+			});
+
+			return React.createElement(
+				'select',
+				{
+					style: this.styles().select,
+					value: this.state.value,
+					onChange: this.onChange },
+				body
+			);
+		}
+	});
+	exports.SelectBox = SelectBox;
+
+	var DashedSelectBox = React.createClass({
+		displayName: 'DashedSelectBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				value: null,
+				values: [],
+				onChange: null,
+				style: {}
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					SelectBox: _.extend({
+						padding: '3px 5px',
+						borderRadius: '6px',
+						WebKitBorderRadius: '6px',
+						msBorderRadius: '6px',
+						border: '1px dashed ' + color.gray,
+						outline: 'none',
+						WebkitAppearance: 'none',
+						msAppearance: 'none'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(SelectBox, _extends({}, this.styles().SelectBox, {
+				value: this.props.value,
+				values: this.props.values,
+				onChange: this.props.onChange }));
+		}
+	});
+	exports.DashedSelectBox = DashedSelectBox;
+
+/***/ },
+/* 196 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    _ = __webpack_require__(158),
+	    color = __webpack_require__(173).color;
+
+	var TextBox = React.createClass({
+		displayName: 'TextBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				type: 'text',
+				placeholder: '',
+				value: '',
+				style: {},
+				onChange: null,
+				onClick: null,
+				onFocus: null,
+				onKeyUp: null
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return { value: this.props.value };
+		},
+
+		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+			if (nextProps.value != null) this.setState({ value: nextProps.value });
+		},
+
+		onChange: function onChange(evt) {
+			this.setState({ value: evt.target.value });
+			this.props.onChange(evt);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					input: _.extend({
+						backgroundColor: color.transparentLightGray,
+						border: 'none',
+						padding: '6px',
+						outline: 'none'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement('input', {
+				style: this.styles().input,
+				type: this.props.type,
+				placeholder: this.props.placeholder,
+				value: this.state.value,
+				onChange: this.onChange,
+				onClick: this.props.onClick,
+				onFocus: this.props.onFocus,
+				onKeyUp: this.props.onKeyUp });
+		}
+	});
+	exports.TextBox = TextBox;
+
+	var DashedTextBox = React.createClass({
+		displayName: 'DashedTextBox',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				type: 'text',
+				placeholder: '',
+				value: '',
+				style: {},
+				onChange: null,
+				onFocus: null
+			};
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					textbox: _.extend({
+						padding: '5px',
+						border: '1px dashed ' + color.gray,
+						outline: 'none',
+						borderRadius: '5px'
+					}, this.props.style)
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(TextBox, {
+				type: this.props.type,
+				placeholder: this.props.placeholder,
+				value: this.props.value,
+				style: this.styles().textbox,
+				onChange: this.props.onChange,
+				onFocus: this.props.onFocus });
+		}
+	});
+	exports.DashedTextBox = DashedTextBox;
+
+/***/ },
+/* 197 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    _ = __webpack_require__(158),
+	    jsUtil = __webpack_require__(173),
+	    color = jsUtil.color,
+	    Clearfix = __webpack_require__(176).Clearfix;
+
+	exports.getKeyValueLine = function (width) {
+		return React.createClass({
+			mixins: [ReactCSS.mixin],
+
+			getDefaultProps: function getDefaultProps() {
+				return { label: '', style: {} };
+			},
+
+			classes: function classes() {
+				return {
+					'default': {
+						left: {
+							float: 'left',
+							width: width,
+							textAlign: 'right',
+							marginRight: '15px'
+						},
+						right: _.extend({
+							float: 'left'
+						}, this.props.style)
+					}
+				};
+			},
+
+			styles: function styles() {
+				return this.css();
+			},
+
+			render: function render() {
+				return React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'div',
+						{ style: this.styles().left },
+						this.props.label
+					),
+					React.createElement(
+						'div',
+						{ style: this.styles().right },
+						this.props.children
+					),
+					React.createElement(Clearfix, null)
+				);
+			}
+		});
+	};
+
+	exports.ListItem = React.createClass({
+		displayName: 'ListItem',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				name: '',
+				onClick: null,
+				isSelected: false
+			};
+		},
+
+		getInitialState: function getInitialState() {
+			return { isMouseOver: false };
+		},
+
+		onMouseOver: function onMouseOver(evt) {
+			this.setState({ isMouseOver: true });
+		},
+
+		onMouseOut: function onMouseOut(evt) {
+			this.setState({ isMouseOver: false });
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						borderBottom: '1px solid ' + color.lightGray,
+						padding: '3px 6px',
+						cursor: 'pointer'
+					}
+				},
+				'isMouseOver': {
+					outer: {
+						backgroundColor: color.lightGray
+					}
+				},
+				'isSelected-true': {
+					outer: {
+						backgroundColor: color.lightGray
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css({
+				'isMouseOver': this.state.isMouseOver
+			});
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{
+					style: this.styles().outer,
+					onMouseOver: this.onMouseOver,
+					onMouseOut: this.onMouseOut,
+					onClick: this.props.onClick },
+				this.props.name
+			);
+		}
+	});
+
+/***/ },
+/* 198 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(2),
+	    ReactCSS = __webpack_require__(163),
+	    Layer = __webpack_require__(182),
+	    jsUtil = __webpack_require__(173),
+	    color = jsUtil.color,
+	    server = __webpack_require__(185),
+	    Panel = __webpack_require__(162).Panel,
+	    KeyValueLine = __webpack_require__(197).getKeyValueLine('100px'),
+	    TextBox = __webpack_require__(196).TextBox,
 	    DarkBlueSmallBtn = __webpack_require__(177).DarkBlueSmallBtn,
 	    LayerPopup = __webpack_require__(180).LayerPopup,
 	    modalMixin = __webpack_require__(180).modalMixin,
 	    Curtain = __webpack_require__(180).Curtain,
 	    CurtainAlert = __webpack_require__(180).CurtainAlert,
-	    ListItem = __webpack_require__(196).ListItem;
+	    ListItem = __webpack_require__(197).ListItem;
 
 	var BindingTypePanel = React.createClass({
 		displayName: 'BindingTypePanel',
@@ -37391,1132 +39719,6 @@
 	});
 
 	module.exports = BindingTypePanel;
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var babelHelpers = __webpack_require__(185);
-	var React = __webpack_require__(2);
-
-	module.exports = (function () {
-	  function Layer(container, render) {
-	    babelHelpers.classCallCheck(this, Layer);
-
-	    this._container = container;
-	    this._render = render;
-	  }
-
-	  babelHelpers.createClass(Layer, {
-	    render: {
-	      value: function render(cb) {
-	        if (!this._mountPoint) this._createMountPoint();
-
-	        var child = this._render();
-
-	        return React.render(child, this._mountPoint, cb);
-	      }
-	    },
-	    unmount: {
-	      value: function unmount() {
-	        if (!this._mountPoint) {
-	          return;
-	        }React.unmountComponentAtNode(this._mountPoint);
-	      }
-	    },
-	    destroy: {
-	      value: function destroy() {
-	        this.unmount();
-
-	        if (this._mountPoint) {
-	          this._container.removeChild(this._mountPoint);
-	          this._mountPoint = null;
-	        }
-	      }
-	    },
-	    _createMountPoint: {
-	      value: function _createMountPoint() {
-	        this._mountPoint = document.createElement("div");
-	        this._container.appendChild(this._mountPoint);
-	      }
-	    }
-	  });
-	  return Layer;
-	})();
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if (typeof exports === "object") {
-	    factory(exports);
-	  } else {
-	    factory(root.babelHelpers = {});
-	  }
-	})(this, function (global) {
-	  var babelHelpers = global;
-
-	  babelHelpers.createClass = (function () {
-	    function defineProperties(target, props) {
-	      for (var key in props) {
-	        var prop = props[key];
-	        prop.configurable = true;
-	        if (prop.value) prop.writable = true;
-	      }
-
-	      Object.defineProperties(target, props);
-	    }
-
-	    return function (Constructor, protoProps, staticProps) {
-	      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-	      if (staticProps) defineProperties(Constructor, staticProps);
-	      return Constructor;
-	    };
-	  })();
-
-	  babelHelpers.classCallCheck = function (instance, Constructor) {
-	    if (!(instance instanceof Constructor)) {
-	      throw new TypeError("Cannot call a class as a function");
-	    }
-	  };
-	})
-
-/***/ },
-/* 186 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(187),
-	    util = __webpack_require__(159);
-
-	exports.loadColumns = function (jdbc, table) {
-		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-		table = decodeURI(table);
-
-		return new Promise(function (resolve, reject) {
-			$.getJSON(util.format('/REST/Database/Columns/%s/', table), jdbc).fail(function (err) {
-				console.error({ err: err });
-				reject(err);
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					console.error(resp.errmsg);
-					reject(resp.errmsg);
-				} else {
-					resolve(resp.columns);
-				}
-			});
-		});
-	};
-
-	exports.loadTables = function (jdbc) {
-		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-
-		return new Promise(function (resolve, reject) {
-			$.getJSON('/REST/Database/Tables/', jdbc).fail(function (err) {
-				console.error({ err: err });
-				reject(err);
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					console.error(resp.errmsg);
-					reject(resp.errmsg);
-				} else {
-					resolve(resp.tables);
-				}
-			});
-		});
-	};
-
-/***/ },
-/* 187 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(188)
-
-
-/***/ },
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(189);
-	__webpack_require__(191);
-	__webpack_require__(192);
-	__webpack_require__(193);
-	__webpack_require__(194);
-
-
-/***/ },
-/* 189 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var asap = __webpack_require__(190);
-
-	function noop() {}
-
-	// States:
-	//
-	// 0 - pending
-	// 1 - fulfilled with _value
-	// 2 - rejected with _value
-	// 3 - adopted the state of another promise, _value
-	//
-	// once the state is no longer pending (0) it is immutable
-
-	// All `_` prefixed properties will be reduced to `_{random number}`
-	// at build time to obfuscate them and discourage their use.
-	// We don't use symbols or Object.defineProperty to fully hide them
-	// because the performance isn't good enough.
-
-
-	// to avoid using try/catch inside critical functions, we
-	// extract them to here.
-	var LAST_ERROR = null;
-	var IS_ERROR = {};
-	function getThen(obj) {
-	  try {
-	    return obj.then;
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-
-	function tryCallOne(fn, a) {
-	  try {
-	    return fn(a);
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-	function tryCallTwo(fn, a, b) {
-	  try {
-	    fn(a, b);
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-
-	module.exports = Promise;
-
-	function Promise(fn) {
-	  if (typeof this !== 'object') {
-	    throw new TypeError('Promises must be constructed via new');
-	  }
-	  if (typeof fn !== 'function') {
-	    throw new TypeError('not a function');
-	  }
-	  this._37 = 0;
-	  this._12 = null;
-	  this._59 = [];
-	  if (fn === noop) return;
-	  doResolve(fn, this);
-	}
-	Promise._99 = noop;
-
-	Promise.prototype.then = function(onFulfilled, onRejected) {
-	  if (this.constructor !== Promise) {
-	    return safeThen(this, onFulfilled, onRejected);
-	  }
-	  var res = new Promise(noop);
-	  handle(this, new Handler(onFulfilled, onRejected, res));
-	  return res;
-	};
-
-	function safeThen(self, onFulfilled, onRejected) {
-	  return new self.constructor(function (resolve, reject) {
-	    var res = new Promise(noop);
-	    res.then(resolve, reject);
-	    handle(self, new Handler(onFulfilled, onRejected, res));
-	  });
-	};
-	function handle(self, deferred) {
-	  while (self._37 === 3) {
-	    self = self._12;
-	  }
-	  if (self._37 === 0) {
-	    self._59.push(deferred);
-	    return;
-	  }
-	  asap(function() {
-	    var cb = self._37 === 1 ? deferred.onFulfilled : deferred.onRejected;
-	    if (cb === null) {
-	      if (self._37 === 1) {
-	        resolve(deferred.promise, self._12);
-	      } else {
-	        reject(deferred.promise, self._12);
-	      }
-	      return;
-	    }
-	    var ret = tryCallOne(cb, self._12);
-	    if (ret === IS_ERROR) {
-	      reject(deferred.promise, LAST_ERROR);
-	    } else {
-	      resolve(deferred.promise, ret);
-	    }
-	  });
-	}
-	function resolve(self, newValue) {
-	  // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-	  if (newValue === self) {
-	    return reject(
-	      self,
-	      new TypeError('A promise cannot be resolved with itself.')
-	    );
-	  }
-	  if (
-	    newValue &&
-	    (typeof newValue === 'object' || typeof newValue === 'function')
-	  ) {
-	    var then = getThen(newValue);
-	    if (then === IS_ERROR) {
-	      return reject(self, LAST_ERROR);
-	    }
-	    if (
-	      then === self.then &&
-	      newValue instanceof Promise
-	    ) {
-	      self._37 = 3;
-	      self._12 = newValue;
-	      finale(self);
-	      return;
-	    } else if (typeof then === 'function') {
-	      doResolve(then.bind(newValue), self);
-	      return;
-	    }
-	  }
-	  self._37 = 1;
-	  self._12 = newValue;
-	  finale(self);
-	}
-
-	function reject(self, newValue) {
-	  self._37 = 2;
-	  self._12 = newValue;
-	  finale(self);
-	}
-	function finale(self) {
-	  for (var i = 0; i < self._59.length; i++) {
-	    handle(self, self._59[i]);
-	  }
-	  self._59 = null;
-	}
-
-	function Handler(onFulfilled, onRejected, promise){
-	  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-	  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-	  this.promise = promise;
-	}
-
-	/**
-	 * Take a potentially misbehaving resolver function and make sure
-	 * onFulfilled and onRejected are only called once.
-	 *
-	 * Makes no guarantees about asynchrony.
-	 */
-	function doResolve(fn, promise) {
-	  var done = false;
-	  var res = tryCallTwo(fn, function (value) {
-	    if (done) return;
-	    done = true;
-	    resolve(promise, value);
-	  }, function (reason) {
-	    if (done) return;
-	    done = true;
-	    reject(promise, reason);
-	  })
-	  if (!done && res === IS_ERROR) {
-	    done = true;
-	    reject(promise, LAST_ERROR);
-	  }
-	}
-
-
-/***/ },
-/* 190 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
-
-	// Use the fastest means possible to execute a task in its own turn, with
-	// priority over other events including IO, animation, reflow, and redraw
-	// events in browsers.
-	//
-	// An exception thrown by a task will permanently interrupt the processing of
-	// subsequent tasks. The higher level `asap` function ensures that if an
-	// exception is thrown by a task, that the task queue will continue flushing as
-	// soon as possible, but if you use `rawAsap` directly, you are responsible to
-	// either ensure that no exceptions are thrown from your task, or to manually
-	// call `rawAsap.requestFlush` if an exception is thrown.
-	module.exports = rawAsap;
-	function rawAsap(task) {
-	    if (!queue.length) {
-	        requestFlush();
-	        flushing = true;
-	    }
-	    // Equivalent to push, but avoids a function call.
-	    queue[queue.length] = task;
-	}
-
-	var queue = [];
-	// Once a flush has been requested, no further calls to `requestFlush` are
-	// necessary until the next `flush` completes.
-	var flushing = false;
-	// `requestFlush` is an implementation-specific method that attempts to kick
-	// off a `flush` event as quickly as possible. `flush` will attempt to exhaust
-	// the event queue before yielding to the browser's own event loop.
-	var requestFlush;
-	// The position of the next task to execute in the task queue. This is
-	// preserved between calls to `flush` so that it can be resumed if
-	// a task throws an exception.
-	var index = 0;
-	// If a task schedules additional tasks recursively, the task queue can grow
-	// unbounded. To prevent memory exhaustion, the task queue will periodically
-	// truncate already-completed tasks.
-	var capacity = 1024;
-
-	// The flush function processes all tasks that have been scheduled with
-	// `rawAsap` unless and until one of those tasks throws an exception.
-	// If a task throws an exception, `flush` ensures that its state will remain
-	// consistent and will resume where it left off when called again.
-	// However, `flush` does not make any arrangements to be called again if an
-	// exception is thrown.
-	function flush() {
-	    while (index < queue.length) {
-	        var currentIndex = index;
-	        // Advance the index before calling the task. This ensures that we will
-	        // begin flushing on the next task the task throws an error.
-	        index = index + 1;
-	        queue[currentIndex].call();
-	        // Prevent leaking memory for long chains of recursive calls to `asap`.
-	        // If we call `asap` within tasks scheduled by `asap`, the queue will
-	        // grow, but to avoid an O(n) walk for every task we execute, we don't
-	        // shift tasks off the queue after they have been executed.
-	        // Instead, we periodically shift 1024 tasks off the queue.
-	        if (index > capacity) {
-	            // Manually shift all values starting at the index back to the
-	            // beginning of the queue.
-	            for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
-	                queue[scan] = queue[scan + index];
-	            }
-	            queue.length -= index;
-	            index = 0;
-	        }
-	    }
-	    queue.length = 0;
-	    index = 0;
-	    flushing = false;
-	}
-
-	// `requestFlush` is implemented using a strategy based on data collected from
-	// every available SauceLabs Selenium web driver worker at time of writing.
-	// https://docs.google.com/spreadsheets/d/1mG-5UYGup5qxGdEMWkhP6BWCz053NUb2E1QoUTU16uA/edit#gid=783724593
-
-	// Safari 6 and 6.1 for desktop, iPad, and iPhone are the only browsers that
-	// have WebKitMutationObserver but not un-prefixed MutationObserver.
-	// Must use `global` instead of `window` to work in both frames and web
-	// workers. `global` is a provision of Browserify, Mr, Mrs, or Mop.
-	var BrowserMutationObserver = global.MutationObserver || global.WebKitMutationObserver;
-
-	// MutationObservers are desirable because they have high priority and work
-	// reliably everywhere they are implemented.
-	// They are implemented in all modern browsers.
-	//
-	// - Android 4-4.3
-	// - Chrome 26-34
-	// - Firefox 14-29
-	// - Internet Explorer 11
-	// - iPad Safari 6-7.1
-	// - iPhone Safari 7-7.1
-	// - Safari 6-7
-	if (typeof BrowserMutationObserver === "function") {
-	    requestFlush = makeRequestCallFromMutationObserver(flush);
-
-	// MessageChannels are desirable because they give direct access to the HTML
-	// task queue, are implemented in Internet Explorer 10, Safari 5.0-1, and Opera
-	// 11-12, and in web workers in many engines.
-	// Although message channels yield to any queued rendering and IO tasks, they
-	// would be better than imposing the 4ms delay of timers.
-	// However, they do not work reliably in Internet Explorer or Safari.
-
-	// Internet Explorer 10 is the only browser that has setImmediate but does
-	// not have MutationObservers.
-	// Although setImmediate yields to the browser's renderer, it would be
-	// preferrable to falling back to setTimeout since it does not have
-	// the minimum 4ms penalty.
-	// Unfortunately there appears to be a bug in Internet Explorer 10 Mobile (and
-	// Desktop to a lesser extent) that renders both setImmediate and
-	// MessageChannel useless for the purposes of ASAP.
-	// https://github.com/kriskowal/q/issues/396
-
-	// Timers are implemented universally.
-	// We fall back to timers in workers in most engines, and in foreground
-	// contexts in the following browsers.
-	// However, note that even this simple case requires nuances to operate in a
-	// broad spectrum of browsers.
-	//
-	// - Firefox 3-13
-	// - Internet Explorer 6-9
-	// - iPad Safari 4.3
-	// - Lynx 2.8.7
-	} else {
-	    requestFlush = makeRequestCallFromTimer(flush);
-	}
-
-	// `requestFlush` requests that the high priority event queue be flushed as
-	// soon as possible.
-	// This is useful to prevent an error thrown in a task from stalling the event
-	// queue if the exception handled by Node.js’s
-	// `process.on("uncaughtException")` or by a domain.
-	rawAsap.requestFlush = requestFlush;
-
-	// To request a high priority event, we induce a mutation observer by toggling
-	// the text of a text node between "1" and "-1".
-	function makeRequestCallFromMutationObserver(callback) {
-	    var toggle = 1;
-	    var observer = new BrowserMutationObserver(callback);
-	    var node = document.createTextNode("");
-	    observer.observe(node, {characterData: true});
-	    return function requestCall() {
-	        toggle = -toggle;
-	        node.data = toggle;
-	    };
-	}
-
-	// The message channel technique was discovered by Malte Ubl and was the
-	// original foundation for this library.
-	// http://www.nonblocking.io/2011/06/windownexttick.html
-
-	// Safari 6.0.5 (at least) intermittently fails to create message ports on a
-	// page's first load. Thankfully, this version of Safari supports
-	// MutationObservers, so we don't need to fall back in that case.
-
-	// function makeRequestCallFromMessageChannel(callback) {
-	//     var channel = new MessageChannel();
-	//     channel.port1.onmessage = callback;
-	//     return function requestCall() {
-	//         channel.port2.postMessage(0);
-	//     };
-	// }
-
-	// For reasons explained above, we are also unable to use `setImmediate`
-	// under any circumstances.
-	// Even if we were, there is another bug in Internet Explorer 10.
-	// It is not sufficient to assign `setImmediate` to `requestFlush` because
-	// `setImmediate` must be called *by name* and therefore must be wrapped in a
-	// closure.
-	// Never forget.
-
-	// function makeRequestCallFromSetImmediate(callback) {
-	//     return function requestCall() {
-	//         setImmediate(callback);
-	//     };
-	// }
-
-	// Safari 6.0 has a problem where timers will get lost while the user is
-	// scrolling. This problem does not impact ASAP because Safari 6.0 supports
-	// mutation observers, so that implementation is used instead.
-	// However, if we ever elect to use timers in Safari, the prevalent work-around
-	// is to add a scroll event listener that calls for a flush.
-
-	// `setTimeout` does not call the passed callback if the delay is less than
-	// approximately 7 in web workers in Firefox 8 through 18, and sometimes not
-	// even then.
-
-	function makeRequestCallFromTimer(callback) {
-	    return function requestCall() {
-	        // We dispatch a timeout with a specified delay of 0 for engines that
-	        // can reliably accommodate that request. This will usually be snapped
-	        // to a 4 milisecond delay, but once we're flushing, there's no delay
-	        // between events.
-	        var timeoutHandle = setTimeout(handleTimer, 0);
-	        // However, since this timer gets frequently dropped in Firefox
-	        // workers, we enlist an interval handle that will try to fire
-	        // an event 20 times per second until it succeeds.
-	        var intervalHandle = setInterval(handleTimer, 50);
-
-	        function handleTimer() {
-	            // Whichever timer succeeds will cancel both timers and
-	            // execute the callback.
-	            clearTimeout(timeoutHandle);
-	            clearInterval(intervalHandle);
-	            callback();
-	        }
-	    };
-	}
-
-	// This is for `asap.js` only.
-	// Its name will be periodically randomized to break any code that depends on
-	// its existence.
-	rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
-
-	// ASAP was originally a nextTick shim included in Q. This was factored out
-	// into this ASAP package. It was later adapted to RSVP which made further
-	// amendments. These decisions, particularly to marginalize MessageChannel and
-	// to capture the MutationObserver implementation in a closure, were integrated
-	// back into ASAP proper.
-	// https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 191 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(189);
-
-	module.exports = Promise;
-	Promise.prototype.done = function (onFulfilled, onRejected) {
-	  var self = arguments.length ? this.then.apply(this, arguments) : this;
-	  self.then(null, function (err) {
-	    setTimeout(function () {
-	      throw err;
-	    }, 0);
-	  });
-	};
-
-
-/***/ },
-/* 192 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(189);
-
-	module.exports = Promise;
-	Promise.prototype['finally'] = function (f) {
-	  return this.then(function (value) {
-	    return Promise.resolve(f()).then(function () {
-	      return value;
-	    });
-	  }, function (err) {
-	    return Promise.resolve(f()).then(function () {
-	      throw err;
-	    });
-	  });
-	};
-
-
-/***/ },
-/* 193 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	//This file contains the ES6 extensions to the core Promises/A+ API
-
-	var Promise = __webpack_require__(189);
-
-	module.exports = Promise;
-
-	/* Static Functions */
-
-	var TRUE = valuePromise(true);
-	var FALSE = valuePromise(false);
-	var NULL = valuePromise(null);
-	var UNDEFINED = valuePromise(undefined);
-	var ZERO = valuePromise(0);
-	var EMPTYSTRING = valuePromise('');
-
-	function valuePromise(value) {
-	  var p = new Promise(Promise._99);
-	  p._37 = 1;
-	  p._12 = value;
-	  return p;
-	}
-	Promise.resolve = function (value) {
-	  if (value instanceof Promise) return value;
-
-	  if (value === null) return NULL;
-	  if (value === undefined) return UNDEFINED;
-	  if (value === true) return TRUE;
-	  if (value === false) return FALSE;
-	  if (value === 0) return ZERO;
-	  if (value === '') return EMPTYSTRING;
-
-	  if (typeof value === 'object' || typeof value === 'function') {
-	    try {
-	      var then = value.then;
-	      if (typeof then === 'function') {
-	        return new Promise(then.bind(value));
-	      }
-	    } catch (ex) {
-	      return new Promise(function (resolve, reject) {
-	        reject(ex);
-	      });
-	    }
-	  }
-	  return valuePromise(value);
-	};
-
-	Promise.all = function (arr) {
-	  var args = Array.prototype.slice.call(arr);
-
-	  return new Promise(function (resolve, reject) {
-	    if (args.length === 0) return resolve([]);
-	    var remaining = args.length;
-	    function res(i, val) {
-	      if (val && (typeof val === 'object' || typeof val === 'function')) {
-	        if (val instanceof Promise && val.then === Promise.prototype.then) {
-	          while (val._37 === 3) {
-	            val = val._12;
-	          }
-	          if (val._37 === 1) return res(i, val._12);
-	          if (val._37 === 2) reject(val._12);
-	          val.then(function (val) {
-	            res(i, val);
-	          }, reject);
-	          return;
-	        } else {
-	          var then = val.then;
-	          if (typeof then === 'function') {
-	            var p = new Promise(then.bind(val));
-	            p.then(function (val) {
-	              res(i, val);
-	            }, reject);
-	            return;
-	          }
-	        }
-	      }
-	      args[i] = val;
-	      if (--remaining === 0) {
-	        resolve(args);
-	      }
-	    }
-	    for (var i = 0; i < args.length; i++) {
-	      res(i, args[i]);
-	    }
-	  });
-	};
-
-	Promise.reject = function (value) {
-	  return new Promise(function (resolve, reject) {
-	    reject(value);
-	  });
-	};
-
-	Promise.race = function (values) {
-	  return new Promise(function (resolve, reject) {
-	    values.forEach(function(value){
-	      Promise.resolve(value).then(resolve, reject);
-	    });
-	  });
-	};
-
-	/* Prototype Methods */
-
-	Promise.prototype['catch'] = function (onRejected) {
-	  return this.then(null, onRejected);
-	};
-
-
-/***/ },
-/* 194 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	// This file contains then/promise specific extensions that are only useful
-	// for node.js interop
-
-	var Promise = __webpack_require__(189);
-	var asap = __webpack_require__(195);
-
-	module.exports = Promise;
-
-	/* Static Functions */
-
-	Promise.denodeify = function (fn, argumentCount) {
-	  argumentCount = argumentCount || Infinity;
-	  return function () {
-	    var self = this;
-	    var args = Array.prototype.slice.call(arguments, 0,
-	        argumentCount > 0 ? argumentCount : 0);
-	    return new Promise(function (resolve, reject) {
-	      args.push(function (err, res) {
-	        if (err) reject(err);
-	        else resolve(res);
-	      })
-	      var res = fn.apply(self, args);
-	      if (res &&
-	        (
-	          typeof res === 'object' ||
-	          typeof res === 'function'
-	        ) &&
-	        typeof res.then === 'function'
-	      ) {
-	        resolve(res);
-	      }
-	    })
-	  }
-	}
-	Promise.nodeify = function (fn) {
-	  return function () {
-	    var args = Array.prototype.slice.call(arguments);
-	    var callback =
-	      typeof args[args.length - 1] === 'function' ? args.pop() : null;
-	    var ctx = this;
-	    try {
-	      return fn.apply(this, arguments).nodeify(callback, ctx);
-	    } catch (ex) {
-	      if (callback === null || typeof callback == 'undefined') {
-	        return new Promise(function (resolve, reject) {
-	          reject(ex);
-	        });
-	      } else {
-	        asap(function () {
-	          callback.call(ctx, ex);
-	        })
-	      }
-	    }
-	  }
-	}
-
-	Promise.prototype.nodeify = function (callback, ctx) {
-	  if (typeof callback != 'function') return this;
-
-	  this.then(function (value) {
-	    asap(function () {
-	      callback.call(ctx, null, value);
-	    });
-	  }, function (err) {
-	    asap(function () {
-	      callback.call(ctx, err);
-	    });
-	  });
-	}
-
-
-/***/ },
-/* 195 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	// rawAsap provides everything we need except exception management.
-	var rawAsap = __webpack_require__(190);
-	// RawTasks are recycled to reduce GC churn.
-	var freeTasks = [];
-	// We queue errors to ensure they are thrown in right order (FIFO).
-	// Array-as-queue is good enough here, since we are just dealing with exceptions.
-	var pendingErrors = [];
-	var requestErrorThrow = rawAsap.makeRequestCallFromTimer(throwFirstError);
-
-	function throwFirstError() {
-	    if (pendingErrors.length) {
-	        throw pendingErrors.shift();
-	    }
-	}
-
-	/**
-	 * Calls a task as soon as possible after returning, in its own event, with priority
-	 * over other events like animation, reflow, and repaint. An error thrown from an
-	 * event will not interrupt, nor even substantially slow down the processing of
-	 * other events, but will be rather postponed to a lower priority event.
-	 * @param {{call}} task A callable object, typically a function that takes no
-	 * arguments.
-	 */
-	module.exports = asap;
-	function asap(task) {
-	    var rawTask;
-	    if (freeTasks.length) {
-	        rawTask = freeTasks.pop();
-	    } else {
-	        rawTask = new RawTask();
-	    }
-	    rawTask.task = task;
-	    rawAsap(rawTask);
-	}
-
-	// We wrap tasks with recyclable task objects.  A task object implements
-	// `call`, just like a function.
-	function RawTask() {
-	    this.task = null;
-	}
-
-	// The sole purpose of wrapping the task is to catch the exception and recycle
-	// the task object after its single use.
-	RawTask.prototype.call = function () {
-	    try {
-	        this.task.call();
-	    } catch (error) {
-	        if (asap.onerror) {
-	            // This hook exists purely for testing purposes.
-	            // Its name will be periodically randomized to break any code that
-	            // depends on its existence.
-	            asap.onerror(error);
-	        } else {
-	            // In a web browser, exceptions are not fatal. However, to avoid
-	            // slowing down the queue of pending tasks, we rethrow the error in a
-	            // lower priority turn.
-	            pendingErrors.push(error);
-	            requestErrorThrow();
-	        }
-	    } finally {
-	        this.task = null;
-	        freeTasks[freeTasks.length] = this;
-	    }
-	};
-
-
-/***/ },
-/* 196 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(163),
-	    _ = __webpack_require__(158),
-	    jsUtil = __webpack_require__(173),
-	    color = jsUtil.color,
-	    Clearfix = __webpack_require__(176).Clearfix;
-
-	exports.getKeyValueLine = function (width) {
-		return React.createClass({
-			mixins: [ReactCSS.mixin],
-
-			getDefaultProps: function getDefaultProps() {
-				return { label: '', style: {} };
-			},
-
-			classes: function classes() {
-				return {
-					'default': {
-						left: {
-							float: 'left',
-							width: width,
-							textAlign: 'right',
-							marginRight: '15px'
-						},
-						right: _.extend({
-							float: 'left'
-						}, this.props.style)
-					}
-				};
-			},
-
-			styles: function styles() {
-				return this.css();
-			},
-
-			render: function render() {
-				return React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'div',
-						{ style: this.styles().left },
-						this.props.label
-					),
-					React.createElement(
-						'div',
-						{ style: this.styles().right },
-						this.props.children
-					),
-					React.createElement(Clearfix, null)
-				);
-			}
-		});
-	};
-
-	exports.ListItem = React.createClass({
-		displayName: 'ListItem',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				name: '',
-				onClick: null,
-				isSelected: false
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isMouseOver: false };
-		},
-
-		onMouseOver: function onMouseOver(evt) {
-			this.setState({ isMouseOver: true });
-		},
-
-		onMouseOut: function onMouseOut(evt) {
-			this.setState({ isMouseOver: false });
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						borderBottom: '1px solid ' + color.lightGray,
-						padding: '3px 6px',
-						cursor: 'pointer'
-					}
-				},
-				'isMouseOver': {
-					outer: {
-						backgroundColor: color.lightGray
-					}
-				},
-				'isSelected-true': {
-					outer: {
-						backgroundColor: color.lightGray
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css({
-				'isMouseOver': this.state.isMouseOver
-			});
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{
-					style: this.styles().outer,
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onClick: this.props.onClick },
-				this.props.name
-			);
-		}
-	});
-
-/***/ },
-/* 197 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(163),
-	    _ = __webpack_require__(158),
-	    color = __webpack_require__(173).color;
-
-	var TextBox = React.createClass({
-		displayName: 'TextBox',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null,
-				onClick: null,
-				onFocus: null,
-				onKeyUp: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { value: this.props.value };
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-			if (nextProps.value != null) this.setState({ value: nextProps.value });
-		},
-
-		onChange: function onChange(evt) {
-			this.setState({ value: evt.target.value });
-			this.props.onChange(evt);
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					input: _.extend({
-						backgroundColor: color.transparentLightGray,
-						border: 'none',
-						padding: '6px',
-						outline: 'none'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement('input', {
-				style: this.styles().input,
-				type: this.props.type,
-				placeholder: this.props.placeholder,
-				value: this.state.value,
-				onChange: this.onChange,
-				onClick: this.props.onClick,
-				onFocus: this.props.onFocus,
-				onKeyUp: this.props.onKeyUp });
-		}
-	});
-	exports.TextBox = TextBox;
-
-	var DashedTextBox = React.createClass({
-		displayName: 'DashedTextBox',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null,
-				onFocus: null
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					textbox: _.extend({
-						padding: '5px',
-						border: '1px dashed ' + color.gray,
-						outline: 'none',
-						borderRadius: '5px'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(TextBox, {
-				type: this.props.type,
-				placeholder: this.props.placeholder,
-				value: this.props.value,
-				style: this.styles().textbox,
-				onChange: this.props.onChange,
-				onFocus: this.props.onFocus });
-		}
-	});
-	exports.DashedTextBox = DashedTextBox;
 
 /***/ }
 /******/ ]);

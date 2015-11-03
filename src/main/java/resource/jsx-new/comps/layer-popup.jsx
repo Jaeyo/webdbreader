@@ -1,6 +1,7 @@
 var React = require('react'),
 	ReactCSS = require('reactcss'),
 	Loading = require('react-loading'),
+	Layer = require('react-layer'),
 	DarkBlueBtn = require('./btn.jsx').DarkBlueBtn,
 	boxShadow = require('../utils/util.js').boxShadow;
 
@@ -69,6 +70,74 @@ var CurtainLoadingView = React.createClass({
 		);
 	}
 });
+
+var CurtainCancelableLoadingAlert = React.createClass({
+	mixins: [ ReactCSS.mixin, modalMixin ],
+
+	getDefaultProps() {
+		return {
+			msg: '',
+			hide: null
+		};
+	},
+
+	classes() {
+		return {
+			'default': {
+				msgDiv: {
+					padding: '10px',
+					textAlign: 'center'
+				},
+				loadingDiv: {
+					padding: '10px',
+					textAlign: 'center'
+				},
+				btnDiv: {
+					padding: '10px',
+					textAlign: 'center'
+				},
+				cancelBtn: {
+					width: '100px'
+				}
+			}
+		};
+	},
+
+	styles() {
+		return this.css();
+	},
+
+	render() {
+		return (
+			<div>
+				<Curtain onClick={this.hide} />
+				<div is="msgDiv">{this.props.msg}</div>
+				<div is="loadingDiv">
+					<Loading type="bubbles" color="#e4e4e4" />
+				</div>
+				<div is="btnDiv">
+					<DarkBlueBtn is="cancelBtn" onClick={this.props.hide}>ok</DarkBlueBtn>
+				</div>
+			</div>
+		);
+	}
+});
+exports.getCurtainCancelableLoadingAlert = function(msg) {
+	var hideFn = function() { layer.destroy(); };
+
+	var layer = new Layer(document.body, function() {
+		return (<CurtainCancelableLoadingAlert msg={msg} hide={hideFn} />);
+	});
+
+	return {
+		show() {
+			layer.render();
+		},
+		hide() {
+			layer.destroy();
+		}
+	}
+};
 
 
 var CurtainLoadingAlert = React.createClass({
