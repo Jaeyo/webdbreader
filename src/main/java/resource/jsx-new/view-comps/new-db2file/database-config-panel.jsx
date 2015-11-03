@@ -2,6 +2,7 @@ var React = require('react'),
 	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	util = require('util'),
+	Loading = require('react-loading'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),
@@ -99,31 +100,6 @@ var DatabaseConfigPanel = React.createClass({
 
 	onJdbcPasswordChanged(evt) {
 		this.props.onChange({ jdbcPassword: evt.target.value });
-	},
-
-	onDatabaseConfigModalChange(args) {
-		var newState = {
-			dbIp: args.dbIp != null ? args.dbIp : this.props.dbIp,
-			dbPort: args.dbPort != null ? args.dbPort : this.props.dbPort,
-			dbSid: args.dbSid != null ? args.dbSid : this.props.dbSid
-		};
-
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			newState.jdbcConnUrl = tmpl.connUrl.replace('{ip}', newState.dbIp)
-												.replace('{port}', newState.dbPort)
-												.replace('{database}', newState.dbSid);
-		}
-
-		this.props.onChange(newState);
-	},
-
-	onTableChange(table) {
-		this.props.onChange({ table: table });
-	},
-
-	onColumnChange(columns) {
-		this.props.onChange({ columns: columns });
 	},
 
 	onClickTableTextbox(evt) {
@@ -226,10 +202,11 @@ var DatabaseConfigPanel = React.createClass({
 				</Panel.Body>
 				<DatabaseConfigModal 
 					ref="databaseConfigModal"
+					dbVendor={this.props.dbVendor}
 					dbIp={this.props.dbIp}
 					dbPort={this.props.dbPort}
 					dbSid={this.props.dbSid}
-					onChange={this.onDatabaseConfigModalChange} />
+					onChange={this.props.onChange} />
 				<TableConfigModal 
 					ref="tableConfigModal"
 					jdbcDriver={this.props.jdbcDriver}
@@ -237,7 +214,7 @@ var DatabaseConfigPanel = React.createClass({
 					jdbcUsername={this.props.jdbcUsername}
 					jdbcPassword={this.props.jdbcPassword}
 					table={this.props.table}
-					onChange={this.onTableChange} />
+					onChange={this.props.onChange} />
 				<ColumnConfigModal 
 					ref="columnConfigModal"
 					jdbcDriver={this.props.jdbcDriver}
@@ -246,7 +223,7 @@ var DatabaseConfigPanel = React.createClass({
 					jdbcPassword={this.props.jdbcPassword}
 					table={this.props.table}
 					columns={this.props.columns}
-					onChange={this.onColumnChange} />
+					onChange={this.props.onChange} />
 			</Panel>
 		);
 	}
@@ -257,6 +234,7 @@ var DatabaseConfigModal = React.createClass({
 
 	getDefaultProps() {
 		return { 
+			dbVendor: '',
 			dbIp: '',
 			dbPort: '',
 			dbSid: '',
@@ -269,23 +247,46 @@ var DatabaseConfigModal = React.createClass({
 	},
 
 	onIpChange(evt) {
-		if(this.props.onChange) 
-			this.props.onChange({ dbIp: evt.target.value });
+		var state = { dbIp: evt.target.value };
+
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp)
+											.replace('{port}', this.props.dbPort)
+											.replace('{sid}', this.props.dbSid);
+		}
+
+		this.props.onChange(state);
 	},
 
 	onPortChange(evt) {
-		if(this.props.onChange) 
-			this.props.onChange({ dbPort: evt.target.value });
+		var state = { dbPort: evt.target.value };
+
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
+											.replace('{port}', state.dbPort)
+											.replace('{sid}', this.props.dbSid);
+		}
+
+		this.props.onChange(state);
 	},
 
 	onSidChange(evt) {
-		if(this.props.onChange) 
-			this.props.onChange({ dbSid: evt.target.value });
+		var state = { dbSid : evt.target.value };
+
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
+											.replace('{port}', this.props.dbPort)
+											.replace('{sid}', state.dbSid);
+		}
+
+		this.props.onChange(state);
 	},
 
 	onKeyUp(evt) {
-		if(evt.keyCode === 13)
-			this.hide();
+		if(evt.keyCode === 13) this.hide();
 	},
 
 	show() {
@@ -363,6 +364,145 @@ var DatabaseConfigModal = React.createClass({
 });
 
 
+var TableColumnConfigModal = React.createClass({
+	mixins: [ modalMixin, ReactCSS.mixin ],
+
+	getDefaultProps() {
+		return {
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
+			table: '',
+			columns: '',
+			onChange: null,
+			hide: null
+		};
+	},
+
+	getInitialState() {
+		return {
+			loadingTableStatus: 'loading', // loading / failed / loaded
+			loadedTables: []
+			loadingTableDataStatus: 'none', // none / loading / failed / loaded
+			loadedTableData: []
+		};
+	},
+
+	componentDidMount() {
+		server.loadTables //TODO
+	},
+
+	loadTableData() {
+		//TODO
+	},
+
+	classes() {
+		return {
+			'default': {
+				outer: _.extend(this.getModalDivStyle(), {
+					width: '510px',
+					height: '300px'
+					position: 'relative'
+				}),
+				tableArea: {
+					position: 'absolute',
+					top: '10px',
+					right: '310px',
+					bottom: '10px',
+					left: '10px'
+				}, 
+				columnArea: {
+					position: 'absolute',
+					top: '10px',
+					right: '10px',
+					bottom: '10px',
+					left: '210px'
+				},
+			}
+		}
+	},
+
+	styles() {
+		return this.css();
+	},
+
+	onTableChange(evt) {
+		this.props.onChange({ table: evt.target.value });
+	},
+
+	onColumnsChange(evt) {
+		this.props.onChange({ columns: evt.target.value });
+	},
+
+	getTableList() {
+		switch(this.state.loadingTableStatus) {
+		case 'loading': 
+			return (<Loading type="bubbles" color="#e4e4e4" />);
+		case 'failed':
+			return (<label>failed</label>);
+		case 'loaded':
+			if(this.state.loadedTables.length === 0) {
+				return (<label>no tables</label>);
+			} else {
+				var body = [];
+				this.props.loadedTables.forEach(function(table) {
+					if(this.props.table !== '' && this.props.table.toLowerCase().indexOf(table.toLowerCase()) !== -1) return;
+
+					var onClick = function() {
+						this.props.onChange({ table: table });
+					}.bind(this);
+
+					body.push(<ListItem name={table} onClick={onClick} />);
+				}.bind(this));
+
+				return (
+					<div style={{ width: '100%', height: '100%', overflow: 'auto'}}>
+						{body}
+					</div>
+				);
+			}
+		}
+	},
+
+	getColumnList() {
+		switch(this.state.loadingColumnsStatus) {
+		case 'none':
+			return null;
+		case 'loading':
+			return (<Loading type="bubbles" color="#e4e4e4" />);
+		case 'failed':
+			return (<label>failed</label>);
+		case 'loaded':
+			//TODO IMME
+		}
+	},
+
+	render() {
+		return (
+			<div>
+				<Curtain onClick={this.props.hide} />
+				<div is="modal">
+					<div is="tableArea">
+						<div>
+							<TextBox placeholder="table" value={this.props.table} onChange={this.onTableChange} />
+							<DarkBlueSmallBtn onClick={this.loadTableData}>테이블 로드</DarkBlueSmallBtn>
+						</div>
+						{this.getTableList()}
+					</div>
+					<div is="columnArea">
+						<div>
+							<TextBox placeholder="columns" value={this.props.columns} onChange={this.onColumnsChange} />
+						</div>
+						{this.getColumnList()}
+					</div>
+				</div>
+			</div>
+		);
+	}
+});
+
+
 var TableConfigModal = React.createClass({
 	mixins: [ ReactCSS.mixin, modalMixin ],
 
@@ -417,11 +557,6 @@ var TableConfigModal = React.createClass({
 		}.bind(this));
 	},
 
-	onTableChange(evt) {
-		if(this.props.onChange)
-			this.props.onChange(evt.target.value);
-	},
-
 	classes() {
 		return {
 			'default': {
@@ -432,6 +567,10 @@ var TableConfigModal = React.createClass({
 					textAlign: 'center',
 					padding: '10px',
 					fontSize: '90%'
+				},
+				tableListOuter: {
+					height: '150px',
+					overflow: 'auto'
 				}
 			}
 		}
@@ -448,11 +587,16 @@ var TableConfigModal = React.createClass({
 		} else if(this.state.loadedTablesStatus === 'failed') {
 			loadedTables = ( <div is="loadingBox">load fail</div> );
 		} else if(this.state.loadedTablesStatus === 'loaded') {
+			var tableArr = [];
+			this.state.loadedTables.forEach(function(table) {
+				if(this.props.table !== '' && table.toLowerCase().indexOf(this.props.table.toLowerCase()) === -1) return;
+				var onClick = function() {
+					this.props.onChange({ table: table });
+				}.bind(this);
+				tableArr.push(<ListItem key={table} name={table} onClick={onClick} />);
+			}.bind(this));
 			loadedTables = (
-				<TableList 
-					items={this.state.loadedTables}
-					onChange={this.props.onChange}
-					tableText={this.props.table} />
+				<div is="tableListOuter">{tableArr}</div>
 			);
 		}
 
@@ -468,55 +612,6 @@ var TableConfigModal = React.createClass({
 					{loadedTables}
 					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>
 				</div>
-			</div>
-		);
-	}
-});
-
-
-var TableList = React.createClass({
-	mixins: [ ReactCSS.mixin ],
-
-	getDefaultProps() {
-		return { 
-			items: [],
-			onChange: null,
-			tableText: ''
-		};
-	},
-
-	classes() {
-		return {
-			'default': {
-				outer: {
-					height: '100px',
-					overflow: 'auto'
-				}
-			}
-		}
-	},
-
-	styles() {
-		return this.css();
-	},
-
-	render() {
-		var body = [];
-		this.props.items.forEach(function(item) {
-			if(this.props.tableText !== '' && 
-				item.toLowerCase().indexOf(this.props.tableText.toLowerCase()) === -1) 
-				return;
-
-			var onClickFn = function() {
-				this.props.onChange(item);
-			}.bind(this);
-
-			body.push(<ListItem key={item} name={item} onClick={onClickFn} />);
-		}.bind(this));
-
-		return (
-			<div is="outer">
-				{body}
 			</div>
 		);
 	}
@@ -579,17 +674,8 @@ var ColumnConfigModal = React.createClass({
 		}.bind(this));
 	},
 
-	onListChange(column) {
-		var columns = this.props.columns.trim() === '' ? [] : this.props.columns.split(',');
-
-		if(columns.indexOf(column) === -1) columns.push(column);
-		else columns.remove(column);
-
-		this.props.onChange(columns.join(','));
-	},
-
 	onColumnTextChange(evt) {
-		this.props.onChange(evt.target.value);
+		this.props.onChange({ columns: evt.target.value });
 	},
 
 	classes() {
@@ -615,12 +701,26 @@ var ColumnConfigModal = React.createClass({
 		} else if(this.state.loadedColumnsStatus === 'failed') {
 			loadedColumns = ( <div is="loadingBox">load fail</div> );
 		} else if(this.state.loadedColumnsStatus === 'loaded') {
-			loadedColumns = (
-				<ColumnList 
-					columns={this.props.columns}
-					items={this.state.loadedColumns}
-					onListChange={this.onListChange} />
-			);
+			var columnArr = [];
+			var selectedColumns = this.props.columns.split(',');
+			this.props.columns.forEach(function(columnItem) {
+				var name = util.format('%s (%s)', columnItem.columnName, columnItem.columnType);
+
+				var onClick = function() {
+					if(selectedColumns.indexOf(columnItem.columnName) !== -1) selectedColumns.remove(columnItem.columnName);
+					else selectedColumns.push(columnItem.columnName);
+					this.props.onChange({ columns: selectedColumns.join(',') });
+				}.bind(this);
+
+				columnArr.push(
+					<ListItem 
+						key={name} 
+						name={name} 
+						onClick={onClick}
+						isSelected={selectedColumns.indexOf(columnItem.columnName) !== -1} />
+				);
+
+			}.bind(this));
 		}
 
 		return (
@@ -639,58 +739,4 @@ var ColumnConfigModal = React.createClass({
 		);
 	}
 });
-
-
-var ColumnList = React.createClass({
-	mixins: [ ReactCSS.mixin ],
-	getDefaultProps() {
-		return { 
-			columns: '',
-			items: [],
-			onListChange: null
-		};
-	},
-
-	classes() {
-		return {
-			'default': {
-				outer: {
-					height: '100px',
-					overflow: 'auto'
-				}
-			}
-		}
-	},
-
-	styles() {
-		return this.css();
-	},
-
-	render() {
-		var body = [];
-		var columnsArr = this.props.columns.split(',');
-		this.props.items.forEach(function(item) {
-			var onClickFn = function() {
-				this.props.onListChange(item.columnName);
-			}.bind(this);
-
-			var name = util.format('%s (%s)', item.columnName, item.columnType);
-			body.push(
-				<ListItem 
-					key={name} 
-					name={name} 
-					onClick={onClickFn}
-					isSelected={columnsArr.indexOf(item.columnName) !== -1} />
-			);
-		}.bind(this));
-
-		return (
-			<div is="outer">
-				{body}
-			</div>
-		);
-	}
-});
-
-
 module.exports = DatabaseConfigPanel;

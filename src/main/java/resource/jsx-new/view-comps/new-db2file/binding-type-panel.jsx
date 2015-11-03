@@ -1,5 +1,6 @@
 var React = require('react'), 
 	ReactCSS = require('reactcss'),
+	Layer = require('react-layer'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),
@@ -10,6 +11,7 @@ var React = require('react'),
 	LayerPopup = require('../../comps/layer-popup.jsx').LayerPopup,
 	modalMixin = require('../../comps/layer-popup.jsx').modalMixin,
 	Curtain = require('../../comps/layer-popup.jsx').Curtain,
+	CurtainAlert = require('../../comps/layer-popup.jsx').CurtainAlert,
 	ListItem = require('../../comps/etc.jsx').ListItem;
 
 
@@ -20,16 +22,13 @@ var BindingTypePanel = React.createClass({
 		return {
 			bindingType: 'simple',
 			bindingColumn: '',
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
+			table: '',
 			onChange: null
 		};
-	},
-
-	onBindingTypeChanged(bindingType) {
-		this.props.onChange({ bindingType: bindingType });
-	},
-
-	onBindingColumnChanged(columnName) {
-		this.props.onChange({ bindingColumn: columnName });
 	},
 
 	onBindingColumnTextBoxClicked() {
@@ -48,6 +47,10 @@ var BindingTypePanel = React.createClass({
 				}
 			}
 		};
+	},
+
+	styles() {
+		return this.css();
 	},
 
 	render() {
@@ -69,20 +72,25 @@ var BindingTypePanel = React.createClass({
 						<BindingTypeBtn 
 							name="simple" 
 							isClicked={this.props.bindingType === 'simple'} 
-							onChange={this.onBindingTypeChanged} />
+							onChange={this.props.onChange} />
 						<BindingTypeBtn 
 							name="date" 
 							isClicked={this.props.bindingType === 'date'} 
-							onChange={this.onBindingTypeChanged} />
+							onChange={this.props.onChange} />
 						<BindingTypeBtn 
 							name="seq" 
 							isClicked={this.props.bindingType === 'seq'} 
-							onChange={this.onBindingTypeChanged} />
+							onChange={this.props.onChange} />
 					</KeyValueLine>
 					{bindingColumnLine}
 				</Panel.Body>
 				<BindingColumnModal 
 					ref="bindingColumnModal"
+					table={this.props.table}
+					jdbcDriver={this.props.jdbcDriver}
+					jdbcConnUrl={this.props.jdbcConnUrl}
+					jdbcUsername={this.props.jdbcUsername}
+					jdbcPassword={this.props.jdbcPassword}
 					onChange={this.onBindingColumnChanged} />
 			</Panel>
 		);
@@ -114,8 +122,9 @@ var BindingTypeBtn = React.createClass({
 	},
 
 	onClick() {
-		if(this.props.isClicked === false && this.props.onChange != null)
-			this.props.onChange(this.props.name);
+		if(this.props.isClicked === false && this.props.onChange != null) {
+			this.props.onChange({ bindingType: this.props.name });
+		}
 	},
 
 	classes() {
@@ -187,6 +196,11 @@ var BindingColumnModal = React.createClass({
 
 	getDefaultProps() {
 		return {
+			table: '',
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
 			onChange: null
 		};
 	},
@@ -209,7 +223,14 @@ var BindingColumnModal = React.createClass({
 	},
 
 	loadColumns() {
-		server.loadColumns(this.jdbc, this.table).then(function(columns) {
+		var jdbc = {
+			driver: this.props.jdbcDriver,
+			connUrl: this.props.jdbcConnUrl,
+			username: this.props.jdbcUsername,
+			password: this.props.jdbcPassword
+		};
+
+		server.loadColumns(jdbc, this.props.table).then(function(columns) {
 			this.setState({
 				loadedColumnsStatus: 'loaded',
 				loadedColumns: columns
@@ -220,7 +241,7 @@ var BindingColumnModal = React.createClass({
 	},
 
 	onListChange(column) {
-		this.props.onChange(column.columnName);
+		this.props.onChange({ bindingColumn: column.columnName });
 		this.hide();
 	},
 
@@ -250,6 +271,8 @@ var BindingColumnModal = React.createClass({
 		} else if(this.state.loadedColumnsStatus === 'failed') {
 			loadedColumns = ( <div is="loadingBox">load fail</div> );
 		} else if(this.state.loadedColumnsStatus === 'loaded') {
+			//TODO IMME
+
 			loadedColumns = (
 				<ColumnList
 					items={this.state.loadedColumns}
@@ -286,7 +309,7 @@ var ColumnList = React.createClass({
 		var body = [];
 		this.props.items.forEach(function(item) {
 			var onClickFn = function() {
-				this.props.onChange(item);
+				this.props.onChange({ bindingColumn: item.columnName });
 			}.bind(this);
 
 			var name = util.format('%s (%s)', item.columnName, item.columnType);

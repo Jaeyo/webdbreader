@@ -8,7 +8,6 @@ var React = require('react'),
 	DatabaseConfigPanel = require('./view-comps/new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./view-comps/new-db2file/binding-type-panel.jsx');
 
-
 var NewDb2FileView = React.createClass({
 	getInitialState() {
 		return {
@@ -43,7 +42,7 @@ var BuilderView = React.createClass({
 	mixins: [ ReactCSS.mixin ],
 
 	getDefaultProps() {
-		return { 
+		return {
 			dbVendor: '',
 			dbIp: '',
 			dbPort: '',
@@ -65,7 +64,7 @@ var BuilderView = React.createClass({
 		return {
 			'default': {
 				header: {
-					marginBottom: '25px'				
+					marginBottom: '25px'
 				},
 				outer: {
 					display: this.props.visible === true ? 'block' : 'none'
@@ -96,6 +95,11 @@ var BuilderView = React.createClass({
 		var bindingTypePanelParams = {
 			bindingType: this.props.bindingType,
 			bindingColumn: this.props.bindingColumn,
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword,
+			table: this.props.table,
 			onChange: this.props.onChange
 		};
 

@@ -28,6 +28,7 @@
     "precond": "^0.2.3",
     "promise": "^7.0.4",
     "react": "^0.13.3",
+    "react-layer": "^1.1.0",
     "react-loading": "0.0.7",
     "react-map-styles": "^0.3.0",
     "reactcss": "^0.4.1",

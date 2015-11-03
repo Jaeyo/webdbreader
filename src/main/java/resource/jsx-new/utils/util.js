@@ -39,14 +39,15 @@ exports.assertNotNullAndEmpty = function(obj) {
 
 exports.color = {
 	blueBlack: '#293a48',
-	darkBlue: '#385771',
+	darkBlue: '#425361',
+	darkBlue_OLD: '#385771',
 	darkBlue2: '#284761',
 	lightBlue: '#486781',
 	lightGray: 'rgb(218, 218, 218)',
 	transparentLightGray: 'rgba(222, 222, 222, 0.8)',
 	gray: 'rgb(191, 191, 191)',
 	darkGray: 'rgb(93, 93, 93)',
-	transparentWhite: 'rgba(255, 255, 255, 0.9)',
+	contentsBackground: 'rgba(255, 255, 255, 0.9)',
 	background: {
 		background: 'linear-gradient(to right,  rgba(64,83,114,1) 0%,rgba(81,124,104,1) 64%,rgba(82,94,61,1) 100%)',
 		filter: 'progid:DXImageTransform.Microsoft.gradient( startColorstr="#405372", endColorstr="#525e3d",GradientType=1 )'

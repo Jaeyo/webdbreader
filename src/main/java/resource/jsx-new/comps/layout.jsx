@@ -144,7 +144,7 @@ Nav.Btn = React.createClass({
 			}, 
 			'isActive-true': {
 				div: {
-					backgroundColor: color.transparentWhite,
+					backgroundColor: color.contentsBackground,
 					color: color.darkBlue
 				}
 			},
@@ -194,7 +194,7 @@ var Container = React.createClass({
 					height: '100%'
 				},
 				innerDiv: {
-					backgroundColor: color.transparentWhite,
+					backgroundColor: color.contentsBackground,
 					width: '100%',
 					height: '100%',
 					overflow: 'auto',
