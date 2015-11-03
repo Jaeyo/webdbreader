@@ -385,6 +385,7 @@ var TableColumnConfigModal = React.createClass({
 			loadingTableStatus: 'loading', // loading / failed / loaded
 			loadedTables: []
 			loadingTableDataStatus: 'none', // none / loading / failed / loaded
+			loadedColumns: [],
 			loadedTableData: []
 		};
 	},
@@ -474,6 +475,27 @@ var TableColumnConfigModal = React.createClass({
 		case 'failed':
 			return (<label>failed</label>);
 		case 'loaded':
+			var thead = [];
+			var tbody = [];
+			this.state.loadedColumns.forEach(function(loadedColumn) {
+				thead.push(<th>{loadedColumn.columnName}</th>);
+			});
+
+			this.state.loadedTableData.forEach(function(tableData) {
+				var tr = [];
+				//TODO IMME
+			});
+
+			return (
+				<div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+					<table>
+						<thead>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			);
 			//TODO IMME
 		}
 	},
