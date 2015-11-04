@@ -30,7 +30,8 @@ var TextBox = React.createClass({
 	
 	onChange(evt) {
 		this.setState({ value: evt.target.value });
-		this.props.onChange(evt);
+		if(this.props.onChange != null)
+			this.props.onChange(evt);
 	},
 	
 	classes() {

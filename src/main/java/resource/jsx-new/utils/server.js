@@ -39,3 +39,22 @@ exports.loadTables = function(jdbc) {
 		});
 	});
 };
+
+exports.querySampleData = function(params) {
+	params = JSON.parse(decodeURI(JSON.stringify(params)));
+
+	return new Promise(function(resolve, reject) {
+		$.getJSON('/REST/Database/QuerySampleData/', params)
+		.fail(function(err) {
+			console.error({ err: err });
+			reject(err);
+		}).done(function(resp) {
+			if(resp.success !== 1) {
+				console.error(resp.errmsg);
+				reject(resp.errmsg);
+			} else {
+				resolve(resp.sampleData);
+			}
+		});
+	});
+};

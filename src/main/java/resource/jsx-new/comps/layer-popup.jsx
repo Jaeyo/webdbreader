@@ -84,16 +84,16 @@ var CurtainCancelableLoadingAlert = React.createClass({
 	classes() {
 		return {
 			'default': {
+				modal: this.getModalDivStyle(),
 				msgDiv: {
-					padding: '10px',
+					paddingTop: '10px',
 					textAlign: 'center'
 				},
 				loadingDiv: {
-					padding: '10px',
 					textAlign: 'center'
 				},
 				btnDiv: {
-					padding: '10px',
+					paddingBottom: '10px',
 					textAlign: 'center'
 				},
 				cancelBtn: {
@@ -110,13 +110,15 @@ var CurtainCancelableLoadingAlert = React.createClass({
 	render() {
 		return (
 			<div>
-				<Curtain onClick={this.hide} />
-				<div is="msgDiv">{this.props.msg}</div>
-				<div is="loadingDiv">
-					<Loading type="bubbles" color="#e4e4e4" />
-				</div>
-				<div is="btnDiv">
-					<DarkBlueBtn is="cancelBtn" onClick={this.props.hide}>ok</DarkBlueBtn>
+				<Curtain onClick={this.props.hide} />
+				<div is="modal">
+					<div is="msgDiv">{this.props.msg}</div>
+					<div is="loadingDiv">
+						<Loading type="bubbles" color="#e4e4e4" />
+					</div>
+					<div is="btnDiv">
+						<DarkBlueBtn is="cancelBtn" onClick={this.props.hide}>cancel</DarkBlueBtn>
+					</div>
 				</div>
 			</div>
 		);

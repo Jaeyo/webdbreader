@@ -36361,6 +36361,8 @@
 		transparentLightGray: 'rgba(222, 222, 222, 0.8)',
 		gray: 'rgb(191, 191, 191)',
 		darkGray: 'rgb(93, 93, 93)',
+		darkGray2: 'rgb(73, 73, 73)',
+		darkGray3: 'rgb(43, 43, 43)',
 		contentsBackground: 'rgba(255, 255, 255, 0.9)',
 		background: {
 			background: 'linear-gradient(to right,  rgba(64,83,114,1) 0%,rgba(81,124,104,1) 64%,rgba(82,94,61,1) 100%)',
