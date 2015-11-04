@@ -37793,14 +37793,14 @@
 					}),
 					tableArea: {
 						float: 'left',
-						height: '100%'
+						height: '100%',
+						padding: '10px'
 					},
 					TableTextBox: {
-						width: '200px',
-						marginRight: '3px'
-					},
-					TableLoadBtn: {
-						width: '150px'
+						style: {
+							width: '200px',
+							marginRight: '6px'
+						}
 					},
 					tableListDiv: {
 						overflow: 'auto',
@@ -37808,10 +37808,13 @@
 					},
 					columnArea: {
 						float: 'left',
-						height: '100%'
+						height: '100%',
+						padding: '10px'
 					},
 					ColumnTextBox: {
-						width: '100%'
+						style: {
+							width: '100%'
+						}
 					},
 					columnListDiv: {
 						overflow: 'auto',
@@ -37841,8 +37844,8 @@
 								onChange: this.onTableChange })),
 							React.createElement(
 								DarkBlueSmallBtn,
-								_extends({}, this.styles().TableLoadBtn, {
-									onClick: this.loadTableData }),
+								{
+									onClick: this.loadTableData },
 								'로드'
 							)
 						),

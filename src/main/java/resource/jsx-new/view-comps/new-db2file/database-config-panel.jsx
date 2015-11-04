@@ -525,14 +525,14 @@ var TableColumnConfigModal = React.createClass({
 				}),
 				tableArea: {
 					float: 'left',
-					height: '100%'
+					height: '100%',
+					padding: '10px'
 				}, 
 				TableTextBox: {
-					width: '200px',
-					marginRight: '3px'
-				},
-				TableLoadBtn: {
-					width: '150px'
+					style: {
+						width: '200px',
+						marginRight: '6px'
+					}
 				},
 				tableListDiv: {
 					overflow: 'auto',
@@ -540,10 +540,13 @@ var TableColumnConfigModal = React.createClass({
 				},
 				columnArea: {
 					float: 'left',
-					height: '100%'
+					height: '100%',
+					padding: '10px'
 				},
 				ColumnTextBox: {
-					width: '100%'
+					style: {
+						width: '100%'
+					}
 				},
 				columnListDiv: {
 					overflow: 'auto',
@@ -566,7 +569,6 @@ var TableColumnConfigModal = React.createClass({
 								value={this.props.table} 
 								onChange={this.onTableChange} />
 							<DarkBlueSmallBtn 
-								is="TableLoadBtn"
 								onClick={this.loadTableData}>로드</DarkBlueSmallBtn>
 						</div>
 						<div is="tableListDiv">
