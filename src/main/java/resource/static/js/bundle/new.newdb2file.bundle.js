@@ -36553,12 +36553,12 @@
 		}
 	});
 	exports.getCurtainCancelableLoadingAlert = function (msg) {
-		var hideFn = function hideFn() {
+		var hide = (function () {
 			layer.destroy();
-		};
+		}).bind(this);
 
 		var layer = new Layer(document.body, function () {
-			return React.createElement(CurtainCancelableLoadingAlert, { msg: msg, hide: hideFn });
+			return React.createElement(CurtainCancelableLoadingAlert, { msg: msg, hide: hide });
 		});
 
 		return {
@@ -37241,7 +37241,6 @@
 	    _ = __webpack_require__(158),
 	    util = __webpack_require__(159),
 	    Loading = __webpack_require__(181),
-	    Layer = __webpack_require__(182),
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color,
 	    server = __webpack_require__(185),
@@ -37308,7 +37307,7 @@
 			};
 		},
 
-		onClickDbVendorConfigBtn: function onClickDbVendorConfigBtn(evt) {
+		showDatabaseConfigModal: function showDatabaseConfigModal(evt) {
 			this.refs.databaseConfigModal.show();
 		},
 
@@ -37342,15 +37341,7 @@
 		},
 
 		showTableColumnConfigModal: function showTableColumnConfigModal() {
-			tableColumnConfigModalWrapper.show({
-				jdbcDriver: this.props.jdbcDriver,
-				jdbcConnUrl: this.props.jdbcConnUrl,
-				jdbcUsername: this.props.jdbcUsername,
-				jdbcPassword: this.props.jdbcPassword,
-				table: this.props.table,
-				columns: this.props.column,
-				onChange: this.props.onChange
-			});
+			this.refs.tableColumnConfigModal.show();
 		},
 
 		classes: function classes() {
@@ -37419,7 +37410,7 @@
 								onChange: this.onDbVendorChange })),
 							React.createElement(
 								DarkBlueSmallBtn,
-								{ onClick: this.onClickDbVendorConfigBtn },
+								{ onClick: this.showDatabaseConfigModal },
 								'설정'
 							)
 						),
@@ -37470,6 +37461,15 @@
 					dbIp: this.props.dbIp,
 					dbPort: this.props.dbPort,
 					dbSid: this.props.dbSid,
+					onChange: this.props.onChange }),
+				React.createElement(TableColumnConfigModal, {
+					ref: 'tableColumnConfigModal',
+					jdbcDriver: this.props.jdbcDriver,
+					jdbcConnUrl: this.props.jdbcConnUrl,
+					jdbcUsername: this.props.jdbcUsername,
+					jdbcPassword: this.props.jdbcPassword,
+					table: this.props.table,
+					columns: this.props.column,
 					onChange: this.props.onChange })
 			);
 		}
@@ -37626,13 +37626,13 @@
 				jdbcPassword: '',
 				table: '',
 				columns: '',
-				onChange: null,
-				hide: null
+				onChange: null
 			};
 		},
 
 		getInitialState: function getInitialState() {
 			return {
+				visible: false,
 				loadingTableStatus: 'loading', // loading / failed / loaded
 				loadedTables: [],
 				loadingTableDataStatus: 'none', // none / loading / failed / loaded
@@ -37640,8 +37640,16 @@
 			};
 		},
 
-		componentDidMount: function componentDidMount() {
-			this.loadTables();
+		componentDidUpdate: function componentDidUpdate(prevProps, prevStates) {
+			if (prevStates.visible === false && this.state.visible === true) this.loadTables();
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
 		},
 
 		loadTables: function loadTables() {
@@ -37663,7 +37671,7 @@
 				});
 			}).bind(this))['catch']((function (err) {
 				loadingLayer.hide();
-				console.error(err);
+				console.error(err.stack);
 				this.setState({ loadingTableStatus: 'failed' });
 				if (typeof err !== 'string') err = JSON.stringify(err);
 				//TODO layer popup alert error
@@ -37681,18 +37689,19 @@
 				username: this.props.jdbcUsername,
 				password: this.props.jdbcPassword,
 				query: 'select * from ' + this.props.table,
-				rowCount: 1
+				rowCount: 10,
+				isEncrypted: false
 			};
 
 			server.querySampleData(params).then((function (sampleData) {
-				loadinglayer.hide();
+				loadingLayer.hide();
 				this.setState({
 					loadingTableDataStatus: 'loaded',
-					loadedTables: sampleData
+					loadedTableData: sampleData
 				});
 			}).bind(this))['catch']((function (err) {
-				loadinglayer.hide();
-				console.error(err);
+				loadingLayer.hide();
+				console.error(err.stack);
 				this.setState({ loadingTableDataStatus: 'failed' });
 				if (typeof err !== 'string') err = JSON.stringify(err);
 				//TODO layer popup alert error
@@ -37709,88 +37718,13 @@
 			this.props.onChange({ columns: evt.target.value });
 		},
 
-		renderTableList: function renderTableList() {
-			switch (this.state.loadingTableStatus) {
-				case 'loading':
-					return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
-				case 'failed':
-					return React.createElement(
-						'label',
-						null,
-						'failed'
-					);
-				case 'loaded':
-					if (this.state.loadedTables.length === 0) {
-						return React.createElement(
-							'label',
-							null,
-							'no tables'
-						);
-					} else {
-						var body = [];
-						this.state.loadedTables.forEach((function (table) {
-							if (this.props.table !== '' && this.props.table.toLowerCase().indexOf(table.toLowerCase()) !== -1) return;
-
-							var onClick = (function () {
-								this.props.onChange({ table: table });
-							}).bind(this);
-
-							body.push(React.createElement(ListItem, { name: table, onClick: onClick }));
-						}).bind(this));
-
-						return React.createElement(
-							'div',
-							{ style: { width: '100%', height: '100%', overflow: 'auto' } },
-							body
-						);
-					}
-			}
-		},
-
-		renderColumnList: function renderColumnList() {
-			switch (this.state.loadingColumnsStatus) {
-				case 'none':
-					return null;
-				case 'loading':
-					return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
-				case 'failed':
-					return React.createElement(
-						'label',
-						null,
-						'failed'
-					);
-				case 'loaded':
-					var columns = this.props.columns.toLowerCase().split(',');
-					var onSelectColumnChange = function onSelectColumnChange(column) {
-						if (columns.indexOf(column) !== -1) {
-							columns.remove(column);
-						} else {
-							columns.push(column);
-						}
-
-						this.props.onChange({
-							columns: columns.join(',')
-						});
-					};
-
-					return React.createElement(
-						'div',
-						{ style: { width: '100%', height: '100%', overflow: 'auto' } },
-						React.createElement(ColumnSelectTable, {
-							row: this.state.loadedTableData,
-							selectedColumns: this.props.columns.toLowerCase(),
-							onSelectColumnChange: onSelectColumnChange })
-					);
-			}
-		},
-
 		classes: function classes() {
 			return {
 				'default': {
-					modal: _.extend(this.getModalDivStyle(), {
-						width: '700px',
-						height: '400px'
-					}),
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					},
+					modal: _.extend(this.getModalDivStyle(), { width: 'auto' }),
 					tableArea: {
 						float: 'left',
 						height: '100%',
@@ -37803,6 +37737,7 @@
 						}
 					},
 					tableListDiv: {
+						height: '350px',
 						overflow: 'auto',
 						padding: '10px'
 					},
@@ -37813,10 +37748,12 @@
 					},
 					ColumnTextBox: {
 						style: {
-							width: '100%'
+							width: '400px'
 						}
 					},
 					columnListDiv: {
+						height: '350px',
+						width: '400px',
 						overflow: 'auto',
 						padding: '10px'
 					}
@@ -37827,8 +37764,8 @@
 		render: function render() {
 			return React.createElement(
 				'div',
-				null,
-				React.createElement(Curtain, { onClick: this.props.hide }),
+				{ style: this.styles().outer },
+				React.createElement(Curtain, { onClick: this.hide }),
 				React.createElement(
 					'div',
 					{ style: this.styles().modal },
@@ -37871,32 +37808,87 @@
 							{ style: this.styles().columnListDiv },
 							this.renderColumnList()
 						)
-					)
+					),
+					React.createElement(Clearfix, null)
 				)
 			);
+		},
+
+		renderTableList: function renderTableList() {
+			switch (this.state.loadingTableStatus) {
+				case 'loading':
+					return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
+				case 'failed':
+					return React.createElement(
+						'label',
+						null,
+						'failed'
+					);
+				case 'loaded':
+					if (this.state.loadedTables.length === 0) {
+						return React.createElement(
+							'label',
+							null,
+							'no tables'
+						);
+					} else {
+						var body = [];
+						this.state.loadedTables.forEach((function (table) {
+							if (this.props.table !== '' && table.toLowerCase().indexOf(this.props.table.toLowerCase()) === -1) return;
+
+							var onClick = (function () {
+								this.props.onChange({ table: table });
+							}).bind(this);
+
+							body.push(React.createElement(ListItem, { name: table, onClick: onClick }));
+						}).bind(this));
+
+						return React.createElement(
+							'div',
+							{ style: { width: '100%', height: '100%', overflow: 'auto' } },
+							body
+						);
+					}
+			}
+		},
+
+		renderColumnList: function renderColumnList() {
+			switch (this.state.loadingTableDataStatus) {
+				case 'none':
+					return null;
+				case 'loading':
+					return React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' });
+				case 'failed':
+					return React.createElement(
+						'label',
+						null,
+						'failed'
+					);
+				case 'loaded':
+					var columns = this.props.columns.toLowerCase().split(',');
+					var onSelectColumnChange = function onSelectColumnChange(column) {
+						if (columns.indexOf(column) !== -1) {
+							columns.remove(column);
+						} else {
+							columns.push(column);
+						}
+
+						this.props.onChange({
+							columns: columns.join(',')
+						});
+					};
+
+					return React.createElement(
+						'div',
+						{ style: { width: '100%', height: '100%', overflow: 'auto' } },
+						React.createElement(ColumnSelectTable, {
+							rows: this.state.loadedTableData,
+							selectedColumns: this.props.columns.toLowerCase(),
+							onSelectColumnChange: onSelectColumnChange })
+					);
+			}
 		}
 	});
-
-	var tableColumnConfigModalWrapper = new function () {
-		var layer = {};
-
-		var hide = function hide() {
-			layer.destroy();
-			layer = {};
-		};
-
-		return {
-			show: function show(props) {
-				props.hide = hide;
-
-				layer = new Layer(document.body, function () {
-					return React.createElement(TableColumnConfigModal, props);
-				});
-				layer.render();
-			},
-			hide: hide
-		};
-	}();
 
 	module.exports = DatabaseConfigPanel;
 
@@ -37954,6 +37946,7 @@
 				console.error({ err: err });
 				reject(err);
 			}).done(function (resp) {
+				console.log({ resp: resp }); //DEBUG
 				if (resp.success !== 1) {
 					console.error(resp.errmsg);
 					reject(resp.errmsg);
@@ -39144,13 +39137,13 @@
 			if (this.props.rows == null || this.props.rows.length === 0) return null;
 
 			var tr = [];
-			Object.keys(this.props.rows[0]).forEach(function (col) {
+			Object.keys(this.props.rows[0]).forEach((function (col) {
 				tr.push(React.createElement(Th, { value: col,
 					selectedColumns: this.props.selectedColumns,
 					onSelectedColumnChange: this.props.onSelectedColumnChange,
 					hoveredColumn: this.props.hoveredColumn,
-					onHoveredColumnChange: this.onHoveredColumnChange }));
-			});
+					onHoveredColumnChange: this.props.onHoveredColumnChange }));
+			}).bind(this));
 
 			return React.createElement(
 				'thead',
@@ -39182,7 +39175,7 @@
 		styles: function styles() {
 			return this.css({
 				hovered: this.props.hoveredColumn === this.props.value,
-				selected: this.props.hoveredColumn !== this.props.value && this.selectedColumns.indexOf(this.props.value) !== -1
+				selected: this.props.hoveredColumn !== this.props.value && this.props.selectedColumns.indexOf(this.props.value) !== -1
 			});
 		},
 
@@ -39191,7 +39184,9 @@
 				'default': {
 					item: {
 						backgroundColor: color.darkGray2,
-						padding: '10px'
+						padding: '5px',
+						color: 'white',
+						fontSize: '80%'
 					}
 				},
 				hovered: {
@@ -39244,18 +39239,22 @@
 			if (this.props.rows == null || this.props.rows.length === 0) return null;
 
 			var tbody = [];
-			this.props.rows.forEach(function (row) {
+			this.props.rows.forEach((function (row) {
 				var tr = [];
-				Object.keys(row).forEach(function (col) {
+				Object.keys(row).forEach((function (col) {
 					tr.push(React.createElement(Td, { value: row[col],
 						column: col,
 						selectedColumns: this.props.selectedColumns,
 						onSelectedColumnChange: this.props.onSelectedColumnChange,
-						hoveredColumn: this.hoveredColumn,
-						onHoveredColumnChange: this.onHoveredColumnChange }));
-				});
-				tbody.push(tr);
-			});
+						hoveredColumn: this.props.hoveredColumn,
+						onHoveredColumnChange: this.props.onHoveredColumnChange }));
+				}).bind(this));
+				tbody.push(React.createElement(
+					'tr',
+					null,
+					tr
+				));
+			}).bind(this));
 
 			return React.createElement(
 				'tbody',
@@ -39284,7 +39283,7 @@
 		styles: function styles() {
 			return this.css({
 				hovered: this.props.hoveredColumn === this.props.column,
-				selected: this.props.hoveredColumn !== this.props.column && this.selectedColumns.indexOf(this.props.column) !== -1
+				selected: this.props.hoveredColumn !== this.props.column && this.props.selectedColumns.indexOf(this.props.column) !== -1
 			});
 		},
 
@@ -39293,7 +39292,8 @@
 				'default': {
 					item: {
 						backgroundColor: 'inherit',
-						padding: '10px'
+						padding: '5px',
+						fontSize: '80%'
 					}
 				},
 				hovered: {
@@ -39339,7 +39339,6 @@
 
 	var React = __webpack_require__(2),
 	    ReactCSS = __webpack_require__(163),
-	    Layer = __webpack_require__(182),
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color,
 	    server = __webpack_require__(185),

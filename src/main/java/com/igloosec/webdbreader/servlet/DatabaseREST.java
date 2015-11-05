@@ -109,8 +109,12 @@ public class DatabaseREST extends JadeHttpServlet{
 		.put("connUrl", req.getParameter("connUrl"))
 		.put("username", req.getParameter("username"))
 		.put("password", req.getParameter("password"));
+		
 		String query = req.getParameter("query");
 		int rowCount = Integer.parseInt(req.getParameter("rowCount"));
+		
+		String isEncryptedStr = req.getParameter("isEncrypted");
+		boolean isEncrypted = (isEncryptedStr == null ? true : Boolean.parseBoolean(isEncryptedStr));
 	
 		Preconditions.checkArgument(jdbcParams.isNull("driver") == false, "driver is null");
 		Preconditions.checkArgument(jdbcParams.isNull("connUrl") == false, "connUrl is null");
@@ -120,7 +124,7 @@ public class DatabaseREST extends JadeHttpServlet{
 		Preconditions.checkArgument(rowCount > 0, "invalid row count: " + rowCount);
 
 		logger.debug(String.format("jdbcParams: %s, query: %s, rowCount: %s", jdbcParams.toString(), query, rowCount));
-		JSONArray sampleData = databaseService.querySampleData(jdbcParams, query, rowCount);
+		JSONArray sampleData = databaseService.querySampleData(jdbcParams, query, rowCount, isEncrypted);
 		return new JSONObject().put("success", 1).put("sampleData", sampleData).toString();
 	} //querySampleData
 } //class

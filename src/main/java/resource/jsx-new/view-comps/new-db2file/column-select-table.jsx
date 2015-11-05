@@ -65,9 +65,9 @@ var Thead = React.createClass({
 					selectedColumns={this.props.selectedColumns}
 					onSelectedColumnChange={this.props.onSelectedColumnChange}
 					hoveredColumn={this.props.hoveredColumn}
-					onHoveredColumnChange={this.onHoveredColumnChange} />
+					onHoveredColumnChange={this.props.onHoveredColumnChange} />
 			);
-		});
+		}.bind(this));
 
 		return (
 			<thead>
@@ -95,7 +95,7 @@ var Th = React.createClass({
 		return this.css({
 			hovered: this.props.hoveredColumn === this.props.value,
 			selected: this.props.hoveredColumn !== this.props.value && 
-						this.selectedColumns.indexOf(this.props.value) !== -1,
+						this.props.selectedColumns.indexOf(this.props.value) !== -1,
 		});
 	},
 
@@ -104,7 +104,9 @@ var Th = React.createClass({
 			'default': {
 				item: { 
 					backgroundColor: color.darkGray2,
-					padding: '10px'
+					padding: '5px',
+					color: 'white',
+					fontSize: '80%'
 				}
 			},
 			hovered: {
@@ -165,12 +167,12 @@ var Tbody = React.createClass({
 						column={col}
 						selectedColumns={this.props.selectedColumns}
 						onSelectedColumnChange={this.props.onSelectedColumnChange}
-						hoveredColumn={this.hoveredColumn}
-						onHoveredColumnChange={this.onHoveredColumnChange} />
+						hoveredColumn={this.props.hoveredColumn}
+						onHoveredColumnChange={this.props.onHoveredColumnChange} />
 				);
-			});
-			tbody.push(tr);
-		});
+			}.bind(this));
+			tbody.push(<tr>{tr}</tr>);
+		}.bind(this));
 
 		return (<tbody>{tbody}</tbody>);
 	}
@@ -195,7 +197,7 @@ var Td = React.createClass({
 		return this.css({
 			hovered: this.props.hoveredColumn === this.props.column,
 			selected: this.props.hoveredColumn !== this.props.column && 
-						this.selectedColumns.indexOf(this.props.column) !== -1,
+						this.props.selectedColumns.indexOf(this.props.column) !== -1,
 		});
 	},
 
@@ -204,7 +206,8 @@ var Td = React.createClass({
 			'default': {
 				item: {
 					backgroundColor: 'inherit',
-					padding: '10px'
+					padding: '5px',
+					fontSize: '80%'
 				}
 			},
 			hovered: {

@@ -125,11 +125,16 @@ public class DatabaseService {
 		} //finally
 	} //getColumns
 	
-	public JSONArray querySampleData(JSONObject jdbcParams, String query, final int rowCount) throws JSONException, SQLException, ClassNotFoundException, CryptoException{
+	public JSONArray querySampleData(JSONObject jdbcParams, String query, final int rowCount, boolean isEncrypted) throws JSONException, SQLException, ClassNotFoundException, CryptoException{
 		Class.forName(jdbcParams.getString("driver"));
 		
-		String username = SimpleCrypto.decrypt(jdbcParams.getString("username"));
-		String password = SimpleCrypto.decrypt(jdbcParams.getString("password"));
+		String username = jdbcParams.getString("username");
+		String password = jdbcParams.getString("password");
+		
+		if(isEncrypted == true) {
+			username = SimpleCrypto.decrypt(username);
+			password = SimpleCrypto.decrypt(password);
+		}
 		
 		Connection conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), username, password);
 		try{

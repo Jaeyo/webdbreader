@@ -1,6 +1,5 @@
 var React = require('react'), 
 	ReactCSS = require('reactcss'),
-	Layer = require('react-layer'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),

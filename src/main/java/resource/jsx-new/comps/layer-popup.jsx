@@ -125,10 +125,12 @@ var CurtainCancelableLoadingAlert = React.createClass({
 	}
 });
 exports.getCurtainCancelableLoadingAlert = function(msg) {
-	var hideFn = function() { layer.destroy(); };
+	var hide = function() {
+		layer.destroy();
+	}.bind(this);
 
 	var layer = new Layer(document.body, function() {
-		return (<CurtainCancelableLoadingAlert msg={msg} hide={hideFn} />);
+		return (<CurtainCancelableLoadingAlert msg={msg} hide={hide} />);
 	});
 
 	return {
@@ -138,7 +140,7 @@ exports.getCurtainCancelableLoadingAlert = function(msg) {
 		hide() {
 			layer.destroy();
 		}
-	}
+	};
 };
 
 
