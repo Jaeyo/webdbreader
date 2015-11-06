@@ -35567,6 +35567,29 @@
 		modalBox: '0 0 15px rgba(66,66,66,0.8)'
 	};
 
+	exports.initPrototypeFunctions = function () {
+		//TODO IMME
+		Object.prototype.sortedForEach = function (callback) {
+			var keyArr = [];
+			Object.keys(this).forEach(function (key) {
+				keyArr.push(key);
+			});
+
+			keyArr.sort();
+
+			keyArr.forEach((function (key) {
+				var value = this[key];
+				callback(key, value);
+			}).bind(this));
+		};
+
+		Array.prototype.remove = __webpack_require__(178);
+
+		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
+			if (errorObj && errorObj.stack) console.error(errorObj.stack);
+		};
+	};
+
 /***/ },
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
@@ -36283,6 +36306,8 @@
 	    LayerPopup = __webpack_require__(180).LayerPopup,
 	    DatabaseConfigPanel = __webpack_require__(184),
 	    BindingTypePanel = __webpack_require__(199);
+
+	jsUtil.initPrototypeFunctions();
 
 	var NewDb2FileView = React.createClass({
 		displayName: 'NewDb2FileView',
@@ -37469,7 +37494,7 @@
 					jdbcUsername: this.props.jdbcUsername,
 					jdbcPassword: this.props.jdbcPassword,
 					table: this.props.table,
-					columns: this.props.column,
+					columns: this.props.columns,
 					onChange: this.props.onChange })
 			);
 		}
@@ -37865,8 +37890,11 @@
 						'failed'
 					);
 				case 'loaded':
-					var columns = this.props.columns.toLowerCase().split(',');
-					var onSelectColumnChange = function onSelectColumnChange(column) {
+					var onSelectColumnChange = (function (column) {
+						column = column.toLowerCase();
+						var columns = this.props.columns.toLowerCase().split(',');
+						columns.remove('');
+
 						if (columns.indexOf(column) !== -1) {
 							columns.remove(column);
 						} else {
@@ -37876,7 +37904,7 @@
 						this.props.onChange({
 							columns: columns.join(',')
 						});
-					};
+					}).bind(this);
 
 					return React.createElement(
 						'div',
@@ -37884,7 +37912,7 @@
 						React.createElement(ColumnSelectTable, {
 							rows: this.state.loadedTableData,
 							selectedColumns: this.props.columns.toLowerCase(),
-							onSelectColumnChange: onSelectColumnChange })
+							onSelectedColumnChange: onSelectColumnChange })
 					);
 			}
 		}
@@ -39137,13 +39165,13 @@
 			if (this.props.rows == null || this.props.rows.length === 0) return null;
 
 			var tr = [];
-			Object.keys(this.props.rows[0]).forEach((function (col) {
-				tr.push(React.createElement(Th, { value: col,
+			this.props.row[0].sortedForEach(function (key, value) {
+				tr.push(React.createElement(Th, { value: key,
 					selectedColumns: this.props.selectedColumns,
 					onSelectedColumnChange: this.props.onSelectedColumnChange,
 					hoveredColumn: this.props.hoveredColumn,
 					onHoveredColumnChange: this.props.onHoveredColumnChange }));
-			}).bind(this));
+			});
 
 			return React.createElement(
 				'thead',
@@ -39203,7 +39231,7 @@
 		},
 
 		onMouseOver: function onMouseOver() {
-			this.props.onHoveredColumnChange(this.value);
+			this.props.onHoveredColumnChange(this.props.value);
 		},
 
 		onMouseOut: function onMouseOut() {
@@ -39241,14 +39269,14 @@
 			var tbody = [];
 			this.props.rows.forEach((function (row) {
 				var tr = [];
-				Object.keys(row).forEach((function (col) {
-					tr.push(React.createElement(Td, { value: row[col],
-						column: col,
+				row.sortedForEach(function (key, value) {
+					tr.push(React.createElement(Td, { value: value,
+						column: key,
 						selectedColumns: this.props.selectedColumns,
 						onSelectedColumnChange: this.props.onSelectedColumnChange,
 						hoveredColumn: this.props.hoveredColumn,
 						onHoveredColumnChange: this.props.onHoveredColumnChange }));
-				}).bind(this));
+				});
 				tbody.push(React.createElement(
 					'tr',
 					null,
@@ -39310,7 +39338,7 @@
 		},
 
 		onMouseOver: function onMouseOver() {
-			this.props.onHoveredColumnChange(this.column);
+			this.props.onHoveredColumnChange(this.props.column);
 		},
 
 		onMouseOut: function onMouseOut() {

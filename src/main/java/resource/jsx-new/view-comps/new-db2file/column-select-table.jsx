@@ -59,15 +59,15 @@ var Thead = React.createClass({
 		if(this.props.rows == null || this.props.rows.length === 0) return null;
 
 		var tr = [];
-		Object.keys(this.props.rows[0]).forEach(function(col) {
+		this.props.row[0].sortedForEach(function(key, value) {
 			tr.push(
-				<Th value={col}
+				<Th value={key}
 					selectedColumns={this.props.selectedColumns}
 					onSelectedColumnChange={this.props.onSelectedColumnChange}
 					hoveredColumn={this.props.hoveredColumn}
 					onHoveredColumnChange={this.props.onHoveredColumnChange} />
 			);
-		}.bind(this));
+		});
 
 		return (
 			<thead>
@@ -123,7 +123,7 @@ var Th = React.createClass({
 	},
 
 	onMouseOver() {
-		this.props.onHoveredColumnChange(this.value);
+		this.props.onHoveredColumnChange(this.props.value);
 	},
 
 	onMouseOut() {
@@ -161,16 +161,16 @@ var Tbody = React.createClass({
 		var tbody = [];
 		this.props.rows.forEach(function(row) {
 			var tr = [];
-			Object.keys(row).forEach(function(col) {
+			row.sortedForEach(function(key, value) {
 				tr.push(
-					<Td value={row[col]}
-						column={col}
+					<Td value={value}
+						column={key}
 						selectedColumns={this.props.selectedColumns}
 						onSelectedColumnChange={this.props.onSelectedColumnChange}
 						hoveredColumn={this.props.hoveredColumn}
 						onHoveredColumnChange={this.props.onHoveredColumnChange} />
 				);
-			}.bind(this));
+			});
 			tbody.push(<tr>{tr}</tr>);
 		}.bind(this));
 
@@ -224,7 +224,7 @@ var Td = React.createClass({
 	},
 
 	onMouseOver() {
-		this.props.onHoveredColumnChange(this.column);
+		this.props.onHoveredColumnChange(this.props.column);
 	},
 
 	onMouseOut() {

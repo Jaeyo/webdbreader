@@ -8,6 +8,8 @@ var React = require('react'),
 	DatabaseConfigPanel = require('./view-comps/new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./view-comps/new-db2file/binding-type-panel.jsx');
 
+jsUtil.initPrototypeFunctions();
+
 var NewDb2FileView = React.createClass({
 	getInitialState() {
 		return {

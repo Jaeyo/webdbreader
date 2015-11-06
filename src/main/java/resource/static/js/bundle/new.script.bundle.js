@@ -35567,6 +35567,29 @@
 		modalBox: '0 0 15px rgba(66,66,66,0.8)'
 	};
 
+	exports.initPrototypeFunctions = function () {
+		//TODO IMME
+		Object.prototype.sortedForEach = function (callback) {
+			var keyArr = [];
+			Object.keys(this).forEach(function (key) {
+				keyArr.push(key);
+			});
+
+			keyArr.sort();
+
+			keyArr.forEach((function (key) {
+				var value = this[key];
+				callback(key, value);
+			}).bind(this));
+		};
+
+		Array.prototype.remove = __webpack_require__(178);
+
+		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
+			if (errorObj && errorObj.stack) console.error(errorObj.stack);
+		};
+	};
+
 /***/ },
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
@@ -36249,7 +36272,24 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 178 */,
+/* 178 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
 /* 179 */,
 /* 180 */,
 /* 181 */,

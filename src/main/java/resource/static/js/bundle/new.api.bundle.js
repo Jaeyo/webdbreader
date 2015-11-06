@@ -36376,6 +36376,29 @@
 		modalBox: '0 0 15px rgba(66,66,66,0.8)'
 	};
 
+	exports.initPrototypeFunctions = function () {
+		//TODO IMME
+		Object.prototype.sortedForEach = function (callback) {
+			var keyArr = [];
+			Object.keys(this).forEach(function (key) {
+				keyArr.push(key);
+			});
+
+			keyArr.sort();
+
+			keyArr.forEach((function (key) {
+				var value = this[key];
+				callback(key, value);
+			}).bind(this));
+		};
+
+		Array.prototype.remove = __webpack_require__(178);
+
+		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
+			if (errorObj && errorObj.stack) console.error(errorObj.stack);
+		};
+	};
+
 /***/ },
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {

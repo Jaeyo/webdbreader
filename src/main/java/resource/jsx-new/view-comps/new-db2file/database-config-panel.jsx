@@ -212,7 +212,7 @@ var DatabaseConfigPanel = React.createClass({
 					jdbcUsername={this.props.jdbcUsername}
 					jdbcPassword={this.props.jdbcPassword}
 					table={this.props.table}
-					columns={this.props.column}
+					columns={this.props.columns}
 					onChange={this.props.onChange} />
 			</Panel>
 		);
@@ -583,8 +583,11 @@ var TableColumnConfigModal = React.createClass({
 		case 'failed':
 			return (<label>failed</label>);
 		case 'loaded':
-			var columns = this.props.columns.toLowerCase().split(',');
 			var onSelectColumnChange = function(column) {
+				column = column.toLowerCase();
+				var columns = this.props.columns.toLowerCase().split(',');
+				columns.remove('');
+				
 				if(columns.indexOf(column) !== -1) {
 					columns.remove(column);
 				} else {
@@ -594,14 +597,14 @@ var TableColumnConfigModal = React.createClass({
 				this.props.onChange({
 					columns: columns.join(',')
 				});
-			};
+			}.bind(this);
 
 			return (
 				<div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
 					<ColumnSelectTable 
 						rows={this.state.loadedTableData} 
 						selectedColumns={this.props.columns.toLowerCase()}
-						onSelectColumnChange={onSelectColumnChange} />
+						onSelectedColumnChange={onSelectColumnChange} />
 				</div>
 			);
 		}
