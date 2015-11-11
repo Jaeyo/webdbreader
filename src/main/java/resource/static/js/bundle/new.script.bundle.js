@@ -35568,22 +35568,29 @@
 	};
 
 	exports.initPrototypeFunctions = function () {
-		//TODO IMME
-		Object.prototype.sortedForEach = function (callback) {
+		Object.sortedForEach = function (obj, callback) {
 			var keyArr = [];
-			Object.keys(this).forEach(function (key) {
+			Object.keys(obj).forEach(function (key) {
 				keyArr.push(key);
 			});
 
 			keyArr.sort();
 
 			keyArr.forEach((function (key) {
-				var value = this[key];
+				var value = obj[key];
 				callback(key, value);
 			}).bind(this));
 		};
 
-		Array.prototype.remove = __webpack_require__(178);
+		String.contains = function (src, target) {
+			return src.indexOf(target) != -1;
+		};
+
+		String.containsIgnoreCase = function (src, target) {
+			return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
+		};
+
+		Array.prototype.remove = __webpack_require__(175);
 
 		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
 			if (errorObj && errorObj.stack) console.error(errorObj.stack);
@@ -35639,6 +35646,24 @@
 
 /***/ },
 /* 175 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35887,7 +35912,7 @@
 	exports.Container = Container;
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35910,7 +35935,7 @@
 	exports.Clearfix = Clearfix;
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36272,24 +36297,6 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 178 */
-/***/ function(module, exports) {
-
-	module.exports = function() {
-	  var what, a = arguments,
-	    L = a.length,
-	    ax;
-	  while (L && this.length) {
-	    what = a[--L];
-	    while ((ax = this.indexOf(what)) !== -1) {
-	      this.splice(ax, 1);
-	    }
-	  }
-	  return this;
-	};
-
-
-/***/ },
 /* 179 */,
 /* 180 */,
 /* 181 */,
@@ -36318,11 +36325,11 @@
 
 	var React = __webpack_require__(2),
 	    ReactCSS = __webpack_require__(163),
-	    Layout = __webpack_require__(175).Layout,
+	    Layout = __webpack_require__(176).Layout,
 	    Panel = __webpack_require__(162).Panel,
-	    Btn = __webpack_require__(177).Btn,
-	    GlyphiconBtn = __webpack_require__(177).GlyphiconBtn,
-	    Clearfix = __webpack_require__(176).Clearfix,
+	    Btn = __webpack_require__(178).Btn,
+	    GlyphiconBtn = __webpack_require__(178).GlyphiconBtn,
+	    Clearfix = __webpack_require__(177).Clearfix,
 	    jsUtil = __webpack_require__(173),
 	    handleError = jsUtil.handleError,
 	    handleResp = jsUtil.handleResp;

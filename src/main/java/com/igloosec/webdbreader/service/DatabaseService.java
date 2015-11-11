@@ -152,8 +152,12 @@ public class DatabaseService {
 							break;
 	
 						JSONObject row = new JSONObject();
-						for (int i = 1; i <= colCount; i++)
-							row.put(meta.getColumnLabel(i), rs.getObject(i));
+						for (int i = 1; i <= colCount; i++) {
+							String col = meta.getColumnLabel(i);
+							Object val = rs.getObject(i);
+							if(val == null) val = JSONObject.NULL;
+							row.put(col, val);
+						}
 						rows.put(row);
 					} //while
 					return rows;

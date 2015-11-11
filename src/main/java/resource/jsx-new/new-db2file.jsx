@@ -116,7 +116,6 @@ var BuilderView = React.createClass({
 });
 
 
-
 React.render(
 	<Layout active="script">
 		<NewDb2FileView />

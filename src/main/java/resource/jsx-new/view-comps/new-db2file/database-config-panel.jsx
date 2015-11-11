@@ -18,8 +18,6 @@ var React = require('react'),
 	ListItem = require('../../comps/etc.jsx').ListItem,
 	ColumnSelectTable = require('./column-select-table.jsx').ColumnSelectTable;
 
-Array.prototype.remove = require('array-remove-by-value');
-
 var jdbcTmpl = {
 	oracle: {
 		driver: 'oracle.jdbc.driver.OracleDriver',
@@ -562,7 +560,7 @@ var TableColumnConfigModal = React.createClass({
 						this.props.onChange({ table: table });
 					}.bind(this);
 
-					body.push(<ListItem name={table} onClick={onClick} />);
+					body.push(<ListItem key={table} name={table} onClick={onClick} />);
 				}.bind(this));
 
 				return (

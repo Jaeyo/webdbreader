@@ -66,19 +66,26 @@ exports.boxShadow = {
 
 
 exports.initPrototypeFunctions = function() {
-	//TODO IMME
-	Object.prototype.sortedForEach = function(callback) {
+	Object.sortedForEach = function(obj, callback) {
 		var keyArr = [];
-		Object.keys(this).forEach(function(key) {
+		Object.keys(obj).forEach(function(key) {
 			keyArr.push(key);
 		});
 
 		keyArr.sort();
 
 		keyArr.forEach(function(key) {
-			var value = this[key];
+			var value = obj[key];
 			callback(key, value);
 		}.bind(this));
+	};
+
+	String.contains = function(src, target) {
+		return src.indexOf(target) != -1;
+	};
+
+	String.containsIgnoreCase = function(src, target) {
+		return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
 	};
 
 	Array.prototype.remove = require('array-remove-by-value');

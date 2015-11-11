@@ -4,8 +4,6 @@ var React = require('react'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color;
 
-Array.prototype.remove = require('array-remove-by-value');
-
 var ColumnSelectTable = React.createClass({
 	getDefaultProps() {
 		return {
@@ -59,15 +57,16 @@ var Thead = React.createClass({
 		if(this.props.rows == null || this.props.rows.length === 0) return null;
 
 		var tr = [];
-		this.props.row[0].sortedForEach(function(key, value) {
+		Object.sortedForEach(this.props.rows[0], function(key, value) {
 			tr.push(
-				<Th value={key}
+				<Th key={key}
+					value={key}
 					selectedColumns={this.props.selectedColumns}
 					onSelectedColumnChange={this.props.onSelectedColumnChange}
 					hoveredColumn={this.props.hoveredColumn}
 					onHoveredColumnChange={this.props.onHoveredColumnChange} />
 			);
-		});
+		}.bind(this));
 
 		return (
 			<thead>
@@ -95,7 +94,7 @@ var Th = React.createClass({
 		return this.css({
 			hovered: this.props.hoveredColumn === this.props.value,
 			selected: this.props.hoveredColumn !== this.props.value && 
-						this.props.selectedColumns.indexOf(this.props.value) !== -1,
+						String.containsIgnoreCase(this.props.selectedColumns, this.props.value)
 		});
 	},
 
@@ -159,19 +158,22 @@ var Tbody = React.createClass({
 		if(this.props.rows == null || this.props.rows.length === 0) return null;
 
 		var tbody = [];
+		var rowCounter = 0;
 		this.props.rows.forEach(function(row) {
 			var tr = [];
-			row.sortedForEach(function(key, value) {
+			Object.sortedForEach(row, function(key, value) {
 				tr.push(
-					<Td value={value}
+					<Td key={key + value}
+						value={value}
 						column={key}
 						selectedColumns={this.props.selectedColumns}
 						onSelectedColumnChange={this.props.onSelectedColumnChange}
 						hoveredColumn={this.props.hoveredColumn}
 						onHoveredColumnChange={this.props.onHoveredColumnChange} />
 				);
-			});
-			tbody.push(<tr>{tr}</tr>);
+			}.bind(this));
+			tbody.push(<tr key={rowCounter}>{tr}</tr>);
+			rowCounter++;
 		}.bind(this));
 
 		return (<tbody>{tbody}</tbody>);
@@ -193,11 +195,22 @@ var Td = React.createClass({
 		};
 	},
 
+	shouldComponentUpdate(nextProps, nextState) {
+		if(this.props.hoveredColumn !== nextProps.hoveredColumn) {
+			if(this.props.hoveredColumn === this.props.column) return true;
+			else 
+				if(nextProps.hoveredColumn === this.props.column) return true;
+		} else if(this.props.selectedColumns !== nextProps.selectedColumns) {
+			if(String.containsIgnoreCase(nextProps.selectedColumns, this.props.column)) return true;
+		}
+		return false;
+	},
+
 	styles() { 
 		return this.css({
 			hovered: this.props.hoveredColumn === this.props.column,
 			selected: this.props.hoveredColumn !== this.props.column && 
-						this.props.selectedColumns.indexOf(this.props.column) !== -1,
+						String.containsIgnoreCase(this.props.selectedColumns, this.props.column)
 		});
 	},
 
@@ -228,8 +241,9 @@ var Td = React.createClass({
 	},
 
 	onMouseOut() {
-		if(this.hoveredColumn === this.props.column)
+		if(this.props.hoveredColumn === this.props.column) {
 			this.props.onHoveredColumnChange('');
+		}
 	},
 
 	render() {

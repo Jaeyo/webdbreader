@@ -35568,22 +35568,29 @@
 	};
 
 	exports.initPrototypeFunctions = function () {
-		//TODO IMME
-		Object.prototype.sortedForEach = function (callback) {
+		Object.sortedForEach = function (obj, callback) {
 			var keyArr = [];
-			Object.keys(this).forEach(function (key) {
+			Object.keys(obj).forEach(function (key) {
 				keyArr.push(key);
 			});
 
 			keyArr.sort();
 
 			keyArr.forEach((function (key) {
-				var value = this[key];
+				var value = obj[key];
 				callback(key, value);
 			}).bind(this));
 		};
 
-		Array.prototype.remove = __webpack_require__(178);
+		String.contains = function (src, target) {
+			return src.indexOf(target) != -1;
+		};
+
+		String.containsIgnoreCase = function (src, target) {
+			return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
+		};
+
+		Array.prototype.remove = __webpack_require__(175);
 
 		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
 			if (errorObj && errorObj.stack) console.error(errorObj.stack);
@@ -35639,6 +35646,24 @@
 
 /***/ },
 /* 175 */
+/***/ function(module, exports) {
+
+	module.exports = function() {
+	  var what, a = arguments,
+	    L = a.length,
+	    ax;
+	  while (L && this.length) {
+	    what = a[--L];
+	    while ((ax = this.indexOf(what)) !== -1) {
+	      this.splice(ax, 1);
+	    }
+	  }
+	  return this;
+	};
+
+
+/***/ },
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35887,7 +35912,7 @@
 	exports.Container = Container;
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35910,7 +35935,7 @@
 	exports.Clearfix = Clearfix;
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36272,24 +36297,6 @@
 	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
 
 /***/ },
-/* 178 */
-/***/ function(module, exports) {
-
-	module.exports = function() {
-	  var what, a = arguments,
-	    L = a.length,
-	    ax;
-	  while (L && this.length) {
-	    what = a[--L];
-	    while ((ax = this.indexOf(what)) !== -1) {
-	      this.splice(ax, 1);
-	    }
-	  }
-	  return this;
-	};
-
-
-/***/ },
 /* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -36302,7 +36309,7 @@
 	    _ = __webpack_require__(158),
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color,
-	    Layout = __webpack_require__(175).Layout,
+	    Layout = __webpack_require__(176).Layout,
 	    LayerPopup = __webpack_require__(180).LayerPopup,
 	    DatabaseConfigPanel = __webpack_require__(184),
 	    BindingTypePanel = __webpack_require__(199);
@@ -36436,7 +36443,7 @@
 	    ReactCSS = __webpack_require__(163),
 	    Loading = __webpack_require__(181),
 	    Layer = __webpack_require__(182),
-	    DarkBlueBtn = __webpack_require__(177).DarkBlueBtn,
+	    DarkBlueBtn = __webpack_require__(178).DarkBlueBtn,
 	    boxShadow = __webpack_require__(173).boxShadow;
 
 	var Z_INDEX_CURTAIN = 100;
@@ -37272,16 +37279,14 @@
 	    SelectBox = __webpack_require__(195).SelectBox,
 	    TextBox = __webpack_require__(196).TextBox,
 	    Panel = __webpack_require__(162).Panel,
-	    DarkBlueSmallBtn = __webpack_require__(177).DarkBlueSmallBtn,
-	    Clearfix = __webpack_require__(176).Clearfix,
+	    DarkBlueSmallBtn = __webpack_require__(178).DarkBlueSmallBtn,
+	    Clearfix = __webpack_require__(177).Clearfix,
 	    LayerPopup = __webpack_require__(180),
 	    modalMixin = __webpack_require__(180).modalMixin,
 	    Curtain = __webpack_require__(180).Curtain,
 	    KeyValueLine = __webpack_require__(197).getKeyValueLine('100px'),
 	    ListItem = __webpack_require__(197).ListItem,
 	    ColumnSelectTable = __webpack_require__(198).ColumnSelectTable;
-
-	Array.prototype.remove = __webpack_require__(178);
 
 	var jdbcTmpl = {
 		oracle: {
@@ -37865,7 +37870,7 @@
 								this.props.onChange({ table: table });
 							}).bind(this);
 
-							body.push(React.createElement(ListItem, { name: table, onClick: onClick }));
+							body.push(React.createElement(ListItem, { key: table, name: table, onClick: onClick }));
 						}).bind(this));
 
 						return React.createElement(
@@ -38978,7 +38983,7 @@
 	    _ = __webpack_require__(158),
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color,
-	    Clearfix = __webpack_require__(176).Clearfix;
+	    Clearfix = __webpack_require__(177).Clearfix;
 
 	exports.getKeyValueLine = function (width) {
 		return React.createClass({
@@ -39106,8 +39111,6 @@
 	    jsUtil = __webpack_require__(173),
 	    color = jsUtil.color;
 
-	Array.prototype.remove = __webpack_require__(178);
-
 	var ColumnSelectTable = React.createClass({
 		displayName: 'ColumnSelectTable',
 
@@ -39165,13 +39168,14 @@
 			if (this.props.rows == null || this.props.rows.length === 0) return null;
 
 			var tr = [];
-			this.props.row[0].sortedForEach(function (key, value) {
-				tr.push(React.createElement(Th, { value: key,
+			Object.sortedForEach(this.props.rows[0], (function (key, value) {
+				tr.push(React.createElement(Th, { key: key,
+					value: key,
 					selectedColumns: this.props.selectedColumns,
 					onSelectedColumnChange: this.props.onSelectedColumnChange,
 					hoveredColumn: this.props.hoveredColumn,
 					onHoveredColumnChange: this.props.onHoveredColumnChange }));
-			});
+			}).bind(this));
 
 			return React.createElement(
 				'thead',
@@ -39203,7 +39207,7 @@
 		styles: function styles() {
 			return this.css({
 				hovered: this.props.hoveredColumn === this.props.value,
-				selected: this.props.hoveredColumn !== this.props.value && this.props.selectedColumns.indexOf(this.props.value) !== -1
+				selected: this.props.hoveredColumn !== this.props.value && String.containsIgnoreCase(this.props.selectedColumns, this.props.value)
 			});
 		},
 
@@ -39267,21 +39271,24 @@
 			if (this.props.rows == null || this.props.rows.length === 0) return null;
 
 			var tbody = [];
+			var rowCounter = 0;
 			this.props.rows.forEach((function (row) {
 				var tr = [];
-				row.sortedForEach(function (key, value) {
-					tr.push(React.createElement(Td, { value: value,
+				Object.sortedForEach(row, (function (key, value) {
+					tr.push(React.createElement(Td, { key: key + value,
+						value: value,
 						column: key,
 						selectedColumns: this.props.selectedColumns,
 						onSelectedColumnChange: this.props.onSelectedColumnChange,
 						hoveredColumn: this.props.hoveredColumn,
 						onHoveredColumnChange: this.props.onHoveredColumnChange }));
-				});
+				}).bind(this));
 				tbody.push(React.createElement(
 					'tr',
-					null,
+					{ key: rowCounter },
 					tr
 				));
+				rowCounter++;
 			}).bind(this));
 
 			return React.createElement(
@@ -39308,10 +39315,19 @@
 			};
 		},
 
+		shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+			if (this.props.hoveredColumn !== nextProps.hoveredColumn) {
+				if (this.props.hoveredColumn === this.props.column) return true;else if (nextProps.hoveredColumn === this.props.column) return true;
+			} else if (this.props.selectedColumns !== nextProps.selectedColumns) {
+				if (String.containsIgnoreCase(nextProps.selectedColumns, this.props.column)) return true;
+			}
+			return false;
+		},
+
 		styles: function styles() {
 			return this.css({
 				hovered: this.props.hoveredColumn === this.props.column,
-				selected: this.props.hoveredColumn !== this.props.column && this.props.selectedColumns.indexOf(this.props.column) !== -1
+				selected: this.props.hoveredColumn !== this.props.column && String.containsIgnoreCase(this.props.selectedColumns, this.props.column)
 			});
 		},
 
@@ -39342,7 +39358,9 @@
 		},
 
 		onMouseOut: function onMouseOut() {
-			if (this.hoveredColumn === this.props.column) this.props.onHoveredColumnChange('');
+			if (this.props.hoveredColumn === this.props.column) {
+				this.props.onHoveredColumnChange('');
+			}
 		},
 
 		render: function render() {
@@ -39373,7 +39391,7 @@
 	    Panel = __webpack_require__(162).Panel,
 	    KeyValueLine = __webpack_require__(197).getKeyValueLine('100px'),
 	    TextBox = __webpack_require__(196).TextBox,
-	    DarkBlueSmallBtn = __webpack_require__(177).DarkBlueSmallBtn,
+	    DarkBlueSmallBtn = __webpack_require__(178).DarkBlueSmallBtn,
 	    LayerPopup = __webpack_require__(180).LayerPopup,
 	    modalMixin = __webpack_require__(180).modalMixin,
 	    Curtain = __webpack_require__(180).Curtain,
