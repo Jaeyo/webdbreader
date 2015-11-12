@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	ReactCSS = require('reactcss'),
 	Layout = require('./comps/layout.jsx').Layout,
 	Panel = require('./comps/panel.jsx').Panel,
@@ -311,7 +312,7 @@ var NewScriptBtns = React.createClass({
 });
 
 
-React.render(
+ReactDOM.render(
 	<Layout active="script">
 		<TotalChartPanel />
 		<ScriptListPanel />

@@ -2,7 +2,7 @@ var React = require('react'),
 	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	jsUtil = require('../../utils/util.js'),
-	color = jsUtil.color;
+	color = jsUtil.color
 
 var ColumnSelectTable = React.createClass({
 	getDefaultProps() {
@@ -14,9 +14,7 @@ var ColumnSelectTable = React.createClass({
 	},
 
 	getInitialState() {
-		return {
-			hoveredColumn: ''
-		};
+		return { hoveredColumn: '' };
 	},
 
 	onHoveredColumnChange(column) {
@@ -27,9 +25,7 @@ var ColumnSelectTable = React.createClass({
 		var props = {
 			rows: this.props.rows,
 			selectedColumns: this.props.selectedColumns,
-			onSelectedColumnChange: this.props.onSelectedColumnChange,
-			hoveredColumn: this.state.hoveredColumn,
-			onHoveredColumnChange: this.onHoveredColumnChange
+			onSelectedColumnChange: this.props.onSelectedColumnChange
 		};
 
 		return (
@@ -47,9 +43,7 @@ var Thead = React.createClass({
 		return {
 			rows: [],
 			selectedColumns: [],
-			onSelectedColumnChange: null,
-			hoveredColumn: '',
-			onHoveredColumnChange: null
+			onSelectedColumnChange: null
 		};
 	},
 
@@ -62,9 +56,7 @@ var Thead = React.createClass({
 				<Th key={key}
 					value={key}
 					selectedColumns={this.props.selectedColumns}
-					onSelectedColumnChange={this.props.onSelectedColumnChange}
-					hoveredColumn={this.props.hoveredColumn}
-					onHoveredColumnChange={this.props.onHoveredColumnChange} />
+					onSelectedColumnChange={this.props.onSelectedColumnChange} />
 			);
 		}.bind(this));
 
@@ -84,17 +76,19 @@ var Th = React.createClass({
 		return {
 			value: '',
 			selectedColumns: [],
-			onSelectedColumnChange: null,
-			hoveredColumn: '',
-			onHoveredColumnChange: null
+			onSelectedColumnChange: null
 		};
+	},
+
+	getInitialState() {
+		return { isHovered: false };
 	},
 
 	styles() { 
 		return this.css({
-			hovered: this.props.hoveredColumn === this.props.value,
-			selected: this.props.hoveredColumn !== this.props.value && 
-						String.containsIgnoreCase(this.props.selectedColumns, this.props.value)
+			hovered: this.state.isHovered,
+			selected: this.state.isHovered === false && 
+						Array.containsIgnoreCase(this.props.selectedColumns, this.props.value)
 		});
 	},
 
@@ -122,12 +116,11 @@ var Th = React.createClass({
 	},
 
 	onMouseOver() {
-		this.props.onHoveredColumnChange(this.props.value);
+		this.setState({ isHovered: true });
 	},
 
 	onMouseOut() {
-		if(this.hoveredColumn === this.props.value)
-			this.props.onHoveredColumnChange('');
+		this.setState({ isHovered: false });
 	},
 
 	render() {
@@ -148,9 +141,7 @@ var Tbody = React.createClass({
 		return {
 			rows: [],
 			selectedColumns: [],
-			onSelectedColumnChange: null,
-			hoveredColumn: '',
-			onHoveredColumnChange: null
+			onSelectedColumnChange: null
 		};
 	},
 
@@ -167,9 +158,7 @@ var Tbody = React.createClass({
 						value={value}
 						column={key}
 						selectedColumns={this.props.selectedColumns}
-						onSelectedColumnChange={this.props.onSelectedColumnChange}
-						hoveredColumn={this.props.hoveredColumn}
-						onHoveredColumnChange={this.props.onHoveredColumnChange} />
+						onSelectedColumnChange={this.props.onSelectedColumnChange} />
 				);
 			}.bind(this));
 			tbody.push(<tr key={rowCounter}>{tr}</tr>);
@@ -189,29 +178,31 @@ var Td = React.createClass({
 			value: '',
 			column: '',
 			selectedColumns: [],
-			onSelectedColumnChange: null,
-			hoveredColumn: '',
-			onHoveredColumnChange: null
+			onSelectedColumnChange: null
 		};
 	},
 
+	getInitialState() {
+		return { isHovered: false };
+	},
+
 	shouldComponentUpdate(nextProps, nextState) {
-		if(this.props.hoveredColumn !== nextProps.hoveredColumn) {
-			if(this.props.hoveredColumn === this.props.column) return true;
-			else 
-				if(nextProps.hoveredColumn === this.props.column) return true;
-		} else if(this.props.selectedColumns !== nextProps.selectedColumns) {
-			if(String.containsIgnoreCase(nextProps.selectedColumns, this.props.column)) return true;
-		}
+		if(this.props.selectedColumns !== nextProps.selectedColumns)
+			if(Array.containsIgnoreCase(nextProps.selectedColumns, this.props.column)) 
+				return true; 
+
+		if(this.state.isHovered !== nextState.isHovered)
+			return true;
+
 		return false;
 	},
 
 	styles() { 
 		return this.css({
-			hovered: this.props.hoveredColumn === this.props.column,
-			selected: this.props.hoveredColumn !== this.props.column && 
-						String.containsIgnoreCase(this.props.selectedColumns, this.props.column)
-		});
+			hovered: this.state.isHovered,
+			selected: this.state.isHovered === false &&
+						Array.containsIgnoreCase(this.props.selectedColumns, this.props.column)
+		})
 	},
 
 	classes() {
@@ -237,13 +228,11 @@ var Td = React.createClass({
 	},
 
 	onMouseOver() {
-		this.props.onHoveredColumnChange(this.props.column);
+		this.setState({ isHovered: true });
 	},
 
 	onMouseOut() {
-		if(this.props.hoveredColumn === this.props.column) {
-			this.props.onHoveredColumnChange('');
-		}
+		this.setState({ isHovered: false });
 	},
 
 	render() {

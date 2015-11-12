@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	Promise = require('promise'),
 	util = require('util'),
 	Panel = require('./components/panel.jsx').Panel,
@@ -115,7 +116,7 @@ var GeneralConfigPanel = React.createClass({
 
 var DerbySqlPanel = React.createClass({
 	query() {
-		var query = React.findDOMNode(this.refs.queryInput).value;
+		var query = ReactDOM.findDOMNode(this.refs.queryInput).value;
 
 		$.getJSON('/REST/EmbedDb/Query/', {query: query})
 		.fail(handleError)
@@ -154,7 +155,7 @@ var DerbySqlPanel = React.createClass({
 
 var CryptoPanel = React.createClass({
 	encrypt() {
-		var text = React.findDOMNode(this.refs.cryptoInput).value;
+		var text = ReactDOM.findDOMNode(this.refs.cryptoInput).value;
 		$.getJSON('/REST/Meta/Encrypt/', {value: text})
 		.fail(handleError)
 		.done(handleResp(function(resp) {
@@ -162,7 +163,7 @@ var CryptoPanel = React.createClass({
 		}));
 	}, 
 	decrypt() {
-		var text = React.findDOMNode(this.refs.cryptoInput).value;
+		var text = ReactDOM.findDOMNode(this.refs.cryptoInput).value;
 		$.getJSON('/REST/Meta/Decrypt/', {value: text})
 		.fail(handleError)
 		.done(handleResp(function(resp) {

@@ -88,6 +88,17 @@ exports.initPrototypeFunctions = function() {
 		return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
 	};
 
+	Array.contains = function(arr, item) {
+		return arr.indexOf(item) !== -1;
+	};
+
+	Array.containsIgnoreCase = function(arr, strItem) {
+		var arrClone = JSON.parse(JSON.stringify(arr));
+		for(var i=0; i<arr.length; i++)
+			arrClone[i] = arrClone[i].toLowerCase();
+		return arrClone.indexOf(strItem.toLowerCase()) !== -1;
+	};
+
 	Array.prototype.remove = require('array-remove-by-value');
 
 	window.onerror = function(errMsg, url, lineNumber, column, errorObj) {

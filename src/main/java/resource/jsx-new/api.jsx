@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	_ = require('underscore'),
 	util = require('util'),
 	Panel = require('./comps/panel.jsx').Panel,
@@ -544,7 +545,7 @@ ApiMethodBox.Example = React.createClass({
 
 
 
-React.render(
+ReactDOM.render(
 	<Layout active="api">
 		<ApiView />
 	</Layout>,

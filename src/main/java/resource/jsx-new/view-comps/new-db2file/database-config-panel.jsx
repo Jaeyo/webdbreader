@@ -1,5 +1,7 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	ReactCSS = require('reactcss'),
+	ReactGateway = require('react-gateway'),
 	_ = require('underscore'),
 	util = require('util'),
 	Loading = require('react-loading'),
@@ -66,8 +68,35 @@ var DatabaseConfigPanel = React.createClass({
 		};
 	},
 
+	getInitialState() {
+		return {
+			isDatabaseConfigModalVisible: false,
+			isTableColumnConfigModalVisible: false
+		};
+	},
+
 	showDatabaseConfigModal(evt) {
-		this.refs.databaseConfigModal.show();
+		this.setState({
+			isDatabaseConfigModalVisible: true
+		});
+	},
+
+	hideDatabaseConfigModal() {
+		this.setState({
+			isDatabaseConfigModalVisible: false
+		});
+	},
+
+	showTableColumnConfigModal() {
+		this.setState({
+			isTableColumnConfigModalVisible: true
+		});
+	},
+
+	hideTableColumnConfigModal() {
+		this.setState({
+			isTableColumnConfigModalVisible: false
+		});
 	},
 
 	onDbVendorChange(evt) {
@@ -100,11 +129,7 @@ var DatabaseConfigPanel = React.createClass({
 	onJdbcPasswordChanged(evt) {
 		this.props.onChange({ jdbcPassword: evt.target.value });
 	},
-
-	showTableColumnConfigModal() {
-		this.refs.tableColumnConfigModal.show();
-	},
-
+	
 	classes() {
 		return {
 			'default': {
@@ -196,22 +221,32 @@ var DatabaseConfigPanel = React.createClass({
 							onFocus={this.showTableColumnConfigModal} />
 					</KeyValueLine>
 				</Panel.Body>
-				<DatabaseConfigModal 
-					ref="databaseConfigModal"
-					dbVendor={this.props.dbVendor}
-					dbIp={this.props.dbIp}
-					dbPort={this.props.dbPort}
-					dbSid={this.props.dbSid}
-					onChange={this.props.onChange} />
-				<TableColumnConfigModal
-					ref="tableColumnConfigModal"
-					jdbcDriver={this.props.jdbcDriver}
-					jdbcConnUrl={this.props.jdbcConnUrl}
-					jdbcUsername={this.props.jdbcUsername}
-					jdbcPassword={this.props.jdbcPassword}
-					table={this.props.table}
-					columns={this.props.columns}
-					onChange={this.props.onChange} />
+				{ this.state.isDatabaseConfigModalVisible === false ? null : (
+					<ReactGateway to={document.body}>
+						<DatabaseConfigModal 
+							key="databaseConfigModal"
+							dbVendor={this.props.dbVendor}
+							dbIp={this.props.dbIp}
+							dbPort={this.props.dbPort}
+							dbSid={this.props.dbSid}
+							onChange={this.props.onChange}
+							hide={this.hideDatabaseConfigModal} />
+					</ReactGateway>
+				)}
+				{ this.state.isTableColumnConfigModalVisible === false ? null : (
+					<ReactGateway to={document.body}>
+						<TableColumnConfigModal
+							key="tableColumnConfigModal"
+							jdbcDriver={this.props.jdbcDriver}
+							jdbcConnUrl={this.props.jdbcConnUrl}
+							jdbcUsername={this.props.jdbcUsername}
+							jdbcPassword={this.props.jdbcPassword}
+							table={this.props.table}
+							columns={this.props.columns}
+							onChange={this.props.onChange}
+							hide={this.hideTableColumnConfigModal} />
+					</ReactGateway>
+				)}
 			</Panel>
 		);
 	}
@@ -227,12 +262,9 @@ var DatabaseConfigModal = React.createClass({
 			dbIp: '',
 			dbPort: '',
 			dbSid: '',
-			onChange: null
+			onChange: null,
+			hide: null
 		};
-	},
-
-	getInitialState() {
-		return { visible: false };
 	},
 
 	onIpChange(evt) {
@@ -275,28 +307,12 @@ var DatabaseConfigModal = React.createClass({
 	},
 
 	onKeyUp(evt) {
-		if(evt.keyCode === 13) this.hide();
-	},
-
-	show() {
-		this.setState({ visible: true });
-	},
-
-	hide() {
-		this.setState({ visible: false });
-	},
-
-	componentDidUpdate(prevProps, prevState) {
-		if(prevState.visible === false && this.state.visible === true)
-			React.findDOMNode(this.refs.dbIpTextBox).focus();
+		if(evt.keyCode === 13) this.props.hide();
 	},
 
 	classes() {
 		return {
 			'default': {
-				outer: {
-					display: this.state.visible === true ? 'block' : 'none'
-				},
 				modal: _.extend(this.getModalDivStyle(), {
 					width: '500px',
 					textAlign: 'center'
@@ -323,8 +339,8 @@ var DatabaseConfigModal = React.createClass({
 
 	render() {
 		return (
-			<div is="outer">
-				<Curtain onClick={this.hide} />
+			<div>
+				<Curtain onClick={this.props.hide} />
 				<div is="modal">
 					<TextBox 
 						ref="dbIpTextBox"
@@ -345,7 +361,7 @@ var DatabaseConfigModal = React.createClass({
 						value={this.props.dbSid}
 						onChange={this.onSidChange}
 						onKeyUp={this.onKeyUp} />
-					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>				
+					<DarkBlueSmallBtn onClick={this.props.hide}>ok</DarkBlueSmallBtn>				
 				</div>
 			</div>
 		);
@@ -365,13 +381,13 @@ var TableColumnConfigModal = React.createClass({
 			jdbcPassword: '',
 			table: '',
 			columns: '',
-			onChange: null
+			onChange: null,
+			hide: null
 		};
 	},
 
 	getInitialState() {
 		return {
-			visible: false,
 			loadingTableStatus: 'loading', // loading / failed / loaded
 			loadedTables: [],
 			loadingTableDataStatus: 'none', // none / loading / failed / loaded
@@ -379,17 +395,8 @@ var TableColumnConfigModal = React.createClass({
 		};
 	},
 
-	componentDidUpdate(prevProps, prevStates) {
-		if(prevStates.visible === false && this.state.visible === true)
-			this.loadTables();
-	},
-
-	show() {
-		this.setState({ visible: true });
-	},
-
-	hide() {
-		this.setState({ visible: false });
+	componentDidMount() {
+		this.loadTables();
 	},
 
 	loadTables() {
@@ -464,9 +471,6 @@ var TableColumnConfigModal = React.createClass({
 	classes() {
 		return {
 			'default': {
-				outer: {
-					display: this.state.visible === true ? 'block' : 'none'
-				},
 				modal: _.extend(this.getModalDivStyle(), { width: 'auto' }),
 				tableArea: {
 					float: 'left',
@@ -506,8 +510,8 @@ var TableColumnConfigModal = React.createClass({
 
 	render() {
 		return (
-			<div is="outer">
-				<Curtain onClick={this.hide} />
+			<div>
+				<Curtain onClick={this.props.hide} />
 				<div is="modal">
 					<div is="tableArea">
 						<div>
@@ -582,12 +586,11 @@ var TableColumnConfigModal = React.createClass({
 			return (<label>failed</label>);
 		case 'loaded':
 			var onSelectColumnChange = function(column) {
-				column = column.toLowerCase();
-				var columns = this.props.columns.toLowerCase().split(',');
+				var columns = this.props.columns.split(',');
 				columns.remove('');
 				
-				if(columns.indexOf(column) !== -1) {
-					columns.remove(column);
+				if(Array.containsIgnoreCase(columns, column)) {
+					columns.remove(column); //TODO case
 				} else {
 					columns.push(column);
 				}
@@ -597,11 +600,13 @@ var TableColumnConfigModal = React.createClass({
 				});
 			}.bind(this);
 
+			var columnsArr = this.props.columns.split(',').map(function(col) { return col.trim(); });
+
 			return (
 				<div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
 					<ColumnSelectTable 
 						rows={this.state.loadedTableData} 
-						selectedColumns={this.props.columns.toLowerCase()}
+						selectedColumns={columnsArr}
 						onSelectedColumnChange={onSelectColumnChange} />
 				</div>
 			);

@@ -1,4 +1,5 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	jsUtil = require('./utils/util.js'),
@@ -116,7 +117,7 @@ var BuilderView = React.createClass({
 });
 
 
-React.render(
+ReactDOM.render(
 	<Layout active="script">
 		<NewDb2FileView />
 		<LayerPopup />
