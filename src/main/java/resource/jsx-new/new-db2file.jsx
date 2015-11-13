@@ -1,6 +1,5 @@
 var React = require('react'),
 	ReactDOM = require('react-dom'),
-	ReactCSS = require('reactcss'),
 	_ = require('underscore'),
 	jsUtil = require('./utils/util.js'),
 	color = jsUtil.color,
@@ -42,8 +41,6 @@ var NewDb2FileView = React.createClass({
 
 
 var BuilderView = React.createClass({
-	mixins: [ ReactCSS.mixin ],
-
 	getDefaultProps() {
 		return {
 			dbVendor: '',
@@ -63,24 +60,20 @@ var BuilderView = React.createClass({
 		};
 	},
 
-	classes() {
-		return {
-			'default': {
-				header: {
-					marginBottom: '25px'
-				},
-				outer: {
-					display: this.props.visible === true ? 'block' : 'none'
-				}
-			}
-		}
-	},
-
 	styles() {
-		return this.css();
+		return {
+			header: {
+				marginBottom: '25px'
+			},
+			outer: {
+				display: this.props.visible === true ? 'block' : 'none'
+			}
+		};
 	},
 
 	render() {
+		var style = this.styles();
+
 		var dbConfigPanelParams = {
 			dbVendor: this.props.dbVendor,
 			dbIp: this.props.dbIp,
@@ -107,8 +100,8 @@ var BuilderView = React.createClass({
 		};
 
 		return (
-			<div is="outer">
-				<h3 is="header">database 설정</h3>
+			<div style={style.outer}>
+				<h3 style={style.header}>database 설정</h3>
 				<DatabaseConfigPanel {...dbConfigPanelParams} />
 				<BindingTypePanel {...bindingTypePanelParams} />
 			</div>

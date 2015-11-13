@@ -36,6 +36,8 @@
     "react-layer": "^1.1.0",
     "react-loading": "0.0.7",
     "react-map-styles": "^0.3.0",
+    "react-notification": "^3.0.3",
+    "react-tap-event-plugin": "^0.2.1",
     "reactcss": "^0.4.1",
     "striptags": "^2.0.4",
     "style-loader": "^0.12.4",
