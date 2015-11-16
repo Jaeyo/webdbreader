@@ -42,37 +42,39 @@ var getMaterialComponent = function(comp) {
 	});
 };
 
-exports.Button = getMaterialComponent(require('material-ui/lib/raised-button'));
-exports.FlatButton = getMaterialComponent(require('material-ui/lib/flat-button'));
 
-exports.Card = getMaterialComponent(require('material-ui/lib/card'));
-exports.CardHeader = getMaterialComponent(require('material-ui/lib/card-header'));
-exports.CardTitle = getMaterialComponent(require('material-ui/lib/card-title'));
-exports.CardText = getMaterialComponent(require('material-ui/lib/card-text'));
+module.exports = {
+	Button: getMaterialComponent(require('material-ui/lib/raised-button')),
+	FlatButton: getMaterialComponent(require('material-ui/lib/flat-button')),
 
-exports.Dialog = getMaterialComponent(require('material-ui/lib/dialog'));
+	Card: getMaterialComponent(require('material-ui/lib/card/card')),
+	CardHeader: getMaterialComponent(require('material-ui/lib/card/card-header')),
+	CardTitle: getMaterialComponent(require('material-ui/lib/card/card-title')),
+	CardText: getMaterialComponent(require('material-ui/lib/card/card-text')),
 
-exports.List = getMaterialComponent(require('material-ui/lib/list'));
-exports.ListItem = getMaterialComponent(require('material-ui/lib/list-item'));
-exports.ListDivider = getMaterialComponent(require('material-ui/lib/list-divider'));
+	Dialog: getMaterialComponent(require('material-ui/lib/dialog')),
 
-exports.FontIcon = getMaterialComponent(require('material-ui/lib/font-icon'));
-exports.IconButton = getMaterialComponent(require('material-ui/lib/icon-button'));
-exports.IconMenu = getMaterialComponent(require('material-ui/lib/icon-menu'));
-exports.MenuItem = getMaterialComponent(require('material-ui/lib/menu-item'));
+	List: getMaterialComponent(require('material-ui/lib/lists/list')),
+	ListItem: getMaterialComponent(require('material-ui/lib/lists/list-item')),
+	ListDivider: getMaterialComponent(require('material-ui/lib/lists/list-divider')),
 
-exports.CircularProgress = getMaterialComponent(require('material-ui/lib/circular-progress'));
+	FontIcon: getMaterialComponent(require('material-ui/lib/font-icon')),
+	IconButton: getMaterialComponent(require('material-ui/lib/icon-button')),
+	IconMenu: getMaterialComponent(require('material-ui/lib/menus/icon-menu')),
+	MenuItem: getMaterialComponent(require('material-ui/lib/menus/menu-item')),
 
-exports.RefreshIndicator = getMaterialComponent(require('material-ui/lib/refresh-indicator'));w
+	CircularProgress: getMaterialComponent(require('material-ui/lib/circular-progress')),
 
-exports.CheckBox = getMaterialComponent(require('material-ui/lib/checkbox'));
-exports.RadioButton = getMaterialComponent(require('material-ui/lib/radio-button'));
-exports.RadioButtonGroup = getMaterialComponent(require('material-ui/lib/radio-button-group'));
+	RefreshIndicator: getMaterialComponent(require('material-ui/lib/refresh-indicator')),
 
-exports.TextField = getMaterialComponent(require('material-ui/lib/text-field'));
-exports.SelectField = getMaterialComponent(require('material-ui/lib/select-field'));
-exports.Toggle = getMaterialComponent(require('material-ui/lib/toggle'));
+	CheckBox: getMaterialComponent(require('material-ui/lib/checkbox')),
+	RadioButton: getMaterialComponent(require('material-ui/lib/radio-button')),
+	RadioButtonGroup: getMaterialComponent(require('material-ui/lib/radio-button-group')),
 
+	TextField: getMaterialComponent(require('material-ui/lib/text-field')),
+	SelectField: getMaterialComponent(require('material-ui/lib/select-field')),
+	Toggle: getMaterialComponent(require('material-ui/lib/toggle'))
+};
 
 
 

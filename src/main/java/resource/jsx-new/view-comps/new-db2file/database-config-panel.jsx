@@ -1,24 +1,28 @@
 var React = require('react'),
 	ReactDOM = require('react-dom'),
-	ReactCSS = require('reactcss'),
 	ReactGateway = require('react-gateway'),
 	_ = require('underscore'),
 	util = require('util'),
-	Loading = require('react-loading'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),
-	SelectBox = require('../../comps/select-box.jsx').SelectBox,
-	TextBox = require('../../comps/textbox.jsx').TextBox,
-	Panel = require('../../comps/panel.jsx').Panel,
-	DarkBlueSmallBtn = require('../../comps/btn.jsx').DarkBlueSmallBtn,
+	LayerPopup = require('../../comps/layer-popup.jsx').LayerPopup,
 	Clearfix = require('../../comps/clearfix.jsx').Clearfix,
-	LayerPopup = require('../../comps/layer-popup.jsx'),
-	modalMixin = require('../../comps/layer-popup.jsx').modalMixin,
-	Curtain = require('../../comps/layer-popup.jsx').Curtain,
-	KeyValueLine = require('../../comps/etc.jsx').getKeyValueLine('100px'),
-	ListItem = require('../../comps/etc.jsx').ListItem,
-	ColumnSelectTable = require('./column-select-table.jsx').ColumnSelectTable;
+	ColumnSelectTable = require('./column-select-table.jsx').ColumnSelectTable,
+	PolymerIcon = require('../../comps/polymer-icon.jsx'),
+	MaterialWrapper = require('../../comps/material-wrapper.jsx'),
+	Button = MaterialWrapper.Button,
+	TextField = MaterialWrapper.TextField,
+	SelectField = MaterialWrapper.SelectField,
+	Card = MaterialWrapper.Card,
+	CardHeader = MaterialWrapper.CardHeader,
+	CardText = MaterialWrapper.CardText,
+	CircularProgress = MaterialWrapper.CircularProgress,
+	List = MaterialWrapper.List,
+	ListItem = MaterialWrapper.ListItem,
+	ListDivider = MaterialWrapper.ListDivider,
+	Dialog = MaterialWrapper.Dialog;
+
 
 var jdbcTmpl = {
 	oracle: {
@@ -50,8 +54,6 @@ var jdbcTmpl = {
 
 
 var DatabaseConfigPanel = React.createClass({
-	mixins: [ ReactCSS.mixin ],
-
 	getDefaultProps() {
 		return {
 			dbVendor: '',
@@ -75,28 +77,49 @@ var DatabaseConfigPanel = React.createClass({
 		};
 	},
 
-	showDatabaseConfigModal(evt) {
-		this.setState({
-			isDatabaseConfigModalVisible: true
-		});
+	toggleDbConfigModal(evt) {
+		this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
 	},
 
-	hideDatabaseConfigModal() {
-		this.setState({
-			isDatabaseConfigModalVisible: false
-		});
+	onDbConfigIpChange(evt) {
+		var state = { dbIp: evt.target.value };
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp)
+								.replace('{port}', this.props.dbPort)
+								.replace('{database}', this.props.dbSid);
+		}
+		this.props.onChange(state);
 	},
 
-	showTableColumnConfigModal() {
-		this.setState({
-			isTableColumnConfigModalVisible: true
-		});
+	onDbConfigPortChange(evt) {
+		var state = { dbPort: evt.target.value };
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
+								.replace('{port}', state.dbPort)
+								.replace('{database}', this.props.dbSid);
+		}
+		this.props.onChange(state);
 	},
 
-	hideTableColumnConfigModal() {
-		this.setState({
-			isTableColumnConfigModalVisible: false
-		});
+	onDbConfigSidChange(evt) {
+		var state = { dbSid : evt.target.value };
+		if(this.props.dbVendor !== 'etc') {
+			var tmpl = jdbcTmpl[this.props.dbVendor];
+			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
+								.replace('{port}', this.props.dbPort)
+								.replace('{database}', state.dbSid);
+		}
+		this.props.onChange(state);
+	},
+
+	onDbConfigKeyUp(evt) {
+		if(evt.keyCode === 13) this.props.hide();
+	},
+
+	toggleTableColumnConfigModal() {
+		this.setState({ isTableColumnConfigModalVisible: !this.state.isTableColumnConfigModalVisible });
 	},
 
 	onDbVendorChange(evt) {
@@ -119,7 +142,7 @@ var DatabaseConfigPanel = React.createClass({
 	},
 
 	onJdbcConnUrlChanged(evt) {
-		this.props.onChange({ connUrl: evt.target.value });
+		this.props.onChange({ jdbcConnUrl: evt.target.value });
 	},
 
 	onJdbcUsernameChanged(evt) {
@@ -130,239 +153,168 @@ var DatabaseConfigPanel = React.createClass({
 		this.props.onChange({ jdbcPassword: evt.target.value });
 	},
 	
-	classes() {
-		return {
-			'default': {
-				Panel: {
-					style: {
-						marginBottom: '10px'
-					}
-				},
-				DbVendorSelectBox: {
-					style: {
-						width: '400px',
-						marginRight: '10px'
-					}
-				},
-				border: {
-					display: 'inline-block',
-					border: '1px dashed ' + color.lightGray,
-					padding: '10px',
-					margin: '10px 0'
-				},
-				TextBox: {
-					style: {
-						display: 'block',
-						width: '400px',
-						marginBottom: '3px'
-					}
-				},
-				JdbcTextBox: {
-					style: {
-						display: 'block',
-						width: '350px',
-						marginBottom: '3px'
-					}
-				}
-			}
-		};
-	},
-
 	styles() {
-		return this.css();
-	},
-
-
-	render() {
-		return (
-			<Panel is="Panel">
-				<Panel.SmallHeading glyphicon="cog">jdbc 설정</Panel.SmallHeading>
-				<Panel.Body>
-					<KeyValueLine label="데이터베이스">
-						<div>
-							<SelectBox is="DbVendorSelectBox"
-								values={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]} 
-								value={this.props.dbVendor}
-								onChange={this.onDbVendorChange} />
-							<DarkBlueSmallBtn onClick={this.showDatabaseConfigModal}>설정</DarkBlueSmallBtn>
-						</div>
-						<div is="border">
-							<TextBox is="JdbcTextBox"
-								placeholder="jdbc driver" 
-								value={this.props.jdbcDriver}
-								onChange={this.onJdbcDriverChanged} />
-							<TextBox is="JdbcTextBox"
-								placeholder="jdbc connection url"
-								value={this.props.jdbcConnUrl}
-								onChange={this.onJdbcConnUrlChanged} />
-							<TextBox is="JdbcTextBox"
-								placeholder="jdbc username"
-								value={this.props.jdbcUsername}
-								onChange={this.onJdbcUsernameChanged} />
-							<TextBox is="JdbcTextBox"
-								type="password"
-								placeholder="jdbc password"
-								value={this.props.jdbcPassword}
-								onChange={this.onJdbcPasswordChanged} />
-						</div>
-					</KeyValueLine>
-					<KeyValueLine label="테이블">
-						<TextBox is="TextBox"
-							placeholder="table"
-							value={this.props.table}
-							onClick={this.showTableColumnConfigModal}
-							onFocus={this.showTableColumnConfigModal} />
-					</KeyValueLine>
-					<KeyValueLine label="컬럼">
-						<TextBox is="TextBox"
-							placeholder="columns"
-							value={this.props.columns}
-							onClick={this.showTableColumnConfigModal}
-							onFocus={this.showTableColumnConfigModal} />
-					</KeyValueLine>
-				</Panel.Body>
-				{ this.state.isDatabaseConfigModalVisible === false ? null : (
-					<ReactGateway to={document.body}>
-						<DatabaseConfigModal 
-							key="databaseConfigModal"
-							dbVendor={this.props.dbVendor}
-							dbIp={this.props.dbIp}
-							dbPort={this.props.dbPort}
-							dbSid={this.props.dbSid}
-							onChange={this.props.onChange}
-							hide={this.hideDatabaseConfigModal} />
-					</ReactGateway>
-				)}
-				{ this.state.isTableColumnConfigModalVisible === false ? null : (
-					<ReactGateway to={document.body}>
-						<TableColumnConfigModal
-							key="tableColumnConfigModal"
-							jdbcDriver={this.props.jdbcDriver}
-							jdbcConnUrl={this.props.jdbcConnUrl}
-							jdbcUsername={this.props.jdbcUsername}
-							jdbcPassword={this.props.jdbcPassword}
-							table={this.props.table}
-							columns={this.props.columns}
-							onChange={this.props.onChange}
-							hide={this.hideTableColumnConfigModal} />
-					</ReactGateway>
-				)}
-			</Panel>
-		);
-	}
-});
-
-
-var DatabaseConfigModal = React.createClass({
-	mixins: [ modalMixin, ReactCSS.mixin ],
-
-	getDefaultProps() {
-		return { 
-			dbVendor: '',
-			dbIp: '',
-			dbPort: '',
-			dbSid: '',
-			onChange: null,
-			hide: null
-		};
-	},
-
-	onIpChange(evt) {
-		var state = { dbIp: evt.target.value };
-
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp)
-											.replace('{port}', this.props.dbPort)
-											.replace('{database}', this.props.dbSid);
-		}
-
-		this.props.onChange(state);
-	},
-
-	onPortChange(evt) {
-		var state = { dbPort: evt.target.value };
-
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
-											.replace('{port}', state.dbPort)
-											.replace('{database}', this.props.dbSid);
-		}
-
-		this.props.onChange(state);
-	},
-
-	onSidChange(evt) {
-		var state = { dbSid : evt.target.value };
-
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
-											.replace('{port}', this.props.dbPort)
-											.replace('{database}', state.dbSid);
-		}
-
-		this.props.onChange(state);
-	},
-
-	onKeyUp(evt) {
-		if(evt.keyCode === 13) this.props.hide();
-	},
-
-	classes() {
 		return {
-			'default': {
-				modal: _.extend(this.getModalDivStyle(), {
-					width: '500px',
-					textAlign: 'center'
-				}),
+			dbVendorSelectBox: {
+				float: 'left',
+				marginRight: '10px'
+			},
+			configBtn: {
+				float: 'left',
+				marginTop: '27px'
+			},
+			jdbcBorder: {
+				border: '1px dashed ' + color.lightGray,
+				padding: '10px',
+				margin: '10px 0'
+			},
+			textbox: {
+				display: 'block',
+				width: '400px',
+				marginBottom: '3px',
+				color: 'black'
+			},
+			jdbcTextBox: {
+				display: 'block',
+				width: '100%'
+			},
+			dbConfigModal: {
 				dbIpTextBox: {
-					width: '200px',
+					width: '170px',
 					marginRight: '3px'
 				},
 				dbPortTextBox: {
-					width: '50px',
+					width: '60px',
 					marginRight: '3px'
 				},
 				dbSidTextBox: {
 					width: '120px',
 					marginRight: '3px'
-				}
-			}
-		}
-	},
+				},
 
-	styles() {
-		return this.css();
+			}
+		};
 	},
 
 	render() {
+		var style = this.styles();
 		return (
 			<div>
-				<Curtain onClick={this.props.hide} />
-				<div is="modal">
-					<TextBox 
-						ref="dbIpTextBox"
-						is="dbIpTextBox"
-						placeholder="database ip" 
-						value={this.props.dbIp}
-						onChange={this.onIpChange}
-						onKeyUp={this.onKeyUp} />
-					<TextBox
-						is="dbPortTextBox"
-						placeholder="port"
-						value={this.props.dbPort}
-						onChange={this.onPortChange}
-						onKeyUp={this.onKeyUp} />
-					<TextBox
-						is="dbSidTextBox"
-						placeholder="database"
-						value={this.props.dbSid}
-						onChange={this.onSidChange}
-						onKeyUp={this.onKeyUp} />
-					<DarkBlueSmallBtn onClick={this.props.hide}>ok</DarkBlueSmallBtn>				
-				</div>
+				<Card>
+					<CardHeader
+						title="jdbc 설정"
+						subtitle="source database의 연결 정보를 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<SelectField
+							style={style.dbVendorSelectBox}
+							floatingLabelText="데이터베이스"
+							value={this.props.dbVendor}
+							menuItems={[
+								{ text: 'oracle', payload: 'oracle' },
+								{ text: 'mysql', payload: 'mysql' },
+								{ text: 'mssql', payload: 'mssql' },
+								{ text: 'db2', payload: 'db2' },
+								{ text: 'tibero', payload: 'tibero' },
+								{ text: 'etc', payload: 'etc' }
+							]}
+							onChange={this.onDbVendorChange} />
+						<Button 
+							label="설정" 
+							secondary={true} 
+							style={style.configBtn}
+							onClick={this.toggleDbConfigModal} />
+						<Clearfix />
+						<Dialog
+							title="database config"
+							actions={[
+								{ text: 'ok', onClick: this.toggleDbConfigModal }
+							]}
+							actionFocus="ok"
+							open={this.state.isDatabaseConfigModalVisible}>
+							<TextField
+								style={style.dbConfigModal.dbIpTextBox}
+								inputStyle={{ textAlign: 'center' }}
+								floatingLabelText="database ip"
+								value={this.props.dbIp}
+								onChange={this.onDbConfigIpChange}
+								onKeyUp={this.onDbConfigKeyUp} />
+							<TextField
+								style={style.dbConfigModal.dbPortTextBox}
+								inputStyle={{ textAlign: 'center' }}
+								floatingLabelText="port"
+								value={this.props.dbPort}
+								onChange={this.onDbConfigPortChange}
+								onKeyUp={this.onDbConfigKeyUp} />
+							<TextField
+								style={style.dbConfigModal.dbSidTextBox}
+								inputStyle={{ textAlign: 'center' }}
+								floatingLabelText="sid"
+								value={this.props.dbSid}
+								onChange={this.onDbConfigSidChange}
+								onKeyUp={this.onDbConfigKeyUp} />
+						</Dialog>
+						<div style={style.jdbcBorder}>
+							<TextField
+								style={style.jdbcTextBox}
+								floatingLabelText="jdbc driver"
+								value={this.props.jdbcDriver}
+								onChange={this.onJdbcDriverChanged} />
+							<TextField
+								style={style.jdbcTextBox}
+								floatingLabelText="jdbc connection url"
+								value={this.props.jdbcConnUrl}
+								onChange={this.onJdbcConnUrlChanged} />
+							<TextField
+								style={style.jdbcTextBox}
+								floatingLabelText="jdbc username"
+								value={this.props.jdbcUsername}
+								onChange={this.onJdbcUsernameChanged} />
+							<TextField
+								type="password"
+								style={style.jdbcTextBox}
+								floatingLabelText="jdbc password"
+								value={this.props.jdbcPassword}
+								onChange={this.onJdbcPasswordChanged} />
+						</div>
+					</CardText>
+				</Card>
+				<Card>
+					<CardHeader
+						title="table/column 설정"
+						subtitle="source database의 table/column 정보를 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						//TODO IMME
+						<TextField
+							value={this.props.table}
+							disabled={true}
+							inputStyle={ style.textBox }
+							onClick={this.toggleTableColumnConfigModal} />
+						<TextField
+							value={this.props.columns}
+							disabled={true}
+							inputStyle={ style.textBox }
+							onClick={this.toggleTableColumnConfigModal} />
+						<Dialog
+							title="table/column config"
+							actions={[
+								{ text: 'ok', onClick: this.toggleTableColumnConfigModal }
+							]}
+							actionFocus="ok"
+							open={this.state.isTableColumnConfigModalVisible}>
+							<TableColumnConfigModal
+								key="tableColumnConfigModal"
+								jdbcDriver={this.props.jdbcDriver}
+								jdbcConnUrl={this.props.jdbcConnUrl}
+								jdbcUsername={this.props.jdbcUsername}
+								jdbcPassword={this.props.jdbcPassword}
+								table={this.props.table}
+								columns={this.props.columns}
+								onChange={this.props.onChange} />
+						</Dialog>
+					</CardText>
+				</Card>
 			</div>
 		);
 	}
@@ -370,9 +322,6 @@ var DatabaseConfigModal = React.createClass({
 
 
 var TableColumnConfigModal = React.createClass({
-	mixins: [ modalMixin, ReactCSS.mixin ],
-	styles() { return this.css(); },
-
 	getDefaultProps() {
 		return {
 			jdbcDriver: '',
@@ -381,8 +330,7 @@ var TableColumnConfigModal = React.createClass({
 			jdbcPassword: '',
 			table: '',
 			columns: '',
-			onChange: null,
-			hide: null
+			onChange: null
 		};
 	},
 
@@ -468,79 +416,75 @@ var TableColumnConfigModal = React.createClass({
 		this.props.onChange({ columns: evt.target.value });
 	},
 
-	classes() {
+	styles() {
 		return {
-			'default': {
-				modal: _.extend(this.getModalDivStyle(), { width: 'auto' }),
-				tableArea: {
-					float: 'left',
-					height: '100%',
-					padding: '10px'
-				}, 
-				TableTextBox: {
-					style: {
-						width: '200px',
-						marginRight: '6px'
-					}
-				},
-				tableListDiv: {
-					height: '350px',
-					overflow: 'auto',
-					padding: '10px'
-				},
-				columnArea: {
-					float: 'left',
-					height: '100%',
-					padding: '10px'
-				},
-				ColumnTextBox: {
-					style: {
-						width: '400px'
-					}
-				},
-				columnListDiv: {
-					height: '350px',
-					width: '400px',
-					overflow: 'auto',
-					padding: '10px'
+			tableArea: {
+				float: 'left',
+				height: '100%',
+				padding: '10px'
+			}, 
+			tableTextBox: {
+				style: {
+					width: '200px',
+					marginRight: '6px'
 				}
+			},
+			tableListDiv: {
+				height: '350px',
+				overflow: 'auto',
+				padding: '10px'
+			},
+			columnArea: {
+				float: 'left',
+				height: '100%',
+				padding: '10px'
+			},
+			columnTextBox: {
+				style: {
+					width: '400px'
+				}
+			},
+			columnListDiv: {
+				height: '350px',
+				width: '400px',
+				overflow: 'auto',
+				padding: '10px'
 			}
-		}
+		};
 	},
 
 	render() {
+		console.log('table/column render'); //DEBUG
 		return (
 			<div>
-				<Curtain onClick={this.props.hide} />
-				<div is="modal">
-					<div is="tableArea">
-						<div>
-							<TextBox 
-								is="TableTextBox"
-								placeholder="table" 
-								value={this.props.table} 
-								onChange={this.onTableChange} />
-							<DarkBlueSmallBtn 
-								onClick={this.loadTableData}>로드</DarkBlueSmallBtn>
-						</div>
-						<div is="tableListDiv">
-							{this.renderTableList()}
-						</div>
+				<div style={style.tableArea}>
+					<div>
+						<TextField
+							inputStyle={style.tableTextBox}
+							floatingLabelText="table"
+							value={this.props.table} 
+							onChange={this.onTableChange} />
+						<Button
+							label="로드"
+							onClick={this.loadTableData} />
 					</div>
-					<div is="columnArea">
-						<div>
-							<TextBox 
-								is="ColumnTextBox"
-								placeholder="columns" 
-								value={this.props.columns} 
-								onChange={this.onColumnsChange} />
-						</div>
-						<div is="columnListDiv">
-							{this.renderColumnList()}
-						</div>
+					<div style={style.tableListDiv}>
+						{this.renderTableList()}
 					</div>
-					<Clearfix />
 				</div>
+				<div style={style.columnArea}>
+					<div>
+						<TextField
+							inputStyle={style.columnTextBox}
+							floatingLabelText="columns" 
+							value={this.props.columns} 
+							onChange={this.onColumnsChange} />
+					</div>
+					<div is="columnListDiv">
+						{this.renderColumnList()}
+					</div>
+				</div>
+				<Clearfix />
 			</div>
 		);
 	},
@@ -548,28 +492,29 @@ var TableColumnConfigModal = React.createClass({
 	renderTableList() {
 		switch(this.state.loadingTableStatus) {
 		case 'loading': 
-			return (<Loading type="bubbles" color="#e4e4e4" />);
+			return ( <CircularProgress mode="indeterminate" size={0.5} /> );
 		case 'failed':
 			return (<label>failed</label>);
 		case 'loaded':
 			if(this.state.loadedTables.length === 0) {
 				return (<label>no tables</label>);
 			} else {
-				var body = [];
-				this.state.loadedTables.forEach(function(table) {
-					if(this.props.table !== '' && 
-						table.toLowerCase().indexOf(this.props.table.toLowerCase()) === -1) return;
-
-					var onClick = function() {
-						this.props.onChange({ table: table });
-					}.bind(this);
-
-					body.push(<ListItem key={table} name={table} onClick={onClick} />);
-				}.bind(this));
-
 				return (
 					<div style={{ width: '100%', height: '100%', overflow: 'auto'}}>
-						{body}
+						<List>
+							{this.state.loadedTables.forEach(function(table) {
+								var onClick = function() {
+									this.props.onChange({ table: table });
+								}.bind(this);
+
+								return (
+									<ListItem
+										key={table}
+										primaryText={table}
+										onClick={onClick} />
+								);
+							}.bind(this))}
+						</List>
 					</div>
 				);
 			}
@@ -581,7 +526,7 @@ var TableColumnConfigModal = React.createClass({
 		case 'none':
 			return null;
 		case 'loading':
-			return (<Loading type="bubbles" color="#e4e4e4" />);
+			return ( <CircularProgress mode="indeterminate" size={0.5} /> );
 		case 'failed':
 			return (<label>failed</label>);
 		case 'loaded':

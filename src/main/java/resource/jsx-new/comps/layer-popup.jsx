@@ -2,8 +2,10 @@ var React = require('react'),
 	ReactCSS = require('reactcss'),
 	Loading = require('react-loading'),
 	Layer = require('react-layer'),
-	DarkBlueBtn = require('./btn.jsx').DarkBlueBtn,
-	boxShadow = require('../utils/util.js').boxShadow;
+	boxShadow = require('../utils/util.js').boxShadow,
+	MaterialWrapper = require('./material-wrapper.jsx'),
+	CircularProgress = MaterialWrapper.CircularProgress,
+	Button = MaterialWrapper.Button;
 
 var Z_INDEX_CURTAIN = 100;
 var Z_INDEX_OVER_CURTAIN = 200;
@@ -72,8 +74,7 @@ var CurtainLoadingView = React.createClass({
 });
 
 var CurtainCancelableLoadingAlert = React.createClass({
-	mixins: [ ReactCSS.mixin, modalMixin ],
-
+	mixins: [ modalMixin ],
 	getDefaultProps() {
 		return {
 			msg: '',
@@ -81,43 +82,41 @@ var CurtainCancelableLoadingAlert = React.createClass({
 		};
 	},
 
-	classes() {
+	styles() {
 		return {
-			'default': {
-				modal: this.getModalDivStyle(),
-				msgDiv: {
-					paddingTop: '10px',
-					textAlign: 'center'
-				},
-				loadingDiv: {
-					textAlign: 'center'
-				},
-				btnDiv: {
-					paddingBottom: '10px',
-					textAlign: 'center'
-				},
-				cancelBtn: {
-					width: '100px'
-				}
+			modal: this.getModalDivStyle(),
+			msgDiv: {
+				paddingTop: '10px',
+				textAlign: 'center'
+			},
+			loadingDiv: {
+				textAlign: 'center'
+			},
+			btnDiv: {
+				paddingBottom: '10px',
+				textAlign: 'center'
+			},
+			cancelBtn: {
+				width: '100px'
 			}
 		};
 	},
 
-	styles() {
-		return this.css();
-	},
-
 	render() {
+		var style = this.styles();
 		return (
 			<div>
 				<Curtain onClick={this.props.hide} />
-				<div is="modal">
-					<div is="msgDiv">{this.props.msg}</div>
-					<div is="loadingDiv">
-						<Loading type="bubbles" color="#e4e4e4" />
+				<div style={styles.modal}>
+					<div style={style.msgDiv}>{this.props.msg}</div>
+					<div style={style.loadingDiv}>
+						<CircularProgress mode="indeterminate" />
 					</div>
-					<div is="btnDiv">
-						<DarkBlueBtn is="cancelBtn" onClick={this.props.hide}>cancel</DarkBlueBtn>
+					<div style={style.btnDiv}>
+						<Button 
+							style={style.cancelBtn} 
+							label="cencel"
+							onClick={this.props.hide} />
 					</div>
 				</div>
 			</div>
@@ -252,12 +251,11 @@ var CurtainAlert = React.createClass({
 						<label>{this.state.msg}</label>
 					</div>
 					<div style={{ textAlign: 'center' }}>
-						<DarkBlueBtn 
+						<Button
 							ref="btn" 
 							style={{ width: '100px' }} 
-							onClick={this.onClick}>
-							ok
-						</DarkBlueBtn>
+							onClick={this.onClick}
+							label="ok" />
 					</div>
 				</div>
 			</div>
@@ -329,17 +327,15 @@ var CurtainYesOrNo = React.createClass({
 						<label>{this.state.msg}</label>
 					</div>
 					<div style={{ textAlign: 'center' }}>
-						<DarkBlueBtn 
+						<Button
 							ref="yesBtn"
 							style={{ width: '80px', marginRight: '10px' }} 
-							onClick={this.onYesClick}>
-							{this.state.btnNames[0]}
-						</DarkBlueBtn>
-						<DarkBlueBtn 
+							onClick={this.onYesClick}
+							label={this.state.btnNames[0]} />
+						<Button
 							style={{ width: '80px' }} 
-							onClick={this.onNoClick}>
-							{this.state.btnNames[1]}
-						</DarkBlueBtn>
+							onClick={this.onNoClick}
+							label={this.state.btnNames[1]} />
 					</div>
 				</div>
 			</div>

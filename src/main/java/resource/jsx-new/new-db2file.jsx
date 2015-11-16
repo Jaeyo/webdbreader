@@ -113,7 +113,6 @@ var BuilderView = React.createClass({
 ReactDOM.render(
 	<Layout active="script">
 		<NewDb2FileView />
-		<LayerPopup />
 	</Layout>,
-	document.body
+	document.getElementById('container')
 );
