@@ -24,6 +24,7 @@
     "jquery": "^2.1.4",
     "json-loader": "^0.5.3",
     "jsx-loader": "^0.13.2",
+    "less": "^2.5.3",
     "material-ui": "^0.13.2",
     "moment": "^2.10.6",
     "normalize.css": "^3.0.3",

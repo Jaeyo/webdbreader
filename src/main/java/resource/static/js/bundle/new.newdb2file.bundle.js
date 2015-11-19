@@ -35529,8 +35529,8 @@
 	    color = jsUtil.color,
 	    Layout = __webpack_require__(178).Layout,
 	    LayerPopup = __webpack_require__(182).LayerPopup,
-	    DatabaseConfigPanel = __webpack_require__(299),
-	    BindingTypePanel = __webpack_require__(300);
+	    DatabaseConfigPanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/database-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
+	    BindingTypePanel = __webpack_require__(311);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -36511,33 +36511,33 @@
 		Button: getMaterialComponent(__webpack_require__(198)),
 		FlatButton: getMaterialComponent(__webpack_require__(237)),
 
-		Card: getMaterialComponent(__webpack_require__(242)),
-		CardHeader: getMaterialComponent(__webpack_require__(250)),
-		CardTitle: getMaterialComponent(__webpack_require__(255)),
-		CardText: getMaterialComponent(__webpack_require__(257)),
+		Card: getMaterialComponent(__webpack_require__(241)),
+		CardHeader: getMaterialComponent(__webpack_require__(249)),
+		CardTitle: getMaterialComponent(__webpack_require__(254)),
+		CardText: getMaterialComponent(__webpack_require__(255)),
 
-		Dialog: getMaterialComponent(__webpack_require__(259)),
+		Dialog: getMaterialComponent(__webpack_require__(256)),
 
-		List: getMaterialComponent(__webpack_require__(264)),
-		ListItem: getMaterialComponent(__webpack_require__(265)),
-		ListDivider: getMaterialComponent(__webpack_require__(269)),
+		List: getMaterialComponent(__webpack_require__(261)),
+		ListItem: getMaterialComponent(__webpack_require__(262)),
+		ListDivider: getMaterialComponent(__webpack_require__(266)),
 
-		FontIcon: getMaterialComponent(__webpack_require__(248)),
-		IconButton: getMaterialComponent(__webpack_require__(247)),
-		IconMenu: getMaterialComponent(__webpack_require__(270)),
-		MenuItem: getMaterialComponent(__webpack_require__(274)),
+		FontIcon: getMaterialComponent(__webpack_require__(247)),
+		IconButton: getMaterialComponent(__webpack_require__(246)),
+		IconMenu: getMaterialComponent(__webpack_require__(267)),
+		MenuItem: getMaterialComponent(__webpack_require__(271)),
 
-		CircularProgress: getMaterialComponent(__webpack_require__(276)),
+		CircularProgress: getMaterialComponent(__webpack_require__(273)),
 
-		RefreshIndicator: getMaterialComponent(__webpack_require__(277)),
+		RefreshIndicator: getMaterialComponent(__webpack_require__(274)),
 
-		CheckBox: getMaterialComponent(__webpack_require__(278)),
-		RadioButton: getMaterialComponent(__webpack_require__(285)),
-		RadioButtonGroup: getMaterialComponent(__webpack_require__(288)),
+		CheckBox: getMaterialComponent(__webpack_require__(275)),
+		RadioButton: getMaterialComponent(__webpack_require__(282)),
+		RadioButtonGroup: getMaterialComponent(__webpack_require__(285)),
 
-		TextField: getMaterialComponent(__webpack_require__(289)),
-		SelectField: getMaterialComponent(__webpack_require__(291)),
-		Toggle: getMaterialComponent(__webpack_require__(296))
+		TextField: getMaterialComponent(__webpack_require__(286)),
+		SelectField: getMaterialComponent(__webpack_require__(288)),
+		Toggle: getMaterialComponent(__webpack_require__(293))
 	};
 
 	// var App = React.createClass({
@@ -41494,8 +41494,7 @@
 	module.exports = FlatButtonLabel;
 
 /***/ },
-/* 241 */,
-/* 242 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41507,7 +41506,7 @@
 	var React = __webpack_require__(2);
 	var Paper = __webpack_require__(235);
 	var StylePropable = __webpack_require__(199);
-	var CardExpandable = __webpack_require__(243);
+	var CardExpandable = __webpack_require__(242);
 
 	var Card = React.createClass({
 	  displayName: 'Card',
@@ -41587,16 +41586,16 @@
 	module.exports = Card;
 
 /***/ },
-/* 243 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var Extend = __webpack_require__(190);
-	var OpenIcon = __webpack_require__(244);
-	var CloseIcon = __webpack_require__(246);
-	var IconButton = __webpack_require__(247);
+	var OpenIcon = __webpack_require__(243);
+	var CloseIcon = __webpack_require__(245);
+	var IconButton = __webpack_require__(246);
 	var StylePropable = __webpack_require__(199);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
@@ -41694,14 +41693,14 @@
 	module.exports = CardExpandable;
 
 /***/ },
-/* 244 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var HardwareKeyboardArrowUp = React.createClass({
 	  displayName: 'HardwareKeyboardArrowUp',
@@ -41721,7 +41720,7 @@
 	module.exports = HardwareKeyboardArrowUp;
 
 /***/ },
-/* 245 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41841,14 +41840,14 @@
 	module.exports = SvgIcon;
 
 /***/ },
-/* 246 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var HardwareKeyboardArrowDown = React.createClass({
 	  displayName: 'HardwareKeyboardArrowDown',
@@ -41868,7 +41867,7 @@
 	module.exports = HardwareKeyboardArrowDown;
 
 /***/ },
-/* 247 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41883,8 +41882,8 @@
 	var Transitions = __webpack_require__(214);
 	var PropTypes = __webpack_require__(236);
 	var EnhancedButton = __webpack_require__(219);
-	var FontIcon = __webpack_require__(248);
-	var Tooltip = __webpack_require__(249);
+	var FontIcon = __webpack_require__(247);
+	var Tooltip = __webpack_require__(248);
 	var Children = __webpack_require__(215);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
@@ -42114,7 +42113,7 @@
 	module.exports = IconButton;
 
 /***/ },
-/* 248 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42221,7 +42220,7 @@
 	module.exports = FontIcon;
 
 /***/ },
-/* 249 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42398,7 +42397,7 @@
 	module.exports = Tooltip;
 
 /***/ },
-/* 250 */
+/* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42406,8 +42405,8 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(2);
-	var Styles = __webpack_require__(251);
-	var Avatar = __webpack_require__(254);
+	var Styles = __webpack_require__(250);
+	var Avatar = __webpack_require__(253);
 	var StylePropable = __webpack_require__(199);
 	var ThemeManager = __webpack_require__(188);
 	var DefaultRawTheme = __webpack_require__(231);
@@ -42534,7 +42533,7 @@
 	module.exports = CardHeader;
 
 /***/ },
-/* 251 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42547,12 +42546,12 @@
 	  Transitions: __webpack_require__(214),
 	  Typography: __webpack_require__(218),
 	  LightRawTheme: __webpack_require__(231),
-	  DarkRawTheme: __webpack_require__(252),
-	  ThemeDecorator: __webpack_require__(253)
+	  DarkRawTheme: __webpack_require__(251),
+	  ThemeDecorator: __webpack_require__(252)
 	};
 
 /***/ },
-/* 252 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42580,7 +42579,7 @@
 	};
 
 /***/ },
-/* 253 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42611,7 +42610,7 @@
 	};
 
 /***/ },
-/* 254 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42740,7 +42739,7 @@
 	module.exports = Avatar;
 
 /***/ },
-/* 255 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42748,7 +42747,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(2);
-	var Styles = __webpack_require__(251);
+	var Styles = __webpack_require__(250);
 	var StylePropable = __webpack_require__(199);
 	var ThemeManager = __webpack_require__(188);
 	var DefaultRawTheme = __webpack_require__(231);
@@ -42853,8 +42852,7 @@
 	module.exports = CardTitle;
 
 /***/ },
-/* 256 */,
-/* 257 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42862,7 +42860,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(2);
-	var Styles = __webpack_require__(251);
+	var Styles = __webpack_require__(250);
 	var StylePropable = __webpack_require__(199);
 	var ThemeManager = __webpack_require__(188);
 	var DefaultRawTheme = __webpack_require__(231);
@@ -42933,8 +42931,7 @@
 	module.exports = CardText;
 
 /***/ },
-/* 258 */,
-/* 259 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -42945,17 +42942,17 @@
 
 	var React = __webpack_require__(2);
 	var ReactDOM = __webpack_require__(159);
-	var WindowListenable = __webpack_require__(260);
-	var CssEvent = __webpack_require__(261);
+	var WindowListenable = __webpack_require__(257);
+	var CssEvent = __webpack_require__(258);
 	var KeyCode = __webpack_require__(224);
 	var Transitions = __webpack_require__(214);
 	var StylePropable = __webpack_require__(199);
 	var FlatButton = __webpack_require__(237);
-	var Overlay = __webpack_require__(262);
+	var Overlay = __webpack_require__(259);
 	var Paper = __webpack_require__(235);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
-	var warning = __webpack_require__(263);
+	var warning = __webpack_require__(260);
 
 	var ReactTransitionGroup = __webpack_require__(227);
 
@@ -43432,7 +43429,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 260 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43462,7 +43459,7 @@
 	};
 
 /***/ },
-/* 261 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43519,7 +43516,7 @@
 	};
 
 /***/ },
-/* 262 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43671,7 +43668,7 @@
 	module.exports = Overlay;
 
 /***/ },
-/* 263 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -43738,7 +43735,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 264 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43854,7 +43851,7 @@
 	module.exports = List;
 
 /***/ },
-/* 265 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43872,10 +43869,10 @@
 	var Transitions = __webpack_require__(214);
 	var Typography = __webpack_require__(218);
 	var EnhancedButton = __webpack_require__(219);
-	var IconButton = __webpack_require__(247);
-	var OpenIcon = __webpack_require__(266);
-	var CloseIcon = __webpack_require__(267);
-	var NestedList = __webpack_require__(268);
+	var IconButton = __webpack_require__(246);
+	var OpenIcon = __webpack_require__(263);
+	var CloseIcon = __webpack_require__(264);
+	var NestedList = __webpack_require__(265);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -44340,14 +44337,14 @@
 	module.exports = ListItem;
 
 /***/ },
-/* 266 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var NavigationArrowDropUp = React.createClass({
 	  displayName: 'NavigationArrowDropUp',
@@ -44367,14 +44364,14 @@
 	module.exports = NavigationArrowDropUp;
 
 /***/ },
-/* 267 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var NavigationArrowDropDown = React.createClass({
 	  displayName: 'NavigationArrowDropDown',
@@ -44394,14 +44391,14 @@
 	module.exports = NavigationArrowDropDown;
 
 /***/ },
-/* 268 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var ImmutabilityHelper = __webpack_require__(200);
-	var List = __webpack_require__(264);
+	var List = __webpack_require__(261);
 
 	var NestedList = React.createClass({
 	  displayName: 'NestedList',
@@ -44448,7 +44445,7 @@
 	module.exports = NestedList;
 
 /***/ },
-/* 269 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44523,7 +44520,7 @@
 	module.exports = ListDivider;
 
 /***/ },
-/* 270 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44535,11 +44532,11 @@
 	var React = __webpack_require__(2);
 	var ReactDOM = __webpack_require__(159);
 	var ReactTransitionGroup = __webpack_require__(227);
-	var ClickAwayable = __webpack_require__(271);
+	var ClickAwayable = __webpack_require__(268);
 	var StylePropable = __webpack_require__(199);
 	var Events = __webpack_require__(223);
 	var PropTypes = __webpack_require__(236);
-	var Menu = __webpack_require__(272);
+	var Menu = __webpack_require__(269);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -44755,7 +44752,7 @@
 	module.exports = IconMenu;
 
 /***/ },
-/* 271 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44802,7 +44799,7 @@
 	};
 
 /***/ },
-/* 272 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44814,13 +44811,13 @@
 	var React = __webpack_require__(2);
 	var ReactDOM = __webpack_require__(159);
 	var update = __webpack_require__(191);
-	var Controllable = __webpack_require__(273);
+	var Controllable = __webpack_require__(270);
 	var StylePropable = __webpack_require__(199);
 	var AutoPrefix = __webpack_require__(202);
 	var Transitions = __webpack_require__(214);
 	var KeyCode = __webpack_require__(224);
 	var PropTypes = __webpack_require__(236);
-	var List = __webpack_require__(264);
+	var List = __webpack_require__(261);
 	var Paper = __webpack_require__(235);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
@@ -45281,7 +45278,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 273 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45315,7 +45312,7 @@
 	};
 
 /***/ },
-/* 274 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45328,8 +45325,8 @@
 	var PureRenderMixin = __webpack_require__(220);
 	var StylePropable = __webpack_require__(199);
 	var Colors = __webpack_require__(187);
-	var CheckIcon = __webpack_require__(275);
-	var ListItem = __webpack_require__(265);
+	var CheckIcon = __webpack_require__(272);
+	var ListItem = __webpack_require__(262);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -45502,14 +45499,14 @@
 	module.exports = MenuItem;
 
 /***/ },
-/* 275 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var NavigationCheck = React.createClass({
 	  displayName: 'NavigationCheck',
@@ -45529,7 +45526,7 @@
 	module.exports = NavigationCheck;
 
 /***/ },
-/* 276 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45742,7 +45739,7 @@
 	module.exports = CircularProgress;
 
 /***/ },
-/* 277 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46070,7 +46067,7 @@
 	module.exports = RefreshIndicator;
 
 /***/ },
-/* 278 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46080,11 +46077,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(2);
-	var EnhancedSwitch = __webpack_require__(279);
+	var EnhancedSwitch = __webpack_require__(276);
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
-	var CheckboxOutline = __webpack_require__(283);
-	var CheckboxChecked = __webpack_require__(284);
+	var CheckboxOutline = __webpack_require__(280);
+	var CheckboxChecked = __webpack_require__(281);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -46255,7 +46252,7 @@
 	module.exports = Checkbox;
 
 /***/ },
-/* 279 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -46269,9 +46266,9 @@
 	var KeyCode = __webpack_require__(224);
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
-	var UniqueId = __webpack_require__(280);
-	var WindowListenable = __webpack_require__(260);
-	var ClearFix = __webpack_require__(281);
+	var UniqueId = __webpack_require__(277);
+	var WindowListenable = __webpack_require__(257);
+	var ClearFix = __webpack_require__(278);
 	var FocusRipple = __webpack_require__(225);
 	var TouchRipple = __webpack_require__(232);
 	var Paper = __webpack_require__(235);
@@ -46690,7 +46687,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 280 */
+/* 277 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -46704,7 +46701,7 @@
 	};
 
 /***/ },
-/* 281 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46714,7 +46711,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(2);
-	var BeforeAfterWrapper = __webpack_require__(282);
+	var BeforeAfterWrapper = __webpack_require__(279);
 	var StylePropable = __webpack_require__(199);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
@@ -46786,7 +46783,7 @@
 	module.exports = ClearFix;
 
 /***/ },
-/* 282 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46920,14 +46917,14 @@
 	module.exports = BeforeAfterWrapper;
 
 /***/ },
-/* 283 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var ToggleCheckBoxOutlineBlank = React.createClass({
 	  displayName: 'ToggleCheckBoxOutlineBlank',
@@ -46947,14 +46944,14 @@
 	module.exports = ToggleCheckBoxOutlineBlank;
 
 /***/ },
-/* 284 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var ToggleCheckBox = React.createClass({
 	  displayName: 'ToggleCheckBox',
@@ -46974,7 +46971,7 @@
 	module.exports = ToggleCheckBox;
 
 /***/ },
-/* 285 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46986,9 +46983,9 @@
 	var React = __webpack_require__(2);
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
-	var EnhancedSwitch = __webpack_require__(279);
-	var RadioButtonOff = __webpack_require__(286);
-	var RadioButtonOn = __webpack_require__(287);
+	var EnhancedSwitch = __webpack_require__(276);
+	var RadioButtonOff = __webpack_require__(283);
+	var RadioButtonOn = __webpack_require__(284);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -47143,14 +47140,14 @@
 	module.exports = RadioButton;
 
 /***/ },
-/* 286 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var ToggleRadioButtonUnchecked = React.createClass({
 	  displayName: 'ToggleRadioButtonUnchecked',
@@ -47170,14 +47167,14 @@
 	module.exports = ToggleRadioButtonUnchecked;
 
 /***/ },
-/* 287 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(2);
 	var PureRenderMixin = __webpack_require__(220);
-	var SvgIcon = __webpack_require__(245);
+	var SvgIcon = __webpack_require__(244);
 
 	var ToggleRadioButtonChecked = React.createClass({
 	  displayName: 'ToggleRadioButtonChecked',
@@ -47197,7 +47194,7 @@
 	module.exports = ToggleRadioButtonChecked;
 
 /***/ },
-/* 288 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -47207,7 +47204,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(2);
-	var RadioButton = __webpack_require__(285);
+	var RadioButton = __webpack_require__(282);
 	var StylePropable = __webpack_require__(199);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
@@ -47350,7 +47347,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 289 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -47364,8 +47361,8 @@
 	var ColorManipulator = __webpack_require__(189);
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
-	var UniqueId = __webpack_require__(280);
-	var EnhancedTextarea = __webpack_require__(290);
+	var UniqueId = __webpack_require__(277);
+	var EnhancedTextarea = __webpack_require__(287);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 	var ContextPure = __webpack_require__(238);
@@ -47801,7 +47798,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 290 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47989,7 +47986,7 @@
 	module.exports = EnhancedTextarea;
 
 /***/ },
-/* 291 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -48000,8 +47997,8 @@
 
 	var React = __webpack_require__(2);
 	var StylePropable = __webpack_require__(199);
-	var TextField = __webpack_require__(289);
-	var DropDownMenu = __webpack_require__(292);
+	var TextField = __webpack_require__(286);
+	var DropDownMenu = __webpack_require__(289);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 	var ContextPure = __webpack_require__(238);
@@ -48167,7 +48164,7 @@
 	module.exports = SelectField;
 
 /***/ },
-/* 292 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -48181,10 +48178,10 @@
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
 	var KeyCode = __webpack_require__(224);
-	var DropDownArrow = __webpack_require__(267);
+	var DropDownArrow = __webpack_require__(264);
 	var Paper = __webpack_require__(235);
-	var Menu = __webpack_require__(293);
-	var ClearFix = __webpack_require__(281);
+	var Menu = __webpack_require__(290);
+	var ClearFix = __webpack_require__(278);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -48535,7 +48532,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 293 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -48546,16 +48543,16 @@
 
 	var React = __webpack_require__(2);
 	var ReactDOM = __webpack_require__(159);
-	var CssEvent = __webpack_require__(261);
-	var KeyLine = __webpack_require__(294);
+	var CssEvent = __webpack_require__(258);
+	var KeyLine = __webpack_require__(291);
 	var KeyCode = __webpack_require__(224);
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
-	var ClickAwayable = __webpack_require__(271);
+	var ClickAwayable = __webpack_require__(268);
 	var Paper = __webpack_require__(235);
-	var MenuItem = __webpack_require__(295);
-	var LinkMenuItem = __webpack_require__(297);
-	var SubheaderMenuItem = __webpack_require__(298);
+	var MenuItem = __webpack_require__(292);
+	var LinkMenuItem = __webpack_require__(294);
+	var SubheaderMenuItem = __webpack_require__(295);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -49183,7 +49180,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 294 */
+/* 291 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -49203,7 +49200,7 @@
 	};
 
 /***/ },
-/* 295 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49216,8 +49213,8 @@
 
 	var React = __webpack_require__(2);
 	var StylePropable = __webpack_require__(199);
-	var FontIcon = __webpack_require__(248);
-	var Toggle = __webpack_require__(296);
+	var FontIcon = __webpack_require__(247);
+	var Toggle = __webpack_require__(293);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -49441,7 +49438,7 @@
 	module.exports = MenuItem;
 
 /***/ },
-/* 296 */
+/* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49454,7 +49451,7 @@
 	var StylePropable = __webpack_require__(199);
 	var Transitions = __webpack_require__(214);
 	var Paper = __webpack_require__(235);
-	var EnhancedSwitch = __webpack_require__(279);
+	var EnhancedSwitch = __webpack_require__(276);
 	var DefaultRawTheme = __webpack_require__(231);
 	var ThemeManager = __webpack_require__(188);
 
@@ -49634,7 +49631,7 @@
 	module.exports = Toggle;
 
 /***/ },
-/* 297 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49770,7 +49767,7 @@
 	module.exports = LinkMenuItem;
 
 /***/ },
-/* 298 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49874,594 +49871,819 @@
 	module.exports = SubheaderMenuItem;
 
 /***/ },
+/* 296 */,
+/* 297 */,
+/* 298 */,
 /* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(2),
-	    ReactDOM = __webpack_require__(159),
-	    ReactGateway = __webpack_require__(314),
-	    _ = __webpack_require__(160),
-	    util = __webpack_require__(161),
-	    jsUtil = __webpack_require__(175),
-	    color = jsUtil.color,
-	    server = __webpack_require__(301),
-	    LayerPopup = __webpack_require__(182).LayerPopup,
-	    Clearfix = __webpack_require__(179).Clearfix,
-	    ColumnSelectTable = __webpack_require__(316).ColumnSelectTable,
-	    PolymerIcon = __webpack_require__(317),
-	    MaterialWrapper = __webpack_require__(186),
-	    Button = MaterialWrapper.Button,
-	    TextField = MaterialWrapper.TextField,
-	    SelectField = MaterialWrapper.SelectField,
-	    Card = MaterialWrapper.Card,
-	    CardHeader = MaterialWrapper.CardHeader,
-	    CardText = MaterialWrapper.CardText,
-	    CircularProgress = MaterialWrapper.CircularProgress,
-	    List = MaterialWrapper.List,
-	    ListItem = MaterialWrapper.ListItem,
-	    ListDivider = MaterialWrapper.ListDivider,
-	    Dialog = MaterialWrapper.Dialog;
+	var Promise = __webpack_require__(300),
+	    util = __webpack_require__(161);
 
-	var jdbcTmpl = {
-		oracle: {
-			driver: 'oracle.jdbc.driver.OracleDriver',
-			connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
-			port: 1521
-		},
-		mysql: {
-			driver: 'com.mysql.jdbc.Driver',
-			connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
-			port: 3306
-		},
-		mssql: {
-			driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-			connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
-			port: 1433
-		},
-		db2: {
-			driver: 'com.ibm.db2.jcc.DB2Driver',
-			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 50000
-		},
-		tibero: {
-			driver: 'com.ibm.db2.jcc.DB2Driver',
-			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 8629
-		}
+	exports.loadColumns = function (jdbc, table) {
+		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
+		table = decodeURI(table);
+
+		return new Promise(function (resolve, reject) {
+			$.getJSON(util.format('/REST/Database/Columns/%s/', table), jdbc).fail(function (err) {
+				console.error({ err: err });
+				reject(err);
+			}).done(function (resp) {
+				if (resp.success !== 1) {
+					console.error(resp.errmsg);
+					reject(resp.errmsg);
+				} else {
+					resolve(resp.columns);
+				}
+			});
+		});
 	};
 
-	var DatabaseConfigPanel = React.createClass({
-		displayName: 'DatabaseConfigPanel',
+	exports.loadTables = function (jdbc) {
+		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
 
-		getDefaultProps: function getDefaultProps() {
-			return {
-				dbVendor: '',
-				dbIp: '',
-				dbPort: '',
-				dbSid: '',
-				jdbcDriver: '',
-				jdbcConnUrl: '',
-				jdbcUsername: '',
-				jdbcPassword: '',
-				table: '',
-				columns: '',
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isDatabaseConfigModalVisible: false,
-				isTableColumnConfigModalVisible: false
-			};
-		},
-
-		toggleDbConfigModal: function toggleDbConfigModal(evt) {
-			this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
-		},
-
-		onDbConfigIpChange: function onDbConfigIpChange(evt) {
-			var state = { dbIp: evt.target.value };
-			if (this.props.dbVendor !== 'etc') {
-				var tmpl = jdbcTmpl[this.props.dbVendor];
-				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp).replace('{port}', this.props.dbPort).replace('{database}', this.props.dbSid);
-			}
-			this.props.onChange(state);
-		},
-
-		onDbConfigPortChange: function onDbConfigPortChange(evt) {
-			var state = { dbPort: evt.target.value };
-			if (this.props.dbVendor !== 'etc') {
-				var tmpl = jdbcTmpl[this.props.dbVendor];
-				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', state.dbPort).replace('{database}', this.props.dbSid);
-			}
-			this.props.onChange(state);
-		},
-
-		onDbConfigSidChange: function onDbConfigSidChange(evt) {
-			var state = { dbSid: evt.target.value };
-			if (this.props.dbVendor !== 'etc') {
-				var tmpl = jdbcTmpl[this.props.dbVendor];
-				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', this.props.dbPort).replace('{database}', state.dbSid);
-			}
-			this.props.onChange(state);
-		},
-
-		onDbConfigKeyUp: function onDbConfigKeyUp(evt) {
-			if (evt.keyCode === 13) this.props.hide();
-		},
-
-		toggleTableColumnConfigModal: function toggleTableColumnConfigModal() {
-			this.setState({ isTableColumnConfigModalVisible: !this.state.isTableColumnConfigModalVisible });
-		},
-
-		onDbVendorChange: function onDbVendorChange(evt) {
-			var state = { dbVendor: evt.target.value };
-
-			if (state.dbVendor !== 'etc') {
-				var tmpl = jdbcTmpl[state.dbVendor];
-				state.jdbcDriver = tmpl.driver;
-				state.dbPort = tmpl.port;
-				state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp).replace('{port}', state.dbPort).replace('{database}', this.props.dbSid);
-			}
-
-			this.props.onChange(state);
-		},
-
-		onJdbcDriverChanged: function onJdbcDriverChanged(evt) {
-			this.props.onChange({ jdbcDriver: evt.target.value });
-		},
-
-		onJdbcConnUrlChanged: function onJdbcConnUrlChanged(evt) {
-			this.props.onChange({ jdbcConnUrl: evt.target.value });
-		},
-
-		onJdbcUsernameChanged: function onJdbcUsernameChanged(evt) {
-			this.props.onChange({ jdbcUsername: evt.target.value });
-		},
-
-		onJdbcPasswordChanged: function onJdbcPasswordChanged(evt) {
-			this.props.onChange({ jdbcPassword: evt.target.value });
-		},
-
-		styles: function styles() {
-			return {
-				dbVendorSelectBox: {
-					float: 'left',
-					marginRight: '10px'
-				},
-				configBtn: {
-					float: 'left',
-					marginTop: '27px'
-				},
-				jdbcBorder: {
-					border: '1px dashed ' + color.lightGray,
-					padding: '10px',
-					margin: '10px 0'
-				},
-				textbox: {
-					display: 'block',
-					width: '400px',
-					marginBottom: '3px',
-					color: 'black'
-				},
-				jdbcTextBox: {
-					display: 'block',
-					width: '100%'
-				},
-				dbConfigModal: {
-					dbIpTextBox: {
-						width: '170px',
-						marginRight: '3px'
-					},
-					dbPortTextBox: {
-						width: '60px',
-						marginRight: '3px'
-					},
-					dbSidTextBox: {
-						width: '120px',
-						marginRight: '3px'
-					}
-
+		return new Promise(function (resolve, reject) {
+			$.getJSON('/REST/Database/Tables/', jdbc).fail(function (err) {
+				console.error({ err: err });
+				reject(err);
+			}).done(function (resp) {
+				if (resp.success !== 1) {
+					console.error(resp.errmsg);
+					reject(resp.errmsg);
+				} else {
+					resolve(resp.tables);
 				}
-			};
-		},
+			});
+		});
+	};
 
-		render: function render() {
-			var style = this.styles();
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'jdbc 설정',
-						subtitle: 'source database의 연결 정보를 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(SelectField, {
-							style: style.dbVendorSelectBox,
-							floatingLabelText: '데이터베이스',
-							value: this.props.dbVendor,
-							menuItems: [{ text: 'oracle', payload: 'oracle' }, { text: 'mysql', payload: 'mysql' }, { text: 'mssql', payload: 'mssql' }, { text: 'db2', payload: 'db2' }, { text: 'tibero', payload: 'tibero' }, { text: 'etc', payload: 'etc' }],
-							onChange: this.onDbVendorChange }),
-						React.createElement(Button, {
-							label: '설정',
-							secondary: true,
-							style: style.configBtn,
-							onClick: this.toggleDbConfigModal }),
-						React.createElement(Clearfix, null),
-						React.createElement(
-							Dialog,
-							{
-								title: 'database config',
-								actions: [{ text: 'ok', onClick: this.toggleDbConfigModal }],
-								actionFocus: 'ok',
-								open: this.state.isDatabaseConfigModalVisible },
-							React.createElement(TextField, {
-								style: style.dbConfigModal.dbIpTextBox,
-								inputStyle: { textAlign: 'center' },
-								floatingLabelText: 'database ip',
-								value: this.props.dbIp,
-								onChange: this.onDbConfigIpChange,
-								onKeyUp: this.onDbConfigKeyUp }),
-							React.createElement(TextField, {
-								style: style.dbConfigModal.dbPortTextBox,
-								inputStyle: { textAlign: 'center' },
-								floatingLabelText: 'port',
-								value: this.props.dbPort,
-								onChange: this.onDbConfigPortChange,
-								onKeyUp: this.onDbConfigKeyUp }),
-							React.createElement(TextField, {
-								style: style.dbConfigModal.dbSidTextBox,
-								inputStyle: { textAlign: 'center' },
-								floatingLabelText: 'sid',
-								value: this.props.dbSid,
-								onChange: this.onDbConfigSidChange,
-								onKeyUp: this.onDbConfigKeyUp })
-						),
-						React.createElement(
-							'div',
-							{ style: style.jdbcBorder },
-							React.createElement(TextField, {
-								style: style.jdbcTextBox,
-								floatingLabelText: 'jdbc driver',
-								value: this.props.jdbcDriver,
-								onChange: this.onJdbcDriverChanged }),
-							React.createElement(TextField, {
-								style: style.jdbcTextBox,
-								floatingLabelText: 'jdbc connection url',
-								value: this.props.jdbcConnUrl,
-								onChange: this.onJdbcConnUrlChanged }),
-							React.createElement(TextField, {
-								style: style.jdbcTextBox,
-								floatingLabelText: 'jdbc username',
-								value: this.props.jdbcUsername,
-								onChange: this.onJdbcUsernameChanged }),
-							React.createElement(TextField, {
-								type: 'password',
-								style: style.jdbcTextBox,
-								floatingLabelText: 'jdbc password',
-								value: this.props.jdbcPassword,
-								onChange: this.onJdbcPasswordChanged })
-						)
-					)
-				),
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'table/column 설정',
-						subtitle: 'source database의 table/column 정보를 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(TextField, {
-							value: this.props.table,
-							disabled: true,
-							inputStyle: style.textBox,
-							onClick: this.toggleTableColumnConfigModal }),
-						React.createElement(TextField, {
-							value: this.props.columns,
-							disabled: true,
-							inputStyle: style.textBox,
-							onClick: this.toggleTableColumnConfigModal }),
-						React.createElement(
-							Dialog,
-							{
-								title: 'table/column config',
-								actions: [{ text: 'ok', onClick: this.toggleTableColumnConfigModal }],
-								actionFocus: 'ok',
-								open: this.state.isTableColumnConfigModalVisible },
-							React.createElement(TableColumnConfigModal, {
-								key: 'tableColumnConfigModal',
-								jdbcDriver: this.props.jdbcDriver,
-								jdbcConnUrl: this.props.jdbcConnUrl,
-								jdbcUsername: this.props.jdbcUsername,
-								jdbcPassword: this.props.jdbcPassword,
-								table: this.props.table,
-								columns: this.props.columns,
-								onChange: this.props.onChange })
-						)
-					)
-				)
-			);
-		}
-	});
+	exports.querySampleData = function (params) {
+		params = JSON.parse(decodeURI(JSON.stringify(params)));
 
-	var TableColumnConfigModal = React.createClass({
-		displayName: 'TableColumnConfigModal',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				jdbcDriver: '',
-				jdbcConnUrl: '',
-				jdbcUsername: '',
-				jdbcPassword: '',
-				table: '',
-				columns: '',
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				loadingTableStatus: 'loading', // loading / failed / loaded
-				loadedTables: [],
-				loadingTableDataStatus: 'none', // none / loading / failed / loaded
-				loadedTableData: []
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.loadTables();
-		},
-
-		loadTables: function loadTables() {
-			var loadingLayer = LayerPopup.getCurtainCancelableLoadingAlert('loading tables');
-			loadingLayer.show();
-
-			var jdbc = {
-				driver: this.props.jdbcDriver,
-				connUrl: this.props.jdbcConnUrl,
-				username: this.props.jdbcUsername,
-				password: this.props.jdbcPassword
-			};
-
-			server.loadTables(jdbc).then((function (tables) {
-				loadingLayer.hide();
-				this.setState({
-					loadingTableStatus: 'loaded',
-					loadedTables: tables
-				});
-			}).bind(this))['catch']((function (err) {
-				loadingLayer.hide();
-				console.error(err.stack);
-				this.setState({ loadingTableStatus: 'failed' });
-				if (typeof err !== 'string') err = JSON.stringify(err);
-				//TODO layer popup alert error
-				alert(err);
-			}).bind(this));
-		},
-
-		loadTableData: function loadTableData() {
-			var loadingLayer = LayerPopup.getCurtainCancelableLoadingAlert('loading data');
-			loadingLayer.show();
-
-			var params = {
-				driver: this.props.jdbcDriver,
-				connUrl: this.props.jdbcConnUrl,
-				username: this.props.jdbcUsername,
-				password: this.props.jdbcPassword,
-				query: 'select * from ' + this.props.table,
-				rowCount: 10,
-				isEncrypted: false
-			};
-
-			server.querySampleData(params).then((function (sampleData) {
-				loadingLayer.hide();
-				this.setState({
-					loadingTableDataStatus: 'loaded',
-					loadedTableData: sampleData
-				});
-			}).bind(this))['catch']((function (err) {
-				loadingLayer.hide();
-				console.error(err.stack);
-				this.setState({ loadingTableDataStatus: 'failed' });
-				if (typeof err !== 'string') err = JSON.stringify(err);
-				//TODO layer popup alert error
-				alert(err);
-			}).bind(this));
-			//TODO IMME
-		},
-
-		onTableChange: function onTableChange(evt) {
-			this.props.onChange({ table: evt.target.value });
-		},
-
-		onColumnsChange: function onColumnsChange(evt) {
-			this.props.onChange({ columns: evt.target.value });
-		},
-
-		styles: function styles() {
-			return {
-				tableArea: {
-					float: 'left',
-					height: '100%',
-					padding: '10px'
-				},
-				tableTextBox: {
-					style: {
-						width: '200px',
-						marginRight: '6px'
-					}
-				},
-				tableListDiv: {
-					height: '350px',
-					overflow: 'auto',
-					padding: '10px'
-				},
-				columnArea: {
-					float: 'left',
-					height: '100%',
-					padding: '10px'
-				},
-				columnTextBox: {
-					style: {
-						width: '400px'
-					}
-				},
-				columnListDiv: {
-					height: '350px',
-					width: '400px',
-					overflow: 'auto',
-					padding: '10px'
+		return new Promise(function (resolve, reject) {
+			$.getJSON('/REST/Database/QuerySampleData/', params).fail(function (err) {
+				console.error({ err: err });
+				reject(err);
+			}).done(function (resp) {
+				console.log({ resp: resp }); //DEBUG
+				if (resp.success !== 1) {
+					console.error(resp.errmsg);
+					reject(resp.errmsg);
+				} else {
+					resolve(resp.sampleData);
 				}
-			};
-		},
-
-		render: function render() {
-			console.log('table/column render'); //DEBUG
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'div',
-					{ style: style.tableArea },
-					React.createElement(
-						'div',
-						null,
-						React.createElement(TextField, {
-							inputStyle: style.tableTextBox,
-							floatingLabelText: 'table',
-							value: this.props.table,
-							onChange: this.onTableChange }),
-						React.createElement(Button, {
-							label: '로드',
-							onClick: this.loadTableData })
-					),
-					React.createElement(
-						'div',
-						{ style: style.tableListDiv },
-						this.renderTableList()
-					)
-				),
-				React.createElement(
-					'div',
-					{ style: style.columnArea },
-					React.createElement(
-						'div',
-						null,
-						React.createElement(TextField, {
-							inputStyle: style.columnTextBox,
-							floatingLabelText: 'columns',
-							value: this.props.columns,
-							onChange: this.onColumnsChange })
-					),
-					React.createElement(
-						'div',
-						{ style: this.styles().columnListDiv },
-						this.renderColumnList()
-					)
-				),
-				React.createElement(Clearfix, null)
-			);
-		},
-
-		renderTableList: function renderTableList() {
-			switch (this.state.loadingTableStatus) {
-				case 'loading':
-					return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
-				case 'failed':
-					return React.createElement(
-						'label',
-						null,
-						'failed'
-					);
-				case 'loaded':
-					if (this.state.loadedTables.length === 0) {
-						return React.createElement(
-							'label',
-							null,
-							'no tables'
-						);
-					} else {
-						return React.createElement(
-							'div',
-							{ style: { width: '100%', height: '100%', overflow: 'auto' } },
-							React.createElement(
-								List,
-								null,
-								this.state.loadedTables.forEach((function (table) {
-									var onClick = (function () {
-										this.props.onChange({ table: table });
-									}).bind(this);
-
-									return React.createElement(ListItem, {
-										key: table,
-										primaryText: table,
-										onClick: onClick });
-								}).bind(this))
-							)
-						);
-					}
-			}
-		},
-
-		renderColumnList: function renderColumnList() {
-			switch (this.state.loadingTableDataStatus) {
-				case 'none':
-					return null;
-				case 'loading':
-					return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
-				case 'failed':
-					return React.createElement(
-						'label',
-						null,
-						'failed'
-					);
-				case 'loaded':
-					var onSelectColumnChange = (function (column) {
-						var columns = this.props.columns.split(',');
-						columns.remove('');
-
-						if (Array.containsIgnoreCase(columns, column)) {
-							columns.remove(column); //TODO case
-						} else {
-								columns.push(column);
-							}
-
-						this.props.onChange({
-							columns: columns.join(',')
-						});
-					}).bind(this);
-
-					var columnsArr = this.props.columns.split(',').map(function (col) {
-						return col.trim();
-					});
-
-					return React.createElement(
-						'div',
-						{ style: { width: '100%', height: '100%', overflow: 'auto' } },
-						React.createElement(ColumnSelectTable, {
-							rows: this.state.loadedTableData,
-							selectedColumns: columnsArr,
-							onSelectedColumnChange: onSelectColumnChange })
-					);
-			}
-		}
-	});
-
-	module.exports = DatabaseConfigPanel;
+			});
+		});
+	};
 
 /***/ },
 /* 300 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(301)
+
+
+/***/ },
+/* 301 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(302);
+	__webpack_require__(304);
+	__webpack_require__(305);
+	__webpack_require__(306);
+	__webpack_require__(307);
+
+
+/***/ },
+/* 302 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var asap = __webpack_require__(303);
+
+	function noop() {}
+
+	// States:
+	//
+	// 0 - pending
+	// 1 - fulfilled with _value
+	// 2 - rejected with _value
+	// 3 - adopted the state of another promise, _value
+	//
+	// once the state is no longer pending (0) it is immutable
+
+	// All `_` prefixed properties will be reduced to `_{random number}`
+	// at build time to obfuscate them and discourage their use.
+	// We don't use symbols or Object.defineProperty to fully hide them
+	// because the performance isn't good enough.
+
+
+	// to avoid using try/catch inside critical functions, we
+	// extract them to here.
+	var LAST_ERROR = null;
+	var IS_ERROR = {};
+	function getThen(obj) {
+	  try {
+	    return obj.then;
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+
+	function tryCallOne(fn, a) {
+	  try {
+	    return fn(a);
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+	function tryCallTwo(fn, a, b) {
+	  try {
+	    fn(a, b);
+	  } catch (ex) {
+	    LAST_ERROR = ex;
+	    return IS_ERROR;
+	  }
+	}
+
+	module.exports = Promise;
+
+	function Promise(fn) {
+	  if (typeof this !== 'object') {
+	    throw new TypeError('Promises must be constructed via new');
+	  }
+	  if (typeof fn !== 'function') {
+	    throw new TypeError('not a function');
+	  }
+	  this._37 = 0;
+	  this._12 = null;
+	  this._59 = [];
+	  if (fn === noop) return;
+	  doResolve(fn, this);
+	}
+	Promise._99 = noop;
+
+	Promise.prototype.then = function(onFulfilled, onRejected) {
+	  if (this.constructor !== Promise) {
+	    return safeThen(this, onFulfilled, onRejected);
+	  }
+	  var res = new Promise(noop);
+	  handle(this, new Handler(onFulfilled, onRejected, res));
+	  return res;
+	};
+
+	function safeThen(self, onFulfilled, onRejected) {
+	  return new self.constructor(function (resolve, reject) {
+	    var res = new Promise(noop);
+	    res.then(resolve, reject);
+	    handle(self, new Handler(onFulfilled, onRejected, res));
+	  });
+	};
+	function handle(self, deferred) {
+	  while (self._37 === 3) {
+	    self = self._12;
+	  }
+	  if (self._37 === 0) {
+	    self._59.push(deferred);
+	    return;
+	  }
+	  asap(function() {
+	    var cb = self._37 === 1 ? deferred.onFulfilled : deferred.onRejected;
+	    if (cb === null) {
+	      if (self._37 === 1) {
+	        resolve(deferred.promise, self._12);
+	      } else {
+	        reject(deferred.promise, self._12);
+	      }
+	      return;
+	    }
+	    var ret = tryCallOne(cb, self._12);
+	    if (ret === IS_ERROR) {
+	      reject(deferred.promise, LAST_ERROR);
+	    } else {
+	      resolve(deferred.promise, ret);
+	    }
+	  });
+	}
+	function resolve(self, newValue) {
+	  // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+	  if (newValue === self) {
+	    return reject(
+	      self,
+	      new TypeError('A promise cannot be resolved with itself.')
+	    );
+	  }
+	  if (
+	    newValue &&
+	    (typeof newValue === 'object' || typeof newValue === 'function')
+	  ) {
+	    var then = getThen(newValue);
+	    if (then === IS_ERROR) {
+	      return reject(self, LAST_ERROR);
+	    }
+	    if (
+	      then === self.then &&
+	      newValue instanceof Promise
+	    ) {
+	      self._37 = 3;
+	      self._12 = newValue;
+	      finale(self);
+	      return;
+	    } else if (typeof then === 'function') {
+	      doResolve(then.bind(newValue), self);
+	      return;
+	    }
+	  }
+	  self._37 = 1;
+	  self._12 = newValue;
+	  finale(self);
+	}
+
+	function reject(self, newValue) {
+	  self._37 = 2;
+	  self._12 = newValue;
+	  finale(self);
+	}
+	function finale(self) {
+	  for (var i = 0; i < self._59.length; i++) {
+	    handle(self, self._59[i]);
+	  }
+	  self._59 = null;
+	}
+
+	function Handler(onFulfilled, onRejected, promise){
+	  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+	  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+	  this.promise = promise;
+	}
+
+	/**
+	 * Take a potentially misbehaving resolver function and make sure
+	 * onFulfilled and onRejected are only called once.
+	 *
+	 * Makes no guarantees about asynchrony.
+	 */
+	function doResolve(fn, promise) {
+	  var done = false;
+	  var res = tryCallTwo(fn, function (value) {
+	    if (done) return;
+	    done = true;
+	    resolve(promise, value);
+	  }, function (reason) {
+	    if (done) return;
+	    done = true;
+	    reject(promise, reason);
+	  })
+	  if (!done && res === IS_ERROR) {
+	    done = true;
+	    reject(promise, LAST_ERROR);
+	  }
+	}
+
+
+/***/ },
+/* 303 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
+
+	// Use the fastest means possible to execute a task in its own turn, with
+	// priority over other events including IO, animation, reflow, and redraw
+	// events in browsers.
+	//
+	// An exception thrown by a task will permanently interrupt the processing of
+	// subsequent tasks. The higher level `asap` function ensures that if an
+	// exception is thrown by a task, that the task queue will continue flushing as
+	// soon as possible, but if you use `rawAsap` directly, you are responsible to
+	// either ensure that no exceptions are thrown from your task, or to manually
+	// call `rawAsap.requestFlush` if an exception is thrown.
+	module.exports = rawAsap;
+	function rawAsap(task) {
+	    if (!queue.length) {
+	        requestFlush();
+	        flushing = true;
+	    }
+	    // Equivalent to push, but avoids a function call.
+	    queue[queue.length] = task;
+	}
+
+	var queue = [];
+	// Once a flush has been requested, no further calls to `requestFlush` are
+	// necessary until the next `flush` completes.
+	var flushing = false;
+	// `requestFlush` is an implementation-specific method that attempts to kick
+	// off a `flush` event as quickly as possible. `flush` will attempt to exhaust
+	// the event queue before yielding to the browser's own event loop.
+	var requestFlush;
+	// The position of the next task to execute in the task queue. This is
+	// preserved between calls to `flush` so that it can be resumed if
+	// a task throws an exception.
+	var index = 0;
+	// If a task schedules additional tasks recursively, the task queue can grow
+	// unbounded. To prevent memory exhaustion, the task queue will periodically
+	// truncate already-completed tasks.
+	var capacity = 1024;
+
+	// The flush function processes all tasks that have been scheduled with
+	// `rawAsap` unless and until one of those tasks throws an exception.
+	// If a task throws an exception, `flush` ensures that its state will remain
+	// consistent and will resume where it left off when called again.
+	// However, `flush` does not make any arrangements to be called again if an
+	// exception is thrown.
+	function flush() {
+	    while (index < queue.length) {
+	        var currentIndex = index;
+	        // Advance the index before calling the task. This ensures that we will
+	        // begin flushing on the next task the task throws an error.
+	        index = index + 1;
+	        queue[currentIndex].call();
+	        // Prevent leaking memory for long chains of recursive calls to `asap`.
+	        // If we call `asap` within tasks scheduled by `asap`, the queue will
+	        // grow, but to avoid an O(n) walk for every task we execute, we don't
+	        // shift tasks off the queue after they have been executed.
+	        // Instead, we periodically shift 1024 tasks off the queue.
+	        if (index > capacity) {
+	            // Manually shift all values starting at the index back to the
+	            // beginning of the queue.
+	            for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
+	                queue[scan] = queue[scan + index];
+	            }
+	            queue.length -= index;
+	            index = 0;
+	        }
+	    }
+	    queue.length = 0;
+	    index = 0;
+	    flushing = false;
+	}
+
+	// `requestFlush` is implemented using a strategy based on data collected from
+	// every available SauceLabs Selenium web driver worker at time of writing.
+	// https://docs.google.com/spreadsheets/d/1mG-5UYGup5qxGdEMWkhP6BWCz053NUb2E1QoUTU16uA/edit#gid=783724593
+
+	// Safari 6 and 6.1 for desktop, iPad, and iPhone are the only browsers that
+	// have WebKitMutationObserver but not un-prefixed MutationObserver.
+	// Must use `global` instead of `window` to work in both frames and web
+	// workers. `global` is a provision of Browserify, Mr, Mrs, or Mop.
+	var BrowserMutationObserver = global.MutationObserver || global.WebKitMutationObserver;
+
+	// MutationObservers are desirable because they have high priority and work
+	// reliably everywhere they are implemented.
+	// They are implemented in all modern browsers.
+	//
+	// - Android 4-4.3
+	// - Chrome 26-34
+	// - Firefox 14-29
+	// - Internet Explorer 11
+	// - iPad Safari 6-7.1
+	// - iPhone Safari 7-7.1
+	// - Safari 6-7
+	if (typeof BrowserMutationObserver === "function") {
+	    requestFlush = makeRequestCallFromMutationObserver(flush);
+
+	// MessageChannels are desirable because they give direct access to the HTML
+	// task queue, are implemented in Internet Explorer 10, Safari 5.0-1, and Opera
+	// 11-12, and in web workers in many engines.
+	// Although message channels yield to any queued rendering and IO tasks, they
+	// would be better than imposing the 4ms delay of timers.
+	// However, they do not work reliably in Internet Explorer or Safari.
+
+	// Internet Explorer 10 is the only browser that has setImmediate but does
+	// not have MutationObservers.
+	// Although setImmediate yields to the browser's renderer, it would be
+	// preferrable to falling back to setTimeout since it does not have
+	// the minimum 4ms penalty.
+	// Unfortunately there appears to be a bug in Internet Explorer 10 Mobile (and
+	// Desktop to a lesser extent) that renders both setImmediate and
+	// MessageChannel useless for the purposes of ASAP.
+	// https://github.com/kriskowal/q/issues/396
+
+	// Timers are implemented universally.
+	// We fall back to timers in workers in most engines, and in foreground
+	// contexts in the following browsers.
+	// However, note that even this simple case requires nuances to operate in a
+	// broad spectrum of browsers.
+	//
+	// - Firefox 3-13
+	// - Internet Explorer 6-9
+	// - iPad Safari 4.3
+	// - Lynx 2.8.7
+	} else {
+	    requestFlush = makeRequestCallFromTimer(flush);
+	}
+
+	// `requestFlush` requests that the high priority event queue be flushed as
+	// soon as possible.
+	// This is useful to prevent an error thrown in a task from stalling the event
+	// queue if the exception handled by Node.js’s
+	// `process.on("uncaughtException")` or by a domain.
+	rawAsap.requestFlush = requestFlush;
+
+	// To request a high priority event, we induce a mutation observer by toggling
+	// the text of a text node between "1" and "-1".
+	function makeRequestCallFromMutationObserver(callback) {
+	    var toggle = 1;
+	    var observer = new BrowserMutationObserver(callback);
+	    var node = document.createTextNode("");
+	    observer.observe(node, {characterData: true});
+	    return function requestCall() {
+	        toggle = -toggle;
+	        node.data = toggle;
+	    };
+	}
+
+	// The message channel technique was discovered by Malte Ubl and was the
+	// original foundation for this library.
+	// http://www.nonblocking.io/2011/06/windownexttick.html
+
+	// Safari 6.0.5 (at least) intermittently fails to create message ports on a
+	// page's first load. Thankfully, this version of Safari supports
+	// MutationObservers, so we don't need to fall back in that case.
+
+	// function makeRequestCallFromMessageChannel(callback) {
+	//     var channel = new MessageChannel();
+	//     channel.port1.onmessage = callback;
+	//     return function requestCall() {
+	//         channel.port2.postMessage(0);
+	//     };
+	// }
+
+	// For reasons explained above, we are also unable to use `setImmediate`
+	// under any circumstances.
+	// Even if we were, there is another bug in Internet Explorer 10.
+	// It is not sufficient to assign `setImmediate` to `requestFlush` because
+	// `setImmediate` must be called *by name* and therefore must be wrapped in a
+	// closure.
+	// Never forget.
+
+	// function makeRequestCallFromSetImmediate(callback) {
+	//     return function requestCall() {
+	//         setImmediate(callback);
+	//     };
+	// }
+
+	// Safari 6.0 has a problem where timers will get lost while the user is
+	// scrolling. This problem does not impact ASAP because Safari 6.0 supports
+	// mutation observers, so that implementation is used instead.
+	// However, if we ever elect to use timers in Safari, the prevalent work-around
+	// is to add a scroll event listener that calls for a flush.
+
+	// `setTimeout` does not call the passed callback if the delay is less than
+	// approximately 7 in web workers in Firefox 8 through 18, and sometimes not
+	// even then.
+
+	function makeRequestCallFromTimer(callback) {
+	    return function requestCall() {
+	        // We dispatch a timeout with a specified delay of 0 for engines that
+	        // can reliably accommodate that request. This will usually be snapped
+	        // to a 4 milisecond delay, but once we're flushing, there's no delay
+	        // between events.
+	        var timeoutHandle = setTimeout(handleTimer, 0);
+	        // However, since this timer gets frequently dropped in Firefox
+	        // workers, we enlist an interval handle that will try to fire
+	        // an event 20 times per second until it succeeds.
+	        var intervalHandle = setInterval(handleTimer, 50);
+
+	        function handleTimer() {
+	            // Whichever timer succeeds will cancel both timers and
+	            // execute the callback.
+	            clearTimeout(timeoutHandle);
+	            clearInterval(intervalHandle);
+	            callback();
+	        }
+	    };
+	}
+
+	// This is for `asap.js` only.
+	// Its name will be periodically randomized to break any code that depends on
+	// its existence.
+	rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
+
+	// ASAP was originally a nextTick shim included in Q. This was factored out
+	// into this ASAP package. It was later adapted to RSVP which made further
+	// amendments. These decisions, particularly to marginalize MessageChannel and
+	// to capture the MutationObserver implementation in a closure, were integrated
+	// back into ASAP proper.
+	// https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 304 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(302);
+
+	module.exports = Promise;
+	Promise.prototype.done = function (onFulfilled, onRejected) {
+	  var self = arguments.length ? this.then.apply(this, arguments) : this;
+	  self.then(null, function (err) {
+	    setTimeout(function () {
+	      throw err;
+	    }, 0);
+	  });
+	};
+
+
+/***/ },
+/* 305 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(302);
+
+	module.exports = Promise;
+	Promise.prototype['finally'] = function (f) {
+	  return this.then(function (value) {
+	    return Promise.resolve(f()).then(function () {
+	      return value;
+	    });
+	  }, function (err) {
+	    return Promise.resolve(f()).then(function () {
+	      throw err;
+	    });
+	  });
+	};
+
+
+/***/ },
+/* 306 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	//This file contains the ES6 extensions to the core Promises/A+ API
+
+	var Promise = __webpack_require__(302);
+
+	module.exports = Promise;
+
+	/* Static Functions */
+
+	var TRUE = valuePromise(true);
+	var FALSE = valuePromise(false);
+	var NULL = valuePromise(null);
+	var UNDEFINED = valuePromise(undefined);
+	var ZERO = valuePromise(0);
+	var EMPTYSTRING = valuePromise('');
+
+	function valuePromise(value) {
+	  var p = new Promise(Promise._99);
+	  p._37 = 1;
+	  p._12 = value;
+	  return p;
+	}
+	Promise.resolve = function (value) {
+	  if (value instanceof Promise) return value;
+
+	  if (value === null) return NULL;
+	  if (value === undefined) return UNDEFINED;
+	  if (value === true) return TRUE;
+	  if (value === false) return FALSE;
+	  if (value === 0) return ZERO;
+	  if (value === '') return EMPTYSTRING;
+
+	  if (typeof value === 'object' || typeof value === 'function') {
+	    try {
+	      var then = value.then;
+	      if (typeof then === 'function') {
+	        return new Promise(then.bind(value));
+	      }
+	    } catch (ex) {
+	      return new Promise(function (resolve, reject) {
+	        reject(ex);
+	      });
+	    }
+	  }
+	  return valuePromise(value);
+	};
+
+	Promise.all = function (arr) {
+	  var args = Array.prototype.slice.call(arr);
+
+	  return new Promise(function (resolve, reject) {
+	    if (args.length === 0) return resolve([]);
+	    var remaining = args.length;
+	    function res(i, val) {
+	      if (val && (typeof val === 'object' || typeof val === 'function')) {
+	        if (val instanceof Promise && val.then === Promise.prototype.then) {
+	          while (val._37 === 3) {
+	            val = val._12;
+	          }
+	          if (val._37 === 1) return res(i, val._12);
+	          if (val._37 === 2) reject(val._12);
+	          val.then(function (val) {
+	            res(i, val);
+	          }, reject);
+	          return;
+	        } else {
+	          var then = val.then;
+	          if (typeof then === 'function') {
+	            var p = new Promise(then.bind(val));
+	            p.then(function (val) {
+	              res(i, val);
+	            }, reject);
+	            return;
+	          }
+	        }
+	      }
+	      args[i] = val;
+	      if (--remaining === 0) {
+	        resolve(args);
+	      }
+	    }
+	    for (var i = 0; i < args.length; i++) {
+	      res(i, args[i]);
+	    }
+	  });
+	};
+
+	Promise.reject = function (value) {
+	  return new Promise(function (resolve, reject) {
+	    reject(value);
+	  });
+	};
+
+	Promise.race = function (values) {
+	  return new Promise(function (resolve, reject) {
+	    values.forEach(function(value){
+	      Promise.resolve(value).then(resolve, reject);
+	    });
+	  });
+	};
+
+	/* Prototype Methods */
+
+	Promise.prototype['catch'] = function (onRejected) {
+	  return this.then(null, onRejected);
+	};
+
+
+/***/ },
+/* 307 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// This file contains then/promise specific extensions that are only useful
+	// for node.js interop
+
+	var Promise = __webpack_require__(302);
+	var asap = __webpack_require__(308);
+
+	module.exports = Promise;
+
+	/* Static Functions */
+
+	Promise.denodeify = function (fn, argumentCount) {
+	  argumentCount = argumentCount || Infinity;
+	  return function () {
+	    var self = this;
+	    var args = Array.prototype.slice.call(arguments, 0,
+	        argumentCount > 0 ? argumentCount : 0);
+	    return new Promise(function (resolve, reject) {
+	      args.push(function (err, res) {
+	        if (err) reject(err);
+	        else resolve(res);
+	      })
+	      var res = fn.apply(self, args);
+	      if (res &&
+	        (
+	          typeof res === 'object' ||
+	          typeof res === 'function'
+	        ) &&
+	        typeof res.then === 'function'
+	      ) {
+	        resolve(res);
+	      }
+	    })
+	  }
+	}
+	Promise.nodeify = function (fn) {
+	  return function () {
+	    var args = Array.prototype.slice.call(arguments);
+	    var callback =
+	      typeof args[args.length - 1] === 'function' ? args.pop() : null;
+	    var ctx = this;
+	    try {
+	      return fn.apply(this, arguments).nodeify(callback, ctx);
+	    } catch (ex) {
+	      if (callback === null || typeof callback == 'undefined') {
+	        return new Promise(function (resolve, reject) {
+	          reject(ex);
+	        });
+	      } else {
+	        asap(function () {
+	          callback.call(ctx, ex);
+	        })
+	      }
+	    }
+	  }
+	}
+
+	Promise.prototype.nodeify = function (callback, ctx) {
+	  if (typeof callback != 'function') return this;
+
+	  this.then(function (value) {
+	    asap(function () {
+	      callback.call(ctx, null, value);
+	    });
+	  }, function (err) {
+	    asap(function () {
+	      callback.call(ctx, err);
+	    });
+	  });
+	}
+
+
+/***/ },
+/* 308 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	// rawAsap provides everything we need except exception management.
+	var rawAsap = __webpack_require__(303);
+	// RawTasks are recycled to reduce GC churn.
+	var freeTasks = [];
+	// We queue errors to ensure they are thrown in right order (FIFO).
+	// Array-as-queue is good enough here, since we are just dealing with exceptions.
+	var pendingErrors = [];
+	var requestErrorThrow = rawAsap.makeRequestCallFromTimer(throwFirstError);
+
+	function throwFirstError() {
+	    if (pendingErrors.length) {
+	        throw pendingErrors.shift();
+	    }
+	}
+
+	/**
+	 * Calls a task as soon as possible after returning, in its own event, with priority
+	 * over other events like animation, reflow, and repaint. An error thrown from an
+	 * event will not interrupt, nor even substantially slow down the processing of
+	 * other events, but will be rather postponed to a lower priority event.
+	 * @param {{call}} task A callable object, typically a function that takes no
+	 * arguments.
+	 */
+	module.exports = asap;
+	function asap(task) {
+	    var rawTask;
+	    if (freeTasks.length) {
+	        rawTask = freeTasks.pop();
+	    } else {
+	        rawTask = new RawTask();
+	    }
+	    rawTask.task = task;
+	    rawAsap(rawTask);
+	}
+
+	// We wrap tasks with recyclable task objects.  A task object implements
+	// `call`, just like a function.
+	function RawTask() {
+	    this.task = null;
+	}
+
+	// The sole purpose of wrapping the task is to catch the exception and recycle
+	// the task object after its single use.
+	RawTask.prototype.call = function () {
+	    try {
+	        this.task.call();
+	    } catch (error) {
+	        if (asap.onerror) {
+	            // This hook exists purely for testing purposes.
+	            // Its name will be periodically randomized to break any code that
+	            // depends on its existence.
+	            asap.onerror(error);
+	        } else {
+	            // In a web browser, exceptions are not fatal. However, to avoid
+	            // slowing down the queue of pending tasks, we rethrow the error in a
+	            // lower priority turn.
+	            pendingErrors.push(error);
+	            requestErrorThrow();
+	        }
+	    } finally {
+	        this.task = null;
+	        freeTasks[freeTasks.length] = this;
+	    }
+	};
+
+
+/***/ },
+/* 309 */,
+/* 310 */,
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50472,16 +50694,16 @@
 	    ReactCSS = __webpack_require__(165),
 	    jsUtil = __webpack_require__(175),
 	    color = jsUtil.color,
-	    server = __webpack_require__(301),
+	    server = __webpack_require__(299),
 	    Panel = __webpack_require__(164).Panel,
-	    KeyValueLine = __webpack_require__(311).getKeyValueLine('100px'),
-	    TextBox = __webpack_require__(312).TextBox,
+	    KeyValueLine = __webpack_require__(312).getKeyValueLine('100px'),
+	    TextBox = __webpack_require__(313).TextBox,
 	    DarkBlueSmallBtn = __webpack_require__(180).DarkBlueSmallBtn,
 	    LayerPopup = __webpack_require__(182).LayerPopup,
 	    modalMixin = __webpack_require__(182).modalMixin,
 	    Curtain = __webpack_require__(182).Curtain,
 	    CurtainAlert = __webpack_require__(182).CurtainAlert,
-	    ListItem = __webpack_require__(311).ListItem;
+	    ListItem = __webpack_require__(312).ListItem;
 
 	var BindingTypePanel = React.createClass({
 		displayName: 'BindingTypePanel',
@@ -50824,814 +51046,7 @@
 	module.exports = BindingTypePanel;
 
 /***/ },
-/* 301 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(302),
-	    util = __webpack_require__(161);
-
-	exports.loadColumns = function (jdbc, table) {
-		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-		table = decodeURI(table);
-
-		return new Promise(function (resolve, reject) {
-			$.getJSON(util.format('/REST/Database/Columns/%s/', table), jdbc).fail(function (err) {
-				console.error({ err: err });
-				reject(err);
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					console.error(resp.errmsg);
-					reject(resp.errmsg);
-				} else {
-					resolve(resp.columns);
-				}
-			});
-		});
-	};
-
-	exports.loadTables = function (jdbc) {
-		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-
-		return new Promise(function (resolve, reject) {
-			$.getJSON('/REST/Database/Tables/', jdbc).fail(function (err) {
-				console.error({ err: err });
-				reject(err);
-			}).done(function (resp) {
-				if (resp.success !== 1) {
-					console.error(resp.errmsg);
-					reject(resp.errmsg);
-				} else {
-					resolve(resp.tables);
-				}
-			});
-		});
-	};
-
-	exports.querySampleData = function (params) {
-		params = JSON.parse(decodeURI(JSON.stringify(params)));
-
-		return new Promise(function (resolve, reject) {
-			$.getJSON('/REST/Database/QuerySampleData/', params).fail(function (err) {
-				console.error({ err: err });
-				reject(err);
-			}).done(function (resp) {
-				console.log({ resp: resp }); //DEBUG
-				if (resp.success !== 1) {
-					console.error(resp.errmsg);
-					reject(resp.errmsg);
-				} else {
-					resolve(resp.sampleData);
-				}
-			});
-		});
-	};
-
-/***/ },
-/* 302 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(303)
-
-
-/***/ },
-/* 303 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(304);
-	__webpack_require__(306);
-	__webpack_require__(307);
-	__webpack_require__(308);
-	__webpack_require__(309);
-
-
-/***/ },
-/* 304 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var asap = __webpack_require__(305);
-
-	function noop() {}
-
-	// States:
-	//
-	// 0 - pending
-	// 1 - fulfilled with _value
-	// 2 - rejected with _value
-	// 3 - adopted the state of another promise, _value
-	//
-	// once the state is no longer pending (0) it is immutable
-
-	// All `_` prefixed properties will be reduced to `_{random number}`
-	// at build time to obfuscate them and discourage their use.
-	// We don't use symbols or Object.defineProperty to fully hide them
-	// because the performance isn't good enough.
-
-
-	// to avoid using try/catch inside critical functions, we
-	// extract them to here.
-	var LAST_ERROR = null;
-	var IS_ERROR = {};
-	function getThen(obj) {
-	  try {
-	    return obj.then;
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-
-	function tryCallOne(fn, a) {
-	  try {
-	    return fn(a);
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-	function tryCallTwo(fn, a, b) {
-	  try {
-	    fn(a, b);
-	  } catch (ex) {
-	    LAST_ERROR = ex;
-	    return IS_ERROR;
-	  }
-	}
-
-	module.exports = Promise;
-
-	function Promise(fn) {
-	  if (typeof this !== 'object') {
-	    throw new TypeError('Promises must be constructed via new');
-	  }
-	  if (typeof fn !== 'function') {
-	    throw new TypeError('not a function');
-	  }
-	  this._37 = 0;
-	  this._12 = null;
-	  this._59 = [];
-	  if (fn === noop) return;
-	  doResolve(fn, this);
-	}
-	Promise._99 = noop;
-
-	Promise.prototype.then = function(onFulfilled, onRejected) {
-	  if (this.constructor !== Promise) {
-	    return safeThen(this, onFulfilled, onRejected);
-	  }
-	  var res = new Promise(noop);
-	  handle(this, new Handler(onFulfilled, onRejected, res));
-	  return res;
-	};
-
-	function safeThen(self, onFulfilled, onRejected) {
-	  return new self.constructor(function (resolve, reject) {
-	    var res = new Promise(noop);
-	    res.then(resolve, reject);
-	    handle(self, new Handler(onFulfilled, onRejected, res));
-	  });
-	};
-	function handle(self, deferred) {
-	  while (self._37 === 3) {
-	    self = self._12;
-	  }
-	  if (self._37 === 0) {
-	    self._59.push(deferred);
-	    return;
-	  }
-	  asap(function() {
-	    var cb = self._37 === 1 ? deferred.onFulfilled : deferred.onRejected;
-	    if (cb === null) {
-	      if (self._37 === 1) {
-	        resolve(deferred.promise, self._12);
-	      } else {
-	        reject(deferred.promise, self._12);
-	      }
-	      return;
-	    }
-	    var ret = tryCallOne(cb, self._12);
-	    if (ret === IS_ERROR) {
-	      reject(deferred.promise, LAST_ERROR);
-	    } else {
-	      resolve(deferred.promise, ret);
-	    }
-	  });
-	}
-	function resolve(self, newValue) {
-	  // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-	  if (newValue === self) {
-	    return reject(
-	      self,
-	      new TypeError('A promise cannot be resolved with itself.')
-	    );
-	  }
-	  if (
-	    newValue &&
-	    (typeof newValue === 'object' || typeof newValue === 'function')
-	  ) {
-	    var then = getThen(newValue);
-	    if (then === IS_ERROR) {
-	      return reject(self, LAST_ERROR);
-	    }
-	    if (
-	      then === self.then &&
-	      newValue instanceof Promise
-	    ) {
-	      self._37 = 3;
-	      self._12 = newValue;
-	      finale(self);
-	      return;
-	    } else if (typeof then === 'function') {
-	      doResolve(then.bind(newValue), self);
-	      return;
-	    }
-	  }
-	  self._37 = 1;
-	  self._12 = newValue;
-	  finale(self);
-	}
-
-	function reject(self, newValue) {
-	  self._37 = 2;
-	  self._12 = newValue;
-	  finale(self);
-	}
-	function finale(self) {
-	  for (var i = 0; i < self._59.length; i++) {
-	    handle(self, self._59[i]);
-	  }
-	  self._59 = null;
-	}
-
-	function Handler(onFulfilled, onRejected, promise){
-	  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-	  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-	  this.promise = promise;
-	}
-
-	/**
-	 * Take a potentially misbehaving resolver function and make sure
-	 * onFulfilled and onRejected are only called once.
-	 *
-	 * Makes no guarantees about asynchrony.
-	 */
-	function doResolve(fn, promise) {
-	  var done = false;
-	  var res = tryCallTwo(fn, function (value) {
-	    if (done) return;
-	    done = true;
-	    resolve(promise, value);
-	  }, function (reason) {
-	    if (done) return;
-	    done = true;
-	    reject(promise, reason);
-	  })
-	  if (!done && res === IS_ERROR) {
-	    done = true;
-	    reject(promise, LAST_ERROR);
-	  }
-	}
-
-
-/***/ },
-/* 305 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
-
-	// Use the fastest means possible to execute a task in its own turn, with
-	// priority over other events including IO, animation, reflow, and redraw
-	// events in browsers.
-	//
-	// An exception thrown by a task will permanently interrupt the processing of
-	// subsequent tasks. The higher level `asap` function ensures that if an
-	// exception is thrown by a task, that the task queue will continue flushing as
-	// soon as possible, but if you use `rawAsap` directly, you are responsible to
-	// either ensure that no exceptions are thrown from your task, or to manually
-	// call `rawAsap.requestFlush` if an exception is thrown.
-	module.exports = rawAsap;
-	function rawAsap(task) {
-	    if (!queue.length) {
-	        requestFlush();
-	        flushing = true;
-	    }
-	    // Equivalent to push, but avoids a function call.
-	    queue[queue.length] = task;
-	}
-
-	var queue = [];
-	// Once a flush has been requested, no further calls to `requestFlush` are
-	// necessary until the next `flush` completes.
-	var flushing = false;
-	// `requestFlush` is an implementation-specific method that attempts to kick
-	// off a `flush` event as quickly as possible. `flush` will attempt to exhaust
-	// the event queue before yielding to the browser's own event loop.
-	var requestFlush;
-	// The position of the next task to execute in the task queue. This is
-	// preserved between calls to `flush` so that it can be resumed if
-	// a task throws an exception.
-	var index = 0;
-	// If a task schedules additional tasks recursively, the task queue can grow
-	// unbounded. To prevent memory exhaustion, the task queue will periodically
-	// truncate already-completed tasks.
-	var capacity = 1024;
-
-	// The flush function processes all tasks that have been scheduled with
-	// `rawAsap` unless and until one of those tasks throws an exception.
-	// If a task throws an exception, `flush` ensures that its state will remain
-	// consistent and will resume where it left off when called again.
-	// However, `flush` does not make any arrangements to be called again if an
-	// exception is thrown.
-	function flush() {
-	    while (index < queue.length) {
-	        var currentIndex = index;
-	        // Advance the index before calling the task. This ensures that we will
-	        // begin flushing on the next task the task throws an error.
-	        index = index + 1;
-	        queue[currentIndex].call();
-	        // Prevent leaking memory for long chains of recursive calls to `asap`.
-	        // If we call `asap` within tasks scheduled by `asap`, the queue will
-	        // grow, but to avoid an O(n) walk for every task we execute, we don't
-	        // shift tasks off the queue after they have been executed.
-	        // Instead, we periodically shift 1024 tasks off the queue.
-	        if (index > capacity) {
-	            // Manually shift all values starting at the index back to the
-	            // beginning of the queue.
-	            for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
-	                queue[scan] = queue[scan + index];
-	            }
-	            queue.length -= index;
-	            index = 0;
-	        }
-	    }
-	    queue.length = 0;
-	    index = 0;
-	    flushing = false;
-	}
-
-	// `requestFlush` is implemented using a strategy based on data collected from
-	// every available SauceLabs Selenium web driver worker at time of writing.
-	// https://docs.google.com/spreadsheets/d/1mG-5UYGup5qxGdEMWkhP6BWCz053NUb2E1QoUTU16uA/edit#gid=783724593
-
-	// Safari 6 and 6.1 for desktop, iPad, and iPhone are the only browsers that
-	// have WebKitMutationObserver but not un-prefixed MutationObserver.
-	// Must use `global` instead of `window` to work in both frames and web
-	// workers. `global` is a provision of Browserify, Mr, Mrs, or Mop.
-	var BrowserMutationObserver = global.MutationObserver || global.WebKitMutationObserver;
-
-	// MutationObservers are desirable because they have high priority and work
-	// reliably everywhere they are implemented.
-	// They are implemented in all modern browsers.
-	//
-	// - Android 4-4.3
-	// - Chrome 26-34
-	// - Firefox 14-29
-	// - Internet Explorer 11
-	// - iPad Safari 6-7.1
-	// - iPhone Safari 7-7.1
-	// - Safari 6-7
-	if (typeof BrowserMutationObserver === "function") {
-	    requestFlush = makeRequestCallFromMutationObserver(flush);
-
-	// MessageChannels are desirable because they give direct access to the HTML
-	// task queue, are implemented in Internet Explorer 10, Safari 5.0-1, and Opera
-	// 11-12, and in web workers in many engines.
-	// Although message channels yield to any queued rendering and IO tasks, they
-	// would be better than imposing the 4ms delay of timers.
-	// However, they do not work reliably in Internet Explorer or Safari.
-
-	// Internet Explorer 10 is the only browser that has setImmediate but does
-	// not have MutationObservers.
-	// Although setImmediate yields to the browser's renderer, it would be
-	// preferrable to falling back to setTimeout since it does not have
-	// the minimum 4ms penalty.
-	// Unfortunately there appears to be a bug in Internet Explorer 10 Mobile (and
-	// Desktop to a lesser extent) that renders both setImmediate and
-	// MessageChannel useless for the purposes of ASAP.
-	// https://github.com/kriskowal/q/issues/396
-
-	// Timers are implemented universally.
-	// We fall back to timers in workers in most engines, and in foreground
-	// contexts in the following browsers.
-	// However, note that even this simple case requires nuances to operate in a
-	// broad spectrum of browsers.
-	//
-	// - Firefox 3-13
-	// - Internet Explorer 6-9
-	// - iPad Safari 4.3
-	// - Lynx 2.8.7
-	} else {
-	    requestFlush = makeRequestCallFromTimer(flush);
-	}
-
-	// `requestFlush` requests that the high priority event queue be flushed as
-	// soon as possible.
-	// This is useful to prevent an error thrown in a task from stalling the event
-	// queue if the exception handled by Node.js’s
-	// `process.on("uncaughtException")` or by a domain.
-	rawAsap.requestFlush = requestFlush;
-
-	// To request a high priority event, we induce a mutation observer by toggling
-	// the text of a text node between "1" and "-1".
-	function makeRequestCallFromMutationObserver(callback) {
-	    var toggle = 1;
-	    var observer = new BrowserMutationObserver(callback);
-	    var node = document.createTextNode("");
-	    observer.observe(node, {characterData: true});
-	    return function requestCall() {
-	        toggle = -toggle;
-	        node.data = toggle;
-	    };
-	}
-
-	// The message channel technique was discovered by Malte Ubl and was the
-	// original foundation for this library.
-	// http://www.nonblocking.io/2011/06/windownexttick.html
-
-	// Safari 6.0.5 (at least) intermittently fails to create message ports on a
-	// page's first load. Thankfully, this version of Safari supports
-	// MutationObservers, so we don't need to fall back in that case.
-
-	// function makeRequestCallFromMessageChannel(callback) {
-	//     var channel = new MessageChannel();
-	//     channel.port1.onmessage = callback;
-	//     return function requestCall() {
-	//         channel.port2.postMessage(0);
-	//     };
-	// }
-
-	// For reasons explained above, we are also unable to use `setImmediate`
-	// under any circumstances.
-	// Even if we were, there is another bug in Internet Explorer 10.
-	// It is not sufficient to assign `setImmediate` to `requestFlush` because
-	// `setImmediate` must be called *by name* and therefore must be wrapped in a
-	// closure.
-	// Never forget.
-
-	// function makeRequestCallFromSetImmediate(callback) {
-	//     return function requestCall() {
-	//         setImmediate(callback);
-	//     };
-	// }
-
-	// Safari 6.0 has a problem where timers will get lost while the user is
-	// scrolling. This problem does not impact ASAP because Safari 6.0 supports
-	// mutation observers, so that implementation is used instead.
-	// However, if we ever elect to use timers in Safari, the prevalent work-around
-	// is to add a scroll event listener that calls for a flush.
-
-	// `setTimeout` does not call the passed callback if the delay is less than
-	// approximately 7 in web workers in Firefox 8 through 18, and sometimes not
-	// even then.
-
-	function makeRequestCallFromTimer(callback) {
-	    return function requestCall() {
-	        // We dispatch a timeout with a specified delay of 0 for engines that
-	        // can reliably accommodate that request. This will usually be snapped
-	        // to a 4 milisecond delay, but once we're flushing, there's no delay
-	        // between events.
-	        var timeoutHandle = setTimeout(handleTimer, 0);
-	        // However, since this timer gets frequently dropped in Firefox
-	        // workers, we enlist an interval handle that will try to fire
-	        // an event 20 times per second until it succeeds.
-	        var intervalHandle = setInterval(handleTimer, 50);
-
-	        function handleTimer() {
-	            // Whichever timer succeeds will cancel both timers and
-	            // execute the callback.
-	            clearTimeout(timeoutHandle);
-	            clearInterval(intervalHandle);
-	            callback();
-	        }
-	    };
-	}
-
-	// This is for `asap.js` only.
-	// Its name will be periodically randomized to break any code that depends on
-	// its existence.
-	rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
-
-	// ASAP was originally a nextTick shim included in Q. This was factored out
-	// into this ASAP package. It was later adapted to RSVP which made further
-	// amendments. These decisions, particularly to marginalize MessageChannel and
-	// to capture the MutationObserver implementation in a closure, were integrated
-	// back into ASAP proper.
-	// https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 306 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(304);
-
-	module.exports = Promise;
-	Promise.prototype.done = function (onFulfilled, onRejected) {
-	  var self = arguments.length ? this.then.apply(this, arguments) : this;
-	  self.then(null, function (err) {
-	    setTimeout(function () {
-	      throw err;
-	    }, 0);
-	  });
-	};
-
-
-/***/ },
-/* 307 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Promise = __webpack_require__(304);
-
-	module.exports = Promise;
-	Promise.prototype['finally'] = function (f) {
-	  return this.then(function (value) {
-	    return Promise.resolve(f()).then(function () {
-	      return value;
-	    });
-	  }, function (err) {
-	    return Promise.resolve(f()).then(function () {
-	      throw err;
-	    });
-	  });
-	};
-
-
-/***/ },
-/* 308 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	//This file contains the ES6 extensions to the core Promises/A+ API
-
-	var Promise = __webpack_require__(304);
-
-	module.exports = Promise;
-
-	/* Static Functions */
-
-	var TRUE = valuePromise(true);
-	var FALSE = valuePromise(false);
-	var NULL = valuePromise(null);
-	var UNDEFINED = valuePromise(undefined);
-	var ZERO = valuePromise(0);
-	var EMPTYSTRING = valuePromise('');
-
-	function valuePromise(value) {
-	  var p = new Promise(Promise._99);
-	  p._37 = 1;
-	  p._12 = value;
-	  return p;
-	}
-	Promise.resolve = function (value) {
-	  if (value instanceof Promise) return value;
-
-	  if (value === null) return NULL;
-	  if (value === undefined) return UNDEFINED;
-	  if (value === true) return TRUE;
-	  if (value === false) return FALSE;
-	  if (value === 0) return ZERO;
-	  if (value === '') return EMPTYSTRING;
-
-	  if (typeof value === 'object' || typeof value === 'function') {
-	    try {
-	      var then = value.then;
-	      if (typeof then === 'function') {
-	        return new Promise(then.bind(value));
-	      }
-	    } catch (ex) {
-	      return new Promise(function (resolve, reject) {
-	        reject(ex);
-	      });
-	    }
-	  }
-	  return valuePromise(value);
-	};
-
-	Promise.all = function (arr) {
-	  var args = Array.prototype.slice.call(arr);
-
-	  return new Promise(function (resolve, reject) {
-	    if (args.length === 0) return resolve([]);
-	    var remaining = args.length;
-	    function res(i, val) {
-	      if (val && (typeof val === 'object' || typeof val === 'function')) {
-	        if (val instanceof Promise && val.then === Promise.prototype.then) {
-	          while (val._37 === 3) {
-	            val = val._12;
-	          }
-	          if (val._37 === 1) return res(i, val._12);
-	          if (val._37 === 2) reject(val._12);
-	          val.then(function (val) {
-	            res(i, val);
-	          }, reject);
-	          return;
-	        } else {
-	          var then = val.then;
-	          if (typeof then === 'function') {
-	            var p = new Promise(then.bind(val));
-	            p.then(function (val) {
-	              res(i, val);
-	            }, reject);
-	            return;
-	          }
-	        }
-	      }
-	      args[i] = val;
-	      if (--remaining === 0) {
-	        resolve(args);
-	      }
-	    }
-	    for (var i = 0; i < args.length; i++) {
-	      res(i, args[i]);
-	    }
-	  });
-	};
-
-	Promise.reject = function (value) {
-	  return new Promise(function (resolve, reject) {
-	    reject(value);
-	  });
-	};
-
-	Promise.race = function (values) {
-	  return new Promise(function (resolve, reject) {
-	    values.forEach(function(value){
-	      Promise.resolve(value).then(resolve, reject);
-	    });
-	  });
-	};
-
-	/* Prototype Methods */
-
-	Promise.prototype['catch'] = function (onRejected) {
-	  return this.then(null, onRejected);
-	};
-
-
-/***/ },
-/* 309 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	// This file contains then/promise specific extensions that are only useful
-	// for node.js interop
-
-	var Promise = __webpack_require__(304);
-	var asap = __webpack_require__(310);
-
-	module.exports = Promise;
-
-	/* Static Functions */
-
-	Promise.denodeify = function (fn, argumentCount) {
-	  argumentCount = argumentCount || Infinity;
-	  return function () {
-	    var self = this;
-	    var args = Array.prototype.slice.call(arguments, 0,
-	        argumentCount > 0 ? argumentCount : 0);
-	    return new Promise(function (resolve, reject) {
-	      args.push(function (err, res) {
-	        if (err) reject(err);
-	        else resolve(res);
-	      })
-	      var res = fn.apply(self, args);
-	      if (res &&
-	        (
-	          typeof res === 'object' ||
-	          typeof res === 'function'
-	        ) &&
-	        typeof res.then === 'function'
-	      ) {
-	        resolve(res);
-	      }
-	    })
-	  }
-	}
-	Promise.nodeify = function (fn) {
-	  return function () {
-	    var args = Array.prototype.slice.call(arguments);
-	    var callback =
-	      typeof args[args.length - 1] === 'function' ? args.pop() : null;
-	    var ctx = this;
-	    try {
-	      return fn.apply(this, arguments).nodeify(callback, ctx);
-	    } catch (ex) {
-	      if (callback === null || typeof callback == 'undefined') {
-	        return new Promise(function (resolve, reject) {
-	          reject(ex);
-	        });
-	      } else {
-	        asap(function () {
-	          callback.call(ctx, ex);
-	        })
-	      }
-	    }
-	  }
-	}
-
-	Promise.prototype.nodeify = function (callback, ctx) {
-	  if (typeof callback != 'function') return this;
-
-	  this.then(function (value) {
-	    asap(function () {
-	      callback.call(ctx, null, value);
-	    });
-	  }, function (err) {
-	    asap(function () {
-	      callback.call(ctx, err);
-	    });
-	  });
-	}
-
-
-/***/ },
-/* 310 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	// rawAsap provides everything we need except exception management.
-	var rawAsap = __webpack_require__(305);
-	// RawTasks are recycled to reduce GC churn.
-	var freeTasks = [];
-	// We queue errors to ensure they are thrown in right order (FIFO).
-	// Array-as-queue is good enough here, since we are just dealing with exceptions.
-	var pendingErrors = [];
-	var requestErrorThrow = rawAsap.makeRequestCallFromTimer(throwFirstError);
-
-	function throwFirstError() {
-	    if (pendingErrors.length) {
-	        throw pendingErrors.shift();
-	    }
-	}
-
-	/**
-	 * Calls a task as soon as possible after returning, in its own event, with priority
-	 * over other events like animation, reflow, and repaint. An error thrown from an
-	 * event will not interrupt, nor even substantially slow down the processing of
-	 * other events, but will be rather postponed to a lower priority event.
-	 * @param {{call}} task A callable object, typically a function that takes no
-	 * arguments.
-	 */
-	module.exports = asap;
-	function asap(task) {
-	    var rawTask;
-	    if (freeTasks.length) {
-	        rawTask = freeTasks.pop();
-	    } else {
-	        rawTask = new RawTask();
-	    }
-	    rawTask.task = task;
-	    rawAsap(rawTask);
-	}
-
-	// We wrap tasks with recyclable task objects.  A task object implements
-	// `call`, just like a function.
-	function RawTask() {
-	    this.task = null;
-	}
-
-	// The sole purpose of wrapping the task is to catch the exception and recycle
-	// the task object after its single use.
-	RawTask.prototype.call = function () {
-	    try {
-	        this.task.call();
-	    } catch (error) {
-	        if (asap.onerror) {
-	            // This hook exists purely for testing purposes.
-	            // Its name will be periodically randomized to break any code that
-	            // depends on its existence.
-	            asap.onerror(error);
-	        } else {
-	            // In a web browser, exceptions are not fatal. However, to avoid
-	            // slowing down the queue of pending tasks, we rethrow the error in a
-	            // lower priority turn.
-	            pendingErrors.push(error);
-	            requestErrorThrow();
-	        }
-	    } finally {
-	        this.task = null;
-	        freeTasks[freeTasks.length] = this;
-	    }
-	};
-
-
-/***/ },
-/* 311 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51758,7 +51173,7 @@
 	});
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51874,443 +51289,6 @@
 		}
 	});
 	exports.DashedTextBox = DashedTextBox;
-
-/***/ },
-/* 313 */,
-/* 314 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2);
-	var ReactDOM = __webpack_require__(159);
-	var ExecutionEnvironment = __webpack_require__(315);
-
-	var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
-
-	module.exports = React.createClass({
-	  displayName: 'ReactGateway',
-
-	  propTypes: {
-	    to: React.PropTypes.instanceOf(SafeHTMLElement),
-	    className: React.PropTypes.string,
-	    children: React.PropTypes.element.isRequired
-	  },
-
-	  getDefaultProps: function() {
-	    return {
-	      to: document.body
-	    };
-	  },
-
-	  componentDidMount: function() {
-	    this.gatewayNode = document.createElement('div');
-	    if (this.props.className) this.gatewayNode.className = this.props.className;
-	    this.props.to.appendChild(this.gatewayNode);
-	    this.renderIntoGatewayNode(this.props);
-	  },
-
-	  componentWillReceiveProps: function(props) {
-	    this.renderIntoGatewayNode(props);
-	  },
-
-	  componentWillUnmount: function() {
-	    ReactDOM.unmountComponentAtNode(this.gatewayNode);
-	    this.gatewayNode.parentNode.removeChild(this.gatewayNode);
-	    delete this.gatewayNode;
-	  },
-
-	  renderIntoGatewayNode: function(props) {
-	    delete props.ref;
-	    ReactDOM.unstable_renderSubtreeIntoContainer(this, props.children, this.gatewayNode);
-	  },
-
-	  render: function() {
-	    return null;
-	  }
-	});
-
-
-/***/ },
-/* 315 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
-	  Based on code that is Copyright 2013-2015, Facebook, Inc.
-	  All rights reserved.
-	*/
-
-	(function () {
-		'use strict';
-
-		var canUseDOM = !!(
-			typeof window !== 'undefined' &&
-			window.document &&
-			window.document.createElement
-		);
-
-		var ExecutionEnvironment = {
-
-			canUseDOM: canUseDOM,
-
-			canUseWorkers: typeof Worker !== 'undefined',
-
-			canUseEventListeners:
-				canUseDOM && !!(window.addEventListener || window.attachEvent),
-
-			canUseViewport: canUseDOM && !!window.screen
-
-		};
-
-		if (true) {
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return ExecutionEnvironment;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else if (typeof module !== 'undefined' && module.exports) {
-			module.exports = ExecutionEnvironment;
-		} else {
-			window.ExecutionEnvironment = ExecutionEnvironment;
-		}
-
-	}());
-
-
-/***/ },
-/* 316 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(165),
-	    _ = __webpack_require__(160),
-	    jsUtil = __webpack_require__(175),
-	    color = jsUtil.color;
-
-	var ColumnSelectTable = React.createClass({
-		displayName: 'ColumnSelectTable',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				rows: [],
-				selectedColumns: [],
-				onSelectedColumnChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { hoveredColumn: '' };
-		},
-
-		onHoveredColumnChange: function onHoveredColumnChange(column) {
-			this.setState({ hoveredColumn: column });
-		},
-
-		render: function render() {
-			var props = {
-				rows: this.props.rows,
-				selectedColumns: this.props.selectedColumns,
-				onSelectedColumnChange: this.props.onSelectedColumnChange
-			};
-
-			return React.createElement(
-				'table',
-				null,
-				React.createElement(Thead, props),
-				React.createElement(Tbody, props)
-			);
-		}
-	});
-	exports.ColumnSelectTable = ColumnSelectTable;
-
-	var Thead = React.createClass({
-		displayName: 'Thead',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				rows: [],
-				selectedColumns: [],
-				onSelectedColumnChange: null
-			};
-		},
-
-		render: function render() {
-			if (this.props.rows == null || this.props.rows.length === 0) return null;
-
-			var tr = [];
-			Object.sortedForEach(this.props.rows[0], (function (key, value) {
-				tr.push(React.createElement(Th, { key: key,
-					value: key,
-					selectedColumns: this.props.selectedColumns,
-					onSelectedColumnChange: this.props.onSelectedColumnChange }));
-			}).bind(this));
-
-			return React.createElement(
-				'thead',
-				null,
-				React.createElement(
-					'tr',
-					null,
-					tr
-				)
-			);
-		}
-	});
-
-	var Th = React.createClass({
-		displayName: 'Th',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				value: '',
-				selectedColumns: [],
-				onSelectedColumnChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isHovered: false };
-		},
-
-		styles: function styles() {
-			return this.css({
-				hovered: this.state.isHovered,
-				selected: this.state.isHovered === false && Array.containsIgnoreCase(this.props.selectedColumns, this.props.value)
-			});
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					item: {
-						backgroundColor: color.darkGray2,
-						padding: '5px',
-						color: 'white',
-						fontSize: '80%'
-					}
-				},
-				hovered: {
-					item: { backgroundColor: color.darkGray }
-				},
-				selected: {
-					item: { backgroundColor: color.darkGray3 }
-				}
-			};
-		},
-
-		onClick: function onClick() {
-			this.props.onSelectedColumnChange(this.props.value);
-		},
-
-		onMouseOver: function onMouseOver() {
-			this.setState({ isHovered: true });
-		},
-
-		onMouseOut: function onMouseOut() {
-			this.setState({ isHovered: false });
-		},
-
-		render: function render() {
-			return React.createElement(
-				'th',
-				{ style: this.styles().item,
-					onClick: this.onClick,
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut },
-				this.props.value
-			);
-		}
-	});
-
-	var Tbody = React.createClass({
-		displayName: 'Tbody',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				rows: [],
-				selectedColumns: [],
-				onSelectedColumnChange: null
-			};
-		},
-
-		render: function render() {
-			if (this.props.rows == null || this.props.rows.length === 0) return null;
-
-			var tbody = [];
-			var rowCounter = 0;
-			this.props.rows.forEach((function (row) {
-				var tr = [];
-				Object.sortedForEach(row, (function (key, value) {
-					tr.push(React.createElement(Td, { key: key + value,
-						value: value,
-						column: key,
-						selectedColumns: this.props.selectedColumns,
-						onSelectedColumnChange: this.props.onSelectedColumnChange }));
-				}).bind(this));
-				tbody.push(React.createElement(
-					'tr',
-					{ key: rowCounter },
-					tr
-				));
-				rowCounter++;
-			}).bind(this));
-
-			return React.createElement(
-				'tbody',
-				null,
-				tbody
-			);
-		}
-	});
-
-	var Td = React.createClass({
-		displayName: 'Td',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				value: '',
-				column: '',
-				selectedColumns: [],
-				onSelectedColumnChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isHovered: false };
-		},
-
-		shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
-			if (this.props.selectedColumns !== nextProps.selectedColumns) if (Array.containsIgnoreCase(nextProps.selectedColumns, this.props.column)) return true;
-
-			if (this.state.isHovered !== nextState.isHovered) return true;
-
-			return false;
-		},
-
-		styles: function styles() {
-			return this.css({
-				hovered: this.state.isHovered,
-				selected: this.state.isHovered === false && Array.containsIgnoreCase(this.props.selectedColumns, this.props.column)
-			});
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					item: {
-						backgroundColor: 'inherit',
-						padding: '5px',
-						fontSize: '80%'
-					}
-				},
-				hovered: {
-					item: { backgroundColor: color.darkGray }
-				},
-				selected: {
-					item: { backgroundColor: color.darkGray3 }
-				}
-			};
-		},
-
-		onClick: function onClick() {
-			this.props.onSelectedColumnChange(this.props.column);
-		},
-
-		onMouseOver: function onMouseOver() {
-			this.setState({ isHovered: true });
-		},
-
-		onMouseOut: function onMouseOut() {
-			this.setState({ isHovered: false });
-		},
-
-		render: function render() {
-			return React.createElement(
-				'td',
-				{ style: this.styles().item,
-					onClick: this.onClick,
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut },
-				this.props.value
-			);
-		}
-	});
-
-/***/ },
-/* 317 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2);
-
-	var PolymerIcon = React.createClass({
-		displayName: 'PolymerIcon',
-
-		//http://dmfrancisco.github.io/react-icons/
-		propTypes: {
-			icon: React.PropTypes.string.isRequired,
-			size: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-			style: React.PropTypes.object
-		},
-		getDefaultProps: function getDefaultProps() {
-			return { size: 24 };
-		},
-		_mergeStyle: function _mergeStyle() {
-			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-				args[_key] = arguments[_key];
-			}
-
-			return Object.assign.apply(Object, [{}].concat(args));
-		},
-		renderGraphic: function renderGraphic() {
-			switch (this.props.icon) {
-				case 'my-icon':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M7.41 7.84l4.59 4.58 4.59-4.58 1.41 1.41-6 6-6-6z' })
-					);
-				case 'another-icon':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M7.41 15.41l4.59-4.58 4.59 4.58 1.41-1.41-6-6-6 6z' })
-					);
-				case 'config':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M18.622,8.371l-0.545-1.295c0,0,1.268-2.861,1.156-2.971l-1.679-1.639c-0.116-0.113-2.978,1.193-2.978,1.193l-1.32-0.533\r c0,0-1.166-2.9-1.326-2.9H9.561c-0.165,0-1.244,2.906-1.244,2.906L6.999,3.667c0,0-2.922-1.242-3.034-1.131L2.289,4.177\r C2.173,4.29,3.507,7.093,3.507,7.093L2.962,8.386c0,0-2.962,1.141-2.962,1.295v2.322c0,0.162,2.969,1.219,2.969,1.219l0.545,1.291\r c0,0-1.268,2.859-1.157,2.969l1.678,1.643c0.114,0.111,2.977-1.195,2.977-1.195l1.321,0.535c0,0,1.166,2.898,1.327,2.898h2.369\r c0.164,0,1.244-2.906,1.244-2.906l1.322-0.535c0,0,2.916,1.242,3.029,1.133l1.678-1.641c0.117-0.115-1.22-2.916-1.22-2.916\r l0.544-1.293c0,0,2.963-1.143,2.963-1.299v-2.32C21.59,9.425,18.622,8.371,18.622,8.371z M14.256,10.794\r c0,1.867-1.553,3.387-3.461,3.387c-1.906,0-3.461-1.52-3.461-3.387s1.555-3.385,3.461-3.385\r C12.704,7.41,14.256,8.927,14.256,10.794z' })
-					);
-			}
-		},
-		render: function render() {
-			var styles = {
-				fill: 'currentcolor',
-				verticalAlign: 'middle',
-				width: this.props.size,
-				height: this.props.size
-			};
-
-			return React.createElement(
-				'svg',
-				{
-					viewBox: '0 0 24 24',
-					preserveAspectRatio: 'xMidYMid meet',
-					fit: true,
-					style: this._mergeStyle(styles, this.props.style) },
-				this.renderGraphic()
-			);
-		}
-	});
-
-	module.exports = PolymerIcon;
 
 /***/ }
 /******/ ]);
