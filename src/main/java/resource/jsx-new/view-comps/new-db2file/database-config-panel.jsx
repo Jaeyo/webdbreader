@@ -181,9 +181,6 @@ var DatabaseConfigPanel = React.createClass({
 			card: {
 				marginBottom: '10px'
 			},
-			textfield: {
-				display: 'block'
-			},
 			textfieldInputStyle: {
 				color: 'black'
 			},
@@ -286,21 +283,18 @@ var DatabaseConfigPanel = React.createClass({
 						</Dialog>
 						<div style={style.jdbcConfig.jdbcBorder}>
 							<TextField
-								style={style.textfield}
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc driver"
 								value={this.props.jdbcDriver}
 								fullWidth={true}
 								onChange={this.onJdbcDriverChanged} />
 							<TextField
-								style={style.textfield}
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc connection url"
 								value={this.props.jdbcConnUrl}
 								fullWidth={true}
 								onChange={this.onJdbcConnUrlChanged} />
 							<TextField
-								style={style.textfield}
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc username"
 								value={this.props.jdbcUsername}
@@ -308,7 +302,6 @@ var DatabaseConfigPanel = React.createClass({
 								onChange={this.onJdbcUsernameChanged} />
 							<TextField
 								type="password"
-								style={style.textfield}
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc password"
 								value={this.props.jdbcPassword}
@@ -327,7 +320,6 @@ var DatabaseConfigPanel = React.createClass({
 							value={this.props.table}
 							disabled={true}
 							floatingLabelText="tables"
-							style={ style.textfield }
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
 							onClick={this.toggleTableConfigDialog} />
@@ -335,7 +327,6 @@ var DatabaseConfigPanel = React.createClass({
 							value={this.props.columns}
 							disabled={true}
 							floatingLabelText="columns"
-							style={ style.textfield }
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
 							onClick={this.toggleColumnConfigDialog} />
@@ -501,7 +492,7 @@ var ColumnConfigDialog = React.createClass({
 	},
 
 	onColumnsTextFieldChange(evt) {
-		this.onColumnsChange(evt.target.value);
+		this.props.onColumnsChange(evt.target.value);
 	},
 
 	loadColumns() {
@@ -577,7 +568,7 @@ var ColumnConfigDialog = React.createClass({
 						<TextField
 							floatingLabelText="columns"
 							value={this.props.columns} 
-							onChange={this.onColumnsChange}
+							onChange={this.onColumnsTextFieldChange}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
 							{ this.renderColumnList() }

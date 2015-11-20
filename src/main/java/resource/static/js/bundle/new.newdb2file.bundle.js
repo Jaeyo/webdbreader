@@ -21820,295 +21820,7 @@
 
 
 /***/ },
-/* 164 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(165),
-	    color = __webpack_require__(175).color,
-	    _ = __webpack_require__(160);
-
-	var Panel = React.createClass({
-		displayName: 'Panel',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				className: '',
-				style: {}
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					div: _.extend({
-						border: '1px solid ' + color.lightGray
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{
-					className: this.props.className,
-					style: this.styles().div },
-				this.props.children
-			);
-		}
-	});
-	exports.Panel = Panel;
-
-	Panel.Heading = React.createClass({
-		displayName: 'Heading',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return { glyphicon: '', style: {} };
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					div: _.extend({
-						padding: '10px',
-						backgroundColor: color.darkBlue,
-						color: 'white'
-					}, this.props.style),
-					span: {
-						marginRight: '10px'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().div },
-				React.createElement('span', { className: 'glyphicon glyphicon-' + this.props.glyphicon, style: this.styles().span }),
-				React.createElement(
-					'span',
-					null,
-					this.props.children
-				)
-			);
-		}
-	});
-
-	Panel.SmallHeading = React.createClass({
-		displayName: 'SmallHeading',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return { glyphicon: '', style: {} };
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					Heading: {
-						padding: '5px',
-						fontSize: '90%'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				Panel.Heading,
-				_extends({ glyphicon: this.props.glyphicon }, this.styles().Heading),
-				this.props.children
-			);
-		}
-	});
-
-	Panel.HeadingWithIndicators = React.createClass({
-		displayName: 'HeadingWithIndicators',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				glyphicon: '',
-				style: {},
-				indicatorTotal: 0,
-				indicatorCurrent: 0
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: _.extend({
-						padding: '10px',
-						backgroundColor: color.darkBlue,
-						color: 'white'
-					}, this.props.style),
-					glySpan: {
-						marginRight: '10px'
-					},
-					stageIndicatorDiv: {
-						float: 'right'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				React.createElement('span', {
-					className: 'glyphicon glyphicon-' + this.props.glyphicon,
-					style: this.styles().glySpan }),
-				React.createElement(
-					'span',
-					null,
-					this.props.children
-				),
-				React.createElement(
-					'div',
-					{ style: this.styles().stageIndicatorDiv },
-					React.createElement(StageIndicator, {
-						total: this.props.indicatorTotal,
-						current: this.props.indicatorCurrent })
-				)
-			);
-		}
-	});
-
-	var StageIndicator = React.createClass({
-		displayName: 'StageIndicator',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				total: 0,
-				current: 0
-			};
-		},
-
-		render: function render() {
-			var indicators = [];
-			for (var i = 1; i <= this.props.total; i++) {
-				indicators.push(React.createElement('span', { style: _.extend({
-						display: 'inline-block',
-						width: '10px',
-						height: '10px',
-						borderRadius: '100%',
-						opacity: '0.5',
-						margin: '0 2px 0 2px'
-					}, i === this.props.current ? {
-						background: 'black'
-					} : {
-						background: 'gray'
-					}) }));
-			}
-			return React.createElement(
-				'div',
-				null,
-				indicators
-			);
-		}
-	});
-
-	Panel.Body = React.createClass({
-		displayName: 'Body',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				style: {}
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: _.extend({
-						padding: '15px'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				this.props.children
-			);
-		}
-	});
-
-	Panel.Footer = React.createClass({
-		displayName: 'Footer',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				style: {}
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: _.extend({
-						padding: '10px',
-						backgroundColor: color.darkBlue,
-						color: 'white'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				this.props.children
-			);
-		}
-	});
-
-/***/ },
+/* 164 */,
 /* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -35153,368 +34865,7 @@
 	exports.Clearfix = Clearfix;
 
 /***/ },
-/* 180 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(165),
-	    _ = __webpack_require__(160),
-	    color = __webpack_require__(175).color;
-
-	var BtnMixin = {
-		getDefaultProps: function getDefaultProps() {
-			return {
-				backgroundColor: 'white',
-				backgroundColorHover: color.lightGray,
-				backgroundColorMouseDown: color.gray,
-				borderColor: '#ccc',
-				borderColorHover: color.lightGray,
-				borderColorMouseDown: color.gray,
-				padding: '5px 10px',
-				color: '#333',
-				fontSize: '14px'
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				backgroundColor: this.props.backgroundColor,
-				borderColor: this.props.borderColor
-			};
-		},
-
-		getStyle: function getStyle() {
-			return {
-				display: 'inline-block',
-				textAlign: 'center',
-				whiteSpace: 'nowrap',
-				verticalAlign: 'middle',
-				backgroundImage: 'none',
-				backgroundColor: this.state.backgroundColor,
-				border: '1px solid transparent',
-				borderRadius: '4px',
-				borderColor: this.state.borderColor,
-				padding: this.props.padding,
-				color: this.props.color,
-				fontSize: this.props.fontSize
-			};
-		},
-
-		onMouseOver: function onMouseOver(evt) {
-			this.setState({
-				backgroundColor: this.props.backgroundColorHover,
-				borderColor: this.props.borderColorHover
-			});
-		},
-
-		onMouseOut: function onMouseOut(evt) {
-			this.setState({
-				backgroundColor: this.props.backgroundColor,
-				borderColor: this.props.borderColor
-			});
-		},
-
-		onMouseDown: function onMouseDown(evt) {
-			this.setState({
-				backgroundColor: this.props.backgroundColorMouseDown,
-				borderColor: this.props.borderColorMouseDown
-			});
-		},
-
-		onMouseUp: function onMouseUp(evt) {
-			this.onMouseOver(evt);
-		}
-	};
-
-	var Btn = React.createClass({
-		displayName: 'Btn',
-
-		mixins: [BtnMixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				onClick: null,
-				style: {}
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				'button',
-				{
-					type: 'button',
-					style: _.extend(this.getStyle(), this.props.style),
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onMouseDown: this.onMouseDown,
-					onMouseUp: this.onMouseUp,
-					onClick: this.props.onClick },
-				this.props.children
-			);
-		}
-	});
-	exports.Btn = Btn;
-
-	var XSBtn = React.createClass({
-		displayName: 'XSBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onClick: null, style: {} };
-		},
-
-		render: function render() {
-			return React.createElement(
-				Btn,
-				{
-					padding: '2px 4px',
-					fontSize: '8px',
-					onClick: this.props.onClick,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.XSBtn = XSBtn;
-
-	var GlyphiconBtn = React.createClass({
-		displayName: 'GlyphiconBtn',
-
-		mixins: [BtnMixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				onClick: null,
-				glyphicon: '',
-				style: {}
-			};
-		},
-
-		render: function render() {
-			return React.createElement(
-				'button',
-				{
-					type: 'button',
-					style: _.extend(this.getStyle(), this.props.style),
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onMouseDown: this.onMouseDown,
-					onMouseUp: this.onMouseUp,
-					onClick: this.props.onClick },
-				React.createElement('span', {
-					className: 'glyphicon glyphicon-' + this.props.glyphicon,
-					style: { marginRight: '3px' } }),
-				this.props.children
-			);
-		}
-	});
-	exports.GlyphiconBtn = GlyphiconBtn;
-
-	var ToggleBtn = React.createClass({
-		displayName: 'ToggleBtn',
-
-		mixins: [BtnMixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				onToggle: null,
-				isClicked: false,
-				style: {}
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isClicked: this.props.isClicked
-			};
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-			if (nextProps.isClicked && nextProps.isClicked !== this.state.isClicked) {
-				this.setState({ isClicked: nextProps.isClicked });
-			}
-		},
-
-		onClick: function onClick(evt) {
-			var isClicked = !this.state.isClicked;
-			if (this.props.onToggle) this.props.onToggle(isClicked);
-			this.setState({ isClicked: isClicked });
-		},
-
-		setClicked: function setClicked(isClicked) {
-			this.setState({ isClicked: isClicked });
-		},
-
-		render: function render() {
-			return React.createElement(
-				'button',
-				{
-					type: 'button',
-					style: _.extend(this.getStyle(), this.props.style),
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onMouseDown: this.onMouseDown,
-					onMouseUp: this.onMouseUp,
-					onClick: this.onClick },
-				React.createElement('span', {
-					className: 'glyphicon glyphicon-ok',
-					style: { marginRight: '10px', opacity: this.state.isClicked === true ? 1 : 0 } }),
-				this.props.children
-			);
-		}
-	});
-	exports.ToggleBtn = ToggleBtn;
-
-	var DarkBlueBtn = React.createClass({
-		displayName: 'DarkBlueBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onClick: null, style: {} };
-		},
-
-		render: function render() {
-			return React.createElement(
-				Btn,
-				{
-					backgroundColor: color.darkBlue,
-					backgroundColorHover: color.lightBlue,
-					backgroundColorMouseDown: color.darkBlue2,
-					borderColor: color.darkBlue,
-					borderColorHover: color.lightBlue,
-					borderColorMouseDown: color.darkBlue2,
-					color: 'white',
-					onClick: this.props.onClick,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.DarkBlueBtn = DarkBlueBtn;
-
-	var DarkBlueSmallBtn = React.createClass({
-		displayName: 'DarkBlueSmallBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onClick: null, style: {} };
-		},
-
-		render: function render() {
-			return React.createElement(
-				Btn,
-				{
-					backgroundColor: color.darkBlue,
-					backgroundColorHover: color.lightBlue,
-					backgroundColorMouseDown: color.darkBlue2,
-					borderColor: color.darkBlue,
-					borderColorHover: color.lightBlue,
-					borderColorMouseDown: color.darkBlue2,
-					color: 'white',
-					padding: '3px 6px',
-					fontSize: '12px',
-					onClick: this.props.onClick,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.DarkBlueSmallBtn = DarkBlueSmallBtn;
-
-	var DarkBlueXSBtn = React.createClass({
-		displayName: 'DarkBlueXSBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onClick: null, style: {} };
-		},
-
-		render: function render() {
-			return React.createElement(
-				Btn,
-				{
-					backgroundColor: color.darkBlue,
-					backgroundColorHover: color.lightBlue,
-					backgroundColorMouseDown: color.darkBlue2,
-					borderColor: color.darkBlue,
-					borderColorHover: color.lightBlue,
-					borderColorMouseDown: color.darkBlue2,
-					color: 'white',
-					padding: '2px 4px',
-					fontSize: '8px',
-					onClick: this.props.onClick,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.DarkBlueXSBtn = DarkBlueXSBtn;
-
-	var DarkBlueToggleBtn = React.createClass({
-		displayName: 'DarkBlueToggleBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false, style: {} };
-		},
-
-		setClicked: function setClicked(isClicked) {
-			this.refs.btn.setClicked(isClicked);
-		},
-
-		render: function render() {
-			return React.createElement(
-				ToggleBtn,
-				{
-					ref: 'btn',
-					backgroundColor: color.darkBlue,
-					backgroundColorHover: color.lightBlue,
-					backgroundColorMouseDown: color.darkBlue2,
-					borderColor: color.darkBlue,
-					borderColorHover: color.lightBlue,
-					borderColorMouseDown: color.darkBlue2,
-					color: 'white',
-					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.DarkBlueToggleBtn = DarkBlueToggleBtn;
-
-	var DarkBlueSmallToggleBtn = React.createClass({
-		displayName: 'DarkBlueSmallToggleBtn',
-
-		getDefaultProps: function getDefaultProps() {
-			return { onToggle: null, isClicked: false, style: {} };
-		},
-
-		setClicked: function setClicked(isClicked) {
-			this.refs.btn.setClicked(isClicked);
-		},
-
-		render: function render() {
-			return React.createElement(
-				ToggleBtn,
-				{
-					ref: 'btn',
-					backgroundColor: color.darkBlue,
-					backgroundColorHover: color.lightBlue,
-					backgroundColorMouseDown: color.darkBlue2,
-					borderColor: color.darkBlue,
-					borderColorHover: color.lightBlue,
-					borderColorMouseDown: color.darkBlue2,
-					color: 'white',
-					padding: '3px 6px',
-					fontSize: '12px',
-					onToggle: this.props.onToggle,
-					isClicked: this.props.isClicked,
-					style: this.props.style },
-				this.props.children
-			);
-		}
-	});
-	exports.DarkBlueSmallToggleBtn = DarkBlueSmallToggleBtn;
-
-/***/ },
+/* 180 */,
 /* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -35530,7 +34881,7 @@
 	    Layout = __webpack_require__(178).Layout,
 	    LayerPopup = __webpack_require__(182).LayerPopup,
 	    DatabaseConfigPanel = __webpack_require__(296),
-	    BindingTypePanel = __webpack_require__(297);
+	    BindingTypePanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/binding-type-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 	jsUtil.initPrototypeFunctions();
 
@@ -49879,16 +49230,16 @@
 
 	var React = __webpack_require__(2),
 	    ReactDOM = __webpack_require__(159),
-	    ReactGateway = __webpack_require__(311),
+	    ReactGateway = __webpack_require__(297),
 	    _ = __webpack_require__(160),
 	    util = __webpack_require__(161),
 	    jsUtil = __webpack_require__(175),
 	    color = jsUtil.color,
-	    server = __webpack_require__(298),
+	    server = __webpack_require__(299),
 	    LayerPopup = __webpack_require__(182),
 	    Clearfix = __webpack_require__(179).Clearfix,
-	    ColumnSelectTable = __webpack_require__(313).ColumnSelectTable,
-	    PolymerIcon = __webpack_require__(314),
+	    ColumnSelectTable = __webpack_require__(309).ColumnSelectTable,
+	    PolymerIcon = __webpack_require__(310),
 	    MaterialWrapper = __webpack_require__(186),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -50053,9 +49404,6 @@
 				card: {
 					marginBottom: '10px'
 				},
-				textfield: {
-					display: 'block'
-				},
 				textfieldInputStyle: {
 					color: 'black'
 				},
@@ -50158,21 +49506,18 @@
 							'div',
 							{ style: style.jdbcConfig.jdbcBorder },
 							React.createElement(TextField, {
-								style: style.textfield,
 								inputStyle: style.textfieldInputStyle,
 								floatingLabelText: 'jdbc driver',
 								value: this.props.jdbcDriver,
 								fullWidth: true,
 								onChange: this.onJdbcDriverChanged }),
 							React.createElement(TextField, {
-								style: style.textfield,
 								inputStyle: style.textfieldInputStyle,
 								floatingLabelText: 'jdbc connection url',
 								value: this.props.jdbcConnUrl,
 								fullWidth: true,
 								onChange: this.onJdbcConnUrlChanged }),
 							React.createElement(TextField, {
-								style: style.textfield,
 								inputStyle: style.textfieldInputStyle,
 								floatingLabelText: 'jdbc username',
 								value: this.props.jdbcUsername,
@@ -50180,7 +49525,6 @@
 								onChange: this.onJdbcUsernameChanged }),
 							React.createElement(TextField, {
 								type: 'password',
-								style: style.textfield,
 								inputStyle: style.textfieldInputStyle,
 								floatingLabelText: 'jdbc password',
 								value: this.props.jdbcPassword,
@@ -50203,7 +49547,6 @@
 							value: this.props.table,
 							disabled: true,
 							floatingLabelText: 'tables',
-							style: style.textfield,
 							inputStyle: style.textfieldInputStyle,
 							fullWidth: true,
 							onClick: this.toggleTableConfigDialog }),
@@ -50211,7 +49554,6 @@
 							value: this.props.columns,
 							disabled: true,
 							floatingLabelText: 'columns',
-							style: style.textfield,
 							inputStyle: style.textfieldInputStyle,
 							fullWidth: true,
 							onClick: this.toggleColumnConfigDialog }),
@@ -50373,7 +49715,7 @@
 		},
 
 		onColumnsTextFieldChange: function onColumnsTextFieldChange(evt) {
-			this.onColumnsChange(evt.target.value);
+			this.props.onColumnsChange(evt.target.value);
 		},
 
 		loadColumns: function loadColumns() {
@@ -50447,7 +49789,7 @@
 						React.createElement(TextField, {
 							floatingLabelText: 'columns',
 							value: this.props.columns,
-							onChange: this.onColumnsChange,
+							onChange: this.onColumnsTextFieldChange,
 							fullWidth: true }),
 						React.createElement(
 							'div',
@@ -50468,369 +49810,107 @@
 
 	'use strict';
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var React = __webpack_require__(2);
+	var ReactDOM = __webpack_require__(159);
+	var ExecutionEnvironment = __webpack_require__(298);
 
-	var React = __webpack_require__(2),
-	    jsUtil = __webpack_require__(175),
-	    color = jsUtil.color,
-	    server = __webpack_require__(298),
-	    Panel = __webpack_require__(164).Panel,
-	    KeyValueLine = __webpack_require__(308).getKeyValueLine('100px'),
-	    TextBox = __webpack_require__(309).TextBox,
-	    DarkBlueSmallBtn = __webpack_require__(180).DarkBlueSmallBtn,
-	    LayerPopup = __webpack_require__(182).LayerPopup,
-	    modalMixin = __webpack_require__(182).modalMixin,
-	    Curtain = __webpack_require__(182).Curtain,
-	    CurtainAlert = __webpack_require__(182).CurtainAlert,
-	    ListItem = __webpack_require__(308).ListItem;
+	var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
 
-	var BindingTypePanel = React.createClass({
-		displayName: 'BindingTypePanel',
+	module.exports = React.createClass({
+	  displayName: 'ReactGateway',
 
-		PropTypes: {
-			bindingType: React.PropTypes.string.isRequired,
-			bindingColumn: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired,
-			table: React.PropTypes.string.isRequired,
-			onChange: React.PropTypes.func.isRequired
-		},
+	  propTypes: {
+	    to: React.PropTypes.instanceOf(SafeHTMLElement),
+	    className: React.PropTypes.string,
+	    children: React.PropTypes.element.isRequired
+	  },
 
-		getDefaultProps: function getDefaultProps() {
-			return { bindingType: 'simple' };
-		},
+	  getDefaultProps: function() {
+	    return {
+	      to: document.body
+	    };
+	  },
 
-		onBindingColumnTextBoxClicked: function onBindingColumnTextBoxClicked() {
-			this.refs.bindingColumnModal.show();
-		},
+	  componentDidMount: function() {
+	    this.gatewayNode = document.createElement('div');
+	    if (this.props.className) this.gatewayNode.className = this.props.className;
+	    this.props.to.appendChild(this.gatewayNode);
+	    this.renderIntoGatewayNode(this.props);
+	  },
 
-		classes: function classes() {
-			return {
-				'default': {
-					BindingTypeLine: {
-						textAlign: 'center',
-						padding: '10px'
-					},
-					BindingColumnTextBox: {
-						width: '400px'
-					}
-				}
-			};
-		},
+	  componentWillReceiveProps: function(props) {
+	    this.renderIntoGatewayNode(props);
+	  },
 
-		styles: function styles() {
-			return this.css();
-		},
+	  componentWillUnmount: function() {
+	    ReactDOM.unmountComponentAtNode(this.gatewayNode);
+	    this.gatewayNode.parentNode.removeChild(this.gatewayNode);
+	    delete this.gatewayNode;
+	  },
 
-		render: function render() {
-			var bindingColumnLine = this.props.bindingType === 'simple' ? null : React.createElement(
-				KeyValueLine,
-				{ label: '바인딩 컬럼' },
-				React.createElement(TextBox, _extends({}, this.styles().BindingColumnTextBox, {
-					placeholder: 'binding column',
-					value: this.props.bindingColumn,
-					onClick: this.onBindingColumnTextBoxClicked }))
-			);
+	  renderIntoGatewayNode: function(props) {
+	    delete props.ref;
+	    ReactDOM.unstable_renderSubtreeIntoContainer(this, props.children, this.gatewayNode);
+	  },
 
-			return React.createElement(
-				Panel,
-				null,
-				React.createElement(
-					Panel.SmallHeading,
-					{ glyphicon: 'cog' },
-					'바인딩 타입'
-				),
-				React.createElement(
-					Panel.Body,
-					null,
-					React.createElement(
-						KeyValueLine,
-						{ label: '바인딩 타입' },
-						React.createElement(BindingTypeBtn, {
-							name: 'simple',
-							isClicked: this.props.bindingType === 'simple',
-							onChange: this.props.onChange }),
-						React.createElement(BindingTypeBtn, {
-							name: 'date',
-							isClicked: this.props.bindingType === 'date',
-							onChange: this.props.onChange }),
-						React.createElement(BindingTypeBtn, {
-							name: 'seq',
-							isClicked: this.props.bindingType === 'seq',
-							onChange: this.props.onChange })
-					),
-					bindingColumnLine
-				),
-				React.createElement(BindingColumnModal, {
-					ref: 'bindingColumnModal',
-					table: this.props.table,
-					jdbcDriver: this.props.jdbcDriver,
-					jdbcConnUrl: this.props.jdbcConnUrl,
-					jdbcUsername: this.props.jdbcUsername,
-					jdbcPassword: this.props.jdbcPassword,
-					onChange: this.onBindingColumnChanged })
-			);
-		}
+	  render: function() {
+	    return null;
+	  }
 	});
 
-	var BindingTypeBtn = React.createClass({
-		displayName: 'BindingTypeBtn',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				isClicked: false,
-				name: '',
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isMouseOver: false };
-		},
-
-		onMouseOver: function onMouseOver() {
-			this.setState({ isMouseOver: true });
-		},
-
-		onMouseOut: function onMouseOut() {
-			this.setState({ isMouseOver: false });
-		},
-
-		onClick: function onClick() {
-			if (this.props.isClicked === false && this.props.onChange != null) {
-				this.props.onChange({ bindingType: this.props.name });
-			}
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						display: 'inline-block',
-						width: '200px',
-						height: '100px',
-						cursor: 'pointer',
-						textAlign: 'center',
-						padding: '20px',
-						overflow: 'hidden',
-						backgroundColor: 'inherit',
-						border: '1px solid ' + color.lightGray
-					},
-					title: {
-						cursor: 'pointer',
-						fontSize: '150%',
-						display: 'block'
-					},
-					label: {
-						cursor: 'pointer'
-					}
-				},
-				'isClicked-true': {
-					outer: {
-						backgroundColor: color.darkGray,
-						color: 'white'
-					}
-				},
-				'isMouseOver': {
-					outer: {
-						backgroundColor: color.lightGray,
-						color: 'black'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css({
-				'isMouseOver': this.state.isMouseOver === true && this.props.isClicked === false
-			});
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer,
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onClick: this.onClick },
-				React.createElement(
-					'label',
-					{ style: this.styles().title,
-						onClick: this.onClick },
-					this.props.name
-				),
-				React.createElement(
-					'label',
-					{ style: this.styles().label,
-						onClick: this.onClick },
-					'binding type'
-				)
-			);
-		}
-	});
-
-	var BindingColumnModal = React.createClass({
-		displayName: 'BindingColumnModal',
-
-		mixins: [ReactCSS.mixin, modalMixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				table: '',
-				jdbcDriver: '',
-				jdbcConnUrl: '',
-				jdbcUsername: '',
-				jdbcPassword: '',
-				onChange: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				loadedColumnsStatus: 'loading',
-				loadedColumns: []
-			};
-		},
-
-		show: function show() {
-			this.loadColumns();
-			this.setState({ visible: true });
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		loadColumns: function loadColumns() {
-			var jdbc = {
-				driver: this.props.jdbcDriver,
-				connUrl: this.props.jdbcConnUrl,
-				username: this.props.jdbcUsername,
-				password: this.props.jdbcPassword
-			};
-
-			server.loadColumns(jdbc, this.props.table).then((function (columns) {
-				this.setState({
-					loadedColumnsStatus: 'loaded',
-					loadedColumns: columns
-				});
-			}).bind(this))['catch']((function (err) {
-				this.setState({ loadedColumnsStatus: 'failed' });
-			}).bind(this));
-		},
-
-		onListChange: function onListChange(column) {
-			this.props.onChange({ bindingColumn: column.columnName });
-			this.hide();
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					loadingBox: {
-						textAlign: 'center',
-						padding: '10px',
-						fontSize: '90%'
-					},
-					outer: {
-						display: this.state.visible === true ? 'block' : 'none'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			var loadedColumns = null;
-			if (this.state.loadedColumnsStatus === 'loading') {
-				loadedColumns = React.createElement(
-					'div',
-					{ style: this.styles().loadingBox },
-					'loading...'
-				);
-			} else if (this.state.loadedColumnsStatus === 'failed') {
-				loadedColumns = React.createElement(
-					'div',
-					{ style: this.styles().loadingBox },
-					'load fail'
-				);
-			} else if (this.state.loadedColumnsStatus === 'loaded') {
-				//TODO IMME
-
-				loadedColumns = React.createElement(ColumnList, {
-					items: this.state.loadedColumns,
-					onChange: this.props.onChange });
-			}
-
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'div',
-					{ style: this.getModalDivStyle() },
-					loadedColumns,
-					React.createElement(
-						DarkBlueSmallBtn,
-						{ onClick: this.hide },
-						'ok'
-					)
-				)
-			);
-		}
-	});
-
-	var ColumnList = React.createClass({
-		displayName: 'ColumnList',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				items: [],
-				onChange: null
-			};
-		},
-
-		render: function render() {
-			var outer = {
-				height: '100px',
-				overflow: 'auto'
-			};
-
-			var body = [];
-			this.props.items.forEach((function (item) {
-				var onClickFn = (function () {
-					this.props.onChange({ bindingColumn: item.columnName });
-				}).bind(this);
-
-				var name = util.format('%s (%s)', item.columnName, item.columnType);
-				body.push(React.createElement(ListItem, { key: name, name: name, onClick: onClickFn }));
-			}).bind(this));
-
-			return React.createElement(
-				'div',
-				{ style: outer },
-				body
-			);
-		}
-	});
-
-	module.exports = BindingTypePanel;
 
 /***/ },
 /* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Based on code that is Copyright 2013-2015, Facebook, Inc.
+	  All rights reserved.
+	*/
+
+	(function () {
+		'use strict';
+
+		var canUseDOM = !!(
+			typeof window !== 'undefined' &&
+			window.document &&
+			window.document.createElement
+		);
+
+		var ExecutionEnvironment = {
+
+			canUseDOM: canUseDOM,
+
+			canUseWorkers: typeof Worker !== 'undefined',
+
+			canUseEventListeners:
+				canUseDOM && !!(window.addEventListener || window.attachEvent),
+
+			canUseViewport: canUseDOM && !!window.screen
+
+		};
+
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return ExecutionEnvironment;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = ExecutionEnvironment;
+		} else {
+			window.ExecutionEnvironment = ExecutionEnvironment;
+		}
+
+	}());
+
+
+/***/ },
+/* 299 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var Promise = __webpack_require__(299),
+	var Promise = __webpack_require__(300),
 	    util = __webpack_require__(161);
 
 	exports.loadColumns = function (jdbc, table) {
@@ -50889,25 +49969,12 @@
 	};
 
 /***/ },
-/* 299 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(300)
-
-
-/***/ },
 /* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(301);
-	__webpack_require__(303);
-	__webpack_require__(304);
-	__webpack_require__(305);
-	__webpack_require__(306);
+	module.exports = __webpack_require__(301)
 
 
 /***/ },
@@ -50916,7 +49983,20 @@
 
 	'use strict';
 
-	var asap = __webpack_require__(302);
+	module.exports = __webpack_require__(302);
+	__webpack_require__(304);
+	__webpack_require__(305);
+	__webpack_require__(306);
+	__webpack_require__(307);
+
+
+/***/ },
+/* 302 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var asap = __webpack_require__(303);
 
 	function noop() {}
 
@@ -51101,7 +50181,7 @@
 
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
@@ -51328,12 +50408,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Promise = __webpack_require__(301);
+	var Promise = __webpack_require__(302);
 
 	module.exports = Promise;
 	Promise.prototype.done = function (onFulfilled, onRejected) {
@@ -51347,12 +50427,12 @@
 
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Promise = __webpack_require__(301);
+	var Promise = __webpack_require__(302);
 
 	module.exports = Promise;
 	Promise.prototype['finally'] = function (f) {
@@ -51369,14 +50449,14 @@
 
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	//This file contains the ES6 extensions to the core Promises/A+ API
 
-	var Promise = __webpack_require__(301);
+	var Promise = __webpack_require__(302);
 
 	module.exports = Promise;
 
@@ -51482,7 +50562,7 @@
 
 
 /***/ },
-/* 306 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51490,8 +50570,8 @@
 	// This file contains then/promise specific extensions that are only useful
 	// for node.js interop
 
-	var Promise = __webpack_require__(301);
-	var asap = __webpack_require__(307);
+	var Promise = __webpack_require__(302);
+	var asap = __webpack_require__(308);
 
 	module.exports = Promise;
 
@@ -51559,13 +50639,13 @@
 
 
 /***/ },
-/* 307 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	// rawAsap provides everything we need except exception management.
-	var rawAsap = __webpack_require__(302);
+	var rawAsap = __webpack_require__(303);
 	// RawTasks are recycled to reduce GC churn.
 	var freeTasks = [];
 	// We queue errors to ensure they are thrown in right order (FIFO).
@@ -51631,353 +50711,7 @@
 
 
 /***/ },
-/* 308 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(165),
-	    _ = __webpack_require__(160),
-	    jsUtil = __webpack_require__(175),
-	    color = jsUtil.color,
-	    Clearfix = __webpack_require__(179).Clearfix;
-
-	exports.getKeyValueLine = function (width) {
-		return React.createClass({
-			mixins: [ReactCSS.mixin],
-
-			getDefaultProps: function getDefaultProps() {
-				return { label: '', style: {} };
-			},
-
-			classes: function classes() {
-				return {
-					'default': {
-						left: {
-							float: 'left',
-							width: width,
-							textAlign: 'right',
-							marginRight: '15px'
-						},
-						right: _.extend({
-							float: 'left'
-						}, this.props.style)
-					}
-				};
-			},
-
-			styles: function styles() {
-				return this.css();
-			},
-
-			render: function render() {
-				return React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'div',
-						{ style: this.styles().left },
-						this.props.label
-					),
-					React.createElement(
-						'div',
-						{ style: this.styles().right },
-						this.props.children
-					),
-					React.createElement(Clearfix, null)
-				);
-			}
-		});
-	};
-
-	exports.ListItem = React.createClass({
-		displayName: 'ListItem',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				name: '',
-				onClick: null,
-				isSelected: false
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { isMouseOver: false };
-		},
-
-		onMouseOver: function onMouseOver(evt) {
-			this.setState({ isMouseOver: true });
-		},
-
-		onMouseOut: function onMouseOut(evt) {
-			this.setState({ isMouseOver: false });
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						borderBottom: '1px solid ' + color.lightGray,
-						padding: '3px 6px',
-						cursor: 'pointer'
-					}
-				},
-				'isMouseOver': {
-					outer: {
-						backgroundColor: color.lightGray
-					}
-				},
-				'isSelected-true': {
-					outer: {
-						backgroundColor: color.lightGray
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css({
-				'isMouseOver': this.state.isMouseOver
-			});
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{
-					style: this.styles().outer,
-					onMouseOver: this.onMouseOver,
-					onMouseOut: this.onMouseOut,
-					onClick: this.props.onClick },
-				this.props.name
-			);
-		}
-	});
-
-/***/ },
 /* 309 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2),
-	    ReactCSS = __webpack_require__(165),
-	    _ = __webpack_require__(160),
-	    color = __webpack_require__(175).color;
-
-	var TextBox = React.createClass({
-		displayName: 'TextBox',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null,
-				onClick: null,
-				onFocus: null,
-				onKeyUp: null
-			};
-		},
-
-		getInitialState: function getInitialState() {
-			return { value: this.props.value };
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-			if (nextProps.value != null) this.setState({ value: nextProps.value });
-		},
-
-		onChange: function onChange(evt) {
-			this.setState({ value: evt.target.value });
-			if (this.props.onChange != null) this.props.onChange(evt);
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					input: _.extend({
-						backgroundColor: color.transparentLightGray,
-						border: 'none',
-						padding: '6px',
-						outline: 'none'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement('input', {
-				style: this.styles().input,
-				type: this.props.type,
-				placeholder: this.props.placeholder,
-				value: this.state.value,
-				onChange: this.onChange,
-				onClick: this.props.onClick,
-				onFocus: this.props.onFocus,
-				onKeyUp: this.props.onKeyUp });
-		}
-	});
-	exports.TextBox = TextBox;
-
-	var DashedTextBox = React.createClass({
-		displayName: 'DashedTextBox',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				type: 'text',
-				placeholder: '',
-				value: '',
-				style: {},
-				onChange: null,
-				onFocus: null
-			};
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					textbox: _.extend({
-						padding: '5px',
-						border: '1px dashed ' + color.gray,
-						outline: 'none',
-						borderRadius: '5px'
-					}, this.props.style)
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(TextBox, {
-				type: this.props.type,
-				placeholder: this.props.placeholder,
-				value: this.props.value,
-				style: this.styles().textbox,
-				onChange: this.props.onChange,
-				onFocus: this.props.onFocus });
-		}
-	});
-	exports.DashedTextBox = DashedTextBox;
-
-/***/ },
-/* 310 */,
-/* 311 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(2);
-	var ReactDOM = __webpack_require__(159);
-	var ExecutionEnvironment = __webpack_require__(312);
-
-	var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
-
-	module.exports = React.createClass({
-	  displayName: 'ReactGateway',
-
-	  propTypes: {
-	    to: React.PropTypes.instanceOf(SafeHTMLElement),
-	    className: React.PropTypes.string,
-	    children: React.PropTypes.element.isRequired
-	  },
-
-	  getDefaultProps: function() {
-	    return {
-	      to: document.body
-	    };
-	  },
-
-	  componentDidMount: function() {
-	    this.gatewayNode = document.createElement('div');
-	    if (this.props.className) this.gatewayNode.className = this.props.className;
-	    this.props.to.appendChild(this.gatewayNode);
-	    this.renderIntoGatewayNode(this.props);
-	  },
-
-	  componentWillReceiveProps: function(props) {
-	    this.renderIntoGatewayNode(props);
-	  },
-
-	  componentWillUnmount: function() {
-	    ReactDOM.unmountComponentAtNode(this.gatewayNode);
-	    this.gatewayNode.parentNode.removeChild(this.gatewayNode);
-	    delete this.gatewayNode;
-	  },
-
-	  renderIntoGatewayNode: function(props) {
-	    delete props.ref;
-	    ReactDOM.unstable_renderSubtreeIntoContainer(this, props.children, this.gatewayNode);
-	  },
-
-	  render: function() {
-	    return null;
-	  }
-	});
-
-
-/***/ },
-/* 312 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
-	  Based on code that is Copyright 2013-2015, Facebook, Inc.
-	  All rights reserved.
-	*/
-
-	(function () {
-		'use strict';
-
-		var canUseDOM = !!(
-			typeof window !== 'undefined' &&
-			window.document &&
-			window.document.createElement
-		);
-
-		var ExecutionEnvironment = {
-
-			canUseDOM: canUseDOM,
-
-			canUseWorkers: typeof Worker !== 'undefined',
-
-			canUseEventListeners:
-				canUseDOM && !!(window.addEventListener || window.attachEvent),
-
-			canUseViewport: canUseDOM && !!window.screen
-
-		};
-
-		if (true) {
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return ExecutionEnvironment;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else if (typeof module !== 'undefined' && module.exports) {
-			module.exports = ExecutionEnvironment;
-		} else {
-			window.ExecutionEnvironment = ExecutionEnvironment;
-		}
-
-	}());
-
-
-/***/ },
-/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52242,7 +50976,7 @@
 	});
 
 /***/ },
-/* 314 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

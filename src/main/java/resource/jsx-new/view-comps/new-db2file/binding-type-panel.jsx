@@ -2,15 +2,21 @@ var React = require('react'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),
-	Panel = require('../../comps/panel.jsx').Panel,
-	KeyValueLine = require('../../comps/etc.jsx').getKeyValueLine('100px'),
-	TextBox = require('../../comps/textbox.jsx').TextBox,
-	DarkBlueSmallBtn = require('../../comps/btn.jsx').DarkBlueSmallBtn,
-	LayerPopup = require('../../comps/layer-popup.jsx').LayerPopup,
-	modalMixin = require('../../comps/layer-popup.jsx').modalMixin,
-	Curtain = require('../../comps/layer-popup.jsx').Curtain,
-	CurtainAlert = require('../../comps/layer-popup.jsx').CurtainAlert,
-	ListItem = require('../../comps/etc.jsx').ListItem;
+	PolymerIcon = require('../../comps/polymer-icon.jsx'),
+	MaterialWrapper = require('../../comps/material-wrapper.jsx'),
+	Button = MaterialWrapper.Button,
+	TextField = MaterialWrapper.TextField,
+	SelectField = MaterialWrapper.SelectField,
+	Card = MaterialWrapper.Card,
+	CardHeader = MaterialWrapper.CardHeader,
+	CardText = MaterialWrapper.CardText,
+	CircularProgress = MaterialWrapper.CircularProgress,
+	List = MaterialWrapper.List,
+	ListItem = MaterialWrapper.ListItem,
+	ListDivider = MaterialWrapper.ListDivider,
+	Dialog = MaterialWrapper.Dialog,
+	RadioButton = MaterialWrapper.RadioButton,
+	RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
 
 
 var BindingTypePanel = React.createClass({
@@ -29,198 +35,38 @@ var BindingTypePanel = React.createClass({
 		return { bindingType: 'simple' };
 	},
 
-	onBindingColumnTextBoxClicked() {
-		this.refs.bindingColumnModal.show();
+	getInitialState() {
+		return {
+			isBindingColumnConfigDialogVisible: false
+		};
 	},
 
-	classes() {
+	onBindingTypeChanged(evt) {
+		console.log(evt); //DEBUG
+		console.log(evt.target);//DEBUG
+		console.log(evt.target.value);//DEBUG
+
+		this.props.onChange({ bindingType: evt.target.value });
+	},
+
+	onBindingColumnChange(bindingColumn) {
+		this.props.onChange({ bindingColumn: bindingColumn });
+	},
+
+	toggleBindingColumnConfigDialog() {
+		this.setState({ isBindingColumnConfigDialogVisible: !this.state.isBindingColumnConfigDialogVisible });
+	},
+
+	styles() {
 		return {
-			default: {
-				BindingTypeLine: {
-					textAlign: 'center',
-					padding: '10px'
-				},
-				BindingColumnTextBox: {
-					width: '400px'
-				}
+			textfieldInputStyle: {
+				color: 'black'
 			}
 		};
 	},
 
-	styles() {
-		return this.css();
-	},
-
 	render() {
-		var bindingColumnLine = 
-			this.props.bindingType === 'simple' ? null : 
-				(<KeyValueLine label="바인딩 컬럼">
-					<TextBox 
-						is="BindingColumnTextBox"
-						placeholder="binding column"
-						value={this.props.bindingColumn}
-						onClick={this.onBindingColumnTextBoxClicked} />
-				</KeyValueLine>);
-
-		return (
-			<Panel>
-				<Panel.SmallHeading glyphicon="cog">바인딩 타입</Panel.SmallHeading>
-				<Panel.Body>
-					<KeyValueLine label="바인딩 타입">
-						<BindingTypeBtn 
-							name="simple" 
-							isClicked={this.props.bindingType === 'simple'} 
-							onChange={this.props.onChange} />
-						<BindingTypeBtn 
-							name="date" 
-							isClicked={this.props.bindingType === 'date'} 
-							onChange={this.props.onChange} />
-						<BindingTypeBtn 
-							name="seq" 
-							isClicked={this.props.bindingType === 'seq'} 
-							onChange={this.props.onChange} />
-					</KeyValueLine>
-					{bindingColumnLine}
-				</Panel.Body>
-				<BindingColumnModal 
-					ref="bindingColumnModal"
-					table={this.props.table}
-					jdbcDriver={this.props.jdbcDriver}
-					jdbcConnUrl={this.props.jdbcConnUrl}
-					jdbcUsername={this.props.jdbcUsername}
-					jdbcPassword={this.props.jdbcPassword}
-					onChange={this.onBindingColumnChanged} />
-			</Panel>
-		);
-	}
-});
-
-
-var BindingTypeBtn = React.createClass({
-	mixins: [ ReactCSS.mixin ],
-
-	getDefaultProps() {
-		return {
-			isClicked: false,
-			name: '',
-			onChange: null
-		};
-	},
-
-	getInitialState() {
-		return { isMouseOver: false };
-	},
-
-	onMouseOver() {
-		this.setState({ isMouseOver: true });
-	},
-
-	onMouseOut() {
-		this.setState({ isMouseOver: false });
-	},
-
-	onClick() {
-		if(this.props.isClicked === false && this.props.onChange != null) {
-			this.props.onChange({ bindingType: this.props.name });
-		}
-	},
-
-	classes() {
-		return {
-			'default': {
-				outer: {
-					display: 'inline-block',
-					width: '200px',
-					height: '100px',
-					cursor: 'pointer',
-					textAlign: 'center',
-					padding: '20px',
-					overflow: 'hidden',
-					backgroundColor: 'inherit',
-					border: '1px solid ' + color.lightGray
-				},
-				title: {
-					cursor: 'pointer',
-					fontSize: '150%',
-					display: 'block'
-				},
-				label: {
-					cursor: 'pointer'
-				}
-			},
-			'isClicked-true': {
-				outer: {
-					backgroundColor: color.darkGray,
-					color: 'white'
-				}
-			},
-			'isMouseOver': {
-				outer: {
-					backgroundColor: color.lightGray,
-					color: 'black'
-				}
-			}
-		};
-	},
-
-	styles() {
-		return this.css({
-			'isMouseOver': this.state.isMouseOver === true && this.props.isClicked === false
-		});
-	},
-
-	render() {
-		return (
-			<div is="outer"
-				onMouseOver={this.onMouseOver}
-				onMouseOut={this.onMouseOut}
-				onClick={this.onClick}>
-				<label is="title"
-					onClick={this.onClick}>
-					{this.props.name}
-				</label>
-				<label is="label"
-					onClick={this.onClick}>
-					binding type
-				</label>
-			</div>
-		);
-	}
-});
-
-
-var BindingColumnModal = React.createClass({
-	mixins: [ ReactCSS.mixin, modalMixin ],
-
-	getDefaultProps() {
-		return {
-			table: '',
-			jdbcDriver: '',
-			jdbcConnUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: '',
-			onChange: null
-		};
-	},
-
-	getInitialState() {
-		return {
-			visible: false,
-			loadedColumnsStatus: 'loading',
-			loadedColumns: []
-		};
-	},
-
-	show() {
-		this.loadColumns();
-		this.setState({ visible: true });
-	},
-
-	hide() {
-		this.setState({ visible: false });
-	},
-
-	loadColumns() {
+		var style = this.styles();
 		var jdbc = {
 			driver: this.props.jdbcDriver,
 			connUrl: this.props.jdbcConnUrl,
@@ -228,99 +74,158 @@ var BindingColumnModal = React.createClass({
 			password: this.props.jdbcPassword
 		};
 
-		server.loadColumns(jdbc, this.props.table).then(function(columns) {
+		return (
+			<Card>
+				<CardHeader
+					title="바인딩 타입 설정"
+					subtitle="바인딩 타입을 설정합니다."
+					avatar={ <PolymerIcon icon="config" /> } />
+				<CardText>
+					<RadioButtonGroup 
+						name="bindingType" 
+						defaultSelected="simple"
+						onChange={TODO}>
+						<RadioButton
+							value="simple"
+							label="simple binding" />
+						<RadioButton
+							value="date"
+							label="date binding" />
+						<RadioButton
+							value="sequence"
+							label="sequence binding" />
+					</RadioButtonGroup>
+					{
+						this.state.bindingType === 'simple' ? null : (
+							<TextField
+								value={this.props.bindingColumn}	
+								disabled={true}
+								floatingLabelText="binding columns"
+								style={style.textfield}
+								inputStyle={style.textfieldInputStyle}
+								fullWidth={true}
+								onClick={this.toggleBindingColumnConfigDialog} />
+							<BindingColumnConfigDialog
+								visible={this.state.isBindingColumnConfigDialogVisible}
+								onClose={this.toggleBindingColumnConfigDialog}
+								table={this.props.table}
+								bindingColumn={this.props.bindingColumn}
+								onBindingColumnChange={this.onBindingColumnChange}
+								jdbc={jdbc} />
+						)
+					}
+				</CardText>
+			</Card>
+		);
+	}
+});
+
+
+var BindingColumnConfigDialog= React.createClass({
+	PropTypes: {
+		visible: React.PropTypes.bool.isRequired,
+		onClose: React.PropTypes.func.isRequired,
+		table: React.PropTypes.string.isRequired,
+		bindingColumn: React.PropTypes.string.isRequired,
+		onBindingColumnChange: React.PropTypes.func.isRequired,
+		jdbc: React.PropTypes.object.isRequired
+	},
+
+	getDefaultProps() {
+		return { visible: false };
+	},
+
+	getInitialState() {
+		return {
+			isColumnsLoaded: false,
+			loadedColumns: null
+		};
+	},
+
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.visible === false && this.props.visible === true)
+			this.loadColumns();
+	},
+
+	onBindingColumnTextFieldChange(evt) {
+		this.props.onBindingColumnChange(evt.target.value);
+	},
+
+	loadColumns() {
+		server.loadColumns(this.props.jdbc, this.props.table)
+		.then(function(columns) {
 			this.setState({
-				loadedColumnsStatus: 'loaded',
+				isColumnsLoaded: true,
 				loadedColumns: columns
 			});
 		}.bind(this)).catch(function(err) {
-			this.setState({ loadedColumnsStatus: 'failed' });
+			console.error(err.stack);
+			this.setState({ isColumnsLoaded: false });
+			if(typeof err !== 'string') err = JSON.stringify(err);
+			//TODO layer popup alert error
+			alert(err);
 		}.bind(this));
 	},
 
-	onListChange(column) {
-		this.props.onChange({ bindingColumn: column.columnName });
-		this.hide();
-	},
+	renderColumnList() {
+		if(this.state.isColumnsLoaded === false) 
+			return (<CircularProgress mode="indeterminate" size={0.5} />);
 
-	classes() {
-		return {
-			'default': {
-				loadingBox: {
-					textAlign: 'center',
-					padding: '10px',
-					fontSize: '90%'
-				},
-				outer: {
-					display: this.state.visible === true ? 'block' : 'none'
-				}
+		return (
+			<List>
+			{
+				this.state.loadedColumns.map(function(column) {
+					var columnName = column.columnName.toLowerCase();
+					var columnType = column.columnType;
+
+					var onClick = function() {
+						this.props.onColumnChange(columnName);
+					}.bind(this);
+
+					return (
+						<ListItem
+							key={columnName}
+							primaryText={columnName}
+							secondaryText={columnType}
+							onClick={onClick} />
+					);
+				}.bind(this))
 			}
-		}
-	},
-
-	styles() {
-		return this.css();
+			</List>
+		);
 	},
 
 	render() {
-		var loadedColumns = null;
-		if(this.state.loadedColumnsStatus === 'loading') {
-			loadedColumns = ( <div is="loadingBox">loading...</div> );
-		} else if(this.state.loadedColumnsStatus === 'failed') {
-			loadedColumns = ( <div is="loadingBox">load fail</div> );
-		} else if(this.state.loadedColumnsStatus === 'loaded') {
-			//TODO IMME
-
-			loadedColumns = (
-				<ColumnList
-					items={this.state.loadedColumns}
-					onChange={this.props.onChange} />
-			);
-		}
-
 		return (
-			<div is="outer">
-				<Curtain />
-				<div style={this.getModalDivStyle()}>
-					{loadedColumns}
-					<DarkBlueSmallBtn onClick={this.hide}>ok</DarkBlueSmallBtn>
-				</div>
-			</div>
+			<Dialog
+				actions={[
+					{ text: 'close', onClick: this.props.onClose }
+				]}
+				actionFocus="close"
+				autoDetectWindowHeight={true}
+				autoScrollBodyContent={true}
+				open={this.props.visible}>
+				<Card>
+					<CardHeader
+						title="binding column 설정"
+						subtitle="binding column 정보를 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<TextField
+							floatingLabelText="columns"
+							value={this.props.bindingColumn} 
+							onChange={this.onBindingColumnTextFieldChange}
+							fullWidth={true} />
+						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
+							{ this.renderColumnList() }
+						</div>
+					</CardText>
+				</Card>
+			</Dialog>
 		);
 	}
 });
 
-var ColumnList = React.createClass({
-	getDefaultProps() {
-		return { 
-			items: [],
-			onChange: null
-		};
-	},
-
-	render() {
-		var outer = {
-			height: '100px',
-			overflow: 'auto'
-		};
-
-		var body = [];
-		this.props.items.forEach(function(item) {
-			var onClickFn = function() {
-				this.props.onChange({ bindingColumn: item.columnName });
-			}.bind(this);
-
-			var name = util.format('%s (%s)', item.columnName, item.columnType);
-			body.push(<ListItem key={name} name={name} onClick={onClickFn} />);
-		}.bind(this));
-
-		return (
-			<div style={outer}>
-				{body}
-			</div>
-		);
-	}
-});
 
 
 module.exports = BindingTypePanel;
