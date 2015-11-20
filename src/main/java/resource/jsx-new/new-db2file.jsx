@@ -29,6 +29,7 @@ var NewDb2FileView = React.createClass({
 	},
 
 	onChange(args) {
+		if(args.columns) args.columns = args.columns.toLowerCase();
 		this.setState(args);
 	},
 

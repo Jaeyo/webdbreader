@@ -1,5 +1,4 @@
 var React = require('react'), 
-	ReactCSS = require('reactcss'),
 	jsUtil = require('../../utils/util.js'),
 	color = jsUtil.color,
 	server = require('../../utils/server.js'),
@@ -15,19 +14,19 @@ var React = require('react'),
 
 
 var BindingTypePanel = React.createClass({
-	mixins: [ ReactCSS.mixin ],
+	PropTypes: {
+		bindingType: React.PropTypes.string.isRequired,
+		bindingColumn: React.PropTypes.string.isRequired,
+		jdbcDriver: React.PropTypes.string.isRequired,
+		jdbcConnUrl: React.PropTypes.string.isRequired,
+		jdbcUsername: React.PropTypes.string.isRequired,
+		jdbcPassword: React.PropTypes.string.isRequired,
+		table: React.PropTypes.string.isRequired,
+		onChange: React.PropTypes.func.isRequired
+	},
 
 	getDefaultProps() {
-		return {
-			bindingType: 'simple',
-			bindingColumn: '',
-			jdbcDriver: '',
-			jdbcConnUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: '',
-			table: '',
-			onChange: null
-		};
+		return { bindingType: 'simple' };
 	},
 
 	onBindingColumnTextBoxClicked() {

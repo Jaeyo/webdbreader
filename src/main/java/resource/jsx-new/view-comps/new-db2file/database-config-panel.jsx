@@ -53,20 +53,18 @@ var jdbcTmpl = {
 
 
 var DatabaseConfigPanel = React.createClass({
-	getDefaultProps() {
-		return {
-			dbVendor: '',
-			dbIp: '',
-			dbPort: '',
-			dbSid: '',
-			jdbcDriver: '',
-			jdbcConnUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: '',
-			table: '',
-			columns: '',
-			onChange: null
-		};
+	PropTypes: {
+		dbVendor: React.PropTypes.string.isRequired,
+		dbIp: React.PropTypes.string.isRequired,
+		dbPort: React.PropTypes.string.isRequired,
+		dbSid: React.PropTypes.string.isRequired,
+		jdbcDriver: React.PropTypes.string.isRequired,
+		jdbcConnUrl: React.PropTypes.string.isRequired,
+		jdbcUsername: React.PropTypes.string.isRequired,
+		jdbcPassword: React.PropTypes.string.isRequired,
+		table: React.PropTypes.string.isRequired,
+		columns: React.PropTypes.string.isRequired,
+		onChange: React.PropTypes.func.isRequired
 	},
 
 	getInitialState() {
@@ -79,6 +77,14 @@ var DatabaseConfigPanel = React.createClass({
 
 	toggleDbConfigModal(evt) {
 		this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
+	},
+
+	toggleTableConfigDialog(evt) {
+		this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
+	},
+
+	toggleColumnConfigDialog(evt) {
+		this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
 	},
 
 	onTableConfigAction(action) {
@@ -163,7 +169,11 @@ var DatabaseConfigPanel = React.createClass({
 	},
 
 	onTableChange(table) {
-		this.onChange({ table: table });
+		this.props.onChange({ table: table });
+	},
+
+	onColumnChange(columns) {
+		this.props.onChange({ columns: columns });
 	},
 	
 	styles() {
@@ -171,8 +181,11 @@ var DatabaseConfigPanel = React.createClass({
 			card: {
 				marginBottom: '10px'
 			},
-			textbox: {
+			textfield: {
 				display: 'block'
+			},
+			textfieldInputStyle: {
+				color: 'black'
 			},
 			jdbcConfig: {
 				dbVendorSelectBox: {
@@ -187,9 +200,6 @@ var DatabaseConfigPanel = React.createClass({
 					border: '1px dashed ' + color.lightGray,
 					padding: '10px',
 					margin: '10px 0'
-				},
-				jdbcTextBox: {
-					display: 'block'
 				},
 				dbConfigModal: {
 					dbIpTextBox: {
@@ -276,26 +286,30 @@ var DatabaseConfigPanel = React.createClass({
 						</Dialog>
 						<div style={style.jdbcConfig.jdbcBorder}>
 							<TextField
-								style={style.jdbcConfig.jdbcTextBox}
+								style={style.textfield}
+								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc driver"
 								value={this.props.jdbcDriver}
 								fullWidth={true}
 								onChange={this.onJdbcDriverChanged} />
 							<TextField
-								style={style.jdbcConfig.jdbcTextBox}
+								style={style.textfield}
+								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc connection url"
 								value={this.props.jdbcConnUrl}
 								fullWidth={true}
 								onChange={this.onJdbcConnUrlChanged} />
 							<TextField
-								style={style.jdbcConfig.jdbcTextBox}
+								style={style.textfield}
+								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc username"
 								value={this.props.jdbcUsername}
 								fullWidth={true}
 								onChange={this.onJdbcUsernameChanged} />
 							<TextField
 								type="password"
-								style={style.jdbcConfig.jdbcTextBox}
+								style={style.textfield}
+								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc password"
 								value={this.props.jdbcPassword}
 								fullWidth={true}
@@ -313,21 +327,30 @@ var DatabaseConfigPanel = React.createClass({
 							value={this.props.table}
 							disabled={true}
 							floatingLabelText="tables"
-							style={ style.textBox }
+							style={ style.textfield }
+							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onClick={this.toggleTableColumnConfigModal} />
+							onClick={this.toggleTableConfigDialog} />
 						<TextField
 							value={this.props.columns}
 							disabled={true}
 							floatingLabelText="columns"
-							style={ style.textBox }
+							style={ style.textfield }
+							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onClick={this.toggleTableColumnConfigModal} />
+							onClick={this.toggleColumnConfigDialog} />
 						<TableConfigDialog
 							visible={this.state.isTableConfigDialogVisible}
 							table={this.props.table}
-							onTableChange={this.props.onTableChange}
+							onTableChange={this.onTableChange}
 							onAction={this.onTableConfigAction}
+							jdbc={jdbc} />
+						<ColumnConfigDialog
+							visible={this.state.isColumnConfigDialogVisible}
+							onClose={this.toggleColumnConfigDialog}
+							table={this.props.table}
+							columns={this.props.columns}
+							onColumnsChange={this.onColumnChange}
 							jdbc={jdbc} />
 					</CardText>
 				</Card>
@@ -352,14 +375,14 @@ var TableConfigDialog = React.createClass({
 
 	getInitialState() {
 		return {
-			isLoadingDialogVisible: false,
-			isTablesLoaded: false
+			isTablesLoaded: false,
 			loadedTables: null
 		}
 	},
 
-	componentDidMount() {
-		this.loadTables();
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.visible === false && this.props.visible === true)
+			this.loadTables();
 	},
 
 	onOk() {
@@ -370,29 +393,52 @@ var TableConfigDialog = React.createClass({
 		this.props.onAction('cancel');
 	},
 
-	toggleLoadingDialogVisible(visible) {
-		if(visible === undefined) visible = !this.state.isLoadingDialogVisible;
-		this.setState({ isLoadingDialogVisible: visible });
+	onTableTextFieldChange(evt) {
+		this.props.onTableChange(evt.target.value);
 	},
 
 	loadTables() {
-		this.toggleLoadingDialogVisible(true);
-
-		server.loadTables(this.jdbc)
+		server.loadTables(this.props.jdbc)
 		.then(function(tables) {
-			this.toggleLoadingDialogVisible(false);
 			this.setState({
-				isTablesLoaded: true
+				isTablesLoaded: true,
 				loadedTables: tables
 			});
 		}.bind(this)).catch(function(err) {
-			this.toggleLoadingDialogVisible(false);
 			console.error(err.stack);
-			this.setState({ isTablesLoaded: 'failed' });
+			this.setState({ isTablesLoaded: true });
 			if(typeof err !== 'string') err = JSON.stringify(err);
 			//TODO layer popup alert error
 			alert(err);
 		}.bind(this));
+	},
+
+	renderTableList() {
+		if(this.state.isTablesLoaded === false) 
+			return (<CircularProgress mode="indeterminate" size={0.5} />);
+
+		var isShouldFilter = (this.props.table != null && this.props.table.trim().length  !== 0);
+
+		return (
+			<List>
+			{
+				this.state.loadedTables.filter(function(table) {
+					if(isShouldFilter === false) return true;
+					return String.containsIgnoreCase(table, this.props.table);
+				}.bind(this)).map(function(table) {
+					var onClick = function() {
+						this.props.onTableChange(table);
+					}.bind(this);
+					return (
+						<ListItem
+							key={table}
+							primaryText={table}
+							onClick={onClick} />
+					);
+				}.bind(this))
+			}
+			</List> 
+		);
 	},
 
 	render() {
@@ -415,41 +461,13 @@ var TableConfigDialog = React.createClass({
 						<TextField
 							floatingLabelText="table"
 							value={this.props.table} 
-							onChange={this.props.onTableChange}
+							onChange={this.onTableTextFieldChange}
 							fullWidth={true} />
-						{
-							this.state.isTablesLoaded === true ? 
-							(<List>
-							{
-								var isShouldFilter = this.props.table != null && this.props.table.trim().length  != 0;
-								this.state.loadedTables.filter(function(table) {
-									if(isShouldFilter === false) return true;
-									return String.containsIgnoreCase(table, this.props.table);
-								}).map(function(table) {
-									var onClick = function() {
-										this.props.onTableChange(table);
-									}.bind(this);
-									return (
-										<ListItem
-											key={table}
-											primaryText={table}
-											onClick={onClick} />
-									);
-								});
-							}
-							</List>) : null
-						}
+						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
+							{ this.renderTableList() }
+						</div>
 					</CardText>
 				</Card>
-				<Dialog
-					title="loading tables..."
-					actions={[
-						{ text: 'cancel', onClick: this.toggleLoadingDialogVisible}
-					]}
-					actionFocus="cancel"
-					open={this.state.isLoadingDialogVisible}>
-					<CircularProgress mode="indeterminate" size={1} />
-				</Dialog>
 			</Dialog>
 		);
 	}
@@ -472,49 +490,81 @@ var ColumnConfigDialog = React.createClass({
 
 	getInitialState() {
 		return {
-			isLoadingDialogVisible: false,
 			isColumnsLoaded: false,
 			loadedColumns: null
 		};
 	},
 
-	componentDidMount() {
-		this.loadColumns();
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.visible === false && this.props.visible === true)
+			this.loadColumns();
 	},
 
-	toggleLoadingDialogVisible(visible) {
-		if(visible === undefined) visible = !this.state.isLoadingDialogVisible;
-		this.setState({ isLoadingDialogVisible: visible });
+	onColumnsTextFieldChange(evt) {
+		this.onColumnsChange(evt.target.value);
 	},
 
 	loadColumns() {
-		this.toggleLoadingDialogVisible(true);
-
 		server.loadColumns(this.props.jdbc, this.props.table)
 		.then(function(columns) {
-			this.toggleLoadingDialogVisible(false);
 			this.setState({
 				isColumnsLoaded: true,
 				loadedColumns: columns
 			});
-		}).catch(function(err) {
-			this.toggleLoadingDialogVisible(false);
+		}.bind(this)).catch(function(err) {
 			console.error(err.stack);
-			this.setState({ isColumnsLoaded: 'failed' });
+			this.setState({ isColumnsLoaded: false });
 			if(typeof err !== 'string') err = JSON.stringify(err);
 			//TODO layer popup alert error
 			alert(err);
-		});
+		}.bind(this));
+	},
+
+	renderColumnList() {
+		if(this.state.isColumnsLoaded === false) 
+			return (<CircularProgress mode="indeterminate" size={0.5} />);
+
+		var selectedColumnsArr = 
+			this.props.columns.split(',')
+				.map(function(s) { return s.trim(); })
+				.filter(function(s){ if(s === '') return false; return true; });
+
+		return (
+			<List>
+			{
+				this.state.loadedColumns.map(function(column) {
+					var columnName = column.columnName.toLowerCase();
+					var columnType = column.columnType;
+
+					var onClick = function() {
+						if(Array.contains(selectedColumnsArr, columnName)) {
+							selectedColumnsArr.remove(columnName);
+						} else {
+							selectedColumnsArr.push(columnName);
+						}
+						this.props.onColumnsChange(selectedColumnsArr.join(','));
+					}.bind(this);
+
+					return (
+						<ListItem
+							key={columnName}
+							primaryText={columnName}
+							secondaryText={columnType}
+							onClick={onClick} />
+					);
+				}.bind(this))
+			}
+			</List>
+		);
 	},
 
 	render() {
 		return (
 			<Dialog
 				actions={[
-					{ text: 'ok', onClick: this.props.onClose },
-					{ text: 'cancel', onClick: this.props.onClose }
+					{ text: 'close', onClick: this.props.onClose }
 				]}
-				actionFocus="ok"
+				actionFocus="close"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
 				open={this.props.visible}>
@@ -527,303 +577,15 @@ var ColumnConfigDialog = React.createClass({
 						<TextField
 							floatingLabelText="columns"
 							value={this.props.columns} 
-							onChange={this.props.onColumnsChange}
+							onChange={this.onColumnsChange}
 							fullWidth={true} />
-						{
-							this.state.isColumnsLoaded === true ? 
-							(<List>
-							{
-								var selectedColumnsArr = this.props.columns.split(',').map(function(s) { return s.trim().toLowerCase(); });
-								this.state.loadedColumns.map(function(column) {
-									var onClick = function() {
-										if(Array.contains(selectedColumnsArr, column.toLowerCase())) {
-											//TODO columns state always must be lower case!!!!!
-										} else {
-
-										}
-									}.bind(this);
-								}.bind(this));
-							}
-							</List>) : null
-						}
+						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
+							{ this.renderColumnList() }
+						</div>
 					</CardText>
 				</Card>
-				<Dialog
-					title="loading tables..."
-					actions={[
-						{ text: 'cancel', onClick: this.toggleLoadingDialogVisible}
-					]}
-					actionFocus="cancel"
-					open={this.state.isLoadingDialogVisible}>
-					<CircularProgress mode="indeterminate" size={1} />
-				</Dialog>
 			</Dialog>
 		);
-	}
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-var TableColumnConfigModal = React.createClass({
-	getDefaultProps() {
-		return {
-			jdbcDriver: '',
-			jdbcConnUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: '',
-			table: '',
-			columns: '',
-			onChange: null
-		};
-	},
-
-	getInitialState() {
-		return {
-			loadingTableStatus: 'loading', // loading / failed / loaded
-			loadedTables: [],
-			loadingTableDataStatus: 'none', // none / loading / failed / loaded
-			loadedTableData: [],
-			isLoadingDialogVisible: false
-		};
-	},
-
-	componentDidMount() {
-		this.loadTables();
-	},
-
-	toggleLoadingDialogVisible(visible) {
-		if(visible === undefined)
-			this.setState({ isLoadingDialogVisible: !this.state.isLoadingDialogVisible });
-		else
-			this.setState({ isLoadingDialogVisible: visible });
-	},
-
-	loadTables() {
-		this.toggleLoadingDialogVisible(true);
-
-		var jdbc = {
-			driver: this.props.jdbcDriver,
-			connUrl: this.props.jdbcConnUrl,
-			username: this.props.jdbcUsername,
-			password: this.props.jdbcPassword
-		};
-
-		server.loadTables(jdbc)
-		.then(function(tables) {
-			this.toggleLoadingDialogVisible(false);
-			this.setState({
-				loadingTableStatus: 'loaded',
-				loadedTables: tables
-			});
-		}.bind(this)).catch(function(err) {
-			this.toggleLoadingDialogVisible(false);
-			console.error(err.stack);
-			this.setState({ loadingTableStatus: 'failed' });
-			if(typeof err !== 'string') err = JSON.stringify(err);
-			//TODO layer popup alert error
-			alert(err);
-		}.bind(this));
-	},
-
-
-	loadTableData() {
-		this.toggleLoadingDialogVisible(true);
-
-		var params = {
-			driver: this.props.jdbcDriver,
-			connUrl: this.props.jdbcConnUrl,
-			username: this.props.jdbcUsername,
-			password: this.props.jdbcPassword,
-			query: 'select * from ' + this.props.table,
-			rowCount: 10,
-			isEncrypted: false
-		};
-
-		server.querySampleData(params)
-		.then(function(sampleData) {
-			this.toggleLoadingDialogVisible(false);
-			this.setState({
-				loadingTableDataStatus: 'loaded',
-				loadedTableData: sampleData
-			});
-		}.bind(this)).catch(function(err) {
-			this.toggleLoadingDialogVisible(false);
-			console.error(err.stack);
-			this.setState({ loadingTableDataStatus: 'failed' });
-			if(typeof err !== 'string') err = JSON.stringify(err);
-			//TODO layer popup alert error
-			alert(err);
-		}.bind(this));
-	},
-
-	onTableChange(evt) {
-		this.props.onChange({ table: evt.target.value });
-	},
-
-	onColumnsChange(evt) {
-		this.props.onChange({ columns: evt.target.value });
-	},
-
-	styles() {
-		return {
-			tableArea: {
-				float: 'left',
-				height: '100%',
-				padding: '10px'
-			}, 
-			tableTextBox: {
-				width: '200px',
-				marginRight: '6px'
-			},
-			tableListDiv: {
-				height: '350px',
-				overflow: 'auto',
-				padding: '10px'
-			},
-			columnArea: {
-				float: 'left',
-				height: '100%',
-				padding: '10px'
-			},
-			columnTextBox: {
-				style: {
-					width: '400px'
-				}
-			},
-			columnListDiv: {
-				height: '350px',
-				width: '400px',
-				overflow: 'auto',
-				padding: '10px'
-			}
-		};
-	},
-
-	render() {
-		var style = this.styles();
-
-		return (
-			<Card>
-				<CardHeader
-					title="table/column 설정"
-					subtitle="source database의 table/column 정보를 설정합니다."
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<TextField
-						inputStyle={style.tableTextBox}
-						floatingLabelText="table"
-						value={this.props.table} 
-						onChange={this.onTableChange} />
-					<Button
-						label="로드"
-						onClick={this.loadTableData} />
-					<div style={style.tableListDiv}>
-						{this.renderTableList()}
-					</div>
-					<div style={style.columnArea}>
-						<div>
-							<TextField
-								inputStyle={style.columnTextBox}
-								floatingLabelText="columns" 
-								value={this.props.columns} 
-								onChange={this.onColumnsChange} />
-						</div>
-						<div is="columnListDiv">
-							{this.renderColumnList()}
-						</div>
-					</div>
-					<Clearfix />
-					<Dialog
-						title="loading..."
-						actions={[
-							{ text: 'cancel', onClick: this.toggleLoadingDialogVisible}
-						]}
-						actionFocus="cancel"
-						open={this.state.isLoadingDialogVisible}>
-						<CircularProgress mode="indeterminate" size={1} />
-					</Dialog>
-				</CardText>
-			</Card>
-		);
-	},
-
-	renderTableList() {
-		switch(this.state.loadingTableStatus) {
-		case 'loading': 
-			return ( <CircularProgress mode="indeterminate" size={0.5} /> );
-		case 'failed':
-			return (<label>failed</label>);
-		case 'loaded':
-			if(this.state.loadedTables.length === 0) {
-				return (<label>no tables</label>);
-			} else {
-				return (
-					<div style={{ width: '100%', height: '100%', overflow: 'auto'}}>
-						<List>
-							{this.state.loadedTables.map(function(table) {
-								var onClick = function() {
-									this.props.onChange({ table: table });
-								}.bind(this);
-
-								return (
-									<ListItem
-										key={table}
-										primaryText={table}
-										onClick={onClick} />
-								);
-							}.bind(this))}
-						</List>
-					</div>
-				);
-			}
-		}
-	},
-
-	renderColumnList() {
-		switch(this.state.loadingTableDataStatus) {
-		case 'none':
-			return null;
-		case 'loading':
-			return ( <CircularProgress mode="indeterminate" size={0.5} /> );
-		case 'failed':
-			return (<label>failed</label>);
-		case 'loaded':
-			var onSelectColumnChange = function(column) {
-				var columns = this.props.columns.split(',');
-				columns.remove('');
-				
-				if(Array.containsIgnoreCase(columns, column)) {
-					columns.remove(column); //TODO case
-				} else {
-					columns.push(column);
-				}
-
-				this.props.onChange({
-					columns: columns.join(',')
-				});
-			}.bind(this);
-
-			var columnsArr = this.props.columns.split(',').map(function(col) { return col.trim(); });
-
-			return (
-				<div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-					<ColumnSelectTable 
-						rows={this.state.loadedTableData} 
-						selectedColumns={columnsArr}
-						onSelectedColumnChange={onSelectColumnChange} />
-				</div>
-			);
-		}
 	}
 });
 

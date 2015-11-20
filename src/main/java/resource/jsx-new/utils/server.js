@@ -49,7 +49,6 @@ exports.querySampleData = function(params) {
 			console.error({ err: err });
 			reject(err);
 		}).done(function(resp) {
-			console.log({ resp: resp }); //DEBUG
 			if(resp.success !== 1) {
 				console.error(resp.errmsg);
 				reject(resp.errmsg);
