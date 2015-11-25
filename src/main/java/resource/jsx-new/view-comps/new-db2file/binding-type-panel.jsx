@@ -42,11 +42,10 @@ var BindingTypePanel = React.createClass({
 	},
 
 	onBindingTypeChanged(evt) {
-		console.log(evt); //DEBUG
-		console.log(evt.target);//DEBUG
-		console.log(evt.target.value);//DEBUG
-
-		this.props.onChange({ bindingType: evt.target.value });
+		this.props.onChange({ 
+			bindingType: evt.target.value,
+			bindingColumn: ''
+		});
 	},
 
 	onBindingColumnChange(bindingColumn) {
@@ -84,7 +83,7 @@ var BindingTypePanel = React.createClass({
 					<RadioButtonGroup 
 						name="bindingType" 
 						defaultSelected="simple"
-						onChange={TODO}>
+						onChange={this.onBindingTypeChanged}>
 						<RadioButton
 							value="simple"
 							label="simple binding" />
@@ -96,22 +95,23 @@ var BindingTypePanel = React.createClass({
 							label="sequence binding" />
 					</RadioButtonGroup>
 					{
-						this.state.bindingType === 'simple' ? null : (
-							<TextField
-								value={this.props.bindingColumn}	
-								disabled={true}
-								floatingLabelText="binding columns"
-								style={style.textfield}
-								inputStyle={style.textfieldInputStyle}
-								fullWidth={true}
-								onClick={this.toggleBindingColumnConfigDialog} />
-							<BindingColumnConfigDialog
-								visible={this.state.isBindingColumnConfigDialogVisible}
-								onClose={this.toggleBindingColumnConfigDialog}
-								table={this.props.table}
-								bindingColumn={this.props.bindingColumn}
-								onBindingColumnChange={this.onBindingColumnChange}
-								jdbc={jdbc} />
+						this.props.bindingType === 'simple' ? null : (
+							<div>
+								<TextField
+									value={this.props.bindingColumn}	
+									floatingLabelText="binding columns"
+									style={style.textfield}
+									inputStyle={style.textfieldInputStyle}
+									fullWidth={true}
+									onFocus={this.toggleBindingColumnConfigDialog} />
+								<BindingColumnConfigDialog
+									visible={this.state.isBindingColumnConfigDialogVisible}
+									onClose={this.toggleBindingColumnConfigDialog}
+									table={this.props.table}
+									bindingColumn={this.props.bindingColumn}
+									onBindingColumnChange={this.onBindingColumnChange}
+									jdbc={jdbc} />
+							</div>
 						)
 					}
 				</CardText>
@@ -121,7 +121,7 @@ var BindingTypePanel = React.createClass({
 });
 
 
-var BindingColumnConfigDialog= React.createClass({
+var BindingColumnConfigDialog = React.createClass({
 	PropTypes: {
 		visible: React.PropTypes.bool.isRequired,
 		onClose: React.PropTypes.func.isRequired,
@@ -179,7 +179,7 @@ var BindingColumnConfigDialog= React.createClass({
 					var columnType = column.columnType;
 
 					var onClick = function() {
-						this.props.onColumnChange(columnName);
+						this.props.onBindingColumnChange(columnName);
 					}.bind(this);
 
 					return (

@@ -84,7 +84,11 @@ var DatabaseConfigPanel = React.createClass({
 	},
 
 	toggleColumnConfigDialog(evt) {
-		this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+		if(this.props.table == null || this.props.table.trim().length === 0) {
+			this.toggleTableConfigDialog();
+		} else {
+			this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+		}
 	},
 
 	onTableConfigAction(action) {
@@ -318,18 +322,16 @@ var DatabaseConfigPanel = React.createClass({
 					<CardText>
 						<TextField
 							value={this.props.table}
-							disabled={true}
 							floatingLabelText="tables"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onClick={this.toggleTableConfigDialog} />
+							onFocus={this.toggleTableConfigDialog} />
 						<TextField
 							value={this.props.columns}
-							disabled={true}
 							floatingLabelText="columns"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onClick={this.toggleColumnConfigDialog} />
+							onFocus={this.toggleColumnConfigDialog} />
 						<TableConfigDialog
 							visible={this.state.isTableConfigDialogVisible}
 							table={this.props.table}
