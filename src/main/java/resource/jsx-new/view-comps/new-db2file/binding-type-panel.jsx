@@ -58,6 +58,9 @@ var BindingTypePanel = React.createClass({
 
 	styles() {
 		return {
+			card: {
+				marginBottom: '10px'
+			},
 			textfieldInputStyle: {
 				color: 'black'
 			}
@@ -74,7 +77,7 @@ var BindingTypePanel = React.createClass({
 		};
 
 		return (
-			<Card>
+			<Card style={style.card}>
 				<CardHeader
 					title="바인딩 타입 설정"
 					subtitle="바인딩 타입을 설정합니다."

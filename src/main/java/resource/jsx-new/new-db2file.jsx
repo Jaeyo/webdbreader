@@ -31,8 +31,7 @@ var NewDb2FileView = React.createClass({
 			period: '6 * 1000',
 			charset: 'utf8',
 			delimiter: '|',
-			outputFile: '',
-			script: ''
+			outputFile: ''
 		};
 	},
 
@@ -80,7 +79,6 @@ var NewDb2FileView = React.createClass({
 			period: this.state.period,
 			charset: this.state.charset,
 			delimiter: this.state.delimiter,
-			script: this.state.script,
 			outputFile: this.state.outputFile,
 			onChange: this.onChange
 		};

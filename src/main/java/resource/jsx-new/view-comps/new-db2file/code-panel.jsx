@@ -5,7 +5,8 @@ var React = require('react'),
 	TextField = MaterialWrapper.TextField,
 	Card = MaterialWrapper.Card,
 	CardHeader = MaterialWrapper.CardHeader,
-	CardText = MaterialWrapper.CardText;
+	CardText = MaterialWrapper.CardText,
+	PolymerIcon = require('../../comps/polymer-icon.jsx');
 
 require('ace-webapp');
 
@@ -23,7 +24,6 @@ var CodePanel = React.createClass({
 		bindingColumn: React.PropTypes.string.isRequired,
 		table: React.PropTypes.string.isRequired,
 		columns: React.PropTypes.string.isRequired,
-		script: React.PropTypes.string.isRequired,
 		period: React.PropTypes.string.isRequired,
 		charset: React.PropTypes.string.isRequired,
 		delimiter: React.PropTypes.string.isRequired,
@@ -36,23 +36,10 @@ var CodePanel = React.createClass({
 		this.editor.setTheme('ace/theme/github');
 		this.editor.getSession().setMode('ace/mode/javascript');
 		this.editor.setKeyboardHandler('ace/keyboard/vim');
-		this.editor.on('change', function(e) {
-			this.props.onChange({ script: this.editor.getValue() });
-		}.bind(this));
-
-		this.props.onChange({
-			script: this.makeScript(this.props)
-		});
 	},
 
 	componentWillReceiveProps(newProps) {
-		if(newProps.script !== this.props.script) {
-			this.editor.setValue(newProps.script);
-		} else {
-			var newScript = this.makeScript(newProps);
-			if(newScript !== this.props.script)
-				this.props.onChange({ script: newScript });
-		}
+		this.editor.setValue(this.makeScript(newProps));
 	},
 
 	shouldComponentUpdate(newProps, newState) {
@@ -108,9 +95,17 @@ var CodePanel = React.createClass({
 	render() {
 		var style = this.styles();
 		return (
-			<div id="editor-wrapper" style={style.editorWrapper}>
-				<div id="editor" style={style.editor} />
-			</div>
+			<Card>
+				<CardHeader
+					title="스크립트"
+					subtitle="생성된 스크립트를 확인/수정합니다."
+					avatar={ <PolymerIcon icon="config" />} />
+				<CardText>
+					<div id="editor-wrapper" style={style.editorWrapper}>
+						<div id="editor" style={style.editor} />
+					</div>
+				</CardText>
+			</Card>
 		);
 	}
 });
