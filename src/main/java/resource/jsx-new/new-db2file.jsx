@@ -53,7 +53,7 @@ var NewDb2FileView = React.createClass({
 			jdbcPassword: this.state.jdbcPassword,
 			table: this.state.table,
 			columns: this.state.columns,
-			onChange: this.state.onChange
+			onChange: this.onChange
 		};
 
 		var bindingTypePanelParams = {
@@ -64,7 +64,7 @@ var NewDb2FileView = React.createClass({
 			jdbcUsername: this.state.jdbcUsername,
 			jdbcPassword: this.state.jdbcPassword,
 			table: this.state.table,
-			onChange: this.state.onChange
+			onChange: this.onChange
 		};
 
 		var codePanelParams = {
@@ -82,7 +82,7 @@ var NewDb2FileView = React.createClass({
 			delimiter: this.state.delimiter,
 			script: this.state.script,
 			outputFile: this.state.outputFile,
-			onChange: this.state.onChange
+			onChange: this.onChange
 		};
 
 		return (
