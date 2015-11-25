@@ -103,7 +103,6 @@ var BindingTypePanel = React.createClass({
 								<TextField
 									value={this.props.bindingColumn}	
 									floatingLabelText="binding columns"
-									style={style.textfield}
 									inputStyle={style.textfieldInputStyle}
 									fullWidth={true}
 									onFocus={this.toggleBindingColumnConfigDialog} />

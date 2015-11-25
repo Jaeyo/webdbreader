@@ -7,6 +7,7 @@ var React = require('react'),
 	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
 	DatabaseConfigPanel = require('./view-comps/new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./view-comps/new-db2file/binding-type-panel.jsx'),
+	EtcConfigPanel = require('./view-comps/new-db2file/etc-config-panel.jsx'),
 	CodePanel = require('./view-comps/new-db2file/code-panel.jsx'),
 	MaterialWrapper = require('./comps/material-wrapper.jsx'),
 	Button = MaterialWrapper.Button;
@@ -66,6 +67,14 @@ var NewDb2FileView = React.createClass({
 			onChange: this.onChange
 		};
 
+		var etcConfigPanelParams = {
+			period: this.state.period,
+			charset: this.state.charset,
+			delimiter: this.state.delimiter,
+			outputFile: this.state.outputFile,
+			onChange: this.onChange
+		};
+
 		var codePanelParams = {
 			dbVendor: this.state.dbVendor,
 			jdbcDriver: this.state.jdbcDriver,
@@ -88,6 +97,7 @@ var NewDb2FileView = React.createClass({
 				<h3 style={{ marginBottom: '3px' }}>database 설정</h3>
 				<DatabaseConfigPanel {...dbConfigPanelParams} />
 				<BindingTypePanel {...bindingTypePanelParams} />
+				<EtcConfigPanel {...etcConfigPanelParams} />
 				<CodePanel {...codePanelParams} />
 			</div>
 		);

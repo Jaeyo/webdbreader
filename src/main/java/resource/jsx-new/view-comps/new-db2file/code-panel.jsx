@@ -78,6 +78,9 @@ var CodePanel = React.createClass({
 
 	styles() {
 		return {
+			card: {
+				marginBottom: '10px'
+			},
 			editorWrapper: {
 				position: 'relative',
 				height: '400px'
@@ -95,7 +98,7 @@ var CodePanel = React.createClass({
 	render() {
 		var style = this.styles();
 		return (
-			<Card>
+			<Card style={style.card}>
 				<CardHeader
 					title="스크립트"
 					subtitle="생성된 스크립트를 확인/수정합니다."

@@ -55159,6 +55159,7 @@
 	    LayerPopup = __webpack_require__(337).LayerPopup,
 	    DatabaseConfigPanel = __webpack_require__(451),
 	    BindingTypePanel = __webpack_require__(466),
+	    EtcConfigPanel = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./view-comps/new-db2file/etc-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
 	    CodePanel = __webpack_require__(467),
 	    MaterialWrapper = __webpack_require__(341),
 	    Button = MaterialWrapper.Button;
@@ -55220,6 +55221,14 @@
 				onChange: this.onChange
 			};
 
+			var etcConfigPanelParams = {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputFile: this.state.outputFile,
+				onChange: this.onChange
+			};
+
 			var codePanelParams = {
 				dbVendor: this.state.dbVendor,
 				jdbcDriver: this.state.jdbcDriver,
@@ -55247,6 +55256,7 @@
 				),
 				React.createElement(DatabaseConfigPanel, dbConfigPanelParams),
 				React.createElement(BindingTypePanel, bindingTypePanelParams),
+				React.createElement(EtcConfigPanel, etcConfigPanelParams),
 				React.createElement(CodePanel, codePanelParams)
 			);
 		}
@@ -71427,7 +71437,6 @@
 						React.createElement(TextField, {
 							value: this.props.bindingColumn,
 							floatingLabelText: 'binding columns',
-							style: style.textfield,
 							inputStyle: style.textfieldInputStyle,
 							fullWidth: true,
 							onFocus: this.toggleBindingColumnConfigDialog }),
@@ -71634,6 +71643,9 @@
 
 		styles: function styles() {
 			return {
+				card: {
+					marginBottom: '10px'
+				},
 				editorWrapper: {
 					position: 'relative',
 					height: '400px'
@@ -71652,7 +71664,7 @@
 			var style = this.styles();
 			return React.createElement(
 				Card,
-				null,
+				{ style: style.card },
 				React.createElement(CardHeader, {
 					title: '스크립트',
 					subtitle: '생성된 스크립트를 확인/수정합니다.',
