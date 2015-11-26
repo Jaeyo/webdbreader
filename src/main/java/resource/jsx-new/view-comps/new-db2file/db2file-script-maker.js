@@ -9,7 +9,7 @@ var ScriptMaker = function() {
 
 	return {
 		//args: period, dbVendor, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, 
-		//		columns, table, bindingColumn, delimiter, charset, outputFile
+		//		columns, table, bindingColumn, delimiter, charset, outputPath
 		variable: function(args) {
 			variable = util.format([
 				"var period = %s; ",
@@ -25,10 +25,10 @@ var ScriptMaker = function() {
 				"var bindingColumn = '%s'; ",
 				"var delimiter = '%s'; ",
 				"var charset = '%s'; ",
-				"var outputFile = '%s'; "
+				"var outputPath = '%s'; "
 			].join('\n'), args.period, args.dbVendor, args.jdbcDriver, args.jdbcConnUrl, 
 			args.jdbcUsername, args.jdbcPassword, args.columns, args.table,
-			args.bindingColumn, args.delimiter, args.charset, args.outputFile);
+			args.bindingColumn, args.delimiter, args.charset, args.outputPath);
 			return this;
 		},
 
@@ -160,7 +160,7 @@ var ScriptMaker = function() {
 				"		})", 
 				"		.group(100)", 
 				"		.writeFile({",
-				"			filename: outputFile,", 
+				"			filename: outputPath,", 
 				"			charset: charset", 
 				"		});",
 				storeMax2Min,

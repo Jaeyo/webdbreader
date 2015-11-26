@@ -23,6 +23,7 @@ var React = require('react'),
 	ListDivider = MaterialWrapper.ListDivider,
 	Dialog = MaterialWrapper.Dialog;
 
+
 var jdbcTmpl = {
 	oracle: {
 		driver: 'oracle.jdbc.driver.OracleDriver',
@@ -75,19 +76,22 @@ var DatabaseConfigPanel = React.createClass({
 		};
 	},
 
-	toggleDbConfigModal(evt) {
-		this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
-	},
+	toggleDialog(dialog, evt) {
+		evt.stopPropagation();
 
-	toggleTableConfigDialog(evt) {
-		this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
-	},
-
-	toggleColumnConfigDialog(evt) {
-		if(this.props.table == null || this.props.table.trim().length === 0) {
-			this.toggleTableConfigDialog();
-		} else {
-			this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+		switch(dialog) {
+		case 'dbconfig': 
+			this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
+			break;
+		case 'tableconfig': 
+			this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
+			break;
+		case 'columnconfig': 
+			if(this.props.table == null || this.props.table.trim().length === 0)
+				this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
+			else
+				this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+			break;
 		}
 	},
 
@@ -104,82 +108,49 @@ var DatabaseConfigPanel = React.createClass({
 		}
 	},
 
-	onDbConfigIpChange(evt) {
-		var state = { dbIp: evt.target.value };
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', state.dbIp)
-								.replace('{port}', this.props.dbPort)
-								.replace('{database}', this.props.dbSid);
-		}
-		this.props.onChange(state);
-	},
+	handleChange(name, evt) {
+		evt.stopPropagation();
 
-	onDbConfigPortChange(evt) {
-		var state = { dbPort: evt.target.value };
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
-								.replace('{port}', state.dbPort)
-								.replace('{database}', this.props.dbSid);
+		switch(name) {
+		case 'dbconfig-ip': 
+		case 'dbconfig-port': 
+		case 'dbconfig-sid': 
+		case 'dbVendor': 
+			var state = {
+				dbIp: name === 'dbconfig-ip' ? evt.target.value : this.props.dbIp,
+				dbPort: name === 'dbconfig-port' ? evt.target.value : this.props.dbPort,
+				dbSid: name === 'dbconfig-sid' ? evt.target.value : this.props.dbSid,
+				dbVendor: name === 'dbVendor' ? evt.target.value : this.props.dbVendor
+			};
+			if(name === 'dbVendor') {
+				state.jdbcDriver = jdbcTmpl[state.dbVendor].driver;
+				state.dbPort = jdbcTmpl[state.dbVendor].port;
+			}
+			if(state.dbVendor !== 'etc') {
+				state.jdbcConnUrl = 
+					jdbcTmpl[state.dbVendor].connUrl
+					.replace('{ip}', state.dbIp)
+					.replace('{port}', state.dbPort)
+					.replace('{database}', state.dbSid);
+			}
+			this.props.onChange(state);
+			break;
+		case 'jdbcDriver': 
+		case 'jdbcConnUrl': 
+		case 'jdbcUsername': 
+		case 'jdbcPassword': 
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.onChange(state);
+			break;
 		}
-		this.props.onChange(state);
-	},
-
-	onDbConfigSidChange(evt) {
-		var state = { dbSid : evt.target.value };
-		if(this.props.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[this.props.dbVendor];
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
-								.replace('{port}', this.props.dbPort)
-								.replace('{database}', state.dbSid);
-		}
-		this.props.onChange(state);
 	},
 
 	onDbConfigKeyUp(evt) {
+		evt.stopPropagation();
 		if(evt.keyCode === 13) this.props.hide();
 	},
 
-	onDbVendorChange(evt) {
-		var state = { dbVendor: evt.target.value };
-
-		if(state.dbVendor !== 'etc') {
-			var tmpl = jdbcTmpl[state.dbVendor];
-			state.jdbcDriver = tmpl.driver;
-			state.dbPort = tmpl.port;
-			state.jdbcConnUrl = tmpl.connUrl.replace('{ip}', this.props.dbIp)
-											.replace('{port}', state.dbPort)
-											.replace('{database}', this.props.dbSid);
-		}
-
-		this.props.onChange(state);
-	},
-
-	onJdbcDriverChanged(evt) {
-		this.props.onChange({ jdbcDriver: evt.target.value });
-	},
-
-	onJdbcConnUrlChanged(evt) {
-		this.props.onChange({ jdbcConnUrl: evt.target.value });
-	},
-
-	onJdbcUsernameChanged(evt) {
-		this.props.onChange({ jdbcUsername: evt.target.value });
-	},
-
-	onJdbcPasswordChanged(evt) {
-		this.props.onChange({ jdbcPassword: evt.target.value });
-	},
-
-	onTableChange(table) {
-		this.props.onChange({ table: table });
-	},
-
-	onColumnChange(columns) {
-		this.props.onChange({ columns: columns });
-	},
-	
 	styles() {
 		return {
 			card: {
@@ -249,17 +220,17 @@ var DatabaseConfigPanel = React.createClass({
 								{ text: 'tibero', payload: 'tibero' },
 								{ text: 'etc', payload: 'etc' }
 							]}
-							onChange={this.onDbVendorChange} />
+							onChange={this.handleChange.bind(this, 'dbVendor')} />
 						<Button 
 							label="설정" 
 							secondary={true} 
 							style={style.jdbcConfig.configBtn}
-							onClick={this.toggleDbConfigModal} />
+							onClick={this.toggleDialog.bind(this, 'dbconfig')} />
 						<Clearfix />
 						<Dialog
 							title="database config"
 							actions={[
-								{ text: 'ok', onClick: this.toggleDbConfigModal }
+								{ text: 'ok', onClick: this.toggleDialog.bind(this, 'dbconfig')}
 							]}
 							actionFocus="ok"
 							open={this.state.isDatabaseConfigModalVisible}>
@@ -268,21 +239,21 @@ var DatabaseConfigPanel = React.createClass({
 								inputStyle={{ textAlign: 'center' }}
 								floatingLabelText="database ip"
 								value={this.props.dbIp}
-								onChange={this.onDbConfigIpChange}
+								onChange={this.handleChange.bind(this, 'dbconfig-ip')}
 								onKeyUp={this.onDbConfigKeyUp} />
 							<TextField
 								style={style.jdbcConfig.dbConfigModal.dbPortTextBox}
 								inputStyle={{ textAlign: 'center' }}
 								floatingLabelText="port"
 								value={this.props.dbPort}
-								onChange={this.onDbConfigPortChange}
+								onChange={this.handleChange.bind(this, 'dbconfig-port')}
 								onKeyUp={this.onDbConfigKeyUp} />
 							<TextField
 								style={style.jdbcConfig.dbConfigModal.dbSidTextBox}
 								inputStyle={{ textAlign: 'center' }}
 								floatingLabelText="sid"
 								value={this.props.dbSid}
-								onChange={this.onDbConfigSidChange}
+								onChange={this.handleChange.bind(this, 'dbconfig-sid')}
 								onKeyUp={this.onDbConfigKeyUp} />
 						</Dialog>
 						<div style={style.jdbcConfig.jdbcBorder}>
@@ -291,26 +262,26 @@ var DatabaseConfigPanel = React.createClass({
 								floatingLabelText="jdbc driver"
 								value={this.props.jdbcDriver}
 								fullWidth={true}
-								onChange={this.onJdbcDriverChanged} />
+								onChange={this.handleChange.bind(this, 'jdbcDriver')} />
 							<TextField
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc connection url"
 								value={this.props.jdbcConnUrl}
 								fullWidth={true}
-								onChange={this.onJdbcConnUrlChanged} />
+								onChange={this.handleChange.bind(this, 'jdbcConnUrl')} />
 							<TextField
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc username"
 								value={this.props.jdbcUsername}
 								fullWidth={true}
-								onChange={this.onJdbcUsernameChanged} />
+								onChange={this.handleChange.bind(this, 'jdbcUsername')} />
 							<TextField
 								type="password"
 								inputStyle={style.textfieldInputStyle}
 								floatingLabelText="jdbc password"
 								value={this.props.jdbcPassword}
 								fullWidth={true}
-								onChange={this.onJdbcPasswordChanged} />
+								onChange={this.handleChange.bind(this, 'jdbcPassword')} />
 						</div>
 					</CardText>
 				</Card>
@@ -325,25 +296,25 @@ var DatabaseConfigPanel = React.createClass({
 							floatingLabelText="tables"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onFocus={this.toggleTableConfigDialog} />
+							onFocus={this.toggleDialog.bind(this, 'tableconfig')} />
 						<TextField
 							value={this.props.columns}
 							floatingLabelText="columns"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
-							onFocus={this.toggleColumnConfigDialog} />
+							onFocus={this.toggleDialog.bind(this, 'columnconfig')} />
 						<TableConfigDialog
 							visible={this.state.isTableConfigDialogVisible}
 							table={this.props.table}
-							onTableChange={this.onTableChange}
+							onChange={this.props.onChange}
 							onAction={this.onTableConfigAction}
 							jdbc={jdbc} />
 						<ColumnConfigDialog
 							visible={this.state.isColumnConfigDialogVisible}
-							onClose={this.toggleColumnConfigDialog}
+							onClose={this.toggleDialog.bind(this, 'columnconfig')}
 							table={this.props.table}
 							columns={this.props.columns}
-							onColumnsChange={this.onColumnChange}
+							onChange={this.props.onChange}
 							jdbc={jdbc} />
 					</CardText>
 				</Card>
@@ -357,7 +328,7 @@ var TableConfigDialog = React.createClass({
 	PropTypes: {
 		visible: React.PropTypes.bool.isRequired,
 		table: React.PropTypes.string.isRequired,
-		onTableChange: React.PropTypes.func.isRequired,
+		onChange: React.PropTypes.func.isRequired,
 		onAction: React.PropTypes.func.isRequired,
 		jdbc: React.PropTypes.object.isRequired,
 	},
@@ -386,8 +357,19 @@ var TableConfigDialog = React.createClass({
 		this.props.onAction('cancel');
 	},
 
-	onTableTextFieldChange(evt) {
-		this.props.onTableChange(evt.target.value);
+	handleChange(name, evt) {
+		evt.stopPropagation();
+		switch(name) {
+		case 'table': 
+		var state = {};
+		state[name] = evt.target.value;
+		this.props.onChange(state);
+		break;
+		}
+	},
+
+	onTableChange(table) {
+		this.props.onChange({ table: table });
 	},
 
 	loadTables() {
@@ -419,8 +401,9 @@ var TableConfigDialog = React.createClass({
 					if(isShouldFilter === false) return true;
 					return String.containsIgnoreCase(table, this.props.table);
 				}.bind(this)).map(function(table) {
-					var onClick = function() {
-						this.props.onTableChange(table);
+					var onClick = function(evt) {
+						evt.stopPropagation();
+						this.onTableChange(table);
 					}.bind(this);
 					return (
 						<ListItem
@@ -454,7 +437,7 @@ var TableConfigDialog = React.createClass({
 						<TextField
 							floatingLabelText="table"
 							value={this.props.table} 
-							onChange={this.onTableTextFieldChange}
+							onChange={this.handleChange.bind(this, 'table')}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
 							{ this.renderTableList() }
@@ -473,7 +456,7 @@ var ColumnConfigDialog = React.createClass({
 		onClose: React.PropTypes.func.isRequired,
 		table: React.PropTypes.string.isRequired,
 		columns: React.PropTypes.string.isRequired,
-		onColumnsChange: React.PropTypes.func.isRequired,
+		onChange: React.PropTypes.func.isRequired,
 		jdbc: React.PropTypes.object.isRequired
 	},
 
@@ -493,8 +476,19 @@ var ColumnConfigDialog = React.createClass({
 			this.loadColumns();
 	},
 
-	onColumnsTextFieldChange(evt) {
-		this.props.onColumnsChange(evt.target.value);
+	handleChange(name, evt) {
+		evt.stopPropagation();
+		switch(name) {
+		case 'columns': 
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.onChange(state);
+			break;
+		}
+	},
+
+	onColumnsChange(columns) {
+		this.props.onChange({ columns: columns });
 	},
 
 	loadColumns() {
@@ -529,13 +523,14 @@ var ColumnConfigDialog = React.createClass({
 					var columnName = column.columnName.toLowerCase();
 					var columnType = column.columnType;
 
-					var onClick = function() {
+					var onClick = function(evt) {
+						evt.stopPropagation();
 						if(Array.contains(selectedColumnsArr, columnName)) {
 							selectedColumnsArr.remove(columnName);
 						} else {
 							selectedColumnsArr.push(columnName);
 						}
-						this.props.onColumnsChange(selectedColumnsArr.join(','));
+						this.onColumnsChange(selectedColumnsArr.join(','));
 					}.bind(this);
 
 					return (
@@ -570,7 +565,7 @@ var ColumnConfigDialog = React.createClass({
 						<TextField
 							floatingLabelText="columns"
 							value={this.props.columns} 
-							onChange={this.onColumnsTextFieldChange}
+							onChange={this.handleChange.bind(this, 'columns')}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
 							{ this.renderColumnList() }

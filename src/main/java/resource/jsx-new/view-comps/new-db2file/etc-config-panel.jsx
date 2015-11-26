@@ -13,7 +13,57 @@ var EtcConfigPanel = React.createClass({
 		period: React.PropTypes.string.isRequired,
 		charset: React.PropTypes.string.isRequired,
 		delimiter: React.PropTypes.string.isRequired,
-		outputFile: React.PropTypes.string.isRequired
+		outputPath: React.PropTypes.string.isRequired,
+		onChange: React.PropTypes.func.isRequired
+	},
+
+	getInitialState() {
+		return { 
+			timeUnit: 'min',
+			simplePeriod: '1'
+		};
+	},
+
+	handleChange(name, evt) {
+		
+		switch(name) {
+		case 'simplePeriod':
+		case 'timeUnit':
+			var state = {
+				simplePeriod: this.state.simplePeriod,
+				timeUnit: this.state.timeUnit
+			};
+			state[name] = evt.target.value;
+			this.setState(state);
+			this.updatePeriod(state.simplePeriod, state.timeUnit);
+			break;
+		case 'charset':
+		case 'delimiter':
+		case 'outputPath':
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.onChange(state);
+			break;
+		}
+	},
+
+	updatePeriod(simplePeriod, timeUnit) {
+		var period = simplePeriod;
+		switch(timeUnit) {
+		case 'sec':
+			period += ' * 1000';
+			break;
+		case 'min':
+			period += ' * 60 * 1000';
+			break;
+		case 'hour': 
+			period += ' * 60 * 60 * 1000';
+			break;
+		case 'day': 
+			period += ' * 24 * 60 * 60 * 1000';
+			break;
+		}
+		this.props.onChange({ period: period });
 	},
 
 	styles() {
@@ -21,7 +71,17 @@ var EtcConfigPanel = React.createClass({
 			card: {
 				marginBottom: '10px'
 			},
-			textField
+			periodTextField: {
+				width: '100px',
+				float: 'left'
+			},
+			timeunitSelectField: {
+				width: '100px',
+				float: 'left'
+			},
+			textFieldInputStyle: {
+				color: 'black'
+			}
 		};
 	},
 
@@ -35,9 +95,40 @@ var EtcConfigPanel = React.createClass({
 					avatar={ <PolymerIcon icon="config" /> } />
 				<CardText>
 					<TextField
-						value={this.props.period}
+						style={style.periodTextField}
+						value={this.state.simplePeriod}
 						floatingLabelText="period"
-					//TODO IMME
+						onChange={this.handleChange.bind(this, 'simplePeriod')} />
+					<SelectField
+						style={style.timeunitSelectField}
+						floatingLabelText="timeunit"
+						value={this.state.timeUnit}
+						onChange={this.handleChange.bind(this, 'timeUnit')}
+						menuItems={[
+							{ text: '초', payload: 'sec' },
+							{ text: '분', payload: 'min' },
+							{ text: '시간', payload: 'hour' },
+							{ text: '일', payload: 'day' },
+							{ text: '일2', payload: 'day2' }
+						]} />
+					<TextField
+						inputStyle={style.textFieldInputStyle}
+						fullWidth={true}
+						value={this.props.charset}
+						floatingLabelText="charset"
+						onChange={this.handleChange.bind(this, 'charset')} />
+					<TextField
+						inputStyle={style.textFieldInputStyle}
+						fullWidth={true}
+						value={this.props.delimiter}
+						floatingLabelText="delimiter"
+						onChange={this.handleChange.bind(this, 'delimiter')} />
+					<TextField
+						inputStyle={style.textFieldInputStyle}
+						fullWidth={true}
+						value={this.props.outputPath}
+						floatingLabelText="outputPath"
+						onChange={this.handleChange.bind(this, 'outputPath')} />
 				</CardText>
 			</Card>
 		);

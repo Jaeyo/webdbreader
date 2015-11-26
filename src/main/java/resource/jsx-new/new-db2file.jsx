@@ -10,11 +10,15 @@ var React = require('react'),
 	EtcConfigPanel = require('./view-comps/new-db2file/etc-config-panel.jsx'),
 	CodePanel = require('./view-comps/new-db2file/code-panel.jsx'),
 	MaterialWrapper = require('./comps/material-wrapper.jsx'),
+	Dialog = MaterialWrapper.Dialog,
+	TextField = MaterialWrapper.TextField,
 	Button = MaterialWrapper.Button;
 
 jsUtil.initPrototypeFunctions();
 
 var NewDb2FileView = React.createClass({
+	script: null,
+
 	getInitialState() {
 		return {
 			dbVendor: 'oracle',
@@ -32,12 +36,46 @@ var NewDb2FileView = React.createClass({
 			period: '6 * 1000',
 			charset: 'utf8',
 			delimiter: '|',
-			outputFile: ''
+			outputPath: '',
+			scriptName: '',
+			inputScriptNameDialogVisible: false
 		};
 	},
 
+	toggleDialog(name, evt) {
+		evt.stopPropagation();
+		switch(name) {
+		case 'inputScriptNameDialog': 
+			this.setState({ 
+				scriptName: '',
+				inputScriptNameDialogVisible: !this.state.inputScriptNameDialogVisible
+			});
+			break;
+		}
+	},
+
+	handleInputScriptNameDialogAction(name, evt) {
+		evt.stopPropagation();
+		switch(name) {
+		case 'ok':
+			this.setState({ inputScriptNameDialogVisible: false });
+			//TODO IMME
+			break;
+		case 'cancel':
+			this.setState({ inputScriptNameDialogVisible: false });
+			break;
+		}
+	},
+
 	onChange(args) {
+		if(args.script) {
+			this.script = args.script;
+			delete args.script;
+			if(Object.keys(args).length === 0) return;
+		}
+
 		if(args.columns) args.columns = args.columns.toLowerCase();
+
 		this.setState(args);
 	},
 
@@ -71,7 +109,7 @@ var NewDb2FileView = React.createClass({
 			period: this.state.period,
 			charset: this.state.charset,
 			delimiter: this.state.delimiter,
-			outputFile: this.state.outputFile,
+			outputPath: this.state.outputPath,
 			onChange: this.onChange
 		};
 
@@ -88,7 +126,7 @@ var NewDb2FileView = React.createClass({
 			period: this.state.period,
 			charset: this.state.charset,
 			delimiter: this.state.delimiter,
-			outputFile: this.state.outputFile,
+			outputPath: this.state.outputPath,
 			onChange: this.onChange
 		};
 
@@ -99,7 +137,55 @@ var NewDb2FileView = React.createClass({
 				<BindingTypePanel {...bindingTypePanelParams} />
 				<EtcConfigPanel {...etcConfigPanelParams} />
 				<CodePanel {...codePanelParams} />
+				<Button
+					label="생성"
+					primary={true}
+					onClick={this.toggleDialog.bind(this, 'inputScriptNameDialog')} />
+				<InputScriptNameDialog
+					visible={this.state.inputScriptNameDialogVisible}
+					scriptName={this.state.scriptName}
+					handleAction={this.handleInputScriptNameDialogAction}
+					onChange={this.onChange} />
 			</div>
+		);
+	}
+});
+
+var InputScriptNameDialog = React.createClass({
+	PropTypes: {
+		visible: React.PropTypes.bool.isRequired,
+		scriptName: React.PropTypes.string.isRequired,
+		handleAction: React.PropTypes.func.isRequired,
+		onChange: React.PropTypes.func.isRequired
+	},
+
+	getDefaultProps() {
+		return { visible: false };
+	},
+
+	handleChange(name, evt) {
+		evt.stopPropagation();
+		var state = {};
+		state[name] = evt.taget.value;
+		this.props.onChange(state);
+	},
+
+	render() {
+		return (
+			<Dialog
+				title="스크립트 이름"
+				actions={[
+					{ text: 'ok', onClick: this.props.handleAction.bind(this, 'ok') },
+					{ text: 'cancel', onClick: this.props.handleAction.bind(this, 'cancel') }
+				]}
+				actionFocus="ok"
+				open={this.props.visible}>
+				<TextField
+					floatingLabelText="script name"
+					value={this.props.scriptName}
+					fullWidth={true}
+					onChange={this.handleChange.bind(this, 'scriptName')} />
+			</Dialog>
 		);
 	}
 });

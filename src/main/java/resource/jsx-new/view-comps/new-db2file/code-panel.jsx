@@ -27,7 +27,7 @@ var CodePanel = React.createClass({
 		period: React.PropTypes.string.isRequired,
 		charset: React.PropTypes.string.isRequired,
 		delimiter: React.PropTypes.string.isRequired,
-		outputFile: React.PropTypes.string.isRequired,
+		outputPath: React.PropTypes.string.isRequired,
 		onChange: React.PropTypes.func.isRequired
 	},
 
@@ -36,10 +36,16 @@ var CodePanel = React.createClass({
 		this.editor.setTheme('ace/theme/github');
 		this.editor.getSession().setMode('ace/mode/javascript');
 		this.editor.setKeyboardHandler('ace/keyboard/vim');
+		this.editor.on('change', function(e) {
+			this.props.onChange({ script: this.editor.getValue() });
+		}.bind(this));
+		this.editor.$blockScrolling = Infinity;
 	},
 
 	componentWillReceiveProps(newProps) {
-		this.editor.setValue(this.makeScript(newProps));
+		var script = this.makeScript(newProps);
+		this.editor.setValue(script);
+		this.props.onChange({ script: script });
 	},
 
 	shouldComponentUpdate(newProps, newState) {
@@ -59,7 +65,7 @@ var CodePanel = React.createClass({
 			bindingColumn: newProps.bindingColumn,
 			delimiter: newProps.delimiter,
 			charset: newProps.charset,
-			outputFile: newProps.outputFile
+			outputPath: newProps.outputPath
 		});
 
 		if(this.props.bindingType !== newProps.bindingType) {
