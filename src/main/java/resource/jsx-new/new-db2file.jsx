@@ -59,8 +59,19 @@ var NewDb2FileView = React.createClass({
 		try {
 			precondition
 				.instance(this.state)
-				.stringNotByEmpty
-				//TODO IMME
+				.stringNotByEmpty([ 'jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword' ], 'jdbc 연결 정보 미입력')
+				.stringNotByEmpty('table', 'table 정보 미입력')
+				.stringNotByEmpty('columns', 'columns정보 미입력')
+				.stringNotByEmpty('bindingType', 'bindingType 정보 미입력')
+				.check(function(data) {
+					if(data.bindingType !== 'simple')
+						return ( data.bindingColumn != null && data.bindingColumn.trim().length !== 0 );
+					return true;
+				})
+				.stringNotByEmpty('period', 'period 정보 미입력')
+				.stringNotByEmpty('charset', 'charset 정보 미입력')
+				.stringNotByEmpty('delimiter', 'delimiter 정보 미입력')
+				.stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
 		} catch(errmsg) {
 			this.refs.warnDialog.show(errmsg);
 			return;

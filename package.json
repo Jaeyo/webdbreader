@@ -46,6 +46,7 @@
     "reactcss": "^0.4.1",
     "striptags": "^2.0.4",
     "style-loader": "^0.12.4",
+    "superagent": "^1.4.0",
     "underscore": "^1.8.3",
     "url-pattern": "^0.10.2",
     "webpack": "^1.12.2",
