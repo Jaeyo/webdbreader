@@ -142,7 +142,13 @@ var ScriptMaker = function() {
 			return this;
 		},
 
-		get: function() {
+		get: function(args) {
+			this.variable(args)
+				.maxQueryVariable(args)
+				.minMaxVariable(args)
+				.mainQueryVariable(args)
+				.storeMax2Min(args);
+
 			return [
 				"/* ",
 				"type: db2file ",

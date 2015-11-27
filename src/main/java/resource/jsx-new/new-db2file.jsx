@@ -2,17 +2,19 @@ var React = require('react'),
 	ReactDOM = require('react-dom'),
 	_ = require('underscore'),
 	jsUtil = require('./utils/util.js'),
+	precondition = require('./utils/precondition.js'),
+	ScriptMaker = require('./view-comps/new-db2file/db2file-script-maker.js'),
 	color = jsUtil.color,
 	Layout = require('./comps/layout.jsx').Layout,
 	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
 	DatabaseConfigPanel = require('./view-comps/new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./view-comps/new-db2file/binding-type-panel.jsx'),
 	EtcConfigPanel = require('./view-comps/new-db2file/etc-config-panel.jsx'),
-	CodePanel = require('./view-comps/new-db2file/code-panel.jsx'),
 	MaterialWrapper = require('./comps/material-wrapper.jsx'),
 	Dialog = MaterialWrapper.Dialog,
 	TextField = MaterialWrapper.TextField,
-	Button = MaterialWrapper.Button;
+	Button = MaterialWrapper.Button,
+	Alert = require('react-bootstrap').Alert;
 
 jsUtil.initPrototypeFunctions();
 
@@ -37,34 +39,8 @@ var NewDb2FileView = React.createClass({
 			charset: 'utf8',
 			delimiter: '|',
 			outputPath: '',
-			scriptName: '',
-			inputScriptNameDialogVisible: false
+			confirmScriptDialogVisible: false
 		};
-	},
-
-	toggleDialog(name, evt) {
-		evt.stopPropagation();
-		switch(name) {
-		case 'inputScriptNameDialog': 
-			this.setState({ 
-				scriptName: '',
-				inputScriptNameDialogVisible: !this.state.inputScriptNameDialogVisible
-			});
-			break;
-		}
-	},
-
-	handleInputScriptNameDialogAction(name, evt) {
-		evt.stopPropagation();
-		switch(name) {
-		case 'ok':
-			this.setState({ inputScriptNameDialogVisible: false });
-			//TODO IMME
-			break;
-		case 'cancel':
-			this.setState({ inputScriptNameDialogVisible: false });
-			break;
-		}
 	},
 
 	onChange(args) {
@@ -77,6 +53,22 @@ var NewDb2FileView = React.createClass({
 		if(args.columns) args.columns = args.columns.toLowerCase();
 
 		this.setState(args);
+	},
+
+	showScriptDialog() {
+		try {
+			precondition
+				.instance(this.state)
+				.stringNotByEmpty
+				//TODO IMME
+		} catch(errmsg) {
+			this.refs.warnDialog.show(errmsg);
+			return;
+		}
+
+		this.setState({
+			confirmScriptDialogVisible: true
+		});
 	},
 
 	render() {
@@ -113,11 +105,13 @@ var NewDb2FileView = React.createClass({
 			onChange: this.onChange
 		};
 
-		var codePanelParams = {
+		var scriptConfirmDIalogParams = {
+			visible: this.state.confirmScriptDialogVisible,
+			onClose: function() { this.setState({ confirmScriptDialogVisible: false }); }.bind(this),
 			dbVendor: this.state.dbVendor,
 			jdbcDriver: this.state.jdbcDriver,
 			jdbcConnUrl: this.state.jdbcConnUrl,
-			jdbcUsername: this.state.jdbcUsername,
+			jdbcUsername:this.state.jdbcUsername,
 			jdbcPassword: this.state.jdbcPassword,
 			bindingType: this.state.bindingType,
 			bindingColumn: this.state.bindingColumn,
@@ -126,8 +120,7 @@ var NewDb2FileView = React.createClass({
 			period: this.state.period,
 			charset: this.state.charset,
 			delimiter: this.state.delimiter,
-			outputPath: this.state.outputPath,
-			onChange: this.onChange
+			outputPath: this.state.outputPath
 		};
 
 		return (
@@ -136,55 +129,159 @@ var NewDb2FileView = React.createClass({
 				<DatabaseConfigPanel {...dbConfigPanelParams} />
 				<BindingTypePanel {...bindingTypePanelParams} />
 				<EtcConfigPanel {...etcConfigPanelParams} />
-				<CodePanel {...codePanelParams} />
 				<Button
 					label="생성"
 					primary={true}
-					onClick={this.toggleDialog.bind(this, 'inputScriptNameDialog')} />
-				<InputScriptNameDialog
-					visible={this.state.inputScriptNameDialogVisible}
-					scriptName={this.state.scriptName}
-					handleAction={this.handleInputScriptNameDialogAction}
-					onChange={this.onChange} />
+					onClick={this.showScriptDialog} />
+				<ScriptConfirmDialog {...scriptConfirmDIalogParams} />
+				<WarnDialog ref="warnDialog" />
 			</div>
 		);
 	}
 });
 
-var InputScriptNameDialog = React.createClass({
+
+
+var ScriptConfirmDialog = React.createClass({
+	editor: null,
+	scriptMaker: new ScriptMaker(),
+
 	PropTypes: {
 		visible: React.PropTypes.bool.isRequired,
-		scriptName: React.PropTypes.string.isRequired,
-		handleAction: React.PropTypes.func.isRequired,
-		onChange: React.PropTypes.func.isRequired
+		onClose: React.PropTypes.func.isRequired,
+		dbVendor: React.PropTypes.string.isRequired,
+		jdbcDriver: React.PropTypes.string.isRequired,
+		jdbcConnUrl: React.PropTypes.string.isRequired,
+		jdbcUsername:React.PropTypes.string.isRequired,
+		jdbcPassword: React.PropTypes.string.isRequired,
+		bindingType: React.PropTypes.string.isRequired,
+		bindingColumn: React.PropTypes.string.isRequired,
+		table: React.PropTypes.string.isRequired,
+		columns: React.PropTypes.string.isRequired,
+		period: React.PropTypes.string.isRequired,
+		charset: React.PropTypes.string.isRequired,
+		delimiter: React.PropTypes.string.isRequired,
+		outputPath: React.PropTypes.string.isRequired
 	},
 
-	getDefaultProps() {
-		return { visible: false };
+	getInitialState() {
+		return { 
+			scriptName: ''
+		};
 	},
 
-	handleChange(name, evt) {
-		evt.stopPropagation();
-		var state = {};
-		state[name] = evt.taget.value;
-		this.props.onChange(state);
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.visible === true && this.props.visible === false) {
+			this.editor.destroy();
+		} else if(prevProps.visible === false && this.props.visible === true) {
+			this.editor = ace.edit('editor');
+			this.editor.setTheme('ace/theme/github');
+			this.editor.getSession().setMode('ace/mode/javascript');
+			this.editor.setKeyboardHandler('ace/keyboard/vim');
+			this.editor.$blockScrolling = Infinity;
+			this.editor.setValue(this.makeScript());
+		}
+	},
+
+	makeScript() {
+		return this.scriptMaker.get({
+			period: this.props.period,
+			dbVendor: this.props.dbVendor,
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword,
+			columns: this.props.columns,
+			table: this.props.table,
+			bindingColumn: this.props.bindingColumn,
+			delimiter: this.props.delimiter,
+			charset: this.props.charset,
+			outputPath: this.props.outputPath
+		});
+	},
+
+	handleAction(action) {
+		if(action === 'ok') {
+			console.log(this.state.scriptName); //DEBUG
+			console.log(this.editor.getValue()); //DEBUG
+		}
+		this.props.onClose();
+	},
+
+	styles() {
+		return {
+			editorWrapper: {
+				position: 'relative',
+				height: '400px'
+			},
+			editor: {
+				position: 'absolute',
+				top: 0,
+				bottom: 0,
+				right: 0,
+				left: 0
+			}
+		};
 	},
 
 	render() {
+		var style = this.styles();
+
 		return (
 			<Dialog
-				title="스크립트 이름"
+				title="스크립트"
 				actions={[
-					{ text: 'ok', onClick: this.props.handleAction.bind(this, 'ok') },
-					{ text: 'cancel', onClick: this.props.handleAction.bind(this, 'cancel') }
+					{ text: 'ok', onClick: function(evt) { this.handleAction('ok'); }.bind(this) },
+					{ text: 'cancel', onClick: function(evt) { this.handleAction('cancel'); }.bind(this) }
 				]}
 				actionFocus="ok"
 				open={this.props.visible}>
 				<TextField
 					floatingLabelText="script name"
-					value={this.props.scriptName}
+					value={this.state.scriptName}
 					fullWidth={true}
-					onChange={this.handleChange.bind(this, 'scriptName')} />
+					onChange={ function(evt) { this.setState({ scriptName: evt.target.value }); }.bind(this) } />
+				<div id="editor-wrapper" style={style.editorWrapper}>
+					<div id="editor" style={style.editor} />
+				</div>
+			</Dialog>
+		);
+	}
+});
+
+
+var WarnDialog = React.createClass({
+	getInitialState() {
+		return { 
+			visible: false,
+			msg: ''
+		};
+	},
+
+	show(msg) {
+		this.setState({
+			visible: true,
+			msg: msg
+		});
+	}, 
+
+	hide() {
+		this.setState({ visible: false });
+	},
+
+	render() {
+		return (
+			<Dialog
+				actions={[
+					{ text: 'close', onClick: function(evt) { this.setState({ visible: false }) }.bind(this) }
+				]}
+				actionFocus="close"
+				open={this.state.visible}>
+				<Alert bsStyle="danger">
+					<strong>
+						{this.state.msg}
+					</strong>
+				</Alert>
 			</Dialog>
 		);
 	}
