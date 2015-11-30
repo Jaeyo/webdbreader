@@ -55173,9 +55173,11 @@
 	    ReactDOM = __webpack_require__(159),
 	    _ = __webpack_require__(160),
 	    jsUtil = __webpack_require__(330),
-	    precondition = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./utils/precondition.js\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
+	    precondition = __webpack_require__(717),
+	    server = __webpack_require__(455),
 	    ScriptMaker = __webpack_require__(337),
 	    color = jsUtil.color,
+	    AlertDialog = __webpack_require__(719),
 	    Layout = __webpack_require__(333).Layout,
 	    LayerPopup = __webpack_require__(338).LayerPopup,
 	    DatabaseConfigPanel = __webpack_require__(452),
@@ -55235,7 +55237,7 @@
 					return true;
 				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
 			} catch (errmsg) {
-				this.refs.warnDialog.show(errmsg);
+				this.refs.alertDialog.show('danger', errmsg);
 				return;
 			}
 
@@ -55314,7 +55316,7 @@
 					primary: true,
 					onClick: this.showScriptDialog }),
 				React.createElement(ScriptConfirmDialog, scriptConfirmDIalogParams),
-				React.createElement(WarnDialog, { ref: 'warnDialog' })
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
 			);
 		}
 	});
@@ -55372,6 +55374,7 @@
 				jdbcPassword: this.props.jdbcPassword,
 				columns: this.props.columns,
 				table: this.props.table,
+				bindingType: this.props.bindingType,
 				bindingColumn: this.props.bindingColumn,
 				delimiter: this.props.delimiter,
 				charset: this.props.charset,
@@ -55381,17 +55384,37 @@
 
 		handleAction: function handleAction(action) {
 			if (action === 'ok') {
-				console.log(this.state.scriptName); //DEBUG
-				console.log(this.editor.getValue()); //DEBUG
+				var data = {
+					title: this.state.scriptName,
+					script: this.editor.getValue()
+				};
+
+				try {
+					precondition.instance(data).stringNotByEmpty('title', 'title 미입력').stringNotByEmpty('script', 'script 미입력');
+				} catch (errmsg) {
+					this.refs.alertDialog.show('danger', errmsg);
+					return;
+				}
+
+				server.postScript(data).then((function (success) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('success', 'script registered');
+				}).bind(this))['catch']((function (err) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('danger', err);
+				}).bind(this));
+			} else if (action === 'cancel') {
+				this.props.onClose();
 			}
-			this.props.onClose();
 		},
 
 		styles: function styles() {
 			return {
 				editorWrapper: {
 					position: 'relative',
-					height: '400px'
+					height: '250px'
 				},
 				editor: {
 					position: 'absolute',
@@ -55416,6 +55439,8 @@
 							this.handleAction('cancel');
 						}).bind(this) }],
 					actionFocus: 'ok',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
 					open: this.props.visible },
 				React.createElement(TextField, {
 					floatingLabelText: 'script name',
@@ -55428,50 +55453,8 @@
 					'div',
 					{ id: 'editor-wrapper', style: style.editorWrapper },
 					React.createElement('div', { id: 'editor', style: style.editor })
-				)
-			);
-		}
-	});
-
-	var WarnDialog = React.createClass({
-		displayName: 'WarnDialog',
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				msg: ''
-			};
-		},
-
-		show: function show(msg) {
-			this.setState({
-				visible: true,
-				msg: msg
-			});
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					actions: [{ text: 'close', onClick: (function (evt) {
-							this.setState({ visible: false });
-						}).bind(this) }],
-					actionFocus: 'close',
-					open: this.state.visible },
-				React.createElement(
-					Alert,
-					{ bsStyle: 'danger' },
-					React.createElement(
-						'strong',
-						null,
-						this.state.msg
-					)
-				)
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
 			);
 		}
 	});
@@ -55531,19 +55514,19 @@
 			mainQueryVariable: function mainQueryVariable(args) {
 				switch (args.bindingType) {
 					case 'simple':
-						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns}' \\", "		FROM ${table}',", "		{ columns: columns, table: table }", "	);"].join('\n');
+						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table}',", "		{ columns: columns, table: table }", "	);"].join('\n');
 						break;
 					case 'date':
 						if (args.dbVendor === 'mysql') {
 							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > str_to_date(\\'${min}\\', \\'%Y-%m-%d %H:%i:%s\\') \\", "		AND ${bindingColumn} <= str_to_date(\\'${max}\\', \\'%Y-%m-%d %H:%i:%s\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
 						} else if (args.dbVendor === 'mssql') {
-							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns}' \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} <= ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} <= ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
 						} else {
 							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > to_date(\\'${min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') \\", "		AND ${bindingColumn} <= to_date(\\'${max}\\', \\'YYYY-MM-DD HH24:MI:SS\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
 						}
 						break;
 					case 'sequence':
-						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns}' \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} < ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} < ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
 						break;
 				}
 
@@ -55560,7 +55543,7 @@
 			get: function get(args) {
 				this.variable(args).maxQueryVariable(args).minMaxVariable(args).mainQueryVariable(args).storeMax2Min(args);
 
-				return ["/* ", "type: db2file ", "*/", _variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
+				return ["/* ", "type: db2file ", "*/", _variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, _mainQueryVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
 			}
 		};
 	};
@@ -70025,6 +70008,8 @@
 								title: 'database config',
 								actions: [{ text: 'ok', onClick: this.toggleDialog.bind(this, 'dbconfig') }],
 								actionFocus: 'ok',
+								autoDetectWindowHeight: true,
+								autoScrollBodyContent: true,
 								open: this.state.isDatabaseConfigModalVisible },
 							React.createElement(TextField, {
 								style: style.jdbcConfig.dbConfigModal.dbIpTextBox,
@@ -70170,7 +70155,9 @@
 		},
 
 		loadTables: function loadTables() {
-			server.loadTables(this.props.jdbc).then((function (tables) {
+			server.loadTables({
+				jdbc: this.props.jdbc
+			}).then((function (tables) {
 				this.setState({
 					isTablesLoaded: true,
 					loadedTables: tables
@@ -70286,7 +70273,10 @@
 		},
 
 		loadColumns: function loadColumns() {
-			server.loadColumns(this.props.jdbc, this.props.table).then((function (columns) {
+			server.loadColumns({
+				jdbc: this.props.jdbc,
+				table: this.props.table
+			}).then((function (columns) {
 				this.setState({
 					isColumnsLoaded: true,
 					loadedColumns: columns
@@ -70482,72 +70472,106 @@
 	    request = __webpack_require__(465),
 	    util = __webpack_require__(161);
 
-	exports.loadColumns = function (jdbc, table) {
-		jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-		table = decodeURI(table);
+	var checkResponse = function checkResponse(err, resp) {
+		var rejectTarget = null;
+		if (err) rejectTarget = err;else if (!resp.ok) rejectTarget = resp.error;else if (resp.body.success !== 1) rejectTarget = resp.body.errmsg;
+
+		return {
+			fail: function fail(callback) {
+				if (rejectTarget != null) callback(rejectTarget);
+				return this;
+			},
+			then: function then(callback) {
+				if (rejectTarget == null) callback(resp.body);
+				return this;
+			}
+		};
+	};
+
+	//args: jdbc, table
+	exports.loadColumns = function (args) {
+		args.jdbc = JSON.parse(decodeURI(JSON.stringify(args.jdbc)));
+		args.table = decodeURI(args.table);
 
 		return new Promise(function (resolve, reject) {
-			request.get(util.format('/REST/Database/Columns/%s/', table)).query(jdbc).end(function (err, resp) {});
+			request.get(util.format('/REST/Database/Columns/%s/', args.table)).query(args.jdbc).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.columns);
+				});
+			});
 		});
 	};
 
-	// exports.loadColumns = function(jdbc, table) {
-	// 	jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
-	// 	table = decodeURI(table);
+	//args: jdbc
+	exports.loadTables = function (args) {
+		args.jdbc = JSON.parse(decodeURI(JSON.stringify(args.jdbc)));
 
-	// 	return new Promise(function(resolve, reject) {
-	// 		$.getJSON(util.format('/REST/Database/Columns/%s/', table), jdbc)
-	// 		.fail(function(err) {
-	// 			console.error({ err: err });
-	// 			reject(err);
-	// 		}).done(function(resp) {
-	// 			if(resp.success !== 1) {
-	// 				console.error(resp.errmsg);
-	// 				reject(resp.errmsg);
-	// 			} else {
-	// 				resolve(resp.columns);
-	// 			}
-	// 		});
-	// 	});
-	// };
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Database/Tables/').query(args.jdbc).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.tables);
+				});
+			});
+		});
+	};
 
-	// exports.loadTables = function(jdbc) {
-	// 	jdbc = JSON.parse(decodeURI(JSON.stringify(jdbc)));
+	exports.querySampleData = function (params) {
+		params = JSON.parse(decodeURI(JSON.stringify(params)));
 
-	// 	return new Promise(function(resolve, reject) {
-	// 		$.getJSON('/REST/Database/Tables/', jdbc)
-	// 		.fail(function(err) {
-	// 			console.error({ err: err });
-	// 			reject(err);
-	// 		}).done(function(resp) {
-	// 			if(resp.success !== 1) {
-	// 				console.error(resp.errmsg);
-	// 				reject(resp.errmsg);
-	// 			} else {
-	// 				resolve(resp.tables)
-	// 			}
-	// 		});
-	// 	});
-	// };
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Database/QuerySampleData/').query(params).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.sampleData);
+				});
+			});
+		});
+	};
 
-	// exports.querySampleData = function(params) {
-	// 	params = JSON.parse(decodeURI(JSON.stringify(params)));
+	//args: title, script
+	exports.postScript = function (args) {
+		args.title = decodeURI(args.title);
 
-	// 	return new Promise(function(resolve, reject) {
-	// 		$.getJSON('/REST/Database/QuerySampleData/', params)
-	// 		.fail(function(err) {
-	// 			console.error({ err: err });
-	// 			reject(err);
-	// 		}).done(function(resp) {
-	// 			if(resp.success !== 1) {
-	// 				console.error(resp.errmsg);
-	// 				reject(resp.errmsg);
-	// 			} else {
-	// 				resolve(resp.sampleData);
-	// 			}
-	// 		});
-	// 	});
-	// };
+		console.log(args); //DEBUG
+		console.log({ script: args.script }); //DEBUG
+
+		return new Promise(function (resolve, reject) {
+			request.post(util.format('/REST/Script/New/%s/', args.title)).send({
+				test: 'blabla test',
+				script: args.script
+			}).end(function (err, resp) {
+				console.log({ err: err, resp: resp }); //DEBUG
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.success);
+				});
+			});
+		});
+	};
+
+	//return { SCRIPT_NAME, REGDATE, IS_RUNNING }
+	exports.loadScripts = function (args) {
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Script/Info/').end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.scriptInfos);
+				});
+			});
+		});
+	};
 
 /***/ },
 /* 456 */
@@ -90306,6 +90330,124 @@
 
 	exports['default'] = Well;
 	module.exports = exports['default'];
+
+/***/ },
+/* 716 */,
+/* 717 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var precondition = function precondition(data) {
+		this.data = data;
+	};
+
+	precondition.prototype.stringNotByEmpty = function (keyName, msg) {
+		var checkFn = (function (keyName) {
+			if (this.data[keyName] == null) throw msg;
+			if (typeof this.data[keyName] !== 'string') throw msg;
+			if (this.data[keyName].trim().length === 0) throw msg;
+		}).bind(this);
+
+		if (Array.isArray(keyName) === true) {
+			keyName.forEach(checkFn);
+		} else {
+			checkFn(keyName);
+		}
+
+		return this;
+	};
+
+	precondition.prototype.check = function (callback, msg) {
+		if (callback(this.data) === false) throw msg;
+		return this;
+	};
+
+	module.exports = {
+		instance: function instance(data) {
+			return new precondition(data);
+		}
+	};
+
+/***/ },
+/* 718 */,
+/* 719 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(2),
+	    MaterialWrapper = __webpack_require__(342),
+	    Dialog = MaterialWrapper.Dialog,
+	    TextField = MaterialWrapper.TextField,
+	    Button = MaterialWrapper.Button,
+	    Alert = __webpack_require__(472).Alert;
+
+	var AlertDialog = React.createClass({
+		displayName: 'AlertDialog',
+
+		onShowCallback: null,
+		onHideCallback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				bsStyle: 'success', //success, info, warning, danger
+				msg: ''
+			};
+		},
+
+		onShow: function onShow(callback) {
+			this.onShowCallback = callback;
+			return this;
+		},
+
+		onHide: function onHide(callback) {
+			this.onHideCallback = callback;
+			return this;
+		},
+
+		show: function show(bsStyle, msg) {
+			this.setState({
+				visible: true,
+				bsStyle: bsStyle,
+				msg: msg
+			}, function () {
+				if (this.onShowCallback != null) this.onShowCallback();
+				this.onShowCallback = null;
+			});
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false }, (function () {
+				if (this.onHideCallback != null) this.onHideCallback();
+				this.onHideCallback = null;
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				Dialog,
+				{
+					actions: [{ text: 'close', onClick: this.hide }],
+					actionFocus: 'close',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.state.visible },
+				React.createElement(
+					Alert,
+					{ bsStyle: this.state.bsStyle },
+					React.createElement(
+						'strong',
+						null,
+						this.state.msg
+					)
+				)
+			);
+		}
+	});
+
+	module.exports = AlertDialog;
 
 /***/ }
 /******/ ]);

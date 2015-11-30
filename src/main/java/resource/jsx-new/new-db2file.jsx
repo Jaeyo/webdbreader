@@ -3,8 +3,10 @@ var React = require('react'),
 	_ = require('underscore'),
 	jsUtil = require('./utils/util.js'),
 	precondition = require('./utils/precondition.js'),
+	server = require('./utils/server.js'),
 	ScriptMaker = require('./view-comps/new-db2file/db2file-script-maker.js'),
 	color = jsUtil.color,
+	AlertDialog = require('./comps/alert-dialog.jsx'),
 	Layout = require('./comps/layout.jsx').Layout,
 	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
 	DatabaseConfigPanel = require('./view-comps/new-db2file/database-config-panel.jsx'),
@@ -73,7 +75,7 @@ var NewDb2FileView = React.createClass({
 				.stringNotByEmpty('delimiter', 'delimiter 정보 미입력')
 				.stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
 		} catch(errmsg) {
-			this.refs.warnDialog.show(errmsg);
+			this.refs.alertDialog.show('danger', errmsg);
 			return;
 		}
 
@@ -145,7 +147,7 @@ var NewDb2FileView = React.createClass({
 					primary={true}
 					onClick={this.showScriptDialog} />
 				<ScriptConfirmDialog {...scriptConfirmDIalogParams} />
-				<WarnDialog ref="warnDialog" />
+				<AlertDialog ref="alertDialog" />
 			</div>
 		);
 	}
@@ -204,6 +206,7 @@ var ScriptConfirmDialog = React.createClass({
 			jdbcPassword: this.props.jdbcPassword,
 			columns: this.props.columns,
 			table: this.props.table,
+			bindingType: this.props.bindingType,
 			bindingColumn: this.props.bindingColumn,
 			delimiter: this.props.delimiter,
 			charset: this.props.charset,
@@ -213,17 +216,43 @@ var ScriptConfirmDialog = React.createClass({
 
 	handleAction(action) {
 		if(action === 'ok') {
-			console.log(this.state.scriptName); //DEBUG
-			console.log(this.editor.getValue()); //DEBUG
+			var data = {
+				title: this.state.scriptName,
+				script: this.editor.getValue()
+			};
+
+			try {
+				precondition
+					.instance(data)
+					.stringNotByEmpty('title', 'title 미입력')
+					.stringNotByEmpty('script', 'script 미입력');
+			} catch(errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			server
+				.postScript(data)
+				.then(function(success) {
+					this.refs.alertDialog.onHide(function() {
+						this.props.onClose();
+					}.bind(this)).show('success', 'script registered')
+				}.bind(this))
+				.catch(function(err) {
+					this.refs.alertDialog.onHide(function() {
+						this.props.onClose();
+					}.bind(this)).show('danger', err);
+				}.bind(this));
+		} else if(action === 'cancel') {
+			this.props.onClose();
 		}
-		this.props.onClose();
 	},
 
 	styles() {
 		return {
 			editorWrapper: {
 				position: 'relative',
-				height: '400px'
+				height: '250px'
 			},
 			editor: {
 				position: 'absolute',
@@ -246,6 +275,8 @@ var ScriptConfirmDialog = React.createClass({
 					{ text: 'cancel', onClick: function(evt) { this.handleAction('cancel'); }.bind(this) }
 				]}
 				actionFocus="ok"
+				autoDetectWindowHeight={true}
+				autoScrollBodyContent={true}
 				open={this.props.visible}>
 				<TextField
 					floatingLabelText="script name"
@@ -255,49 +286,11 @@ var ScriptConfirmDialog = React.createClass({
 				<div id="editor-wrapper" style={style.editorWrapper}>
 					<div id="editor" style={style.editor} />
 				</div>
+				<AlertDialog ref="alertDialog" />
 			</Dialog>
 		);
 	}
 });
-
-
-var WarnDialog = React.createClass({
-	getInitialState() {
-		return { 
-			visible: false,
-			msg: ''
-		};
-	},
-
-	show(msg) {
-		this.setState({
-			visible: true,
-			msg: msg
-		});
-	}, 
-
-	hide() {
-		this.setState({ visible: false });
-	},
-
-	render() {
-		return (
-			<Dialog
-				actions={[
-					{ text: 'close', onClick: function(evt) { this.setState({ visible: false }) }.bind(this) }
-				]}
-				actionFocus="close"
-				open={this.state.visible}>
-				<Alert bsStyle="danger">
-					<strong>
-						{this.state.msg}
-					</strong>
-				</Alert>
-			</Dialog>
-		);
-	}
-});
-
 
 ReactDOM.render(
 	<Layout active="script">

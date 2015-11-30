@@ -233,6 +233,8 @@ var DatabaseConfigPanel = React.createClass({
 								{ text: 'ok', onClick: this.toggleDialog.bind(this, 'dbconfig')}
 							]}
 							actionFocus="ok"
+							autoDetectWindowHeight={true}
+							autoScrollBodyContent={true}
 							open={this.state.isDatabaseConfigModalVisible}>
 							<TextField
 								style={style.jdbcConfig.dbConfigModal.dbIpTextBox}
@@ -373,8 +375,9 @@ var TableConfigDialog = React.createClass({
 	},
 
 	loadTables() {
-		server.loadTables(this.props.jdbc)
-		.then(function(tables) {
+		server.loadTables({
+			jdbc: this.props.jdbc
+		}).then(function(tables) {
 			this.setState({
 				isTablesLoaded: true,
 				loadedTables: tables
@@ -492,8 +495,10 @@ var ColumnConfigDialog = React.createClass({
 	},
 
 	loadColumns() {
-		server.loadColumns(this.props.jdbc, this.props.table)
-		.then(function(columns) {
+		server.loadColumns({
+			jdbc: this.props.jdbc,
+			table: this.props.table
+		}).then(function(columns) {
 			this.setState({
 				isColumnsLoaded: true,
 				loadedColumns: columns

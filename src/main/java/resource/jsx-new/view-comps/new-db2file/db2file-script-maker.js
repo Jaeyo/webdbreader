@@ -72,7 +72,7 @@ var ScriptMaker = function() {
 				case 'simple':
 					mainQueryVariable = [
 						"	var mainQuery = format( ",
-						"		'SELECT ${columns}' \\",
+						"		'SELECT ${columns} \\",
 						"		FROM ${table}',",
 						"		{ columns: columns, table: table }",
 						"	);"
@@ -94,7 +94,7 @@ var ScriptMaker = function() {
 					} else if(args.dbVendor === 'mssql') {
 						mainQueryVariable = [
 							"	var mainQuery = format( ",
-							"		'SELECT ${columns}' \\",
+							"		'SELECT ${columns} \\",
 							"		FROM ${table} \\",
 							"		WHERE ${bindingColumn} > ${min} \\",
 							"		AND ${bindingColumn} <= ${max}', ",
@@ -120,7 +120,7 @@ var ScriptMaker = function() {
 				case 'sequence':
 					mainQueryVariable = [
 						"	var mainQuery = format( ",
-						"		'SELECT ${columns}' \\",
+						"		'SELECT ${columns} \\",
 						"		FROM ${table} \\",
 						"		WHERE ${bindingColumn} > ${min} \\",
 						"		AND ${bindingColumn} < ${max}', ",
@@ -159,6 +159,7 @@ var ScriptMaker = function() {
 				"schedule(period).run(function() { ",
 				maxQueryVariable,
 				minMaxVariable,
+				mainQueryVariable,
 				"	database(jdbc)",
 				"		.select(mainQuery)", 
 				"		.result(function(resultset) {", 
