@@ -1,259 +1,295 @@
 var React = require('react'),
-	Panel = require('./components/panel.jsx').Panel;
+	ReactDOM = require('react-dom'),
+	_ = require('underscore'),
+	jsUtil = require('./utils/util.js'),
+	precondition = require('./utils/precondition.js'),
+	server = require('./utils/server.js'),
+	ScriptMaker = require('./new-db2file/db2file-script-maker.js'),
+	color = jsUtil.color,
+	AlertDialog = require('./comps/alert-dialog.jsx'),
+	Layout = require('./comps/layout.jsx').Layout,
+	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
+	DatabaseConfigPanel = require('./new-db2file/database-config-panel.jsx'),
+	BindingTypePanel = require('./new-db2file/binding-type-panel.jsx'),
+	EtcConfigPanel = require('./new-db2file/etc-config-panel.jsx'),
+	MaterialWrapper = require('./comps/material-wrapper.jsx'),
+	Dialog = MaterialWrapper.Dialog,
+	TextField = MaterialWrapper.TextField,
+	Button = MaterialWrapper.Button,
+	Alert = require('react-bootstrap').Alert;
+
+jsUtil.initPrototypeFunctions();
 
 var NewDb2FileView = React.createClass({
-	render() {
-		//TODO IMME
-	}
-});
+	script: null,
 
-
-var jdbcTmpl = {
-	oracle: {
-		driver: 'oracle.jdbc.driver.OracleDriver',
-		connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
-		port: 1521
-	},
-	mysql: {
-		driver: 'com.mysql.jdbc.Driver',
-		connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
-		port: 3306
-	},
-	mssql: {
-		driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-		connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
-		port: 1433
-	},
-	db2: {
-		driver: 'com.ibm.db2.jcc.DB2Driver',
-		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-		port: 50000
-	},
-	tibero: {
-		driver: 'com.ibm.db2.jcc.DB2Driver',
-		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-		port: 8629
-	}
-}; //jdbcTmpl
-
-
-var InputDatabasePanel = React.createClass({
 	getInitialState() {
 		return {
 			dbVendor: 'oracle',
-			dbIp: 'localhost',
-			dbPort: '',
-			dbSid: '',
-			driver: '',
-			connUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: ''
+			dbIp: '192.168.10.101',
+			dbPort: '1521',
+			dbSid: 'spiderx',
+			jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+			jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+			jdbcUsername: 'admin_test',
+			jdbcPassword: 'admin_test',
+			table: '',
+			columns: '',
+			bindingType: 'simple',
+			bindingColumn: '',
+			period: '6 * 1000',
+			charset: 'utf8',
+			delimiter: '|',
+			outputPath: '',
+			confirmScriptDialogVisible: false
 		};
 	},
 
-	onClickDbVendor(evt) {
-		var dbVendor = evt.target.value;
-		var driver = jdbcTmpl[dbVendor].driver;
-		var port = jdbcTmpl[dbVendor].port;
-		var connUrl = jdbcTmpl[dbVendor].connUrl
-			.replace('{ip}', this.state.dbIp)
-			.replace('{port}', port)
-			.replace('{database}', this.state.dbSid);
+	onChange(args) {
+		if(args.script) {
+			this.script = args.script;
+			delete args.script;
+			if(Object.keys(args).length === 0) return;
+		}
+
+		if(args.columns) args.columns = args.columns.toLowerCase();
+
+		this.setState(args);
+	},
+
+	showScriptDialog() {
+		try {
+			precondition
+				.instance(this.state)
+				.stringNotByEmpty([ 'jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword' ], 'jdbc 연결 정보 미입력')
+				.stringNotByEmpty('table', 'table 정보 미입력')
+				.stringNotByEmpty('columns', 'columns정보 미입력')
+				.stringNotByEmpty('bindingType', 'bindingType 정보 미입력')
+				.check(function(data) {
+					if(data.bindingType !== 'simple')
+						return ( data.bindingColumn != null && data.bindingColumn.trim().length !== 0 );
+					return true;
+				})
+				.stringNotByEmpty('period', 'period 정보 미입력')
+				.stringNotByEmpty('charset', 'charset 정보 미입력')
+				.stringNotByEmpty('delimiter', 'delimiter 정보 미입력')
+				.stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+		} catch(errmsg) {
+			this.refs.alertDialog.show('danger', errmsg);
+			return;
+		}
 
 		this.setState({
-			dbVendor: dbVendor,
-			driver: driver,
-			connUrl: connUrl
+			confirmScriptDialogVisible: true
 		});
-	},
-
-	onChangeIp(evt) {
-		var dbIp = evt.target.value;
-		var connUrl = jdbcTmpl[dbVendor].connUrl
-			.replace('{ip}', dbIp)
-			.replace('{port}', this.state.dbPort)
-			.replace('{database}', this.state.dbSid);
-
-		this.setState({
-			dbIp: dbIp,
-			connUrl: connUrl
-		});
-	},
-
-	onChangePort(evt) {
-		var dbPort = evt.target.value;
-		var connUrl = jdbcTmpl[dbVendor].connUrl
-			.replace('{ip}', this.state.dbIp)
-			.replace('{port}', dbPort)
-			.replace('{database}', this.state.dbSid);
-
-		this.setState({
-			dbPort: dbPort,
-			connUrl: connUrl
-		});
-	},
-
-	connectTest(evt) {
-		//TODO
-	},
-
-	onChangeSid(evt) {
-		//TODO IMME
-	},
-
-	onChangeDriver(evt) {
-		//TODO IMME
-	},
-
-	onChangeUsername(evt) {
-		//TODO IMME
-	},
-
-	onChangePassword(evt) {
-		//TODO IMME
-	},
-
-	onNext(evt) {
-		//TODO
 	},
 
 	render() {
+		var dbConfigPanelParams = {
+			dbVendor: this.state.dbVendor,
+			dbIp: this.state.dbIp,
+			dbPort: this.state.dbPort,
+			dbSid: this.state.dbSid,
+			jdbcDriver: this.state.jdbcDriver,
+			jdbcConnUrl: this.state.jdbcConnUrl,
+			jdbcUsername: this.state.jdbcUsername,
+			jdbcPassword: this.state.jdbcPassword,
+			table: this.state.table,
+			columns: this.state.columns,
+			onChange: this.onChange
+		};
+
+		var bindingTypePanelParams = {
+			bindingType: this.state.bindingType,
+			bindingColumn: this.state.bindingColumn,
+			jdbcDriver: this.state.jdbcDriver,
+			jdbcConnUrl: this.state.jdbcConnUrl,
+			jdbcUsername: this.state.jdbcUsername,
+			jdbcPassword: this.state.jdbcPassword,
+			table: this.state.table,
+			onChange: this.onChange
+		};
+
+		var etcConfigPanelParams = {
+			period: this.state.period,
+			charset: this.state.charset,
+			delimiter: this.state.delimiter,
+			outputPath: this.state.outputPath,
+			onChange: this.onChange
+		};
+
+		var scriptConfirmDIalogParams = {
+			visible: this.state.confirmScriptDialogVisible,
+			onClose: function() { this.setState({ confirmScriptDialogVisible: false }); }.bind(this),
+			dbVendor: this.state.dbVendor,
+			jdbcDriver: this.state.jdbcDriver,
+			jdbcConnUrl: this.state.jdbcConnUrl,
+			jdbcUsername:this.state.jdbcUsername,
+			jdbcPassword: this.state.jdbcPassword,
+			bindingType: this.state.bindingType,
+			bindingColumn: this.state.bindingColumn,
+			table: this.state.table,
+			columns: this.state.columns,
+			period: this.state.period,
+			charset: this.state.charset,
+			delimiter: this.state.delimiter,
+			outputPath: this.state.outputPath
+		};
+
 		return (
-			<Panel>
-				<Panel.HeadingWithIndicators 
-					glyphicon="console" indicatorTotal={6} indicatorCurrent={1}>
-					input database
-				</Panel.HeadingWithIndicators>
-				<Panel.Body>
-					<div>
-						<InputDatabasePanel.KeyLabel>database vendor</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<InputDatabasePanel.DbVendorRadioBtns
-								value={[ 'oracle', 'mysql', 'mssql', 'db2', 'tibero', 'etc' ]}
-								checked={this.state.dbVendor}
-								onClickCallback={this.onClickDbVendor} />
-						</inputdatabasepanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>database address</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="text" placeholder="ip" onChange={this.onChangeIp}
-								value={this.state.dbIp} style={{ 
-									width: '170px', marginRight: '5px' 
-								}} />
-							<input 
-								type="text" placeholder="port" onChange={this.onChangePort}
-								value={this.state.dbPort} style={{ 
-									width: '50px', marginRight: '5px' 
-								}} />
-							<button 
-								type="button" className="btn btn-default btn-sm" 
-								style={{ width: '126px' }} onClick={this.connectTest}>
-								connect test</button>
-						</InputDatabasePanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>database(sid)</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="text" style={{ width: '356px' }} 
-								onChange={this.onChangeSid} value={this.state.dbSid} />
-						</InputDatabasePanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>connection url</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="text" style={{ width: '356px' }} 
-								onChange={this.onChangeConnUrl} value={this.state.connUrl} />
-						</InputDatabasePanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>jdbc driver</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="text" style={{ width: '356px' }} 
-								onChange={this.onChangeDriver} value={this.state.driver} />
-						</InputDatabasePanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>jdbc username</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="text" style={{ width: '356px' }} 
-								onChange={this.onChangeUsername} 
-								value={this.state.jdbcUsername} />
-						</InputDatabasePanel.ValueLabel>
-					</div>
-					<div>
-						<InputDatabasePanel.KeyLabel>jdbc password</InputDatabasePanel.KeyLabel>
-						<InputDatabasePanel.ValueLabel>
-							<input 
-								type="password" style={{ width: '356px' }} 
-								onChange={this.onChangePassword} 
-								value={this.state.jdbcPassword} />
-						</InputDatabasePanel.ValueLabel>
-					</div>
-				</Panel.Body>
-				<Panel.Footer>
-					<div style={{ float: right }}>
-						<button 
-							type="button" className="btn btn-primary btn-sm" 
-							onClick={this.onNext} />
-					</div>
-				</Panel.Footer>
-			</Panel>
+			<div> 
+				<h3 style={{ marginBottom: '3px' }}>database 설정</h3>
+				<DatabaseConfigPanel {...dbConfigPanelParams} />
+				<BindingTypePanel {...bindingTypePanelParams} />
+				<EtcConfigPanel {...etcConfigPanelParams} />
+				<Button
+					label="생성"
+					primary={true}
+					onClick={this.showScriptDialog} />
+				<ScriptConfirmDialog {...scriptConfirmDIalogParams} />
+				<AlertDialog ref="alertDialog" />
+			</div>
 		);
 	}
 });
 
-InputDatabasePanel.KeyLabel = React.createClass({
-	render() {
-		return (
-			<label style={{
-				width: '150px',
-				marginRight: '10px' }}>
-				{this.props.children}
-			</label>
-		);
-	}
-});
-InputDatabasePanel.ValueLabel = React.createClass({
-	render() {
-		return (
-			<span style={{
-				marginBottom: '5px' }}>
-				{this.props.children}
-			</span>
-		);
-	}
-});
 
-InputDatabasePanel.DbVendorRadioBtns = React.createClass({
-	getDefaultProps() {
-		return {
-			values: [],
-			onClickCallback: null,
-			checked: ''
+
+var ScriptConfirmDialog = React.createClass({
+	editor: null,
+	scriptMaker: new ScriptMaker(),
+
+	PropTypes: {
+		visible: React.PropTypes.bool.isRequired,
+		onClose: React.PropTypes.func.isRequired,
+		dbVendor: React.PropTypes.string.isRequired,
+		jdbcDriver: React.PropTypes.string.isRequired,
+		jdbcConnUrl: React.PropTypes.string.isRequired,
+		jdbcUsername:React.PropTypes.string.isRequired,
+		jdbcPassword: React.PropTypes.string.isRequired,
+		bindingType: React.PropTypes.string.isRequired,
+		bindingColumn: React.PropTypes.string.isRequired,
+		table: React.PropTypes.string.isRequired,
+		columns: React.PropTypes.string.isRequired,
+		period: React.PropTypes.string.isRequired,
+		charset: React.PropTypes.string.isRequired,
+		delimiter: React.PropTypes.string.isRequired,
+		outputPath: React.PropTypes.string.isRequired
+	},
+
+	getInitialState() {
+		return { 
+			scriptName: ''
+		};
+	},
+
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.visible === true && this.props.visible === false) {
+			this.editor.destroy();
+		} else if(prevProps.visible === false && this.props.visible === true) {
+			this.editor = ace.edit('editor');
+			this.editor.setTheme('ace/theme/github');
+			this.editor.getSession().setMode('ace/mode/javascript');
+			this.editor.setKeyboardHandler('ace/keyboard/vim');
+			this.editor.$blockScrolling = Infinity;
+			this.editor.setValue(this.makeScript());
 		}
 	},
-	render() {
-		var btns = [];
 
-		this.props.values.forEach(function(value) {
-			btns.push(
-				<label style={{ marginRight: '5px', fontWeight: 'normal' }}>
-					<input 
-						type="readio" name="dbVendor" value={value} 
-						onClick={this.props.onClickCallback} 
-						checked={value === this.props.checked} />
-					<span>{value}</span>
-				</label>
-			);
+	makeScript() {
+		return this.scriptMaker.get({
+			period: this.props.period,
+			dbVendor: this.props.dbVendor,
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword,
+			columns: this.props.columns,
+			table: this.props.table,
+			bindingType: this.props.bindingType,
+			bindingColumn: this.props.bindingColumn,
+			delimiter: this.props.delimiter,
+			charset: this.props.charset,
+			outputPath: this.props.outputPath
 		});
-		return (<div>{btns}</div>);
+	},
+
+	handleAction(action) {
+		if(action === 'ok') {
+			var data = {
+				title: this.state.scriptName,
+				script: this.editor.getValue()
+			};
+
+			try {
+				precondition
+					.instance(data)
+					.stringNotByEmpty('title', 'title 미입력')
+					.stringNotByEmpty('script', 'script 미입력');
+			} catch(errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			server
+				.postScript(data)
+				.then(function(success) {
+					this.refs.alertDialog.onHide(function() {
+						this.props.onClose();
+					}.bind(this)).show('success', 'script registered')
+				}.bind(this))
+				.catch(function(err) {
+					this.refs.alertDialog.onHide(function() {
+						this.props.onClose();
+					}.bind(this)).show('danger', err);
+				}.bind(this));
+		} else if(action === 'cancel') {
+			this.props.onClose();
+		}
+	},
+
+	styles() {
+		return {
+			editorWrapper: {
+				position: 'relative',
+				height: '250px'
+			},
+			editor: {
+				position: 'absolute',
+				top: 0,
+				bottom: 0,
+				right: 0,
+				left: 0
+			}
+		};
+	},
+
+	render() {
+		var style = this.styles();
+
+		return (
+			<Dialog
+				title="스크립트"
+				actions={[
+					{ text: 'ok', onClick: function(evt) { this.handleAction('ok'); }.bind(this) },
+					{ text: 'cancel', onClick: function(evt) { this.handleAction('cancel'); }.bind(this) }
+				]}
+				actionFocus="ok"
+				autoDetectWindowHeight={true}
+				autoScrollBodyContent={true}
+				open={this.props.visible}>
+				<TextField
+					floatingLabelText="script name"
+					value={this.state.scriptName}
+					fullWidth={true}
+					onChange={ function(evt) { this.setState({ scriptName: evt.target.value }); }.bind(this) } />
+				<div id="editor-wrapper" style={style.editorWrapper}>
+					<div id="editor" style={style.editor} />
+				</div>
+				<AlertDialog ref="alertDialog" />
+			</Dialog>
+		);
 	}
 });
 
-
+module.exports = NewDb2FileView;

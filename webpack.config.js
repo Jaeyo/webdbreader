@@ -1,14 +1,10 @@
 var webpack = require('webpack');
 
 module.exports = {
-	entry: {
-		script: [ './src/main/java/resource/jsx-new/script.jsx' ],
-		newdb2file: [ './src/main/java/resource/jsx-new/new-db2file.jsx' ],
-		api: [ './src/main/java/resource/jsx-new/api.jsx' ]
-	},
+	entry: './src/main/java/resource/jsx/entry.jsx' ,
 	output: {
-		path: './src/main/java/resource/static/js/bundle/',
-		filename: 'new.[name].bundle.js'
+		path: './src/main/java/resource/static/js/',
+		filename: 'bundle.js'
 	},
 	resolve: {
 		extensions: ['', '.js', '.jsx']

@@ -1,6 +1,7 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -120,14 +121,6 @@ public class ScriptREST extends JadeHttpServlet{
 	} //doPost
 	
 	private String postScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException{
-		//DEBUG
-		Map<String, String[]> map = req.getParameterMap();
-		Iterator<String> iter = map.keySet().iterator();
-		while(iter.hasNext()) {
-			String key = iter.next();
-			System.out.println("###DEBUG, " + key);
-		}
-		
 		String title = pathParams.get("title");
 		String script = req.getParameter("script");
 		

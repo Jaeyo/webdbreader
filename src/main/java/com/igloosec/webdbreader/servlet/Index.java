@@ -27,60 +27,23 @@ public class Index extends HtmlHttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/").match(uri, pathParams)){
-				viewWithBundleJs(resp, "new.script.bundle.js");
-			} else if(new UriTemplate("/Script").match(uri, pathParams)){
-				viewWithBundleJs(resp, "new.script.bundle.js");
-			} else if(new UriTemplate("/Script/NewDb2File").match(uri, pathParams)){
-				viewWithBundleJs(resp, "new.newdb2file.bundle.js");
-			} else if(new UriTemplate("/Api").match(uri, pathParams)){
-				viewWithBundleJs(resp, "new.api.bundle.js");
-			} else {
-				viewWithBundleJs(resp, "404.bundle.js");
-			}
+			req.getRequestDispatcher("/html/index.html").forward(req, resp);
 			
 //			if(new UriTemplate("/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("index.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Config/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("config.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/ApiDoc/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("api.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/NewDb2File/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("new-db2file.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/NewDb2Db/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("new-db2db.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/View/{title}/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("view-script.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/Edit/{title}/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("edit-script.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/EditNew/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("new-script.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/Edit/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("edit-script.jade", null));
-//				resp.getWriter().flush();
-//			} else if(new UriTemplate("/Script/TailFileOut/{title}/").match(uri, pathParams)){
-//				resp.getWriter().print(jade("tail-fileout.jade", null));
-//				resp.getWriter().flush();
-//			} else{
-//				resp.getWriter().print(jade("error.jade", null));
-//				resp.getWriter().flush();
-//			} 
+//				viewWithBundleJs(resp, "new.script.bundle.js");
+//			} else if(new UriTemplate("/Script").match(uri, pathParams)){
+//				viewWithBundleJs(resp, "new.script.bundle.js");
+//			} else if(new UriTemplate("/Script/NewDb2File").match(uri, pathParams)){
+//				viewWithBundleJs(resp, "new.newdb2file.bundle.js");
+//			} else if(new UriTemplate("/Api").match(uri, pathParams)){
+//				viewWithBundleJs(resp, "new.api.bundle.js");
+//			} else {
+//				viewWithBundleJs(resp, "404.bundle.js");
+//			}
 		} catch(IllegalArgumentException e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
-//			resp.getWriter().print(jade("error.jade", null));
-//			resp.getWriter().flush();
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-//			resp.getWriter().print(jade("error.jade", null));
-//			resp.getWriter().flush();
 		} 
 	} 
 	
