@@ -73,5 +73,8 @@ module.exports = {
 
 	TextField: getMaterialComponent(require('material-ui/lib/text-field')),
 	SelectField: getMaterialComponent(require('material-ui/lib/select-field')),
-	Toggle: getMaterialComponent(require('material-ui/lib/toggle'))
+	Toggle: getMaterialComponent(require('material-ui/lib/toggle')),
+
+	Tabs: getMaterialComponent(require('material-ui/lib/tabs/tabs')),
+	Tab: require('material-ui/lib/tabs/tab')
 };

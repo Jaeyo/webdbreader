@@ -13,7 +13,7 @@ var ScriptMaker = function() {
 		variable: function(args) {
 			variable = util.format([
 				"var period = %s; ",
-				"var dbVendor = %s; ",
+				"var dbVendor = '%s'; ",
 				"var jdbc = { ",
 				"	driver: '%s', ",
 				"	connUrl: '%s', ",

@@ -1,5 +1,4 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
 var _ = require('underscore');
 var Clearfix = require('./comps/clearfix.jsx').Clearfix;
 var server = require('./utils/server.js');
@@ -100,6 +99,11 @@ var ScriptsPanelItem = React.createClass({
 		regdate: React.PropTypes.object.isRequired
 	},
 
+	goToInfoPage(evt) {
+		if(evt.target.className.indexOf('glyphicon') !== -1) return;
+		window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
+	},
+
 	render() {
 		var StatisticsValue = (props) => {
 			return (
@@ -132,6 +136,7 @@ var ScriptsPanelItem = React.createClass({
 
 		return (
 			<ListItem 
+				onClick={this.goToInfoPage}
 				style={{ 
 					borderLeft: '7px solid ' + color.lightBlue,
 					marginBottom: '3px'

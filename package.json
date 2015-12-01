@@ -32,6 +32,7 @@
     "normalize.css": "^3.0.3",
     "precond": "^0.2.3",
     "promise": "^7.0.4",
+    "query-string": "^3.0.0",
     "react": "^0.14.2",
     "react-addons-css-transition-group": "^0.14.2",
     "react-bootstrap": "^0.28.1",
@@ -49,6 +50,7 @@
     "superagent": "^1.4.0",
     "underscore": "^1.8.3",
     "url-pattern": "^0.10.2",
+    "uuid": "^2.0.1",
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.12.1"
   }
