@@ -90,6 +90,14 @@ exports.initPrototypeFunctions = function() {
 		return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
 	};
 
+	String.startsWith = function(src, word) {
+		return src.indexOf(word) === 0;
+	};
+
+	String.endsWith = function(src, word) {
+		return src.indexOf(word, src.length - word.length) !== -1;
+	};
+
 	Array.contains = function(arr, item) {
 		return arr.indexOf(item) !== -1;
 	};

@@ -49,12 +49,15 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(158);
 	var QS = __webpack_require__(159);
+	var jsUtil = __webpack_require__(166);
 	var Layout = __webpack_require__(161).Layout;
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(582);
 	var ScriptInfoView = __webpack_require__(710);
-	var NewDb2FileView = __webpack_require__(714);
-	__webpack_require__(728);
+	var NewDb2FileView = __webpack_require__(715);
+	__webpack_require__(729);
+
+	jsUtil.initPrototypeFunctions();
 
 	function getDOM() {
 		var pathname = window.location.pathname;
@@ -22254,6 +22257,14 @@
 
 		String.containsIgnoreCase = function (src, target) {
 			return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
+		};
+
+		String.startsWith = function (src, word) {
+			return src.indexOf(word) === 0;
+		};
+
+		String.endsWith = function (src, word) {
+			return src.indexOf(word, src.length - word.length) !== -1;
 		};
 
 		Array.contains = function (arr, item) {
@@ -73467,6 +73478,22 @@
 			window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
 		},
 
+		start: function start() {
+			//TODO
+		},
+
+		stop: function stop() {
+			//TODO
+		},
+
+		rename: function rename() {
+			//TODO
+		},
+
+		'delete': function _delete() {
+			//TODO
+		},
+
 		render: function render() {
 			var StatisticsValue = function StatisticsValue(props) {
 				return React.createElement(
@@ -73515,10 +73542,9 @@
 							iconButtonElement: React.createElement(Glyphicon, { glyph: 'option-horizontal' }),
 							style: { cursor: 'pointer', fontSize: '120%' },
 							openDirection: 'top-left' },
-						React.createElement(MenuItem, { primaryText: 'start' }),
-						React.createElement(MenuItem, { primaryText: 'edit' }),
-						React.createElement(MenuItem, { primaryText: 'rename' }),
-						React.createElement(MenuItem, { primaryText: 'delete' })
+						this.props.isRunning === true ? React.createElement(MenuItem, { primaryText: 'stop', onClick: this.stop }) : React.createElement(MenuItem, { primaryText: 'start', onClick: this.start }),
+						React.createElement(MenuItem, { primaryText: 'rename', onClick: this.rename }),
+						React.createElement(MenuItem, { primaryText: 'delete', onClick: this['delete'] })
 					) },
 				React.createElement(
 					'div',
@@ -73597,8 +73623,7 @@
 
 	//args: jdbc, table
 	exports.loadColumns = function (args) {
-		args.jdbc = JSON.parse(encodeURI(JSON.stringify(args.jdbc)));
-		args.table = encodeURI(args.table);
+		args.title = encodeURI(args.title);
 
 		return new Promise(function (resolve, reject) {
 			request.get(util.format('/REST/Database/Columns/%s/', args.table)).query(args.jdbc).end(function (err, resp) {
@@ -73614,8 +73639,6 @@
 
 	//args: jdbc
 	exports.loadTables = function (args) {
-		args.jdbc = JSON.parse(encodeURI(JSON.stringify(args.jdbc)));
-
 		return new Promise(function (resolve, reject) {
 			request.get('/REST/Database/Tables/').query(args.jdbc).end(function (err, resp) {
 				checkResponse(err, resp).fail(function (err) {
@@ -73629,8 +73652,6 @@
 	};
 
 	exports.querySampleData = function (params) {
-		params = JSON.parse(encodeURI(JSON.stringify(params)));
-
 		return new Promise(function (resolve, reject) {
 			request.get('/REST/Database/QuerySampleData/').query(params).end(function (err, resp) {
 				checkResponse(err, resp).fail(function (err) {
@@ -73649,6 +73670,24 @@
 
 		return new Promise(function (resolve, reject) {
 			request.post(util.format('/REST/Script/New/%s/', args.title)).type('form').send({
+				script: args.script
+			}).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.success);
+				});
+			});
+		});
+	};
+
+	//args: title, script
+	exports.editScript = function (args) {
+		args.title = encodeURI(args.title);
+
+		return new Promise(function (resolve, reject) {
+			request.post(util.format('/REST/Script/Edit/%s/', args.title)).type('form').send({
 				script: args.script
 			}).end(function (err, resp) {
 				checkResponse(err, resp).fail(function (err) {
@@ -89467,9 +89506,10 @@
 	var React = __webpack_require__(1);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var uuid = __webpack_require__(711);
+	var ScriptConfigTab = __webpack_require__(713);
 	var server = __webpack_require__(583);
 	var MaterialWrapper = __webpack_require__(596);
-	var AlertDialog = __webpack_require__(713);
+	var AlertDialog = __webpack_require__(714);
 	var Button = MaterialWrapper.Button;
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Card = MaterialWrapper.Card;
@@ -89531,7 +89571,11 @@
 								'infomation'
 							)
 						),
-						React.createElement(Tab, { label: 'configuration' }),
+						React.createElement(
+							Tab,
+							{ label: 'configuration' },
+							React.createElement(ScriptConfigTab, { title: this.props.title, script: this.state.script })
+						),
 						React.createElement(
 							Tab,
 							{ label: 'script' },
@@ -89821,6 +89865,203 @@
 
 	'use strict';
 
+	var React = __webpack_require__(1);
+	var parseCodeContext = __webpack_require__(733);
+	var _ = __webpack_require__(165);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var AlertDialog = __webpack_require__(714);
+	var Db2File = {
+		DatabaseConfigPanel: __webpack_require__(722),
+		BindingTypePanel: __webpack_require__(727),
+		EtcConfigPanel: __webpack_require__(728),
+		ScriptConfirmDialog: __webpack_require__(734),
+		ScriptMaker: __webpack_require__(717)
+	};
+
+	var ScriptConfigTab = React.createClass({
+		displayName: 'ScriptConfigTab',
+
+		PropTypes: {
+			title: React.PropTypes.string.isRequired,
+			script: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				scriptObj: {}
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.parseScript(this.props.script);
+		},
+
+		componentWillReceiveProps: function componentWillReceiveProps(newProps) {
+			this.parseScript(newProps.script);
+		},
+
+		onChange: function onChange(args) {
+			this.setState(args);
+		},
+
+		parseScript: function parseScript(script) {
+			if (script.trim().length === 0) return;
+			parseCodeContext(script, (function (err, objs) {
+				if (err) {
+					console.error(err);
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.setState({ scriptObj: {} }, (function () {
+						this.refs.alertdialog.show('danger', err);
+					}).bind(this));
+					return;
+				}
+
+				var scriptObj = {};
+				objs.forEach(function (obj) {
+					if (obj.receiver !== undefined) return;
+					if (String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\'')) obj.value = obj.value.substring(1, obj.value.length - 1);
+					scriptObj[obj.name] = obj.value;
+				});
+				this.setState({ scriptObj: scriptObj });
+			}).bind(this));
+		},
+
+		render: function render() {
+			var parsedView = null;
+
+			switch (this.state.scriptObj.type) {
+				case undefined:
+					parsedView = React.createElement(UnknownScriptView, null);
+					break;
+				case 'db2file':
+					parsedView = React.createElement(Db2FileScriptView, {
+						title: this.props.title,
+						scriptObj: this.state.scriptObj,
+						onChange: this.onChange });
+					break;
+			}
+
+			return React.createElement(
+				'div',
+				null,
+				parsedView,
+				React.createElement(AlertDialog, { refs: 'alertDialog' })
+			);
+		}
+	});
+	module.exports = ScriptConfigTab;
+
+	var UnknownScriptView = function UnknownScriptView(props) {
+		return React.createElement(
+			'div',
+			null,
+			'script is not parseable'
+		);
+	};
+
+	var Db2FileScriptView = React.createClass({
+		displayName: 'Db2FileScriptView',
+
+		PropTypes: {
+			title: React.PropTypes.string.isRequired,
+			scriptObj: React.PropTypes.object.isRequired,
+			onChange: React.PropTypes.func.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return { scriptConfirmDialogVisible: false };
+		},
+
+		edit: function edit(evt) {
+			this.setState({ scriptConfirmDialogVisible: true });
+		},
+
+		onChange: function onChange(args) {
+			var scriptObj = _.extend({}, this.props.scriptObj, args);
+			this.props.onChange({ scriptObj: scriptObj });
+		},
+
+		render: function render() {
+			var dbConfigPanelParams = {
+				dbVendor: this.props.scriptObj.dbVendor,
+				dbIp: this.props.scriptObj.dbIp,
+				dbPort: this.props.scriptObj.dbPort,
+				dbSid: this.props.scriptObj.dbSid,
+				jdbcDriver: this.props.scriptObj.jdbcDriver,
+				jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
+				jdbcUsername: this.props.scriptObj.jdbcUsername,
+				jdbcPassword: this.props.scriptObj.jdbcPassword,
+				table: this.props.scriptObj.table,
+				columns: this.props.scriptObj.columns,
+				onChange: this.onChange
+			};
+
+			var bindingTypePanelParams = {
+				bindingType: this.props.scriptObj.bindingType,
+				bindingColumn: this.props.scriptObj.bindingColumn,
+				jdbcDriver: this.props.scriptObj.jdbcDriver,
+				jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
+				jdbcUsername: this.props.scriptObj.jdbcUsername,
+				jdbcPassword: this.props.scriptObj.jdbcPassword,
+				table: this.props.scriptObj.table,
+				onChange: this.onChange
+			};
+
+			var etcConfigPanelParams = {
+				period: this.props.scriptObj.period,
+				charset: this.props.scriptObj.charset,
+				delimiter: this.props.scriptObj.delimiter,
+				outputPath: this.props.scriptObj.outputPath,
+				onChange: this.onChange
+			};
+
+			var scriptConfirmDialogParams = {
+				visible: this.state.scriptConfirmDialogVisible,
+				onClose: (function () {
+					this.setState({ scriptConfirmDialogVisible: false });
+				}).bind(this),
+				editMode: true,
+				title: this.props.title,
+				dbVendor: this.props.scriptObj.dbVendor,
+				dbIp: this.props.scriptObj.dbIp,
+				dbPort: this.props.scriptObj.dbPort,
+				dbSid: this.props.scriptObj.dbSid,
+				jdbcDriver: this.props.scriptObj.jdbcDriver,
+				jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
+				jdbcUsername: this.props.scriptObj.jdbcUsername,
+				jdbcPassword: this.props.scriptObj.jdbcPassword,
+				bindingType: this.props.scriptObj.bindingType,
+				bindingColumn: this.props.scriptObj.bindingColumn,
+				table: this.props.scriptObj.table,
+				columns: this.props.scriptObj.columns,
+				period: this.props.scriptObj.period,
+				charset: this.props.scriptObj.charset,
+				delimiter: this.props.scriptObj.delimiter,
+				outputPath: this.props.scriptObj.outputPath
+			};
+
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(Db2File.DatabaseConfigPanel, dbConfigPanelParams),
+				React.createElement(Db2File.BindingTypePanel, bindingTypePanelParams),
+				React.createElement(Db2File.EtcConfigPanel, etcConfigPanelParams),
+				React.createElement(Button, {
+					label: '수정',
+					primary: true,
+					onClick: this.edit }),
+				React.createElement(Db2File.ScriptConfirmDialog, scriptConfirmDialogParams)
+			);
+		}
+	});
+
+/***/ },
+/* 714 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1),
 	    MaterialWrapper = __webpack_require__(596),
 	    Dialog = MaterialWrapper.Dialog,
@@ -89895,32 +90136,21 @@
 	module.exports = AlertDialog;
 
 /***/ },
-/* 714 */
+/* 715 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    ReactDOM = __webpack_require__(158),
-	    _ = __webpack_require__(165),
-	    jsUtil = __webpack_require__(166),
-	    precondition = __webpack_require__(715),
-	    server = __webpack_require__(583),
-	    ScriptMaker = __webpack_require__(716),
-	    color = jsUtil.color,
-	    AlertDialog = __webpack_require__(713),
-	    Layout = __webpack_require__(161).Layout,
-	    LayerPopup = __webpack_require__(717).LayerPopup,
-	    DatabaseConfigPanel = __webpack_require__(721),
-	    BindingTypePanel = __webpack_require__(726),
-	    EtcConfigPanel = __webpack_require__(727),
+	    precondition = __webpack_require__(716),
+	    AlertDialog = __webpack_require__(714),
+	    DatabaseConfigPanel = __webpack_require__(722),
+	    BindingTypePanel = __webpack_require__(727),
+	    EtcConfigPanel = __webpack_require__(728),
+	    ScriptConfirmDialog = __webpack_require__(734),
 	    MaterialWrapper = __webpack_require__(596),
-	    Dialog = MaterialWrapper.Dialog,
-	    TextField = MaterialWrapper.TextField,
-	    Button = MaterialWrapper.Button,
-	    Alert = __webpack_require__(169).Alert;
-
-	jsUtil.initPrototypeFunctions();
+	    Button = MaterialWrapper.Button;
 
 	var NewDb2FileView = React.createClass({
 		displayName: 'NewDb2FileView',
@@ -90011,12 +90241,16 @@
 				onChange: this.onChange
 			};
 
-			var scriptConfirmDIalogParams = {
+			var scriptConfirmDialogParams = {
 				visible: this.state.confirmScriptDialogVisible,
 				onClose: (function () {
 					this.setState({ confirmScriptDialogVisible: false });
 				}).bind(this),
+				saveMode: true,
 				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid,
 				jdbcDriver: this.state.jdbcDriver,
 				jdbcConnUrl: this.state.jdbcConnUrl,
 				jdbcUsername: this.state.jdbcUsername,
@@ -90046,145 +90280,7 @@
 					label: '생성',
 					primary: true,
 					onClick: this.showScriptDialog }),
-				React.createElement(ScriptConfirmDialog, scriptConfirmDIalogParams),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
-			);
-		}
-	});
-
-	var ScriptConfirmDialog = React.createClass({
-		displayName: 'ScriptConfirmDialog',
-
-		editor: null,
-		scriptMaker: new ScriptMaker(),
-
-		PropTypes: {
-			visible: React.PropTypes.bool.isRequired,
-			onClose: React.PropTypes.func.isRequired,
-			dbVendor: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired,
-			bindingType: React.PropTypes.string.isRequired,
-			bindingColumn: React.PropTypes.string.isRequired,
-			table: React.PropTypes.string.isRequired,
-			columns: React.PropTypes.string.isRequired,
-			period: React.PropTypes.string.isRequired,
-			charset: React.PropTypes.string.isRequired,
-			delimiter: React.PropTypes.string.isRequired,
-			outputPath: React.PropTypes.string.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				scriptName: ''
-			};
-		},
-
-		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-			if (prevProps.visible === true && this.props.visible === false) {
-				this.editor.destroy();
-			} else if (prevProps.visible === false && this.props.visible === true) {
-				this.editor = ace.edit('editor');
-				this.editor.setTheme('ace/theme/github');
-				this.editor.getSession().setMode('ace/mode/javascript');
-				this.editor.setKeyboardHandler('ace/keyboard/vim');
-				this.editor.$blockScrolling = Infinity;
-				this.editor.setValue(this.makeScript());
-			}
-		},
-
-		makeScript: function makeScript() {
-			return this.scriptMaker.get({
-				period: this.props.period,
-				dbVendor: this.props.dbVendor,
-				jdbcDriver: this.props.jdbcDriver,
-				jdbcConnUrl: this.props.jdbcConnUrl,
-				jdbcUsername: this.props.jdbcUsername,
-				jdbcPassword: this.props.jdbcPassword,
-				columns: this.props.columns,
-				table: this.props.table,
-				bindingType: this.props.bindingType,
-				bindingColumn: this.props.bindingColumn,
-				delimiter: this.props.delimiter,
-				charset: this.props.charset,
-				outputPath: this.props.outputPath
-			});
-		},
-
-		handleAction: function handleAction(action) {
-			if (action === 'ok') {
-				var data = {
-					title: this.state.scriptName,
-					script: this.editor.getValue()
-				};
-
-				try {
-					precondition.instance(data).stringNotByEmpty('title', 'title 미입력').stringNotByEmpty('script', 'script 미입력');
-				} catch (errmsg) {
-					this.refs.alertDialog.show('danger', errmsg);
-					return;
-				}
-
-				server.postScript(data).then((function (success) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('success', 'script registered');
-				}).bind(this))['catch']((function (err) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('danger', err);
-				}).bind(this));
-			} else if (action === 'cancel') {
-				this.props.onClose();
-			}
-		},
-
-		styles: function styles() {
-			return {
-				editorWrapper: {
-					position: 'relative',
-					height: '250px'
-				},
-				editor: {
-					position: 'absolute',
-					top: 0,
-					bottom: 0,
-					right: 0,
-					left: 0
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-
-			return React.createElement(
-				Dialog,
-				{
-					title: '스크립트',
-					actions: [{ text: 'ok', onClick: (function (evt) {
-							this.handleAction('ok');
-						}).bind(this) }, { text: 'cancel', onClick: (function (evt) {
-							this.handleAction('cancel');
-						}).bind(this) }],
-					actionFocus: 'ok',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.props.visible },
-				React.createElement(TextField, {
-					floatingLabelText: 'script name',
-					value: this.state.scriptName,
-					fullWidth: true,
-					onChange: (function (evt) {
-						this.setState({ scriptName: evt.target.value });
-					}).bind(this) }),
-				React.createElement(
-					'div',
-					{ id: 'editor-wrapper', style: style.editorWrapper },
-					React.createElement('div', { id: 'editor', style: style.editor })
-				),
+				React.createElement(ScriptConfirmDialog, scriptConfirmDialogParams),
 				React.createElement(AlertDialog, { ref: 'alertDialog' })
 			);
 		}
@@ -90193,7 +90289,7 @@
 	module.exports = NewDb2FileView;
 
 /***/ },
-/* 715 */
+/* 716 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -90230,7 +90326,7 @@
 	};
 
 /***/ },
-/* 716 */
+/* 717 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -90245,10 +90341,10 @@
 		var _storeMax2Min;
 
 		return {
-			//args: period, dbVendor, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
-			//		columns, table, bindingColumn, delimiter, charset, outputPath
+			//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
+			//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
 			variable: function variable(args) {
-				_variable = util.format(["var period = %s; ", "var dbVendor = '%s'; ", "var jdbc = { ", "	driver: '%s', ", "	connUrl: '%s', ", "	username: '%s', ", "	password: '%s', ", "}; ", "var columns = '%s'; ", "var table = '%s'; ", "var bindingColumn = '%s'; ", "var delimiter = '%s'; ", "var charset = '%s'; ", "var outputPath = '%s'; "].join('\n'), args.period, args.dbVendor, args.jdbcDriver, args.jdbcConnUrl, args.jdbcUsername, args.jdbcPassword, args.columns, args.table, args.bindingColumn, args.delimiter, args.charset, args.outputPath);
+				_variable = util.format(["var type = 'db2file'; ", "var period = %s; ", "var dbVendor = '%s'; ", "var dbIp = '%s'; ", "var dbPort = '%s'; ", "var dbSid = '%s'; ", "var jdbcDriver = '%s'; ", "var jdbcConnUrl= '%s'; ", "var jdbcUsername = '%s'; ", "var jdbcPassword = '%s'; ", "var columns = '%s'; ", "var table = '%s'; ", "var bindingType = '%s'; ", "var bindingColumn = '%s'; ", "var delimiter = '%s'; ", "var charset = '%s'; ", "var outputPath = '%s'; ", "/************************************/", "var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"].join('\n'), args.period, args.dbVendor, args.dbIp, args.dbPort, args.dbSid, args.jdbcDriver, args.jdbcConnUrl, args.jdbcUsername, args.jdbcPassword, args.columns, args.table, args.bindingType, args.bindingColumn, args.delimiter, args.charset, args.outputPath);
 				return this;
 			},
 
@@ -90307,7 +90403,7 @@
 			get: function get(args) {
 				this.variable(args).maxQueryVariable(args).minMaxVariable(args).mainQueryVariable(args).storeMax2Min(args);
 
-				return ["/* ", "type: db2file ", "*/", _variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, _mainQueryVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
+				return [_variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, _mainQueryVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
 			}
 		};
 	};
@@ -90315,15 +90411,15 @@
 	module.exports = ScriptMaker;
 
 /***/ },
-/* 717 */
+/* 718 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    ReactCSS = __webpack_require__(415),
-	    Loading = __webpack_require__(718),
-	    Layer = __webpack_require__(719),
+	    Loading = __webpack_require__(719),
+	    Layer = __webpack_require__(720),
 	    boxShadow = __webpack_require__(166).boxShadow,
 	    MaterialWrapper = __webpack_require__(596),
 	    CircularProgress = MaterialWrapper.CircularProgress,
@@ -90774,7 +90870,7 @@
 	exports.Curtain = Curtain;
 
 /***/ },
-/* 718 */
+/* 719 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -91035,11 +91131,11 @@
 	;
 
 /***/ },
-/* 719 */
+/* 720 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var babelHelpers = __webpack_require__(720);
+	var babelHelpers = __webpack_require__(721);
 	var React = __webpack_require__(1);
 
 	module.exports = (function () {
@@ -91088,7 +91184,7 @@
 	})();
 
 /***/ },
-/* 720 */
+/* 721 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
@@ -91128,23 +91224,23 @@
 	})
 
 /***/ },
-/* 721 */
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    ReactDOM = __webpack_require__(158),
-	    ReactGateway = __webpack_require__(722),
+	    ReactGateway = __webpack_require__(723),
 	    _ = __webpack_require__(165),
 	    util = __webpack_require__(162),
 	    jsUtil = __webpack_require__(166),
 	    color = jsUtil.color,
 	    server = __webpack_require__(583),
-	    LayerPopup = __webpack_require__(717),
+	    LayerPopup = __webpack_require__(718),
 	    Clearfix = __webpack_require__(580).Clearfix,
-	    ColumnSelectTable = __webpack_require__(724).ColumnSelectTable,
-	    PolymerIcon = __webpack_require__(725),
+	    ColumnSelectTable = __webpack_require__(725).ColumnSelectTable,
+	    PolymerIcon = __webpack_require__(726),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -91714,14 +91810,14 @@
 	module.exports = DatabaseConfigPanel;
 
 /***/ },
-/* 722 */
+/* 723 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(158);
-	var ExecutionEnvironment = __webpack_require__(723);
+	var ExecutionEnvironment = __webpack_require__(724);
 
 	var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
 
@@ -91769,7 +91865,7 @@
 
 
 /***/ },
-/* 723 */
+/* 724 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -91814,7 +91910,7 @@
 
 
 /***/ },
-/* 724 */
+/* 725 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -92079,7 +92175,7 @@
 	});
 
 /***/ },
-/* 725 */
+/* 726 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -92150,7 +92246,7 @@
 	module.exports = PolymerIcon;
 
 /***/ },
-/* 726 */
+/* 727 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -92159,7 +92255,7 @@
 	    jsUtil = __webpack_require__(166),
 	    color = jsUtil.color,
 	    server = __webpack_require__(583),
-	    PolymerIcon = __webpack_require__(725),
+	    PolymerIcon = __webpack_require__(726),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -92389,13 +92485,13 @@
 	module.exports = BindingTypePanel;
 
 /***/ },
-/* 727 */
+/* 728 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    PolymerIcon = __webpack_require__(725),
+	    PolymerIcon = __webpack_require__(726),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -92532,16 +92628,16 @@
 	module.exports = EtcConfigPanel;
 
 /***/ },
-/* 728 */
+/* 729 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(729);
+	var content = __webpack_require__(730);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(731)(content, {});
+	var update = __webpack_require__(732)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -92558,10 +92654,10 @@
 	}
 
 /***/ },
-/* 729 */
+/* 730 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(730)();
+	exports = module.exports = __webpack_require__(731)();
 	// imports
 
 
@@ -92572,7 +92668,7 @@
 
 
 /***/ },
-/* 730 */
+/* 731 */
 /***/ function(module, exports) {
 
 	/*
@@ -92628,7 +92724,7 @@
 
 
 /***/ },
-/* 731 */
+/* 732 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -92851,6 +92947,363 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 733 */
+/***/ function(module, exports) {
+
+	/*!
+	 * js-code-context <https://github.com/tunnckoCore/js-code-context>
+	 *
+	 * Copyright (c) 2014 Charlike Mike Reagent, contributors.
+	 * Released under the MIT license.
+	 */
+	(function() {
+	  'use strict';
+
+	  var syncResult = [];
+
+	  function parseCodeContextSync(context, line) {
+	    var done = function(err, res) {
+	      syncResult = err ? [err] : res;
+	    };
+	    if (!line) {
+	      line = done;
+	    }
+	    parseCodeContext(context, line, done);
+	    return syncResult;
+	  }
+	  function parseCodeContext(context, line, cback) {
+	    var content, result = [];
+	    if (typeof line === 'number') {
+	      content = [context.split('\n')[line]];
+	    } else if (!cback && typeof line === 'function') {
+	      cback = line;
+	      content = context.split('\n');
+	    } else {
+	      content = context.split('\n');
+	    }
+
+	    each(content, function(item, index, done) {
+	      index = index;
+	      // function statement
+	      if (/^function ([\w$]+) *\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'function',
+	          name: RegExp.$1,
+	          clean: RegExp.$1,
+	          args: RegExp.$2,
+	          string: RegExp.$1 + '()',
+	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
+	        });
+	        // function expression
+	      } else if (/^var *([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'function',
+	          name: RegExp.$1,
+	          clean: RegExp.$1,
+	          args: RegExp.$2,
+	          string: RegExp.$1 + '()',
+	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
+	        });
+	        // prototype method
+	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'method',
+	          constructor: RegExp.$1,
+	          cons: RegExp.$1,
+	          name: RegExp.$2,
+	          clean: RegExp.$1 + '.prototype.' + RegExp.$2,
+	          args: RegExp.$3,
+	          string: RegExp.$1 + '.prototype.' + RegExp.$2 + '()',
+	          full: RegExp.$1 + '.prototype.' + RegExp.$2 + '(' + RegExp.$3 + ')',
+	        });
+	        // prototype property
+	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'property',
+	          constructor: RegExp.$1,
+	          cons: RegExp.$1,
+	          name: RegExp.$2,
+	          value: RegExp.$3,
+	          string: RegExp.$1 + '.prototype.' + RegExp.$2
+	        });
+	        // method
+	      } else if (/^([\w$.]+)\.([\w$]+)[ \t]*=[ \t]*function/.exec(item)) {
+	        result.push({
+	          type: 'method',
+	          receiver: RegExp.$1,
+	          name: RegExp.$2,
+	          clean: RegExp.$1 + '.' + RegExp.$2,
+	          args: RegExp.$3,
+	          string: RegExp.$1 + '.' + RegExp.$2 + '()',
+	          full: RegExp.$1 + '.' + RegExp.$2 + '(' + RegExp.$3 + ')',
+	        });
+	        // property
+	      } else if (/^([\w$]+)\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'property',
+	          receiver: RegExp.$1,
+	          name: RegExp.$2,
+	          value: RegExp.$3,
+	          string: RegExp.$1 + '.' + RegExp.$2
+	        });
+	        // declaration
+	      } else if (/^var +([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'declaration',
+	          name: RegExp.$1,
+	          value: RegExp.$2,
+	          string: RegExp.$1
+	        });
+	      }
+	      done();
+	    }, function(err) {
+	      if (err) {return cback(err);}
+	    });
+	    return cback(null, result);
+	  }
+
+	  function once(fn) {
+	    var called = false;
+	    if (typeof fn !== 'function') {
+	      throw new TypeError('Must be fuction.');
+	    }
+	    return function() {
+	      if (called) {
+	        throw new Error('Callback already called.');
+	      }
+	      called = true;
+	      fn.apply(this, arguments);
+	    };
+	  }
+
+	  function each(arr, next, cb) {
+	    var failed = false;
+	    var count = 0;
+	    cb = cb || function() {};
+	    if (!Array.isArray(arr)) {
+	      throw new TypeError('First argument must be an array');
+	    }
+	    if (typeof next !== 'function') {
+	      throw new TypeError('Second argument must be a function');
+	    }
+	    var len = arr.length;
+	    if (!len) {
+	      return cb();
+	    }
+
+	    function callback(err) {
+	      if (failed) {
+	        return;
+	      }
+	      if (err !== undefined && err !== null) {
+	        failed = true;
+	        return cb(err);
+	      }
+	      if (++count === len) {
+	        return cb();
+	      }
+	    }
+	    for (var i = 0; i < len; i++) {
+	      next(arr[i], i, once(callback));
+	    }
+	  }
+
+	  if (typeof module !== 'undefined' && module.exports) {
+	    module.exports = parseCodeContext;
+	    module.exports.sync = parseCodeContextSync;
+	  } else {
+	    window.jsCodeContext = parseCodeContext;
+	  }
+	})();
+
+
+/***/ },
+/* 734 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    precondition = __webpack_require__(716),
+	    server = __webpack_require__(583),
+	    ScriptMaker = __webpack_require__(717),
+	    AlertDialog = __webpack_require__(714),
+	    MaterialWrapper = __webpack_require__(596),
+	    Dialog = MaterialWrapper.Dialog,
+	    TextField = MaterialWrapper.TextField;
+
+	var ScriptConfirmDialog = React.createClass({
+		displayName: 'ScriptConfirmDialog',
+
+		editor: null,
+		scriptMaker: new ScriptMaker(),
+
+		PropTypes: {
+			visible: React.PropTypes.bool.isRequired,
+			onClose: React.PropTypes.func.isRequired,
+			saveMode: React.PropTypes.bool,
+			editMode: React.PropTypes.bool,
+			title: React.PropTypes.string, //required when editMode is true
+			dbVendor: React.PropTypes.string.isRequired,
+			dbIp: React.PropTypes.string.isRequired,
+			dbPort: React.PropTypes.string.isRequired,
+			dbSid: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired,
+			bindingType: React.PropTypes.string.isRequired,
+			bindingColumn: React.PropTypes.string.isRequired,
+			table: React.PropTypes.string.isRequired,
+			columns: React.PropTypes.string.isRequired,
+			period: React.PropTypes.string.isRequired,
+			charset: React.PropTypes.string.isRequired,
+			delimiter: React.PropTypes.string.isRequired,
+			outputPath: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				scriptName: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			if (prevProps.visible === true && this.props.visible === false) {
+				this.editor.destroy();
+			} else if (prevProps.visible === false && this.props.visible === true) {
+				this.editor = ace.edit('editor');
+				this.editor.setTheme('ace/theme/github');
+				this.editor.getSession().setMode('ace/mode/javascript');
+				this.editor.setKeyboardHandler('ace/keyboard/vim');
+				this.editor.$blockScrolling = Infinity;
+				this.editor.setValue(this.makeScript());
+			}
+		},
+
+		makeScript: function makeScript() {
+			return this.scriptMaker.get({
+				period: this.props.period,
+				dbVendor: this.props.dbVendor,
+				dbIp: this.props.dbIp,
+				dbPort: this.props.dbPort,
+				dbSid: this.props.dbSid,
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword,
+				columns: this.props.columns,
+				table: this.props.table,
+				bindingType: this.props.bindingType,
+				bindingColumn: this.props.bindingColumn,
+				delimiter: this.props.delimiter,
+				charset: this.props.charset,
+				outputPath: this.props.outputPath
+			});
+		},
+
+		handleAction: function handleAction(action) {
+			if (action === 'ok' && this.props.saveMode === true) {
+				var data = {
+					title: this.state.scriptName,
+					script: this.editor.getValue()
+				};
+
+				try {
+					precondition.instance(data).stringNotByEmpty('title', 'title 미입력').stringNotByEmpty('script', 'script 미입력');
+				} catch (errmsg) {
+					this.refs.alertDialog.show('danger', errmsg);
+					return;
+				}
+
+				server.postScript(data).then((function (success) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('success', 'script registered');
+				}).bind(this))['catch']((function (err) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('danger', err);
+				}).bind(this));
+			} else if (action === 'ok' && this.props.editMode === true) {
+				var data = {
+					title: this.props.title,
+					script: this.editor.getValue()
+				};
+
+				try {
+					precondition.instance(data).stringNotByEmpty('script', 'script 미입력');
+				} catch (errmsg) {
+					this.refs.alertDialog.show('danger', errmsg);
+					return;
+				}
+
+				server.editScript(data).then((function (success) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('success', 'script updated');
+				}).bind(this))['catch']((function (err) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('danger', err);
+				}).bind(this));
+			} else if (action === 'cancel') {
+				this.props.onClose();
+			}
+		},
+
+		styles: function styles() {
+			return {
+				editorWrapper: {
+					position: 'relative',
+					height: '250px'
+				},
+				editor: {
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					right: 0,
+					left: 0
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				Dialog,
+				{
+					title: '스크립트',
+					actions: [{ text: 'ok', onClick: (function (evt) {
+							this.handleAction('ok');
+						}).bind(this) }, { text: 'cancel', onClick: (function (evt) {
+							this.handleAction('cancel');
+						}).bind(this) }],
+					actionFocus: 'ok',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.props.visible },
+				this.props.editMode === true ? null : React.createElement(TextField, {
+					floatingLabelText: 'script name',
+					value: this.state.scriptName,
+					fullWidth: true,
+					onChange: (function (evt) {
+						this.setState({ scriptName: evt.target.value });
+					}).bind(this) }),
+				React.createElement(
+					'div',
+					{ id: 'editor-wrapper', style: style.editorWrapper },
+					React.createElement('div', { id: 'editor', style: style.editor })
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = ScriptConfirmDialog;
 
 /***/ }
 /******/ ]);

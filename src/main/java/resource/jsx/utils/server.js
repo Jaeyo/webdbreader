@@ -22,8 +22,7 @@ var checkResponse = function(err, resp) {
 
 //args: jdbc, table
 exports.loadColumns = function(args) {
-	args.jdbc = JSON.parse(encodeURI(JSON.stringify(args.jdbc)));
-	args.table = encodeURI(args.table);
+	args.title = encodeURI(args.title);
 
 	return new Promise(function(resolve, reject) {
 		request
@@ -43,8 +42,6 @@ exports.loadColumns = function(args) {
 
 //args: jdbc
 exports.loadTables = function(args) {
-	args.jdbc = JSON.parse(encodeURI(JSON.stringify(args.jdbc)));
-
 	return new Promise(function(resolve, reject) {
 		request
 			.get('/REST/Database/Tables/')
@@ -62,8 +59,6 @@ exports.loadTables = function(args) {
 };
 
 exports.querySampleData = function(params) {
-	params = JSON.parse(encodeURI(JSON.stringify(params)));
-
 	return new Promise(function(resolve, reject) {
 		request
 			.get('/REST/Database/QuerySampleData/')
@@ -87,6 +82,28 @@ exports.postScript = function(args) {
 	return new Promise(function(resolve, reject) {
 		request
 			.post(util.format('/REST/Script/New/%s/', args.title))
+			.type('form')
+			.send({
+				script: args.script
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};
+
+//args: title, script
+exports.editScript = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/Edit/%s/', args.title))
 			.type('form')
 			.send({
 				script: args.script

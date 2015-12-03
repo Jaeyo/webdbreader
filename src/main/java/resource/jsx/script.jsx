@@ -104,6 +104,22 @@ var ScriptsPanelItem = React.createClass({
 		window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
 	},
 
+	start() {
+		//TODO
+	},
+
+	stop() {
+		//TODO
+	},
+
+	rename() {
+		//TODO
+	},
+
+	delete() {
+		//TODO
+	},
+
 	render() {
 		var StatisticsValue = (props) => {
 			return (
@@ -146,10 +162,13 @@ var ScriptsPanelItem = React.createClass({
 						iconButtonElement={ <Glyphicon glyph="option-horizontal" /> }
 						style={{ cursor: 'pointer', fontSize: '120%' }}
 						openDirection="top-left">
-						<MenuItem primaryText="start" />
-						<MenuItem primaryText="edit" />
-						<MenuItem primaryText="rename" />
-						<MenuItem primaryText="delete" />
+						{
+							this.props.isRunning === true ? 
+							( <MenuItem primaryText="stop" onClick={this.stop} /> ) : 
+							( <MenuItem primaryText="start" onClick={this.start} /> )
+						}
+						<MenuItem primaryText="rename" onClick={this.rename} />
+						<MenuItem primaryText="delete" onClick={this.delete} />
 					</IconMenu>
 				}>
 				<div style={{ float: 'left' }}>

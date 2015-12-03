@@ -1,24 +1,13 @@
 var React = require('react'),
 	ReactDOM = require('react-dom'),
-	_ = require('underscore'),
-	jsUtil = require('./utils/util.js'),
 	precondition = require('./utils/precondition.js'),
-	server = require('./utils/server.js'),
-	ScriptMaker = require('./new-db2file/db2file-script-maker.js'),
-	color = jsUtil.color,
 	AlertDialog = require('./comps/alert-dialog.jsx'),
-	Layout = require('./comps/layout.jsx').Layout,
-	LayerPopup = require('./comps/layer-popup.jsx').LayerPopup,
 	DatabaseConfigPanel = require('./new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./new-db2file/binding-type-panel.jsx'),
 	EtcConfigPanel = require('./new-db2file/etc-config-panel.jsx'),
+	ScriptConfirmDialog = require('./new-db2file/script-confirm-dialog.jsx'),
 	MaterialWrapper = require('./comps/material-wrapper.jsx'),
-	Dialog = MaterialWrapper.Dialog,
-	TextField = MaterialWrapper.TextField,
-	Button = MaterialWrapper.Button,
-	Alert = require('react-bootstrap').Alert;
-
-jsUtil.initPrototypeFunctions();
+	Button = MaterialWrapper.Button;
 
 var NewDb2FileView = React.createClass({
 	script: null,
@@ -118,10 +107,14 @@ var NewDb2FileView = React.createClass({
 			onChange: this.onChange
 		};
 
-		var scriptConfirmDIalogParams = {
+		var scriptConfirmDialogParams = {
 			visible: this.state.confirmScriptDialogVisible,
 			onClose: function() { this.setState({ confirmScriptDialogVisible: false }); }.bind(this),
+			saveMode: true,
 			dbVendor: this.state.dbVendor,
+			dbIp: this.state.dbIp,
+			dbPort: this.state.dbPort,
+			dbSid: this.state.dbSid,
 			jdbcDriver: this.state.jdbcDriver,
 			jdbcConnUrl: this.state.jdbcConnUrl,
 			jdbcUsername:this.state.jdbcUsername,
@@ -146,148 +139,9 @@ var NewDb2FileView = React.createClass({
 					label="생성"
 					primary={true}
 					onClick={this.showScriptDialog} />
-				<ScriptConfirmDialog {...scriptConfirmDIalogParams} />
+				<ScriptConfirmDialog {...scriptConfirmDialogParams} />
 				<AlertDialog ref="alertDialog" />
 			</div>
-		);
-	}
-});
-
-
-
-var ScriptConfirmDialog = React.createClass({
-	editor: null,
-	scriptMaker: new ScriptMaker(),
-
-	PropTypes: {
-		visible: React.PropTypes.bool.isRequired,
-		onClose: React.PropTypes.func.isRequired,
-		dbVendor: React.PropTypes.string.isRequired,
-		jdbcDriver: React.PropTypes.string.isRequired,
-		jdbcConnUrl: React.PropTypes.string.isRequired,
-		jdbcUsername:React.PropTypes.string.isRequired,
-		jdbcPassword: React.PropTypes.string.isRequired,
-		bindingType: React.PropTypes.string.isRequired,
-		bindingColumn: React.PropTypes.string.isRequired,
-		table: React.PropTypes.string.isRequired,
-		columns: React.PropTypes.string.isRequired,
-		period: React.PropTypes.string.isRequired,
-		charset: React.PropTypes.string.isRequired,
-		delimiter: React.PropTypes.string.isRequired,
-		outputPath: React.PropTypes.string.isRequired
-	},
-
-	getInitialState() {
-		return { 
-			scriptName: ''
-		};
-	},
-
-	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.visible === true && this.props.visible === false) {
-			this.editor.destroy();
-		} else if(prevProps.visible === false && this.props.visible === true) {
-			this.editor = ace.edit('editor');
-			this.editor.setTheme('ace/theme/github');
-			this.editor.getSession().setMode('ace/mode/javascript');
-			this.editor.setKeyboardHandler('ace/keyboard/vim');
-			this.editor.$blockScrolling = Infinity;
-			this.editor.setValue(this.makeScript());
-		}
-	},
-
-	makeScript() {
-		return this.scriptMaker.get({
-			period: this.props.period,
-			dbVendor: this.props.dbVendor,
-			jdbcDriver: this.props.jdbcDriver,
-			jdbcConnUrl: this.props.jdbcConnUrl,
-			jdbcUsername: this.props.jdbcUsername,
-			jdbcPassword: this.props.jdbcPassword,
-			columns: this.props.columns,
-			table: this.props.table,
-			bindingType: this.props.bindingType,
-			bindingColumn: this.props.bindingColumn,
-			delimiter: this.props.delimiter,
-			charset: this.props.charset,
-			outputPath: this.props.outputPath
-		});
-	},
-
-	handleAction(action) {
-		if(action === 'ok') {
-			var data = {
-				title: this.state.scriptName,
-				script: this.editor.getValue()
-			};
-
-			try {
-				precondition
-					.instance(data)
-					.stringNotByEmpty('title', 'title 미입력')
-					.stringNotByEmpty('script', 'script 미입력');
-			} catch(errmsg) {
-				this.refs.alertDialog.show('danger', errmsg);
-				return;
-			}
-
-			server
-				.postScript(data)
-				.then(function(success) {
-					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
-					}.bind(this)).show('success', 'script registered')
-				}.bind(this))
-				.catch(function(err) {
-					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
-					}.bind(this)).show('danger', err);
-				}.bind(this));
-		} else if(action === 'cancel') {
-			this.props.onClose();
-		}
-	},
-
-	styles() {
-		return {
-			editorWrapper: {
-				position: 'relative',
-				height: '250px'
-			},
-			editor: {
-				position: 'absolute',
-				top: 0,
-				bottom: 0,
-				right: 0,
-				left: 0
-			}
-		};
-	},
-
-	render() {
-		var style = this.styles();
-
-		return (
-			<Dialog
-				title="스크립트"
-				actions={[
-					{ text: 'ok', onClick: function(evt) { this.handleAction('ok'); }.bind(this) },
-					{ text: 'cancel', onClick: function(evt) { this.handleAction('cancel'); }.bind(this) }
-				]}
-				actionFocus="ok"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.props.visible}>
-				<TextField
-					floatingLabelText="script name"
-					value={this.state.scriptName}
-					fullWidth={true}
-					onChange={ function(evt) { this.setState({ scriptName: evt.target.value }); }.bind(this) } />
-				<div id="editor-wrapper" style={style.editorWrapper}>
-					<div id="editor" style={style.editor} />
-				</div>
-				<AlertDialog ref="alertDialog" />
-			</Dialog>
 		);
 	}
 });

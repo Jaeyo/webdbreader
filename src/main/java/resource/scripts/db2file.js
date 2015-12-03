@@ -1,5 +1,4 @@
-//db2file
-
+var type = 'db2file';
 var period = 6 * 1000;
 var jdbc = {
 	driver: 'oracle.jdbc.driver.OracleDriver',

@@ -1,6 +1,7 @@
 var React = require('react');
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var uuid = require('uuid');
+var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
 var server = require('./utils/server.js');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
 var AlertDialog = require('./comps/alert-dialog.jsx');
@@ -55,7 +56,7 @@ var ScriptInfoView = React.createClass({
 							<div>infomation</div>
 						</Tab>
 						<Tab label="configuration">
-
+							<ScriptConfigTab title={this.props.title} script={this.state.script} />
 						</Tab>
 						<Tab label="script">
 							<CodeTab script={this.state.script} />

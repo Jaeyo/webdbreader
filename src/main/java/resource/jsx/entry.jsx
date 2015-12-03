@@ -1,6 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var QS = require('query-string');
+var jsUtil = require('./utils/util.js');
 var Layout = require('./comps/layout.jsx').Layout;
 var ApiView = require('./api.jsx');
 var ScriptView = require('./script.jsx');
@@ -8,6 +9,7 @@ var ScriptInfoView = require('./script-info.jsx');
 var NewDb2FileView = require('./new-db2file.jsx');
 require('./reset.css');
 
+jsUtil.initPrototypeFunctions();
 
 function getDOM() {
 	var pathname = window.location.pathname;

@@ -8,27 +8,33 @@ var ScriptMaker = function() {
 	var storeMax2Min;
 
 	return {
-		//args: period, dbVendor, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, 
-		//		columns, table, bindingColumn, delimiter, charset, outputPath
+		//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, 
+		//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
 		variable: function(args) {
 			variable = util.format([
+				"var type = 'db2file'; ",
 				"var period = %s; ",
 				"var dbVendor = '%s'; ",
-				"var jdbc = { ",
-				"	driver: '%s', ",
-				"	connUrl: '%s', ",
-				"	username: '%s', ",
-				"	password: '%s', ",
-				"}; ",
+				"var dbIp = '%s'; ",
+				"var dbPort = '%s'; ",
+				"var dbSid = '%s'; ",
+				"var jdbcDriver = '%s'; ",
+				"var jdbcConnUrl= '%s'; ",
+				"var jdbcUsername = '%s'; ",
+				"var jdbcPassword = '%s'; ",
 				"var columns = '%s'; ",
 				"var table = '%s'; ",
+				"var bindingType = '%s'; ",
 				"var bindingColumn = '%s'; ",
 				"var delimiter = '%s'; ",
 				"var charset = '%s'; ",
-				"var outputPath = '%s'; "
-			].join('\n'), args.period, args.dbVendor, args.jdbcDriver, args.jdbcConnUrl, 
-			args.jdbcUsername, args.jdbcPassword, args.columns, args.table,
-			args.bindingColumn, args.delimiter, args.charset, args.outputPath);
+				"var outputPath = '%s'; ",
+				"/************************************/",
+				"var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"
+			].join('\n'), args.period, args.dbVendor, args.dbIp, args.dbPort, args.dbSid, 
+			args.jdbcDriver, args.jdbcConnUrl, args.jdbcUsername, args.jdbcPassword, 
+			args.columns, args.table, args.bindingType, args.bindingColumn, 
+			args.delimiter, args.charset, args.outputPath);
 			return this;
 		},
 
@@ -150,9 +156,6 @@ var ScriptMaker = function() {
 				.storeMax2Min(args);
 
 			return [
-				"/* ",
-				"type: db2file ",
-				"*/",
 				variable,
 				"jdbc.username = decrypt(jdbc.username); ",
 				"jdbc.password = decrypt(jdbc.password); ",
