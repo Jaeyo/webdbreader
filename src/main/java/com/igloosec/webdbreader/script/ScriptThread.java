@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
+import com.igloosec.webdbreader.script.bindingsV1.FileWriterFactory.FileWriter;
+import com.igloosec.webdbreader.script.bindingsV1.ScriptLogger;
 import com.igloosec.webdbreader.service.OperationHistoryService;
 
 public class ScriptThread extends Thread{
-	private static final Logger logger = LoggerFactory.getLogger(ScriptThread.class);
+	private static ScriptLogger logger = null;
 	private static ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
 	
@@ -23,7 +24,12 @@ public class ScriptThread extends Thread{
 	
 	public ScriptThread(String scriptName) {
 		this.scriptName = scriptName;
+		this.logger = new ScriptLogger(scriptName);
 	} //INIT
+	
+	public ScriptLogger getLogger() {
+		return this.logger;
+	}
 	
 	public void addSchedulerTimer(Timer timer) {
 		this.schedulerTimers.add(timer);

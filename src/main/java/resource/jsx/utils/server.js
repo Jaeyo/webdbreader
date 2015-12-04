@@ -154,3 +154,26 @@ exports.loadScript = function(args) {
 			});
 	});
 };
+
+//args: title, newTitle
+exports.renameScript = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/Rename/%s/', args.title))
+			.type('form')
+			.send({
+				newTitle: args.newTitle
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};

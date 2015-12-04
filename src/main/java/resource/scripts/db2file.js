@@ -27,14 +27,14 @@ schedule(period).run(function() {
 
 	database(jdbc)
 		.select(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100)
 		.writeContinousFile({
 			filename: outputFile,
 			charset: charset
-		});
+		}).run();
 });
 
 
@@ -64,14 +64,14 @@ schedule(peroid).run(function() {
 	
 	database(jdbc)
 		.select(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100).
-		writeFile({
+		writeContinousFile({
 			filename: outputFile,
 			charset: charset
-		});
+		}).run();
 
 	repo('min', max);
 });
@@ -96,14 +96,14 @@ schedule(period).run(function() {
 
 	database(jdbc)
 		.select(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100)
-		.writeFile({
+		.writeContinousFile({
 			filename: outputFile,
 			charset: charset
-		});
+		}).run();
 
 	repo('min', max);
 });

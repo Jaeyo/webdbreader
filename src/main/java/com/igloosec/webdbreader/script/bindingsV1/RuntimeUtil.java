@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,14 +7,11 @@ import java.io.InputStreamReader;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.igloosec.webdbreader.Version;
+import com.igloosec.webdbreader.script.ScriptThread;
 
 public class RuntimeUtil {
-	private ScriptLogger logger;
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 
-	public RuntimeUtil(ScriptLogger logger) {
-		this.logger = logger;
-	} 
-	
 	public void sleep(long timeMillis){
 		try {
 			Thread.sleep(timeMillis);

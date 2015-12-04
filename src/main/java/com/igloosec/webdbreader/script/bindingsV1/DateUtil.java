@@ -1,18 +1,13 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.igloosec.webdbreader.script.ScriptThread;
 
 public class DateUtil{
-	private ScriptLogger logger;
-	
-	public DateUtil(ScriptLogger logger) {
-		this.logger = logger;
-	} //INIT
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 	
 	public String format(long date, String format){
 		return new SimpleDateFormat(format).format(new Date(date));

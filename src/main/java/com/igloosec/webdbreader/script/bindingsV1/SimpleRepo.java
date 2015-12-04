@@ -1,18 +1,13 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.dao.SimpleRepoDAO;
 import com.igloosec.webdbreader.script.ScriptThread;
 
 public class SimpleRepo {
-	private ScriptLogger logger;
-	private String scriptName;
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
+	private String scriptName = ScriptThread.currentThread().getScriptName();
 	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
-
-	public SimpleRepo(ScriptLogger logger) {
-		this.logger = logger;
-		this.scriptName = ScriptThread.currentThread().getScriptName();
-	} // INIT
 
 	public void store(String key, String value) {
 		logger.info(String.format("SimpleRepo.store, key: %s, value: %s", key, value));

@@ -49,13 +49,13 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(158);
 	var QS = __webpack_require__(159);
-	var jsUtil = __webpack_require__(166);
-	var Layout = __webpack_require__(161).Layout;
+	var jsUtil = __webpack_require__(161);
+	var Layout = __webpack_require__(165).Layout;
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(582);
 	var ScriptInfoView = __webpack_require__(710);
-	var NewDb2FileView = __webpack_require__(715);
-	__webpack_require__(729);
+	var NewDb2FileView = __webpack_require__(729);
+	__webpack_require__(730);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -19774,844 +19774,188 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var util = __webpack_require__(162);
-	var _ = __webpack_require__(165);
-	var color = __webpack_require__(166).color;
-	var Glyphicon = __webpack_require__(169).Glyphicon;
+	var noti = __webpack_require__(162);
 
-	var PAGE_WIDTH = '1024px';
-	var NAV_WIDTH = '100px';
-	var CONTENTS_WIDTH = 1024 - 100 + 'px';
+	exports.handleError = function (err) {
+		if (err.statusText) err = err.statusText;
+		noti.error(err);
+	};
 
-	var Layout = React.createClass({
-		displayName: 'Layout',
-
-		getDefaultProps: function getDefaultProps() {
-			return {
-				active: 'script'
-			};
-		},
-
-		styles: function styles() {
-			return {
-				outer: _.extend({
-					height: '100%',
-					width: '100%'
-				}, color.background),
-				innerDiv: {
-					marginLeft: 'auto',
-					marginRight: 'auto',
-					height: '100%',
-					width: PAGE_WIDTH
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-
-			return React.createElement(
-				'div',
-				{ style: style.outer },
-				React.createElement(
-					'div',
-					{ style: style.innerDiv },
-					React.createElement(Nav, { active: this.props.active }),
-					React.createElement(
-						Container,
-						null,
-						this.props.children
-					)
-				)
-			);
-		}
-	});
-	exports.Layout = Layout;
-
-	var Nav = React.createClass({
-		displayName: 'Nav',
-
-		PropTypes: {
-			active: React.PropTypes.string.isRequired
-		},
-
-		styles: function styles() {
-			return {
-				outer: {
-					float: 'left',
-					width: NAV_WIDTH,
-					height: '100%',
-					position: 'relative'
-				},
-				innerDiv: {
-					position: 'absolute',
-					top: '50%',
-					right: '0',
-					transform: 'translateY(-50%)'
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-
-			return React.createElement(
-				'div',
-				{ style: style.outer },
-				React.createElement(
-					'div',
-					{ style: style.innerDiv },
-					React.createElement(Nav.Btn, { gly: 'console', name: 'script', href: '/', isActive: this.props.active === 'script' }),
-					React.createElement(Nav.Btn, { gly: 'cog', name: 'config', href: '/TODO', isActive: this.props.active === 'config' }),
-					React.createElement(Nav.Btn, { gly: 'modal-window', name: 'api', href: '/Api', isActive: this.props.active === 'api' })
-				)
-			);
-		}
-	});
-
-	Nav.Btn = React.createClass({
-		displayName: 'Btn',
-
-		PropTypes: {
-			gly: React.PropTypes.string.isRequired,
-			name: React.PropTypes.string.isRequired,
-			href: React.PropTypes.string.isRequired,
-			isActive: React.PropTypes.bool.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isActive: this.props.isActive
-			};
-		},
-
-		handleMouseOver: function handleMouseOver(action, evt) {
-			if (action === 'over') {
-				if (this.props.isActive === false) this.setState({ isActive: true });
-			} else if (action === 'out') {
-				if (this.props.isActive === false) this.setState({ isActive: false });
+	exports.handleResp = function (onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleError(resp.errmsg);
+				return;
 			}
-		},
+			onSuccess(resp);
+		};
+	};
 
-		styles: function styles() {
-			return {
-				a: {
-					textDecoration: 'none'
-				},
-				div: {
-					margin: '30px 0 30px 0',
-					padding: '15px',
-					textAlign: 'center',
-					backgroundColor: this.state.isActive === true ? color.contentsBackground : 'inherit',
-					color: this.state.isActive === true ? color.darkBlue : 'white'
-				},
-				glydiv: {
-					fontSize: '180%'
-				},
-				nameDiv: {
-					fontSize: '90%'
-				}
-			};
-		},
+	exports.handleErrorPromise = function (reject) {
+		return function (err) {
+			reject(err);
+		};
+	};
 
-		render: function render() {
-			var style = this.styles();
+	exports.handleRespPromise = function (reject, onSuccess) {
+		return function (resp) {
+			if (resp.success !== 1) {
+				exports.handleErrorPromise(resp.errmsg, reject);
+				return;
+			}
+			onSuccess(resp);
+		};
+	};
 
-			return React.createElement(
-				'a',
-				{ href: this.props.href, style: style.a },
-				React.createElement(
-					'div',
-					{ style: style.div,
-						onMouseOver: this.handleMouseOver.bind(this, 'over'),
-						onMouseOut: this.handleMouseOver.bind(this, 'out') },
-					React.createElement(
-						'div',
-						{ style: style.glydiv },
-						React.createElement(Glyphicon, { glyph: this.props.gly })
-					),
-					React.createElement(
-						'div',
-						{ style: style.nameDiv },
-						this.props.name
-					)
-				)
-			);
+	exports.assertNotNullAndEmpty = function (obj) {
+		if (obj == null) return false;
+		if (typeof obj === 'string' && obj.length == 0) return false;
+		return true;
+	};
+
+	exports.color = {
+		blueBlack: '#293a48',
+		darkBlue: '#425361',
+		darkBlue_OLD: '#385771',
+		darkBlue2: '#284761',
+		lightBlue: '#486781',
+		lightGray: 'rgb(218, 218, 218)',
+		transparentLightGray: 'rgba(222, 222, 222, 0.8)',
+		gray: 'rgb(191, 191, 191)',
+		darkGray: 'rgb(93, 93, 93)',
+		darkGray2: 'rgb(73, 73, 73)',
+		darkGray3: 'rgb(43, 43, 43)',
+		red: 'rgb(192, 0, 0)',
+		blue: 'rgb(41, 128, 185)',
+		contentsBackground: 'rgba(255, 255, 255, 0.9)',
+		background: {
+			background: 'linear-gradient(to right,  rgba(64,83,114,1) 0%,rgba(81,124,104,1) 64%,rgba(82,94,61,1) 100%)',
+			filter: 'progid:DXImageTransform.Microsoft.gradient( startColorstr="#405372", endColorstr="#525e3d",GradientType=1 )'
 		}
-	});
 
-	var Container = React.createClass({
-		displayName: 'Container',
+	};
 
-		styles: function styles() {
-			return {
-				outer: {
-					float: 'left',
-					padding: '15px 15px 15px 0',
-					width: CONTENTS_WIDTH,
-					height: '100%'
-				},
-				innerDiv: {
-					backgroundColor: color.contentsBackground,
-					width: '100%',
-					height: '100%',
-					overflow: 'auto',
-					padding: '15px'
-				}
-			};
-		},
+	exports.boxShadow = {
+		'default': '0 0 3px rgba(66,66,66,0.4)',
+		modalBox: '0 0 15px rgba(66,66,66,0.8)'
+	};
 
-		render: function render() {
-			var style = this.styles();
+	exports.initPrototypeFunctions = function () {
+		Object.sortedForEach = function (obj, callback) {
+			var keyArr = [];
+			Object.keys(obj).forEach(function (key) {
+				keyArr.push(key);
+			});
 
-			return React.createElement(
-				'div',
-				{ style: style.outer },
-				React.createElement(
-					'div',
-					{ style: style.innerDiv },
-					this.props.children
-				)
-			);
-		}
-	});
+			keyArr.sort();
+
+			keyArr.forEach((function (key) {
+				var value = obj[key];
+				callback(key, value);
+			}).bind(this));
+		};
+
+		String.contains = function (src, target) {
+			return src.indexOf(target) != -1;
+		};
+
+		String.containsIgnoreCase = function (src, target) {
+			return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
+		};
+
+		String.startsWith = function (src, word) {
+			return src.indexOf(word) === 0;
+		};
+
+		String.endsWith = function (src, word) {
+			return src.indexOf(word, src.length - word.length) !== -1;
+		};
+
+		Array.contains = function (arr, item) {
+			return arr.indexOf(item) !== -1;
+		};
+
+		Array.containsIgnoreCase = function (arr, strItem) {
+			var arrClone = JSON.parse(JSON.stringify(arr));
+			for (var i = 0; i < arr.length; i++) arrClone[i] = arrClone[i].toLowerCase();
+			return arrClone.indexOf(strItem.toLowerCase()) !== -1;
+		};
+
+		Array.prototype.remove = __webpack_require__(164);
+
+		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
+			if (errorObj && errorObj.stack) console.error(errorObj.stack);
+		};
+
+		Object.equals = function (x, y) {
+			if (x === y) return true;
+			if (!(x instanceof Object) || !(y instanceof Object)) return false;
+			if (x.constructor !== y.constructor) return false;
+
+			for (var p in x) {
+				if (!x.hasOwnProperty(p)) continue;
+				if (!y.hasOwnProperty(p)) return false;
+				if (x[p] === y[p]) continue;
+				if (typeof x[p] !== "object") return false;
+				if (!Object.equals(x[p], y[p])) return false;
+			}
+
+			for (p in y) {
+				if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+			}
+			return true;
+		};
+	};
 
 /***/ },
 /* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	'use strict';
 
-	var formatRegExp = /%[sdj%]/g;
-	exports.format = function(f) {
-	  if (!isString(f)) {
-	    var objects = [];
-	    for (var i = 0; i < arguments.length; i++) {
-	      objects.push(inspect(arguments[i]));
-	    }
-	    return objects.join(' ');
-	  }
+	var _ = __webpack_require__(163);
 
-	  var i = 1;
-	  var args = arguments;
-	  var len = args.length;
-	  var str = String(f).replace(formatRegExp, function(x) {
-	    if (x === '%%') return '%';
-	    if (i >= len) return x;
-	    switch (x) {
-	      case '%s': return String(args[i++]);
-	      case '%d': return Number(args[i++]);
-	      case '%j':
-	        try {
-	          return JSON.stringify(args[i++]);
-	        } catch (_) {
-	          return '[Circular]';
-	        }
-	      default:
-	        return x;
-	    }
-	  });
-	  for (var x = args[i]; i < len; x = args[++i]) {
-	    if (isNull(x) || !isObject(x)) {
-	      str += ' ' + x;
-	    } else {
-	      str += ' ' + inspect(x);
-	    }
-	  }
-	  return str;
+	var common = {
+		element: 'body',
+		position: null,
+		allow_dismiss: true,
+		newest_on_top: true,
+		placement: {
+			from: 'top',
+			align: 'right'
+		},
+		offset: 20,
+		spacing: 10,
+		z_index: 1031,
+		delay: 4000,
+		timer: 1000,
+		url_target: '_blank'
 	};
 
-
-	// Mark that a method should not be used.
-	// Returns a modified function which warns once by default.
-	// If --no-deprecation is set, then it is a no-op.
-	exports.deprecate = function(fn, msg) {
-	  // Allow for deprecating things in the process of starting up.
-	  if (isUndefined(global.process)) {
-	    return function() {
-	      return exports.deprecate(fn, msg).apply(this, arguments);
-	    };
-	  }
-
-	  if (process.noDeprecation === true) {
-	    return fn;
-	  }
-
-	  var warned = false;
-	  function deprecated() {
-	    if (!warned) {
-	      if (process.throwDeprecation) {
-	        throw new Error(msg);
-	      } else if (process.traceDeprecation) {
-	        console.trace(msg);
-	      } else {
-	        console.error(msg);
-	      }
-	      warned = true;
-	    }
-	    return fn.apply(this, arguments);
-	  }
-
-	  return deprecated;
+	/* error({ title: 'blabla', msg: 'wef' }); */
+	exports.error = function (args) {
+		$.notify({
+			icon: 'glyphicon glyphicon-warning-sign',
+			title: args.title ? args.title : '',
+			message: args.msg,
+			url: null,
+			target: '_blank'
+		}, _.extend(common, { type: 'danger' }));
 	};
 
-
-	var debugs = {};
-	var debugEnviron;
-	exports.debuglog = function(set) {
-	  if (isUndefined(debugEnviron))
-	    debugEnviron = process.env.NODE_DEBUG || '';
-	  set = set.toUpperCase();
-	  if (!debugs[set]) {
-	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-	      var pid = process.pid;
-	      debugs[set] = function() {
-	        var msg = exports.format.apply(exports, arguments);
-	        console.error('%s %d: %s', set, pid, msg);
-	      };
-	    } else {
-	      debugs[set] = function() {};
-	    }
-	  }
-	  return debugs[set];
+	/* info({ title: 'blabla', msg: 'wef' }); */
+	exports.info = function (args) {
+		$.notify({
+			icon: 'glyphicon glyphicon-info-sign',
+			title: args.title ? args.title : '',
+			message: args.msg,
+			url: null,
+			target: '_blank'
+		}, _.extend(common, { type: 'info' }));
 	};
-
-
-	/**
-	 * Echos the value of a value. Trys to print the value out
-	 * in the best way possible given the different types.
-	 *
-	 * @param {Object} obj The object to print out.
-	 * @param {Object} opts Optional options object that alters the output.
-	 */
-	/* legacy: obj, showHidden, depth, colors*/
-	function inspect(obj, opts) {
-	  // default options
-	  var ctx = {
-	    seen: [],
-	    stylize: stylizeNoColor
-	  };
-	  // legacy...
-	  if (arguments.length >= 3) ctx.depth = arguments[2];
-	  if (arguments.length >= 4) ctx.colors = arguments[3];
-	  if (isBoolean(opts)) {
-	    // legacy...
-	    ctx.showHidden = opts;
-	  } else if (opts) {
-	    // got an "options" object
-	    exports._extend(ctx, opts);
-	  }
-	  // set default options
-	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-	  if (isUndefined(ctx.depth)) ctx.depth = 2;
-	  if (isUndefined(ctx.colors)) ctx.colors = false;
-	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-	  if (ctx.colors) ctx.stylize = stylizeWithColor;
-	  return formatValue(ctx, obj, ctx.depth);
-	}
-	exports.inspect = inspect;
-
-
-	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-	inspect.colors = {
-	  'bold' : [1, 22],
-	  'italic' : [3, 23],
-	  'underline' : [4, 24],
-	  'inverse' : [7, 27],
-	  'white' : [37, 39],
-	  'grey' : [90, 39],
-	  'black' : [30, 39],
-	  'blue' : [34, 39],
-	  'cyan' : [36, 39],
-	  'green' : [32, 39],
-	  'magenta' : [35, 39],
-	  'red' : [31, 39],
-	  'yellow' : [33, 39]
-	};
-
-	// Don't use 'blue' not visible on cmd.exe
-	inspect.styles = {
-	  'special': 'cyan',
-	  'number': 'yellow',
-	  'boolean': 'yellow',
-	  'undefined': 'grey',
-	  'null': 'bold',
-	  'string': 'green',
-	  'date': 'magenta',
-	  // "name": intentionally not styling
-	  'regexp': 'red'
-	};
-
-
-	function stylizeWithColor(str, styleType) {
-	  var style = inspect.styles[styleType];
-
-	  if (style) {
-	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-	           '\u001b[' + inspect.colors[style][1] + 'm';
-	  } else {
-	    return str;
-	  }
-	}
-
-
-	function stylizeNoColor(str, styleType) {
-	  return str;
-	}
-
-
-	function arrayToHash(array) {
-	  var hash = {};
-
-	  array.forEach(function(val, idx) {
-	    hash[val] = true;
-	  });
-
-	  return hash;
-	}
-
-
-	function formatValue(ctx, value, recurseTimes) {
-	  // Provide a hook for user-specified inspect functions.
-	  // Check that value is an object with an inspect function on it
-	  if (ctx.customInspect &&
-	      value &&
-	      isFunction(value.inspect) &&
-	      // Filter out the util module, it's inspect function is special
-	      value.inspect !== exports.inspect &&
-	      // Also filter out any prototype objects using the circular check.
-	      !(value.constructor && value.constructor.prototype === value)) {
-	    var ret = value.inspect(recurseTimes, ctx);
-	    if (!isString(ret)) {
-	      ret = formatValue(ctx, ret, recurseTimes);
-	    }
-	    return ret;
-	  }
-
-	  // Primitive types cannot have properties
-	  var primitive = formatPrimitive(ctx, value);
-	  if (primitive) {
-	    return primitive;
-	  }
-
-	  // Look up the keys of the object.
-	  var keys = Object.keys(value);
-	  var visibleKeys = arrayToHash(keys);
-
-	  if (ctx.showHidden) {
-	    keys = Object.getOwnPropertyNames(value);
-	  }
-
-	  // IE doesn't make error fields non-enumerable
-	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-	  if (isError(value)
-	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-	    return formatError(value);
-	  }
-
-	  // Some type of object without properties can be shortcutted.
-	  if (keys.length === 0) {
-	    if (isFunction(value)) {
-	      var name = value.name ? ': ' + value.name : '';
-	      return ctx.stylize('[Function' + name + ']', 'special');
-	    }
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    }
-	    if (isDate(value)) {
-	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-	    }
-	    if (isError(value)) {
-	      return formatError(value);
-	    }
-	  }
-
-	  var base = '', array = false, braces = ['{', '}'];
-
-	  // Make Array say that they are Array
-	  if (isArray(value)) {
-	    array = true;
-	    braces = ['[', ']'];
-	  }
-
-	  // Make functions say that they are functions
-	  if (isFunction(value)) {
-	    var n = value.name ? ': ' + value.name : '';
-	    base = ' [Function' + n + ']';
-	  }
-
-	  // Make RegExps say that they are RegExps
-	  if (isRegExp(value)) {
-	    base = ' ' + RegExp.prototype.toString.call(value);
-	  }
-
-	  // Make dates with properties first say the date
-	  if (isDate(value)) {
-	    base = ' ' + Date.prototype.toUTCString.call(value);
-	  }
-
-	  // Make error with message first say the error
-	  if (isError(value)) {
-	    base = ' ' + formatError(value);
-	  }
-
-	  if (keys.length === 0 && (!array || value.length == 0)) {
-	    return braces[0] + base + braces[1];
-	  }
-
-	  if (recurseTimes < 0) {
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    } else {
-	      return ctx.stylize('[Object]', 'special');
-	    }
-	  }
-
-	  ctx.seen.push(value);
-
-	  var output;
-	  if (array) {
-	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-	  } else {
-	    output = keys.map(function(key) {
-	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-	    });
-	  }
-
-	  ctx.seen.pop();
-
-	  return reduceToSingleString(output, base, braces);
-	}
-
-
-	function formatPrimitive(ctx, value) {
-	  if (isUndefined(value))
-	    return ctx.stylize('undefined', 'undefined');
-	  if (isString(value)) {
-	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-	                                             .replace(/'/g, "\\'")
-	                                             .replace(/\\"/g, '"') + '\'';
-	    return ctx.stylize(simple, 'string');
-	  }
-	  if (isNumber(value))
-	    return ctx.stylize('' + value, 'number');
-	  if (isBoolean(value))
-	    return ctx.stylize('' + value, 'boolean');
-	  // For some reason typeof null is "object", so special case here.
-	  if (isNull(value))
-	    return ctx.stylize('null', 'null');
-	}
-
-
-	function formatError(value) {
-	  return '[' + Error.prototype.toString.call(value) + ']';
-	}
-
-
-	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-	  var output = [];
-	  for (var i = 0, l = value.length; i < l; ++i) {
-	    if (hasOwnProperty(value, String(i))) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          String(i), true));
-	    } else {
-	      output.push('');
-	    }
-	  }
-	  keys.forEach(function(key) {
-	    if (!key.match(/^\d+$/)) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          key, true));
-	    }
-	  });
-	  return output;
-	}
-
-
-	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-	  var name, str, desc;
-	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-	  if (desc.get) {
-	    if (desc.set) {
-	      str = ctx.stylize('[Getter/Setter]', 'special');
-	    } else {
-	      str = ctx.stylize('[Getter]', 'special');
-	    }
-	  } else {
-	    if (desc.set) {
-	      str = ctx.stylize('[Setter]', 'special');
-	    }
-	  }
-	  if (!hasOwnProperty(visibleKeys, key)) {
-	    name = '[' + key + ']';
-	  }
-	  if (!str) {
-	    if (ctx.seen.indexOf(desc.value) < 0) {
-	      if (isNull(recurseTimes)) {
-	        str = formatValue(ctx, desc.value, null);
-	      } else {
-	        str = formatValue(ctx, desc.value, recurseTimes - 1);
-	      }
-	      if (str.indexOf('\n') > -1) {
-	        if (array) {
-	          str = str.split('\n').map(function(line) {
-	            return '  ' + line;
-	          }).join('\n').substr(2);
-	        } else {
-	          str = '\n' + str.split('\n').map(function(line) {
-	            return '   ' + line;
-	          }).join('\n');
-	        }
-	      }
-	    } else {
-	      str = ctx.stylize('[Circular]', 'special');
-	    }
-	  }
-	  if (isUndefined(name)) {
-	    if (array && key.match(/^\d+$/)) {
-	      return str;
-	    }
-	    name = JSON.stringify('' + key);
-	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-	      name = name.substr(1, name.length - 2);
-	      name = ctx.stylize(name, 'name');
-	    } else {
-	      name = name.replace(/'/g, "\\'")
-	                 .replace(/\\"/g, '"')
-	                 .replace(/(^"|"$)/g, "'");
-	      name = ctx.stylize(name, 'string');
-	    }
-	  }
-
-	  return name + ': ' + str;
-	}
-
-
-	function reduceToSingleString(output, base, braces) {
-	  var numLinesEst = 0;
-	  var length = output.reduce(function(prev, cur) {
-	    numLinesEst++;
-	    if (cur.indexOf('\n') >= 0) numLinesEst++;
-	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-	  }, 0);
-
-	  if (length > 60) {
-	    return braces[0] +
-	           (base === '' ? '' : base + '\n ') +
-	           ' ' +
-	           output.join(',\n  ') +
-	           ' ' +
-	           braces[1];
-	  }
-
-	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-	}
-
-
-	// NOTE: These type checking functions intentionally don't use `instanceof`
-	// because it is fragile and can be easily faked with `Object.create()`.
-	function isArray(ar) {
-	  return Array.isArray(ar);
-	}
-	exports.isArray = isArray;
-
-	function isBoolean(arg) {
-	  return typeof arg === 'boolean';
-	}
-	exports.isBoolean = isBoolean;
-
-	function isNull(arg) {
-	  return arg === null;
-	}
-	exports.isNull = isNull;
-
-	function isNullOrUndefined(arg) {
-	  return arg == null;
-	}
-	exports.isNullOrUndefined = isNullOrUndefined;
-
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-	exports.isNumber = isNumber;
-
-	function isString(arg) {
-	  return typeof arg === 'string';
-	}
-	exports.isString = isString;
-
-	function isSymbol(arg) {
-	  return typeof arg === 'symbol';
-	}
-	exports.isSymbol = isSymbol;
-
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-	exports.isUndefined = isUndefined;
-
-	function isRegExp(re) {
-	  return isObject(re) && objectToString(re) === '[object RegExp]';
-	}
-	exports.isRegExp = isRegExp;
-
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-	exports.isObject = isObject;
-
-	function isDate(d) {
-	  return isObject(d) && objectToString(d) === '[object Date]';
-	}
-	exports.isDate = isDate;
-
-	function isError(e) {
-	  return isObject(e) &&
-	      (objectToString(e) === '[object Error]' || e instanceof Error);
-	}
-	exports.isError = isError;
-
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-	exports.isFunction = isFunction;
-
-	function isPrimitive(arg) {
-	  return arg === null ||
-	         typeof arg === 'boolean' ||
-	         typeof arg === 'number' ||
-	         typeof arg === 'string' ||
-	         typeof arg === 'symbol' ||  // ES6 symbol
-	         typeof arg === 'undefined';
-	}
-	exports.isPrimitive = isPrimitive;
-
-	exports.isBuffer = __webpack_require__(163);
-
-	function objectToString(o) {
-	  return Object.prototype.toString.call(o);
-	}
-
-
-	function pad(n) {
-	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
-	}
-
-
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-	              'Oct', 'Nov', 'Dec'];
-
-	// 26 Feb 16:19:34
-	function timestamp() {
-	  var d = new Date();
-	  var time = [pad(d.getHours()),
-	              pad(d.getMinutes()),
-	              pad(d.getSeconds())].join(':');
-	  return [d.getDate(), months[d.getMonth()], time].join(' ');
-	}
-
-
-	// log is just a thin wrapper to console.log that prepends a timestamp
-	exports.log = function() {
-	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-	};
-
-
-	/**
-	 * Inherit the prototype methods from one constructor into another.
-	 *
-	 * The Function.prototype.inherits from lang.js rewritten as a standalone
-	 * function (not on Function.prototype). NOTE: If this file is to be loaded
-	 * during bootstrapping this function needs to be rewritten using some native
-	 * functions as prototype setup using normal JavaScript does not work as
-	 * expected during bootstrapping (see mirror.js in r114903).
-	 *
-	 * @param {function} ctor Constructor function which needs to inherit the
-	 *     prototype.
-	 * @param {function} superCtor Constructor function to inherit prototype from.
-	 */
-	exports.inherits = __webpack_require__(164);
-
-	exports._extend = function(origin, add) {
-	  // Don't do anything if add isn't an object
-	  if (!add || !isObject(add)) return origin;
-
-	  var keys = Object.keys(add);
-	  var i = keys.length;
-	  while (i--) {
-	    origin[keys[i]] = add[keys[i]];
-	  }
-	  return origin;
-	};
-
-	function hasOwnProperty(obj, prop) {
-	  return Object.prototype.hasOwnProperty.call(obj, prop);
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
 
 /***/ },
 /* 163 */
-/***/ function(module, exports) {
-
-	module.exports = function isBuffer(arg) {
-	  return arg && typeof arg === 'object'
-	    && typeof arg.copy === 'function'
-	    && typeof arg.fill === 'function'
-	    && typeof arg.readUInt8 === 'function';
-	}
-
-/***/ },
-/* 164 */
-/***/ function(module, exports) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.8.3
@@ -22165,193 +21509,7 @@
 
 
 /***/ },
-/* 166 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var noti = __webpack_require__(167);
-
-	exports.handleError = function (err) {
-		if (err.statusText) err = err.statusText;
-		noti.error(err);
-	};
-
-	exports.handleResp = function (onSuccess) {
-		return function (resp) {
-			if (resp.success !== 1) {
-				exports.handleError(resp.errmsg);
-				return;
-			}
-			onSuccess(resp);
-		};
-	};
-
-	exports.handleErrorPromise = function (reject) {
-		return function (err) {
-			reject(err);
-		};
-	};
-
-	exports.handleRespPromise = function (reject, onSuccess) {
-		return function (resp) {
-			if (resp.success !== 1) {
-				exports.handleErrorPromise(resp.errmsg, reject);
-				return;
-			}
-			onSuccess(resp);
-		};
-	};
-
-	exports.assertNotNullAndEmpty = function (obj) {
-		if (obj == null) return false;
-		if (typeof obj === 'string' && obj.length == 0) return false;
-		return true;
-	};
-
-	exports.color = {
-		blueBlack: '#293a48',
-		darkBlue: '#425361',
-		darkBlue_OLD: '#385771',
-		darkBlue2: '#284761',
-		lightBlue: '#486781',
-		lightGray: 'rgb(218, 218, 218)',
-		transparentLightGray: 'rgba(222, 222, 222, 0.8)',
-		gray: 'rgb(191, 191, 191)',
-		darkGray: 'rgb(93, 93, 93)',
-		darkGray2: 'rgb(73, 73, 73)',
-		darkGray3: 'rgb(43, 43, 43)',
-		red: 'rgb(192, 0, 0)',
-		blue: 'rgb(41, 128, 185)',
-		contentsBackground: 'rgba(255, 255, 255, 0.9)',
-		background: {
-			background: 'linear-gradient(to right,  rgba(64,83,114,1) 0%,rgba(81,124,104,1) 64%,rgba(82,94,61,1) 100%)',
-			filter: 'progid:DXImageTransform.Microsoft.gradient( startColorstr="#405372", endColorstr="#525e3d",GradientType=1 )'
-		}
-
-	};
-
-	exports.boxShadow = {
-		'default': '0 0 3px rgba(66,66,66,0.4)',
-		modalBox: '0 0 15px rgba(66,66,66,0.8)'
-	};
-
-	exports.initPrototypeFunctions = function () {
-		Object.sortedForEach = function (obj, callback) {
-			var keyArr = [];
-			Object.keys(obj).forEach(function (key) {
-				keyArr.push(key);
-			});
-
-			keyArr.sort();
-
-			keyArr.forEach((function (key) {
-				var value = obj[key];
-				callback(key, value);
-			}).bind(this));
-		};
-
-		String.contains = function (src, target) {
-			return src.indexOf(target) != -1;
-		};
-
-		String.containsIgnoreCase = function (src, target) {
-			return src.toLowerCase().indexOf(target.toLowerCase()) != -1;
-		};
-
-		String.startsWith = function (src, word) {
-			return src.indexOf(word) === 0;
-		};
-
-		String.endsWith = function (src, word) {
-			return src.indexOf(word, src.length - word.length) !== -1;
-		};
-
-		Array.contains = function (arr, item) {
-			return arr.indexOf(item) !== -1;
-		};
-
-		Array.containsIgnoreCase = function (arr, strItem) {
-			var arrClone = JSON.parse(JSON.stringify(arr));
-			for (var i = 0; i < arr.length; i++) arrClone[i] = arrClone[i].toLowerCase();
-			return arrClone.indexOf(strItem.toLowerCase()) !== -1;
-		};
-
-		Array.prototype.remove = __webpack_require__(168);
-
-		window.onerror = function (errMsg, url, lineNumber, column, errorObj) {
-			if (errorObj && errorObj.stack) console.error(errorObj.stack);
-		};
-
-		Object.equals = function (x, y) {
-			if (x === y) return true;
-			if (!(x instanceof Object) || !(y instanceof Object)) return false;
-			if (x.constructor !== y.constructor) return false;
-
-			for (var p in x) {
-				if (!x.hasOwnProperty(p)) continue;
-				if (!y.hasOwnProperty(p)) return false;
-				if (x[p] === y[p]) continue;
-				if (typeof x[p] !== "object") return false;
-				if (!Object.equals(x[p], y[p])) return false;
-			}
-
-			for (p in y) {
-				if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
-			}
-			return true;
-		};
-	};
-
-/***/ },
-/* 167 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _ = __webpack_require__(165);
-
-	var common = {
-		element: 'body',
-		position: null,
-		allow_dismiss: true,
-		newest_on_top: true,
-		placement: {
-			from: 'top',
-			align: 'right'
-		},
-		offset: 20,
-		spacing: 10,
-		z_index: 1031,
-		delay: 4000,
-		timer: 1000,
-		url_target: '_blank'
-	};
-
-	/* error({ title: 'blabla', msg: 'wef' }); */
-	exports.error = function (args) {
-		$.notify({
-			icon: 'glyphicon glyphicon-warning-sign',
-			title: args.title ? args.title : '',
-			message: args.msg,
-			url: null,
-			target: '_blank'
-		}, _.extend(common, { type: 'danger' }));
-	};
-
-	/* info({ title: 'blabla', msg: 'wef' }); */
-	exports.info = function (args) {
-		$.notify({
-			icon: 'glyphicon glyphicon-info-sign',
-			title: args.title ? args.title : '',
-			message: args.msg,
-			url: null,
-			target: '_blank'
-		}, _.extend(common, { type: 'info' }));
-	};
-
-/***/ },
-/* 168 */
+/* 164 */
 /***/ function(module, exports) {
 
 	module.exports = function() {
@@ -22366,6 +21524,848 @@
 	  }
 	  return this;
 	};
+
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var util = __webpack_require__(166);
+	var _ = __webpack_require__(163);
+	var color = __webpack_require__(161).color;
+	var Glyphicon = __webpack_require__(169).Glyphicon;
+
+	var PAGE_WIDTH = '1024px';
+	var NAV_WIDTH = '100px';
+	var CONTENTS_WIDTH = 1024 - 100 + 'px';
+
+	var Layout = React.createClass({
+		displayName: 'Layout',
+
+		getDefaultProps: function getDefaultProps() {
+			return {
+				active: 'script'
+			};
+		},
+
+		styles: function styles() {
+			return {
+				outer: _.extend({
+					height: '100%',
+					width: '100%'
+				}, color.background),
+				innerDiv: {
+					marginLeft: 'auto',
+					marginRight: 'auto',
+					height: '100%',
+					width: PAGE_WIDTH
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				'div',
+				{ style: style.outer },
+				React.createElement(
+					'div',
+					{ style: style.innerDiv },
+					React.createElement(Nav, { active: this.props.active }),
+					React.createElement(
+						Container,
+						null,
+						this.props.children
+					)
+				)
+			);
+		}
+	});
+	exports.Layout = Layout;
+
+	var Nav = React.createClass({
+		displayName: 'Nav',
+
+		PropTypes: {
+			active: React.PropTypes.string.isRequired
+		},
+
+		styles: function styles() {
+			return {
+				outer: {
+					float: 'left',
+					width: NAV_WIDTH,
+					height: '100%',
+					position: 'relative'
+				},
+				innerDiv: {
+					position: 'absolute',
+					top: '50%',
+					right: '0',
+					transform: 'translateY(-50%)'
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				'div',
+				{ style: style.outer },
+				React.createElement(
+					'div',
+					{ style: style.innerDiv },
+					React.createElement(Nav.Btn, { gly: 'console', name: 'script', href: '/', isActive: this.props.active === 'script' }),
+					React.createElement(Nav.Btn, { gly: 'cog', name: 'config', href: '/TODO', isActive: this.props.active === 'config' }),
+					React.createElement(Nav.Btn, { gly: 'modal-window', name: 'api', href: '/Api', isActive: this.props.active === 'api' })
+				)
+			);
+		}
+	});
+
+	Nav.Btn = React.createClass({
+		displayName: 'Btn',
+
+		PropTypes: {
+			gly: React.PropTypes.string.isRequired,
+			name: React.PropTypes.string.isRequired,
+			href: React.PropTypes.string.isRequired,
+			isActive: React.PropTypes.bool.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				isActive: this.props.isActive
+			};
+		},
+
+		handleMouseOver: function handleMouseOver(action, evt) {
+			if (action === 'over') {
+				if (this.props.isActive === false) this.setState({ isActive: true });
+			} else if (action === 'out') {
+				if (this.props.isActive === false) this.setState({ isActive: false });
+			}
+		},
+
+		styles: function styles() {
+			return {
+				a: {
+					textDecoration: 'none'
+				},
+				div: {
+					margin: '30px 0 30px 0',
+					padding: '15px',
+					textAlign: 'center',
+					backgroundColor: this.state.isActive === true ? color.contentsBackground : 'inherit',
+					color: this.state.isActive === true ? color.darkBlue : 'white'
+				},
+				glydiv: {
+					fontSize: '180%'
+				},
+				nameDiv: {
+					fontSize: '90%'
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				'a',
+				{ href: this.props.href, style: style.a },
+				React.createElement(
+					'div',
+					{ style: style.div,
+						onMouseOver: this.handleMouseOver.bind(this, 'over'),
+						onMouseOut: this.handleMouseOver.bind(this, 'out') },
+					React.createElement(
+						'div',
+						{ style: style.glydiv },
+						React.createElement(Glyphicon, { glyph: this.props.gly })
+					),
+					React.createElement(
+						'div',
+						{ style: style.nameDiv },
+						this.props.name
+					)
+				)
+			);
+		}
+	});
+
+	var Container = React.createClass({
+		displayName: 'Container',
+
+		styles: function styles() {
+			return {
+				outer: {
+					float: 'left',
+					padding: '15px 15px 15px 0',
+					width: CONTENTS_WIDTH,
+					height: '100%'
+				},
+				innerDiv: {
+					backgroundColor: color.contentsBackground,
+					width: '100%',
+					height: '100%',
+					overflow: 'auto',
+					padding: '15px'
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				'div',
+				{ style: style.outer },
+				React.createElement(
+					'div',
+					{ style: style.innerDiv },
+					this.props.children
+				)
+			);
+		}
+	});
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+
+
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+
+
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+
+
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+
+
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+
+
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+
+
+	function arrayToHash(array) {
+	  var hash = {};
+
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+
+	  return hash;
+	}
+
+
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+
+	  var base = '', array = false, braces = ['{', '}'];
+
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+
+	  ctx.seen.push(value);
+
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+
+	  ctx.seen.pop();
+
+	  return reduceToSingleString(output, base, braces);
+	}
+
+
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+
+
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+
+
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+
+
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+
+	  return name + ': ' + str;
+	}
+
+
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+
+
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+
+	exports.isBuffer = __webpack_require__(167);
+
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+
+
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+
+
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+
+
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+
+
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(168);
+
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
+
+/***/ },
+/* 167 */
+/***/ function(module, exports) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ },
+/* 168 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
 
 
 /***/ },
@@ -39312,15 +39312,15 @@
 
 	var React = __webpack_require__(1),
 	    ReactDOM = __webpack_require__(158),
-	    _ = __webpack_require__(165),
-	    util = __webpack_require__(162),
+	    _ = __webpack_require__(163),
+	    util = __webpack_require__(166),
 	    Panel = __webpack_require__(414).Panel,
-	    Layout = __webpack_require__(161).Layout,
+	    Layout = __webpack_require__(165).Layout,
 	    Clearfix = __webpack_require__(580).Clearfix,
-	    color = __webpack_require__(166).color,
+	    color = __webpack_require__(161).color,
 	    DarkBlueSmallToggleBtn = __webpack_require__(581).DarkBlueSmallToggleBtn;
 
-	Array.prototype.remove = __webpack_require__(168);
+	Array.prototype.remove = __webpack_require__(164);
 
 	var apiData = {
 		DateUtil: {
@@ -39823,8 +39823,8 @@
 
 	var React = __webpack_require__(1),
 	    ReactCSS = __webpack_require__(415),
-	    color = __webpack_require__(166).color,
-	    _ = __webpack_require__(165);
+	    color = __webpack_require__(161).color,
+	    _ = __webpack_require__(163);
 
 	var Panel = React.createClass({
 		displayName: 'Panel',
@@ -73009,8 +73009,8 @@
 
 	var React = __webpack_require__(1),
 	    ReactCSS = __webpack_require__(415),
-	    _ = __webpack_require__(165),
-	    color = __webpack_require__(166).color;
+	    _ = __webpack_require__(163),
+	    color = __webpack_require__(161).color;
 
 	var BtnMixin = {
 		getDefaultProps: function getDefaultProps() {
@@ -73370,10 +73370,10 @@
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var _ = __webpack_require__(165);
+	var _ = __webpack_require__(163);
 	var Clearfix = __webpack_require__(580).Clearfix;
 	var server = __webpack_require__(583);
-	var color = __webpack_require__(166).color;
+	var color = __webpack_require__(161).color;
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var MaterialWrapper = __webpack_require__(596);
 	var Button = MaterialWrapper.Button;
@@ -73385,6 +73385,8 @@
 	var ListItem = MaterialWrapper.ListItem;
 	var IconMenu = MaterialWrapper.IconMenu;
 	var MenuItem = MaterialWrapper.MenuItem;
+	var PromptDialog = __webpack_require__(737);
+	var AlertDialog = __webpack_require__(736);
 
 	var TotalChartPanel = React.createClass({
 		displayName: 'TotalChartPanel',
@@ -73486,8 +73488,20 @@
 			//TODO
 		},
 
-		rename: function rename() {
-			//TODO
+		rename: function rename(evt) {
+			evt.stopPropagation();
+
+			this.refs.promptDialog.onOk((function (newTitle) {
+				server.renameScript({
+					title: this.props.title,
+					newTitle: newTitle
+				}).then(function () {
+					window.location.reload(true);
+				})['catch']((function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				}).bind(this));
+			}).bind(this)).show('rename to', this.props.title);
 		},
 
 		'delete': function _delete() {
@@ -73575,7 +73589,9 @@
 					React.createElement(StatisticsValue, { bg: 'rgb(243, 156, 18)', value: '24' }),
 					React.createElement(StatisticsValue, { bg: 'rgb(41, 128, 185)', value: '44' })
 				),
-				React.createElement(Clearfix, null)
+				React.createElement(Clearfix, null),
+				React.createElement(PromptDialog, { ref: 'promptDialog' }),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
 			);
 		}
 	});
@@ -73603,7 +73619,7 @@
 
 	var Promise = __webpack_require__(584),
 	    request = __webpack_require__(593),
-	    util = __webpack_require__(162);
+	    util = __webpack_require__(166);
 
 	var checkResponse = function checkResponse(err, resp) {
 		var rejectTarget = null;
@@ -73725,6 +73741,24 @@
 					reject(err);
 				}).then(function (body) {
 					resolve(body.script);
+				});
+			});
+		});
+	};
+
+	//args: title, newTitle
+	exports.renameScript = function (args) {
+		args.title = encodeURI(args.title);
+
+		return new Promise(function (resolve, reject) {
+			request.post(util.format('/REST/Script/Rename/%s/', args.title)).type('form').send({
+				newTitle: args.newTitle
+			}).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.success);
 				});
 			});
 		});
@@ -89505,11 +89539,11 @@
 
 	var React = __webpack_require__(1);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
-	var uuid = __webpack_require__(711);
-	var ScriptConfigTab = __webpack_require__(713);
+	var ScriptConfigTab = __webpack_require__(711);
+	var CodeTab = __webpack_require__(728);
 	var server = __webpack_require__(583);
 	var MaterialWrapper = __webpack_require__(596);
-	var AlertDialog = __webpack_require__(714);
+	var AlertDialog = __webpack_require__(736);
 	var Button = MaterialWrapper.Button;
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Card = MaterialWrapper.Card;
@@ -89579,7 +89613,7 @@
 						React.createElement(
 							Tab,
 							{ label: 'script' },
-							React.createElement(CodeTab, { script: this.state.script })
+							React.createElement(CodeTab, { title: this.props.title, script: this.state.script })
 						)
 					)
 				),
@@ -89589,294 +89623,24 @@
 	});
 	module.exports = ScriptInfoView;
 
-	var CodeTab = React.createClass({
-		displayName: 'CodeTab',
-
-		editor: null,
-		uuid: uuid.v4(),
-
-		PropTypes: {
-			script: React.PropTypes.string.isRequired
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.editor = ace.edit(this.uuid);
-			this.editor.setTheme('ace/theme/github');
-			this.editor.getSession().setMode('ace/mode/javascript');
-			this.editor.setKeyboardHandler('ace/keyboard/vim');
-			this.editor.$blockScrolling = Infinity;
-			this.editor.setValue(this.props.script);
-		},
-
-		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-			this.editor.setValue(this.props.script);
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ id: 'editor-wrapper',
-					style: {
-						position: 'relative',
-						minHeight: '400px'
-					} },
-				React.createElement('div', { id: this.uuid,
-					style: {
-						position: 'absolute',
-						top: 0,
-						bottom: 0,
-						right: 0,
-						left: 0 } }),
-				'}'
-			);
-		}
-	});
-
 /***/ },
 /* 711 */
-/***/ function(module, exports, __webpack_require__) {
-
-	//     uuid.js
-	//
-	//     Copyright (c) 2010-2012 Robert Kieffer
-	//     MIT License - http://opensource.org/licenses/mit-license.php
-
-	// Unique ID creation requires a high quality random # generator.  We feature
-	// detect to determine the best RNG source, normalizing to a function that
-	// returns 128-bits of randomness, since that's what's usually required
-	var _rng = __webpack_require__(712);
-
-	// Maps for number <-> hex string conversion
-	var _byteToHex = [];
-	var _hexToByte = {};
-	for (var i = 0; i < 256; i++) {
-	  _byteToHex[i] = (i + 0x100).toString(16).substr(1);
-	  _hexToByte[_byteToHex[i]] = i;
-	}
-
-	// **`parse()` - Parse a UUID into it's component bytes**
-	function parse(s, buf, offset) {
-	  var i = (buf && offset) || 0, ii = 0;
-
-	  buf = buf || [];
-	  s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
-	    if (ii < 16) { // Don't overflow!
-	      buf[i + ii++] = _hexToByte[oct];
-	    }
-	  });
-
-	  // Zero out remaining bytes if string was short
-	  while (ii < 16) {
-	    buf[i + ii++] = 0;
-	  }
-
-	  return buf;
-	}
-
-	// **`unparse()` - Convert UUID byte array (ala parse()) into a string**
-	function unparse(buf, offset) {
-	  var i = offset || 0, bth = _byteToHex;
-	  return  bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]];
-	}
-
-	// **`v1()` - Generate time-based UUID**
-	//
-	// Inspired by https://github.com/LiosK/UUID.js
-	// and http://docs.python.org/library/uuid.html
-
-	// random #'s we need to init node and clockseq
-	var _seedBytes = _rng();
-
-	// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-	var _nodeId = [
-	  _seedBytes[0] | 0x01,
-	  _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
-	];
-
-	// Per 4.2.2, randomize (14 bit) clockseq
-	var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
-
-	// Previous uuid creation time
-	var _lastMSecs = 0, _lastNSecs = 0;
-
-	// See https://github.com/broofa/node-uuid for API details
-	function v1(options, buf, offset) {
-	  var i = buf && offset || 0;
-	  var b = buf || [];
-
-	  options = options || {};
-
-	  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-	  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-	  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-	  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-	  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-	  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
-
-	  // Per 4.2.1.2, use count of uuid's generated during the current clock
-	  // cycle to simulate higher resolution clock
-	  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
-
-	  // Time since last uuid creation (in msecs)
-	  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
-
-	  // Per 4.2.1.2, Bump clockseq on clock regression
-	  if (dt < 0 && options.clockseq === undefined) {
-	    clockseq = clockseq + 1 & 0x3fff;
-	  }
-
-	  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-	  // time interval
-	  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-	    nsecs = 0;
-	  }
-
-	  // Per 4.2.1.2 Throw error if too many uuids are requested
-	  if (nsecs >= 10000) {
-	    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
-	  }
-
-	  _lastMSecs = msecs;
-	  _lastNSecs = nsecs;
-	  _clockseq = clockseq;
-
-	  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-	  msecs += 12219292800000;
-
-	  // `time_low`
-	  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-	  b[i++] = tl >>> 24 & 0xff;
-	  b[i++] = tl >>> 16 & 0xff;
-	  b[i++] = tl >>> 8 & 0xff;
-	  b[i++] = tl & 0xff;
-
-	  // `time_mid`
-	  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
-	  b[i++] = tmh >>> 8 & 0xff;
-	  b[i++] = tmh & 0xff;
-
-	  // `time_high_and_version`
-	  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-	  b[i++] = tmh >>> 16 & 0xff;
-
-	  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-	  b[i++] = clockseq >>> 8 | 0x80;
-
-	  // `clock_seq_low`
-	  b[i++] = clockseq & 0xff;
-
-	  // `node`
-	  var node = options.node || _nodeId;
-	  for (var n = 0; n < 6; n++) {
-	    b[i + n] = node[n];
-	  }
-
-	  return buf ? buf : unparse(b);
-	}
-
-	// **`v4()` - Generate random UUID**
-
-	// See https://github.com/broofa/node-uuid for API details
-	function v4(options, buf, offset) {
-	  // Deprecated - 'format' argument, as supported in v1.2
-	  var i = buf && offset || 0;
-
-	  if (typeof(options) == 'string') {
-	    buf = options == 'binary' ? new Array(16) : null;
-	    options = null;
-	  }
-	  options = options || {};
-
-	  var rnds = options.random || (options.rng || _rng)();
-
-	  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-	  rnds[6] = (rnds[6] & 0x0f) | 0x40;
-	  rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-	  // Copy bytes to buffer, if provided
-	  if (buf) {
-	    for (var ii = 0; ii < 16; ii++) {
-	      buf[i + ii] = rnds[ii];
-	    }
-	  }
-
-	  return buf || unparse(rnds);
-	}
-
-	// Export public API
-	var uuid = v4;
-	uuid.v1 = v1;
-	uuid.v4 = v4;
-	uuid.parse = parse;
-	uuid.unparse = unparse;
-
-	module.exports = uuid;
-
-
-/***/ },
-/* 712 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {
-	var rng;
-
-	if (global.crypto && crypto.getRandomValues) {
-	  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
-	  // Moderately fast, high quality
-	  var _rnds8 = new Uint8Array(16);
-	  rng = function whatwgRNG() {
-	    crypto.getRandomValues(_rnds8);
-	    return _rnds8;
-	  };
-	}
-
-	if (!rng) {
-	  // Math.random()-based (RNG)
-	  //
-	  // If all else fails, use Math.random().  It's fast, but is of unspecified
-	  // quality.
-	  var  _rnds = new Array(16);
-	  rng = function() {
-	    for (var i = 0, r; i < 16; i++) {
-	      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-	      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-	    }
-
-	    return _rnds;
-	  };
-	}
-
-	module.exports = rng;
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 713 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var parseCodeContext = __webpack_require__(733);
-	var _ = __webpack_require__(165);
+	var parseCodeContext = __webpack_require__(712);
+	var _ = __webpack_require__(163);
 	var MaterialWrapper = __webpack_require__(596);
 	var Button = MaterialWrapper.Button;
-	var AlertDialog = __webpack_require__(714);
+	var AlertDialog = __webpack_require__(736);
 	var Db2File = {
-		DatabaseConfigPanel: __webpack_require__(722),
-		BindingTypePanel: __webpack_require__(727),
-		EtcConfigPanel: __webpack_require__(728),
-		ScriptConfirmDialog: __webpack_require__(734),
-		ScriptMaker: __webpack_require__(717)
+		DatabaseConfigPanel: __webpack_require__(714),
+		BindingTypePanel: __webpack_require__(723),
+		EtcConfigPanel: __webpack_require__(724),
+		ScriptConfirmDialog: __webpack_require__(725),
+		ScriptMaker: __webpack_require__(727)
 	};
 
 	var ScriptConfigTab = React.createClass({
@@ -89923,7 +89687,8 @@
 					if (String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\'')) obj.value = obj.value.substring(1, obj.value.length - 1);
 					scriptObj[obj.name] = obj.value;
 				});
-				this.setState({ scriptObj: scriptObj });
+
+				if (scriptObj.type != null) this.setState({ scriptObj: scriptObj });
 			}).bind(this));
 		},
 
@@ -90057,1190 +89822,195 @@
 	});
 
 /***/ },
+/* 712 */
+/***/ function(module, exports) {
+
+	/*!
+	 * js-code-context <https://github.com/tunnckoCore/js-code-context>
+	 *
+	 * Copyright (c) 2014 Charlike Mike Reagent, contributors.
+	 * Released under the MIT license.
+	 */
+	(function() {
+	  'use strict';
+
+	  var syncResult = [];
+
+	  function parseCodeContextSync(context, line) {
+	    var done = function(err, res) {
+	      syncResult = err ? [err] : res;
+	    };
+	    if (!line) {
+	      line = done;
+	    }
+	    parseCodeContext(context, line, done);
+	    return syncResult;
+	  }
+	  function parseCodeContext(context, line, cback) {
+	    var content, result = [];
+	    if (typeof line === 'number') {
+	      content = [context.split('\n')[line]];
+	    } else if (!cback && typeof line === 'function') {
+	      cback = line;
+	      content = context.split('\n');
+	    } else {
+	      content = context.split('\n');
+	    }
+
+	    each(content, function(item, index, done) {
+	      index = index;
+	      // function statement
+	      if (/^function ([\w$]+) *\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'function',
+	          name: RegExp.$1,
+	          clean: RegExp.$1,
+	          args: RegExp.$2,
+	          string: RegExp.$1 + '()',
+	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
+	        });
+	        // function expression
+	      } else if (/^var *([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'function',
+	          name: RegExp.$1,
+	          clean: RegExp.$1,
+	          args: RegExp.$2,
+	          string: RegExp.$1 + '()',
+	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
+	        });
+	        // prototype method
+	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
+	        result.push({
+	          type: 'method',
+	          constructor: RegExp.$1,
+	          cons: RegExp.$1,
+	          name: RegExp.$2,
+	          clean: RegExp.$1 + '.prototype.' + RegExp.$2,
+	          args: RegExp.$3,
+	          string: RegExp.$1 + '.prototype.' + RegExp.$2 + '()',
+	          full: RegExp.$1 + '.prototype.' + RegExp.$2 + '(' + RegExp.$3 + ')',
+	        });
+	        // prototype property
+	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'property',
+	          constructor: RegExp.$1,
+	          cons: RegExp.$1,
+	          name: RegExp.$2,
+	          value: RegExp.$3,
+	          string: RegExp.$1 + '.prototype.' + RegExp.$2
+	        });
+	        // method
+	      } else if (/^([\w$.]+)\.([\w$]+)[ \t]*=[ \t]*function/.exec(item)) {
+	        result.push({
+	          type: 'method',
+	          receiver: RegExp.$1,
+	          name: RegExp.$2,
+	          clean: RegExp.$1 + '.' + RegExp.$2,
+	          args: RegExp.$3,
+	          string: RegExp.$1 + '.' + RegExp.$2 + '()',
+	          full: RegExp.$1 + '.' + RegExp.$2 + '(' + RegExp.$3 + ')',
+	        });
+	        // property
+	      } else if (/^([\w$]+)\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'property',
+	          receiver: RegExp.$1,
+	          name: RegExp.$2,
+	          value: RegExp.$3,
+	          string: RegExp.$1 + '.' + RegExp.$2
+	        });
+	        // declaration
+	      } else if (/^var +([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
+	        result.push({
+	          type: 'declaration',
+	          name: RegExp.$1,
+	          value: RegExp.$2,
+	          string: RegExp.$1
+	        });
+	      }
+	      done();
+	    }, function(err) {
+	      if (err) {return cback(err);}
+	    });
+	    return cback(null, result);
+	  }
+
+	  function once(fn) {
+	    var called = false;
+	    if (typeof fn !== 'function') {
+	      throw new TypeError('Must be fuction.');
+	    }
+	    return function() {
+	      if (called) {
+	        throw new Error('Callback already called.');
+	      }
+	      called = true;
+	      fn.apply(this, arguments);
+	    };
+	  }
+
+	  function each(arr, next, cb) {
+	    var failed = false;
+	    var count = 0;
+	    cb = cb || function() {};
+	    if (!Array.isArray(arr)) {
+	      throw new TypeError('First argument must be an array');
+	    }
+	    if (typeof next !== 'function') {
+	      throw new TypeError('Second argument must be a function');
+	    }
+	    var len = arr.length;
+	    if (!len) {
+	      return cb();
+	    }
+
+	    function callback(err) {
+	      if (failed) {
+	        return;
+	      }
+	      if (err !== undefined && err !== null) {
+	        failed = true;
+	        return cb(err);
+	      }
+	      if (++count === len) {
+	        return cb();
+	      }
+	    }
+	    for (var i = 0; i < len; i++) {
+	      next(arr[i], i, once(callback));
+	    }
+	  }
+
+	  if (typeof module !== 'undefined' && module.exports) {
+	    module.exports = parseCodeContext;
+	    module.exports.sync = parseCodeContextSync;
+	  } else {
+	    window.jsCodeContext = parseCodeContext;
+	  }
+	})();
+
+
+/***/ },
+/* 713 */,
 /* 714 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    MaterialWrapper = __webpack_require__(596),
-	    Dialog = MaterialWrapper.Dialog,
-	    TextField = MaterialWrapper.TextField,
-	    Button = MaterialWrapper.Button,
-	    Alert = __webpack_require__(169).Alert;
-
-	var AlertDialog = React.createClass({
-		displayName: 'AlertDialog',
-
-		onShowCallback: null,
-		onHideCallback: null,
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				bsStyle: 'success', //success, info, warning, danger
-				msg: ''
-			};
-		},
-
-		onShow: function onShow(callback) {
-			this.onShowCallback = callback;
-			return this;
-		},
-
-		onHide: function onHide(callback) {
-			this.onHideCallback = callback;
-			return this;
-		},
-
-		show: function show(bsStyle, msg) {
-			this.setState({
-				visible: true,
-				bsStyle: bsStyle,
-				msg: msg
-			}, function () {
-				if (this.onShowCallback != null) this.onShowCallback();
-				this.onShowCallback = null;
-			});
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false }, (function () {
-				if (this.onHideCallback != null) this.onHideCallback();
-				this.onHideCallback = null;
-			}).bind(this));
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					actions: [{ text: 'close', onClick: this.hide }],
-					actionFocus: 'close',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.state.visible },
-				React.createElement(
-					Alert,
-					{ bsStyle: this.state.bsStyle },
-					React.createElement(
-						'strong',
-						null,
-						this.state.msg
-					)
-				)
-			);
-		}
-	});
-
-	module.exports = AlertDialog;
-
-/***/ },
-/* 715 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1),
 	    ReactDOM = __webpack_require__(158),
-	    precondition = __webpack_require__(716),
-	    AlertDialog = __webpack_require__(714),
-	    DatabaseConfigPanel = __webpack_require__(722),
-	    BindingTypePanel = __webpack_require__(727),
-	    EtcConfigPanel = __webpack_require__(728),
-	    ScriptConfirmDialog = __webpack_require__(734),
-	    MaterialWrapper = __webpack_require__(596),
-	    Button = MaterialWrapper.Button;
-
-	var NewDb2FileView = React.createClass({
-		displayName: 'NewDb2FileView',
-
-		script: null,
-
-		getInitialState: function getInitialState() {
-			return {
-				dbVendor: 'oracle',
-				dbIp: '192.168.10.101',
-				dbPort: '1521',
-				dbSid: 'spiderx',
-				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				jdbcUsername: 'admin_test',
-				jdbcPassword: 'admin_test',
-				table: '',
-				columns: '',
-				bindingType: 'simple',
-				bindingColumn: '',
-				period: '6 * 1000',
-				charset: 'utf8',
-				delimiter: '|',
-				outputPath: '',
-				confirmScriptDialogVisible: false
-			};
-		},
-
-		onChange: function onChange(args) {
-			if (args.script) {
-				this.script = args.script;
-				delete args.script;
-				if (Object.keys(args).length === 0) return;
-			}
-
-			if (args.columns) args.columns = args.columns.toLowerCase();
-
-			this.setState(args);
-		},
-
-		showScriptDialog: function showScriptDialog() {
-			try {
-				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
-					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
-					return true;
-				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
-			} catch (errmsg) {
-				this.refs.alertDialog.show('danger', errmsg);
-				return;
-			}
-
-			this.setState({
-				confirmScriptDialogVisible: true
-			});
-		},
-
-		render: function render() {
-			var dbConfigPanelParams = {
-				dbVendor: this.state.dbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid,
-				jdbcDriver: this.state.jdbcDriver,
-				jdbcConnUrl: this.state.jdbcConnUrl,
-				jdbcUsername: this.state.jdbcUsername,
-				jdbcPassword: this.state.jdbcPassword,
-				table: this.state.table,
-				columns: this.state.columns,
-				onChange: this.onChange
-			};
-
-			var bindingTypePanelParams = {
-				bindingType: this.state.bindingType,
-				bindingColumn: this.state.bindingColumn,
-				jdbcDriver: this.state.jdbcDriver,
-				jdbcConnUrl: this.state.jdbcConnUrl,
-				jdbcUsername: this.state.jdbcUsername,
-				jdbcPassword: this.state.jdbcPassword,
-				table: this.state.table,
-				onChange: this.onChange
-			};
-
-			var etcConfigPanelParams = {
-				period: this.state.period,
-				charset: this.state.charset,
-				delimiter: this.state.delimiter,
-				outputPath: this.state.outputPath,
-				onChange: this.onChange
-			};
-
-			var scriptConfirmDialogParams = {
-				visible: this.state.confirmScriptDialogVisible,
-				onClose: (function () {
-					this.setState({ confirmScriptDialogVisible: false });
-				}).bind(this),
-				saveMode: true,
-				dbVendor: this.state.dbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid,
-				jdbcDriver: this.state.jdbcDriver,
-				jdbcConnUrl: this.state.jdbcConnUrl,
-				jdbcUsername: this.state.jdbcUsername,
-				jdbcPassword: this.state.jdbcPassword,
-				bindingType: this.state.bindingType,
-				bindingColumn: this.state.bindingColumn,
-				table: this.state.table,
-				columns: this.state.columns,
-				period: this.state.period,
-				charset: this.state.charset,
-				delimiter: this.state.delimiter,
-				outputPath: this.state.outputPath
-			};
-
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'h3',
-					{ style: { marginBottom: '3px' } },
-					'database 설정'
-				),
-				React.createElement(DatabaseConfigPanel, dbConfigPanelParams),
-				React.createElement(BindingTypePanel, bindingTypePanelParams),
-				React.createElement(EtcConfigPanel, etcConfigPanelParams),
-				React.createElement(Button, {
-					label: '생성',
-					primary: true,
-					onClick: this.showScriptDialog }),
-				React.createElement(ScriptConfirmDialog, scriptConfirmDialogParams),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
-			);
-		}
-	});
-
-	module.exports = NewDb2FileView;
-
-/***/ },
-/* 716 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var precondition = function precondition(data) {
-		this.data = data;
-	};
-
-	precondition.prototype.stringNotByEmpty = function (keyName, msg) {
-		var checkFn = (function (keyName) {
-			if (this.data[keyName] == null) throw msg;
-			if (typeof this.data[keyName] !== 'string') throw msg;
-			if (this.data[keyName].trim().length === 0) throw msg;
-		}).bind(this);
-
-		if (Array.isArray(keyName) === true) {
-			keyName.forEach(checkFn);
-		} else {
-			checkFn(keyName);
-		}
-
-		return this;
-	};
-
-	precondition.prototype.check = function (callback, msg) {
-		if (callback(this.data) === false) throw msg;
-		return this;
-	};
-
-	module.exports = {
-		instance: function instance(data) {
-			return new precondition(data);
-		}
-	};
-
-/***/ },
-/* 717 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var util = __webpack_require__(162);
-
-	var ScriptMaker = function ScriptMaker() {
-		var _variable;
-		var _maxQueryVariable;
-		var _minMaxVariable;
-		var _mainQueryVariable;
-		var _storeMax2Min;
-
-		return {
-			//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
-			//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
-			variable: function variable(args) {
-				_variable = util.format(["var type = 'db2file'; ", "var period = %s; ", "var dbVendor = '%s'; ", "var dbIp = '%s'; ", "var dbPort = '%s'; ", "var dbSid = '%s'; ", "var jdbcDriver = '%s'; ", "var jdbcConnUrl= '%s'; ", "var jdbcUsername = '%s'; ", "var jdbcPassword = '%s'; ", "var columns = '%s'; ", "var table = '%s'; ", "var bindingType = '%s'; ", "var bindingColumn = '%s'; ", "var delimiter = '%s'; ", "var charset = '%s'; ", "var outputPath = '%s'; ", "/************************************/", "var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"].join('\n'), args.period, args.dbVendor, args.dbIp, args.dbPort, args.dbSid, args.jdbcDriver, args.jdbcConnUrl, args.jdbcUsername, args.jdbcPassword, args.columns, args.table, args.bindingType, args.bindingColumn, args.delimiter, args.charset, args.outputPath);
-				return this;
-			},
-
-			//args: bindingType
-			maxQueryVariable: function maxQueryVariable(args) {
-				if (args.bindingType !== 'date') return this;
-
-				_maxQueryVariable = ["var maxQuery = format( ", "	'select max(${bindingColumn}) \\", "	from ${table}', ", "	{ bindingColumn: bindingColumn, table: table} ", "); "].join('\n');
-
-				return this;
-			},
-
-			//args: bindingType
-			minMaxVariable: function minMaxVariable(args) {
-				switch (args.bindingType) {
-					case 'date':
-						_minMaxVariable = ["	var min = repo('min');", "	var max = now().format('yyyy-MM-dd HH:mm:ss');"].join('\n');
-						break;
-					case 'sequence':
-						_minMaxVariable = ["	var min = repo('min');", "	var max = database(jdbc).select(maxQuery).get();"].join('\n');
-						break;
-				}
-				return this;
-			},
-
-			//args: bindingType, dbVendor
-			mainQueryVariable: function mainQueryVariable(args) {
-				switch (args.bindingType) {
-					case 'simple':
-						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table}',", "		{ columns: columns, table: table }", "	);"].join('\n');
-						break;
-					case 'date':
-						if (args.dbVendor === 'mysql') {
-							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > str_to_date(\\'${min}\\', \\'%Y-%m-%d %H:%i:%s\\') \\", "		AND ${bindingColumn} <= str_to_date(\\'${max}\\', \\'%Y-%m-%d %H:%i:%s\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
-						} else if (args.dbVendor === 'mssql') {
-							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} <= ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
-						} else {
-							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > to_date(\\'${min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') \\", "		AND ${bindingColumn} <= to_date(\\'${max}\\', \\'YYYY-MM-DD HH24:MI:SS\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
-						}
-						break;
-					case 'sequence':
-						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} < ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
-						break;
-				}
-
-				return this;
-			},
-
-			//args: bindingType
-			storeMax2Min: function storeMax2Min(args) {
-				if (args.bindingType === 'simple') return this;
-				_storeMax2Min = "repo('min', max);";
-				return this;
-			},
-
-			get: function get(args) {
-				this.variable(args).maxQueryVariable(args).minMaxVariable(args).mainQueryVariable(args).storeMax2Min(args);
-
-				return [_variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, _mainQueryVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
-			}
-		};
-	};
-
-	module.exports = ScriptMaker;
-
-/***/ },
-/* 718 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1),
-	    ReactCSS = __webpack_require__(415),
-	    Loading = __webpack_require__(719),
-	    Layer = __webpack_require__(720),
-	    boxShadow = __webpack_require__(166).boxShadow,
-	    MaterialWrapper = __webpack_require__(596),
-	    CircularProgress = MaterialWrapper.CircularProgress,
-	    Button = MaterialWrapper.Button;
-
-	var Z_INDEX_CURTAIN = 100;
-	var Z_INDEX_OVER_CURTAIN = 200;
-
-	var modalMixin = {
-		getModalDivStyle: function getModalDivStyle() {
-			return {
-				position: 'absolute',
-				zIndex: Z_INDEX_OVER_CURTAIN,
-				left: '50%',
-				top: '50%',
-				transform: 'translate(-50%, -50%)',
-				backgroundColor: 'white',
-				width: '400px',
-				padding: '20px 30px 15px 30px',
-				borderRadius: '5px',
-				boxShadow: boxShadow.modalBox
-			};
-		}
-	};
-	exports.modalMixin = modalMixin;
-
-	var CurtainLoadingView = React.createClass({
-		displayName: 'CurtainLoadingView',
-
-		mixins: [ReactCSS.mixin],
-
-		getInitialState: function getInitialState() {
-			return { visible: false };
-		},
-
-		show: function show() {
-			this.setState({ visible: true });
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					innerSpan: {
-						position: 'absolute',
-						left: '50%',
-						top: '50%',
-						transform: 'translate(-50%, -50%)'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: { display: this.state.visible === true ? 'block' : 'none' } },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'span',
-					{ style: this.styles().innerSpanStyle },
-					React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
-				)
-			);
-		}
-	});
-
-	var CurtainCancelableLoadingAlert = React.createClass({
-		displayName: 'CurtainCancelableLoadingAlert',
-
-		mixins: [modalMixin],
-		getDefaultProps: function getDefaultProps() {
-			return {
-				msg: '',
-				hide: null
-			};
-		},
-
-		styles: function styles() {
-			return {
-				modal: this.getModalDivStyle(),
-				msgDiv: {
-					paddingTop: '10px',
-					textAlign: 'center'
-				},
-				loadingDiv: {
-					textAlign: 'center'
-				},
-				btnDiv: {
-					paddingBottom: '10px',
-					textAlign: 'center'
-				},
-				cancelBtn: {
-					width: '100px'
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(Curtain, { onClick: this.props.hide }),
-				React.createElement(
-					'div',
-					{ style: styles.modal },
-					React.createElement(
-						'div',
-						{ style: style.msgDiv },
-						this.props.msg
-					),
-					React.createElement(
-						'div',
-						{ style: style.loadingDiv },
-						React.createElement(CircularProgress, { mode: 'indeterminate' })
-					),
-					React.createElement(
-						'div',
-						{ style: style.btnDiv },
-						React.createElement(Button, {
-							style: style.cancelBtn,
-							label: 'cencel',
-							onClick: this.props.hide })
-					)
-				)
-			);
-		}
-	});
-	exports.getCurtainCancelableLoadingAlert = function (msg) {
-		var hide = (function () {
-			layer.destroy();
-		}).bind(this);
-
-		var layer = new Layer(document.body, function () {
-			return React.createElement(CurtainCancelableLoadingAlert, { msg: msg, hide: hide });
-		});
-
-		return {
-			show: function show() {
-				layer.render();
-			},
-			hide: function hide() {
-				layer.destroy();
-			}
-		};
-	};
-
-	var CurtainLoadingAlert = React.createClass({
-		displayName: 'CurtainLoadingAlert',
-
-		mixins: [ReactCSS.mixin, modalMixin],
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				msg: ''
-			};
-		},
-
-		show: function show(args) {
-			this.setState({ visible: true, msg: args.msg });
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						display: this.state.visible === true ? 'block' : 'none'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'div',
-					{ style: this.getModalDivStyle() },
-					React.createElement(
-						'div',
-						null,
-						React.createElement(
-							'label',
-							null,
-							this.state.msg
-						)
-					),
-					React.createElement(
-						'div',
-						{ style: { textAlign: 'center' } },
-						React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
-					)
-				)
-			);
-		}
-	});
-
-	var CurtainAlert = React.createClass({
-		displayName: 'CurtainAlert',
-
-		mixins: [ReactCSS.mixin, modalMixin],
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				onClick: null,
-				msg: ''
-			};
-		},
-
-		componentDidUpdate: function componentDidUpdate() {
-			if (this.state.visible === true) this.refs.btn.getDOMNode().focus();
-		},
-
-		show: function show(args) {
-			var state = {
-				visible: true,
-				msg: args.msg
-			};
-			if (args.onClick) state.onClick = args.onClick;
-			this.setState(state);
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		onClick: function onClick() {
-			this.hide();
-			if (this.state.onClick) this.state.onClick();
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						display: this.state.visible === true ? 'block' : 'none'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'div',
-					{ style: this.getModalDivStyle() },
-					React.createElement(
-						'div',
-						null,
-						React.createElement(
-							'label',
-							null,
-							this.state.msg
-						)
-					),
-					React.createElement(
-						'div',
-						{ style: { textAlign: 'center' } },
-						React.createElement(Button, {
-							ref: 'btn',
-							style: { width: '100px' },
-							onClick: this.onClick,
-							label: 'ok' })
-					)
-				)
-			);
-		}
-	});
-
-	var CurtainYesOrNo = React.createClass({
-		displayName: 'CurtainYesOrNo',
-
-		mixins: [ReactCSS.mixin, modalMixin],
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				onClick: null,
-				btnNames: ['ok', 'cancel'],
-				msg: ''
-			};
-		},
-
-		componentDidUpdate: function componentDidUpdate() {
-			if (this.state.visible === true) this.refs.yesBtn.getDOMNode().focus();
-		},
-
-		show: function show(args) {
-			var state = {
-				visible: true,
-				onClick: args.onClick,
-				msg: args.msg
-			};
-			if (args.btnNames) state.btnNames = args.btnNames;
-			this.setState(state);
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		onYesClick: function onYesClick(evt) {
-			this.setState({ visible: false });
-			this.state.onClick(true);
-		},
-
-		onNoClick: function onNoClick(evt) {
-			this.setState({ visible: false });
-			this.state.onClick(false);
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						display: this.state.visible === true ? 'block' : 'none'
-					}
-				}
-			};
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				{ style: this.styles().outer },
-				React.createElement(Curtain, null),
-				React.createElement(
-					'div',
-					{ style: this.getModalDivStyle() },
-					React.createElement(
-						'div',
-						null,
-						React.createElement(
-							'label',
-							null,
-							this.state.msg
-						)
-					),
-					React.createElement(
-						'div',
-						{ style: { textAlign: 'center' } },
-						React.createElement(Button, {
-							ref: 'yesBtn',
-							style: { width: '80px', marginRight: '10px' },
-							onClick: this.onYesClick,
-							label: this.state.btnNames[0] }),
-						React.createElement(Button, {
-							style: { width: '80px' },
-							onClick: this.onNoClick,
-							label: this.state.btnNames[1] })
-					)
-				)
-			);
-		}
-	});
-
-	var LayerPopup = React.createClass({
-		displayName: 'LayerPopup',
-
-		componentDidMount: function componentDidMount() {
-			window.curtainLoadingView = this.refs.curtainLoadingView;
-			window.curtainLoadingAlert = this.refs.curtainLoadingAlert;
-			window.curtainAlert = this.refs.curtainAlert;
-			window.curtainYesOrNo = this.refs.curtainYesOrNo;
-		},
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(CurtainLoadingView, { ref: 'curtainLoadingView' }),
-				React.createElement(CurtainLoadingAlert, { ref: 'curtainLoadingAlert' }),
-				React.createElement(CurtainAlert, { ref: 'curtainAlert' }),
-				React.createElement(CurtainYesOrNo, { ref: 'curtainYesOrNo' })
-			);
-		}
-	});
-	exports.LayerPopup = LayerPopup;
-
-	var Curtain = React.createClass({
-		displayName: 'Curtain',
-
-		mixins: [ReactCSS.mixin],
-
-		getDefaultProps: function getDefaultProps() {
-			return { onClick: null };
-		},
-
-		classes: function classes() {
-			return {
-				'default': {
-					outer: {
-						position: 'absolute',
-						zIndex: Z_INDEX_CURTAIN,
-						left: '0',
-						top: '0',
-						width: '100%',
-						height: '100%',
-						backgroundColor: 'gray',
-						opacity: '0.6'
-					}
-				}
-			};
-		},
-
-		onClick: function onClick() {
-			if (this.props.onClick) this.props.onClick();
-		},
-
-		styles: function styles() {
-			return this.css();
-		},
-
-		render: function render() {
-			return React.createElement('div', { style: this.styles().outer, onClick: this.onClick });
-		}
-	});
-	exports.Curtain = Curtain;
-
-/***/ },
-/* 719 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function webpackUniversalModuleDefinition(root, factory) {
-		if(true)
-			module.exports = factory(__webpack_require__(1));
-		else if(typeof define === 'function' && define.amd)
-			define(["react"], factory);
-		else if(typeof exports === 'object')
-			exports["Loading"] = factory(require("react"));
-		else
-			root["Loading"] = factory(root["React"]);
-	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
-	return /******/ (function(modules) { // webpackBootstrap
-	/******/ 	// The module cache
-	/******/ 	var installedModules = {};
-
-	/******/ 	// The require function
-	/******/ 	function __webpack_require__(moduleId) {
-
-	/******/ 		// Check if module is in cache
-	/******/ 		if(installedModules[moduleId])
-	/******/ 			return installedModules[moduleId].exports;
-
-	/******/ 		// Create a new module (and put it into the cache)
-	/******/ 		var module = installedModules[moduleId] = {
-	/******/ 			exports: {},
-	/******/ 			id: moduleId,
-	/******/ 			loaded: false
-	/******/ 		};
-
-	/******/ 		// Execute the module function
-	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-	/******/ 		// Flag the module as loaded
-	/******/ 		module.loaded = true;
-
-	/******/ 		// Return the exports of the module
-	/******/ 		return module.exports;
-	/******/ 	}
-
-
-	/******/ 	// expose the modules object (__webpack_modules__)
-	/******/ 	__webpack_require__.m = modules;
-
-	/******/ 	// expose the module cache
-	/******/ 	__webpack_require__.c = installedModules;
-
-	/******/ 	// __webpack_public_path__
-	/******/ 	__webpack_require__.p = "";
-
-	/******/ 	// Load entry module and return exports
-	/******/ 	return __webpack_require__(0);
-	/******/ })
-	/************************************************************************/
-	/******/ ([
-	/* 0 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		'use strict';
-
-		Object.defineProperty(exports, '__esModule', {
-		  value: true
-		});
-
-		var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-		var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-		function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-		function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-		function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
-		var _react = __webpack_require__(1);
-
-		var _react2 = _interopRequireDefault(_react);
-
-		var _svg = __webpack_require__(2);
-
-		var svgSources = _interopRequireWildcard(_svg);
-
-		var Loading = (function (_Component) {
-		  function Loading() {
-		    _classCallCheck(this, Loading);
-
-		    _get(Object.getPrototypeOf(Loading.prototype), 'constructor', this).call(this);
-		    this.state = {
-		      delayed: false
-		    };
-		  }
-
-		  _inherits(Loading, _Component);
-
-		  _createClass(Loading, [{
-		    key: 'componentWillMount',
-		    value: function componentWillMount() {
-		      var _this = this;
-
-		      var delayed = this.props.delay > 0;
-
-		      if (delayed) {
-		        this.setState({ delayed: true });
-		        setTimeout(function () {
-		          _this.setState({ delayed: false });
-		        }, this.props.delay);
-		      }
-		    }
-		  }, {
-		    key: 'render',
-		    value: function render() {
-		      var type = this.state.delayed ? 'blank' : this.props.type;
-		      var svg = svgSources[type];
-		      var svgStyle = {
-		        fill: this.props.color,
-		        height: this.props.height,
-		        width: this.props.width
-		      };
-
-		      return _react2['default'].createElement('img', { style: svgStyle, src: 'data:image/svg+xml;utf8,' + svg });
-		    }
-		  }]);
-
-		  return Loading;
-		})(_react.Component);
-
-		exports['default'] = Loading;
-
-		Loading.propTypes = {
-		  color: _react.PropTypes.string,
-		  delay: _react.PropTypes.number,
-		  height: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]),
-		  type: _react.PropTypes.string,
-		  width: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string])
-		};
-		Loading.defaultProps = {
-		  color: '#fff',
-		  delay: 1000,
-		  height: 64,
-		  type: 'balls',
-		  width: 64
-		};
-		module.exports = exports['default'];
-
-	/***/ },
-	/* 1 */
-	/***/ function(module, exports) {
-
-		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-	/***/ },
-	/* 2 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		'use strict';
-
-		Object.defineProperty(exports, '__esModule', {
-		  value: true
-		});
-
-		function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
-
-		var _blankSvg = __webpack_require__(11);
-
-		exports.blank = _interopRequire(_blankSvg);
-
-		var _loadingBallsSvg = __webpack_require__(4);
-
-		exports.balls = _interopRequire(_loadingBallsSvg);
-
-		var _loadingBarsSvg = __webpack_require__(5);
-
-		exports.bars = _interopRequire(_loadingBarsSvg);
-
-		var _loadingBubblesSvg = __webpack_require__(6);
-
-		exports.bubbles = _interopRequire(_loadingBubblesSvg);
-
-		var _loadingCubesSvg = __webpack_require__(7);
-
-		exports.cubes = _interopRequire(_loadingCubesSvg);
-
-		var _loadingCylonSvg = __webpack_require__(3);
-
-		exports.cylon = _interopRequire(_loadingCylonSvg);
-
-		var _loadingSpinSvg = __webpack_require__(8);
-
-		exports.spin = _interopRequire(_loadingSpinSvg);
-
-		var _loadingSpinningBubblesSvg = __webpack_require__(9);
-
-		exports.spinningBubbles = _interopRequire(_loadingSpinningBubblesSvg);
-
-		var _loadingSpokesSvg = __webpack_require__(10);
-
-		exports.spokes = _interopRequire(_loadingSpokesSvg);
-
-	/***/ },
-	/* 3 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.5\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.1s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.25\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.2s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 4 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg class=\"icon-loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 5 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(2)\" d=\"M0 12 V20 H4 V12z\"> \n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(8)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.2\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(14)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.4\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(20)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(26)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.8\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 6 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle transform=\"translate(8 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(16 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.3\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(24 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
-
-	/***/ },
-	/* 7 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 8 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".25\" d=\"M16 0 A16 16 0 0 0 16 32 A16 16 0 0 0 16 0 M16 4 A12 12 0 0 1 16 28 A12 12 0 0 1 16 4\"/>\n  <path d=\"M16 0 A16 16 0 0 1 32 16 L28 16 A12 12 0 0 0 16 4z\">\n    <animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 16 16\" to=\"360 16 16\" dur=\"0.8s\" repeatCount=\"indefinite\" />\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 9 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(45 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(90 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(135 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(225 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.625s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(270 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(315 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
-
-	/***/ },
-	/* 10 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg id=\"loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(0 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(45 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(90 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(135 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(180 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(225 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.675s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(270 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(315 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\"/>\n  </path>\n</svg>\n"
-
-	/***/ },
-	/* 11 */
-	/***/ function(module, exports) {
-
-		module.exports = "<svg class=\"icon-blank\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"></svg>\n"
-
-	/***/ }
-	/******/ ])
-	});
-	;
-
-/***/ },
-/* 720 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var babelHelpers = __webpack_require__(721);
-	var React = __webpack_require__(1);
-
-	module.exports = (function () {
-	  function Layer(container, render) {
-	    babelHelpers.classCallCheck(this, Layer);
-
-	    this._container = container;
-	    this._render = render;
-	  }
-
-	  babelHelpers.createClass(Layer, {
-	    render: {
-	      value: function render(cb) {
-	        if (!this._mountPoint) this._createMountPoint();
-
-	        var child = this._render();
-
-	        return React.render(child, this._mountPoint, cb);
-	      }
-	    },
-	    unmount: {
-	      value: function unmount() {
-	        if (!this._mountPoint) {
-	          return;
-	        }React.unmountComponentAtNode(this._mountPoint);
-	      }
-	    },
-	    destroy: {
-	      value: function destroy() {
-	        this.unmount();
-
-	        if (this._mountPoint) {
-	          this._container.removeChild(this._mountPoint);
-	          this._mountPoint = null;
-	        }
-	      }
-	    },
-	    _createMountPoint: {
-	      value: function _createMountPoint() {
-	        this._mountPoint = document.createElement("div");
-	        this._container.appendChild(this._mountPoint);
-	      }
-	    }
-	  });
-	  return Layer;
-	})();
-
-/***/ },
-/* 721 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if (typeof exports === "object") {
-	    factory(exports);
-	  } else {
-	    factory(root.babelHelpers = {});
-	  }
-	})(this, function (global) {
-	  var babelHelpers = global;
-
-	  babelHelpers.createClass = (function () {
-	    function defineProperties(target, props) {
-	      for (var key in props) {
-	        var prop = props[key];
-	        prop.configurable = true;
-	        if (prop.value) prop.writable = true;
-	      }
-
-	      Object.defineProperties(target, props);
-	    }
-
-	    return function (Constructor, protoProps, staticProps) {
-	      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-	      if (staticProps) defineProperties(Constructor, staticProps);
-	      return Constructor;
-	    };
-	  })();
-
-	  babelHelpers.classCallCheck = function (instance, Constructor) {
-	    if (!(instance instanceof Constructor)) {
-	      throw new TypeError("Cannot call a class as a function");
-	    }
-	  };
-	})
-
-/***/ },
-/* 722 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1),
-	    ReactDOM = __webpack_require__(158),
-	    ReactGateway = __webpack_require__(723),
-	    _ = __webpack_require__(165),
-	    util = __webpack_require__(162),
-	    jsUtil = __webpack_require__(166),
+	    ReactGateway = __webpack_require__(715),
+	    _ = __webpack_require__(163),
+	    util = __webpack_require__(166),
+	    jsUtil = __webpack_require__(161),
 	    color = jsUtil.color,
 	    server = __webpack_require__(583),
-	    LayerPopup = __webpack_require__(718),
+	    LayerPopup = __webpack_require__(717),
 	    Clearfix = __webpack_require__(580).Clearfix,
-	    ColumnSelectTable = __webpack_require__(725).ColumnSelectTable,
-	    PolymerIcon = __webpack_require__(726),
+	    ColumnSelectTable = __webpack_require__(721).ColumnSelectTable,
+	    PolymerIcon = __webpack_require__(722),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -91810,14 +90580,14 @@
 	module.exports = DatabaseConfigPanel;
 
 /***/ },
-/* 723 */
+/* 715 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(158);
-	var ExecutionEnvironment = __webpack_require__(724);
+	var ExecutionEnvironment = __webpack_require__(716);
 
 	var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
 
@@ -91865,7 +90635,7 @@
 
 
 /***/ },
-/* 724 */
+/* 716 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -91910,15 +90680,828 @@
 
 
 /***/ },
-/* 725 */
+/* 717 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
 	    ReactCSS = __webpack_require__(415),
-	    _ = __webpack_require__(165),
-	    jsUtil = __webpack_require__(166),
+	    Loading = __webpack_require__(718),
+	    Layer = __webpack_require__(719),
+	    boxShadow = __webpack_require__(161).boxShadow,
+	    MaterialWrapper = __webpack_require__(596),
+	    CircularProgress = MaterialWrapper.CircularProgress,
+	    Button = MaterialWrapper.Button;
+
+	var Z_INDEX_CURTAIN = 100;
+	var Z_INDEX_OVER_CURTAIN = 200;
+
+	var modalMixin = {
+		getModalDivStyle: function getModalDivStyle() {
+			return {
+				position: 'absolute',
+				zIndex: Z_INDEX_OVER_CURTAIN,
+				left: '50%',
+				top: '50%',
+				transform: 'translate(-50%, -50%)',
+				backgroundColor: 'white',
+				width: '400px',
+				padding: '20px 30px 15px 30px',
+				borderRadius: '5px',
+				boxShadow: boxShadow.modalBox
+			};
+		}
+	};
+	exports.modalMixin = modalMixin;
+
+	var CurtainLoadingView = React.createClass({
+		displayName: 'CurtainLoadingView',
+
+		mixins: [ReactCSS.mixin],
+
+		getInitialState: function getInitialState() {
+			return { visible: false };
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					innerSpan: {
+						position: 'absolute',
+						left: '50%',
+						top: '50%',
+						transform: 'translate(-50%, -50%)'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: { display: this.state.visible === true ? 'block' : 'none' } },
+				React.createElement(Curtain, null),
+				React.createElement(
+					'span',
+					{ style: this.styles().innerSpanStyle },
+					React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
+				)
+			);
+		}
+	});
+
+	var CurtainCancelableLoadingAlert = React.createClass({
+		displayName: 'CurtainCancelableLoadingAlert',
+
+		mixins: [modalMixin],
+		getDefaultProps: function getDefaultProps() {
+			return {
+				msg: '',
+				hide: null
+			};
+		},
+
+		styles: function styles() {
+			return {
+				modal: this.getModalDivStyle(),
+				msgDiv: {
+					paddingTop: '10px',
+					textAlign: 'center'
+				},
+				loadingDiv: {
+					textAlign: 'center'
+				},
+				btnDiv: {
+					paddingBottom: '10px',
+					textAlign: 'center'
+				},
+				cancelBtn: {
+					width: '100px'
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(Curtain, { onClick: this.props.hide }),
+				React.createElement(
+					'div',
+					{ style: styles.modal },
+					React.createElement(
+						'div',
+						{ style: style.msgDiv },
+						this.props.msg
+					),
+					React.createElement(
+						'div',
+						{ style: style.loadingDiv },
+						React.createElement(CircularProgress, { mode: 'indeterminate' })
+					),
+					React.createElement(
+						'div',
+						{ style: style.btnDiv },
+						React.createElement(Button, {
+							style: style.cancelBtn,
+							label: 'cencel',
+							onClick: this.props.hide })
+					)
+				)
+			);
+		}
+	});
+	exports.getCurtainCancelableLoadingAlert = function (msg) {
+		var hide = (function () {
+			layer.destroy();
+		}).bind(this);
+
+		var layer = new Layer(document.body, function () {
+			return React.createElement(CurtainCancelableLoadingAlert, { msg: msg, hide: hide });
+		});
+
+		return {
+			show: function show() {
+				layer.render();
+			},
+			hide: function hide() {
+				layer.destroy();
+			}
+		};
+	};
+
+	var CurtainLoadingAlert = React.createClass({
+		displayName: 'CurtainLoadingAlert',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				msg: ''
+			};
+		},
+
+		show: function show(args) {
+			this.setState({ visible: true, msg: args.msg });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, null),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'label',
+							null,
+							this.state.msg
+						)
+					),
+					React.createElement(
+						'div',
+						{ style: { textAlign: 'center' } },
+						React.createElement(Loading, { type: 'bubbles', color: '#e4e4e4' })
+					)
+				)
+			);
+		}
+	});
+
+	var CurtainAlert = React.createClass({
+		displayName: 'CurtainAlert',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				onClick: null,
+				msg: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate() {
+			if (this.state.visible === true) this.refs.btn.getDOMNode().focus();
+		},
+
+		show: function show(args) {
+			var state = {
+				visible: true,
+				msg: args.msg
+			};
+			if (args.onClick) state.onClick = args.onClick;
+			this.setState(state);
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		onClick: function onClick() {
+			this.hide();
+			if (this.state.onClick) this.state.onClick();
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, null),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'label',
+							null,
+							this.state.msg
+						)
+					),
+					React.createElement(
+						'div',
+						{ style: { textAlign: 'center' } },
+						React.createElement(Button, {
+							ref: 'btn',
+							style: { width: '100px' },
+							onClick: this.onClick,
+							label: 'ok' })
+					)
+				)
+			);
+		}
+	});
+
+	var CurtainYesOrNo = React.createClass({
+		displayName: 'CurtainYesOrNo',
+
+		mixins: [ReactCSS.mixin, modalMixin],
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				onClick: null,
+				btnNames: ['ok', 'cancel'],
+				msg: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate() {
+			if (this.state.visible === true) this.refs.yesBtn.getDOMNode().focus();
+		},
+
+		show: function show(args) {
+			var state = {
+				visible: true,
+				onClick: args.onClick,
+				msg: args.msg
+			};
+			if (args.btnNames) state.btnNames = args.btnNames;
+			this.setState(state);
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		onYesClick: function onYesClick(evt) {
+			this.setState({ visible: false });
+			this.state.onClick(true);
+		},
+
+		onNoClick: function onNoClick(evt) {
+			this.setState({ visible: false });
+			this.state.onClick(false);
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						display: this.state.visible === true ? 'block' : 'none'
+					}
+				}
+			};
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ style: this.styles().outer },
+				React.createElement(Curtain, null),
+				React.createElement(
+					'div',
+					{ style: this.getModalDivStyle() },
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'label',
+							null,
+							this.state.msg
+						)
+					),
+					React.createElement(
+						'div',
+						{ style: { textAlign: 'center' } },
+						React.createElement(Button, {
+							ref: 'yesBtn',
+							style: { width: '80px', marginRight: '10px' },
+							onClick: this.onYesClick,
+							label: this.state.btnNames[0] }),
+						React.createElement(Button, {
+							style: { width: '80px' },
+							onClick: this.onNoClick,
+							label: this.state.btnNames[1] })
+					)
+				)
+			);
+		}
+	});
+
+	var LayerPopup = React.createClass({
+		displayName: 'LayerPopup',
+
+		componentDidMount: function componentDidMount() {
+			window.curtainLoadingView = this.refs.curtainLoadingView;
+			window.curtainLoadingAlert = this.refs.curtainLoadingAlert;
+			window.curtainAlert = this.refs.curtainAlert;
+			window.curtainYesOrNo = this.refs.curtainYesOrNo;
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(CurtainLoadingView, { ref: 'curtainLoadingView' }),
+				React.createElement(CurtainLoadingAlert, { ref: 'curtainLoadingAlert' }),
+				React.createElement(CurtainAlert, { ref: 'curtainAlert' }),
+				React.createElement(CurtainYesOrNo, { ref: 'curtainYesOrNo' })
+			);
+		}
+	});
+	exports.LayerPopup = LayerPopup;
+
+	var Curtain = React.createClass({
+		displayName: 'Curtain',
+
+		mixins: [ReactCSS.mixin],
+
+		getDefaultProps: function getDefaultProps() {
+			return { onClick: null };
+		},
+
+		classes: function classes() {
+			return {
+				'default': {
+					outer: {
+						position: 'absolute',
+						zIndex: Z_INDEX_CURTAIN,
+						left: '0',
+						top: '0',
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'gray',
+						opacity: '0.6'
+					}
+				}
+			};
+		},
+
+		onClick: function onClick() {
+			if (this.props.onClick) this.props.onClick();
+		},
+
+		styles: function styles() {
+			return this.css();
+		},
+
+		render: function render() {
+			return React.createElement('div', { style: this.styles().outer, onClick: this.onClick });
+		}
+	});
+	exports.Curtain = Curtain;
+
+/***/ },
+/* 718 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function webpackUniversalModuleDefinition(root, factory) {
+		if(true)
+			module.exports = factory(__webpack_require__(1));
+		else if(typeof define === 'function' && define.amd)
+			define(["react"], factory);
+		else if(typeof exports === 'object')
+			exports["Loading"] = factory(require("react"));
+		else
+			root["Loading"] = factory(root["React"]);
+	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
+	return /******/ (function(modules) { // webpackBootstrap
+	/******/ 	// The module cache
+	/******/ 	var installedModules = {};
+
+	/******/ 	// The require function
+	/******/ 	function __webpack_require__(moduleId) {
+
+	/******/ 		// Check if module is in cache
+	/******/ 		if(installedModules[moduleId])
+	/******/ 			return installedModules[moduleId].exports;
+
+	/******/ 		// Create a new module (and put it into the cache)
+	/******/ 		var module = installedModules[moduleId] = {
+	/******/ 			exports: {},
+	/******/ 			id: moduleId,
+	/******/ 			loaded: false
+	/******/ 		};
+
+	/******/ 		// Execute the module function
+	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+	/******/ 		// Flag the module as loaded
+	/******/ 		module.loaded = true;
+
+	/******/ 		// Return the exports of the module
+	/******/ 		return module.exports;
+	/******/ 	}
+
+
+	/******/ 	// expose the modules object (__webpack_modules__)
+	/******/ 	__webpack_require__.m = modules;
+
+	/******/ 	// expose the module cache
+	/******/ 	__webpack_require__.c = installedModules;
+
+	/******/ 	// __webpack_public_path__
+	/******/ 	__webpack_require__.p = "";
+
+	/******/ 	// Load entry module and return exports
+	/******/ 	return __webpack_require__(0);
+	/******/ })
+	/************************************************************************/
+	/******/ ([
+	/* 0 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		Object.defineProperty(exports, '__esModule', {
+		  value: true
+		});
+
+		var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+		var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+		function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+		function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+		function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+		var _react = __webpack_require__(1);
+
+		var _react2 = _interopRequireDefault(_react);
+
+		var _svg = __webpack_require__(2);
+
+		var svgSources = _interopRequireWildcard(_svg);
+
+		var Loading = (function (_Component) {
+		  function Loading() {
+		    _classCallCheck(this, Loading);
+
+		    _get(Object.getPrototypeOf(Loading.prototype), 'constructor', this).call(this);
+		    this.state = {
+		      delayed: false
+		    };
+		  }
+
+		  _inherits(Loading, _Component);
+
+		  _createClass(Loading, [{
+		    key: 'componentWillMount',
+		    value: function componentWillMount() {
+		      var _this = this;
+
+		      var delayed = this.props.delay > 0;
+
+		      if (delayed) {
+		        this.setState({ delayed: true });
+		        setTimeout(function () {
+		          _this.setState({ delayed: false });
+		        }, this.props.delay);
+		      }
+		    }
+		  }, {
+		    key: 'render',
+		    value: function render() {
+		      var type = this.state.delayed ? 'blank' : this.props.type;
+		      var svg = svgSources[type];
+		      var svgStyle = {
+		        fill: this.props.color,
+		        height: this.props.height,
+		        width: this.props.width
+		      };
+
+		      return _react2['default'].createElement('img', { style: svgStyle, src: 'data:image/svg+xml;utf8,' + svg });
+		    }
+		  }]);
+
+		  return Loading;
+		})(_react.Component);
+
+		exports['default'] = Loading;
+
+		Loading.propTypes = {
+		  color: _react.PropTypes.string,
+		  delay: _react.PropTypes.number,
+		  height: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]),
+		  type: _react.PropTypes.string,
+		  width: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string])
+		};
+		Loading.defaultProps = {
+		  color: '#fff',
+		  delay: 1000,
+		  height: 64,
+		  type: 'balls',
+		  width: 64
+		};
+		module.exports = exports['default'];
+
+	/***/ },
+	/* 1 */
+	/***/ function(module, exports) {
+
+		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+	/***/ },
+	/* 2 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		Object.defineProperty(exports, '__esModule', {
+		  value: true
+		});
+
+		function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
+
+		var _blankSvg = __webpack_require__(11);
+
+		exports.blank = _interopRequire(_blankSvg);
+
+		var _loadingBallsSvg = __webpack_require__(4);
+
+		exports.balls = _interopRequire(_loadingBallsSvg);
+
+		var _loadingBarsSvg = __webpack_require__(5);
+
+		exports.bars = _interopRequire(_loadingBarsSvg);
+
+		var _loadingBubblesSvg = __webpack_require__(6);
+
+		exports.bubbles = _interopRequire(_loadingBubblesSvg);
+
+		var _loadingCubesSvg = __webpack_require__(7);
+
+		exports.cubes = _interopRequire(_loadingCubesSvg);
+
+		var _loadingCylonSvg = __webpack_require__(3);
+
+		exports.cylon = _interopRequire(_loadingCylonSvg);
+
+		var _loadingSpinSvg = __webpack_require__(8);
+
+		exports.spin = _interopRequire(_loadingSpinSvg);
+
+		var _loadingSpinningBubblesSvg = __webpack_require__(9);
+
+		exports.spinningBubbles = _interopRequire(_loadingSpinningBubblesSvg);
+
+		var _loadingSpokesSvg = __webpack_require__(10);
+
+		exports.spokes = _interopRequire(_loadingSpokesSvg);
+
+	/***/ },
+	/* 3 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.5\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.1s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path opacity=\"0.25\" transform=\"translate(0 0)\" d=\"M0 12 V20 H4 V12z\">\n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"0 0; 28 0; 0 0; 0 0\" dur=\"1.5s\" begin=\"0.2s\" repeatCount=\"indefinite\" keytimes=\"0;0.3;0.6;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 4 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg class=\"icon-loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M4 12 A4 4 0 0 0 4 20 A4 4 0 0 0 4 12\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 5 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(2)\" d=\"M0 12 V20 H4 V12z\"> \n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(8)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.2\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(14)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.4\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(20)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n  <path transform=\"translate(26)\" d=\"M0 12 V20 H4 V12z\">\n    <animate attributeName=\"d\" values=\"M0 12 V20 H4 V12z; M0 4 V28 H4 V4z; M0 12 V20 H4 V12z; M0 12 V20 H4 V12z\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.8\" keytimes=\"0;.2;.5;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.8 0.4 0.8\" calcMode=\"spline\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 6 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle transform=\"translate(8 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(16 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.3\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"translate(24 0)\" cx=\"0\" cy=\"16\" r=\"0\"> \n    <animate attributeName=\"r\" values=\"0; 4; 0; 0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6\"\n      keytimes=\"0;0.2;0.7;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
+
+	/***/ },
+	/* 7 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path transform=\"translate(-8 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"-8 0; 2 0; 2 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.25;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(2 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"2 0; 12 0; 12 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.35;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(12 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"12 0; 22 0; 22 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.45;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n  <path transform=\"translate(24 0)\" d=\"M0 12 V20 H8 V12z\"> \n    <animateTransform attributeName=\"transform\" type=\"translate\" values=\"22 0; 32 0; 32 0;\" dur=\"0.8s\" repeatCount=\"indefinite\" begin=\"0\" keytimes=\"0;.55;1\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.6 0.4 0.8\" calcMode=\"spline\"  />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 8 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".25\" d=\"M16 0 A16 16 0 0 0 16 32 A16 16 0 0 0 16 0 M16 4 A12 12 0 0 1 16 28 A12 12 0 0 1 16 4\"/>\n  <path d=\"M16 0 A16 16 0 0 1 32 16 L28 16 A12 12 0 0 0 16 4z\">\n    <animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 16 16\" to=\"360 16 16\" dur=\"0.8s\" repeatCount=\"indefinite\" />\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 9 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <circle cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(45 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(90 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(135 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(225 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.625s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(270 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(315 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n  <circle transform=\"rotate(180 16 16)\" cx=\"16\" cy=\"3\" r=\"0\">\n    <animate attributeName=\"r\" values=\"0;3;0;0\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\" keySplines=\"0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8\" calcMode=\"spline\" />\n  </circle>\n</svg>\n"
+
+	/***/ },
+	/* 10 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg id=\"loading\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\">\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(0 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(45 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.125s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(90 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(135 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.375s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(180 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.5s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(225 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.675s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(270 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.75s\"/>\n  </path>\n  <path opacity=\".1\" d=\"M14 0 H18 V8 H14 z\" transform=\"rotate(315 16 16)\">\n    <animate attributeName=\"opacity\" from=\"1\" to=\".1\" dur=\"1s\" repeatCount=\"indefinite\" begin=\"0.875s\"/>\n  </path>\n</svg>\n"
+
+	/***/ },
+	/* 11 */
+	/***/ function(module, exports) {
+
+		module.exports = "<svg class=\"icon-blank\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"></svg>\n"
+
+	/***/ }
+	/******/ ])
+	});
+	;
+
+/***/ },
+/* 719 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var babelHelpers = __webpack_require__(720);
+	var React = __webpack_require__(1);
+
+	module.exports = (function () {
+	  function Layer(container, render) {
+	    babelHelpers.classCallCheck(this, Layer);
+
+	    this._container = container;
+	    this._render = render;
+	  }
+
+	  babelHelpers.createClass(Layer, {
+	    render: {
+	      value: function render(cb) {
+	        if (!this._mountPoint) this._createMountPoint();
+
+	        var child = this._render();
+
+	        return React.render(child, this._mountPoint, cb);
+	      }
+	    },
+	    unmount: {
+	      value: function unmount() {
+	        if (!this._mountPoint) {
+	          return;
+	        }React.unmountComponentAtNode(this._mountPoint);
+	      }
+	    },
+	    destroy: {
+	      value: function destroy() {
+	        this.unmount();
+
+	        if (this._mountPoint) {
+	          this._container.removeChild(this._mountPoint);
+	          this._mountPoint = null;
+	        }
+	      }
+	    },
+	    _createMountPoint: {
+	      value: function _createMountPoint() {
+	        this._mountPoint = document.createElement("div");
+	        this._container.appendChild(this._mountPoint);
+	      }
+	    }
+	  });
+	  return Layer;
+	})();
+
+/***/ },
+/* 720 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports === "object") {
+	    factory(exports);
+	  } else {
+	    factory(root.babelHelpers = {});
+	  }
+	})(this, function (global) {
+	  var babelHelpers = global;
+
+	  babelHelpers.createClass = (function () {
+	    function defineProperties(target, props) {
+	      for (var key in props) {
+	        var prop = props[key];
+	        prop.configurable = true;
+	        if (prop.value) prop.writable = true;
+	      }
+
+	      Object.defineProperties(target, props);
+	    }
+
+	    return function (Constructor, protoProps, staticProps) {
+	      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	      if (staticProps) defineProperties(Constructor, staticProps);
+	      return Constructor;
+	    };
+	  })();
+
+	  babelHelpers.classCallCheck = function (instance, Constructor) {
+	    if (!(instance instanceof Constructor)) {
+	      throw new TypeError("Cannot call a class as a function");
+	    }
+	  };
+	})
+
+/***/ },
+/* 721 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    ReactCSS = __webpack_require__(415),
+	    _ = __webpack_require__(163),
+	    jsUtil = __webpack_require__(161),
 	    color = jsUtil.color;
 
 	var ColumnSelectTable = React.createClass({
@@ -92175,7 +91758,7 @@
 	});
 
 /***/ },
-/* 726 */
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -92246,16 +91829,16 @@
 	module.exports = PolymerIcon;
 
 /***/ },
-/* 727 */
+/* 723 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    jsUtil = __webpack_require__(166),
+	    jsUtil = __webpack_require__(161),
 	    color = jsUtil.color,
 	    server = __webpack_require__(583),
-	    PolymerIcon = __webpack_require__(726),
+	    PolymerIcon = __webpack_require__(722),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -92485,13 +92068,13 @@
 	module.exports = BindingTypePanel;
 
 /***/ },
-/* 728 */
+/* 724 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    PolymerIcon = __webpack_require__(726),
+	    PolymerIcon = __webpack_require__(722),
 	    MaterialWrapper = __webpack_require__(596),
 	    Button = MaterialWrapper.Button,
 	    TextField = MaterialWrapper.TextField,
@@ -92628,16 +92211,557 @@
 	module.exports = EtcConfigPanel;
 
 /***/ },
+/* 725 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    precondition = __webpack_require__(726),
+	    server = __webpack_require__(583),
+	    ScriptMaker = __webpack_require__(727),
+	    AlertDialog = __webpack_require__(736),
+	    MaterialWrapper = __webpack_require__(596),
+	    Dialog = MaterialWrapper.Dialog,
+	    TextField = MaterialWrapper.TextField;
+
+	var ScriptConfirmDialog = React.createClass({
+		displayName: 'ScriptConfirmDialog',
+
+		editor: null,
+		scriptMaker: new ScriptMaker(),
+
+		PropTypes: {
+			visible: React.PropTypes.bool.isRequired,
+			onClose: React.PropTypes.func.isRequired,
+			saveMode: React.PropTypes.bool,
+			editMode: React.PropTypes.bool,
+			title: React.PropTypes.string, //required when editMode is true
+			dbVendor: React.PropTypes.string.isRequired,
+			dbIp: React.PropTypes.string.isRequired,
+			dbPort: React.PropTypes.string.isRequired,
+			dbSid: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired,
+			bindingType: React.PropTypes.string.isRequired,
+			bindingColumn: React.PropTypes.string.isRequired,
+			table: React.PropTypes.string.isRequired,
+			columns: React.PropTypes.string.isRequired,
+			period: React.PropTypes.string.isRequired,
+			charset: React.PropTypes.string.isRequired,
+			delimiter: React.PropTypes.string.isRequired,
+			outputPath: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				scriptName: ''
+			};
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			if (prevProps.visible === true && this.props.visible === false) {
+				this.editor.destroy();
+			} else if (prevProps.visible === false && this.props.visible === true) {
+				this.editor = ace.edit('editor');
+				this.editor.setTheme('ace/theme/github');
+				this.editor.getSession().setMode('ace/mode/javascript');
+				this.editor.setKeyboardHandler('ace/keyboard/vim');
+				this.editor.$blockScrolling = Infinity;
+				this.editor.setValue(this.makeScript());
+			}
+		},
+
+		makeScript: function makeScript() {
+			return this.scriptMaker.get({
+				period: this.props.period,
+				dbVendor: this.props.dbVendor,
+				dbIp: this.props.dbIp,
+				dbPort: this.props.dbPort,
+				dbSid: this.props.dbSid,
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword,
+				columns: this.props.columns,
+				table: this.props.table,
+				bindingType: this.props.bindingType,
+				bindingColumn: this.props.bindingColumn,
+				delimiter: this.props.delimiter,
+				charset: this.props.charset,
+				outputPath: this.props.outputPath
+			});
+		},
+
+		handleAction: function handleAction(action) {
+			if (action === 'ok' && this.props.saveMode === true) {
+				var data = {
+					title: this.state.scriptName,
+					script: this.editor.getValue()
+				};
+
+				try {
+					precondition.instance(data).stringNotByEmpty('title', 'title 미입력').stringNotByEmpty('script', 'script 미입력');
+				} catch (errmsg) {
+					this.refs.alertDialog.show('danger', errmsg);
+					return;
+				}
+
+				server.postScript(data).then((function (success) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('success', 'script registered');
+				}).bind(this))['catch']((function (err) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('danger', err);
+				}).bind(this));
+			} else if (action === 'ok' && this.props.editMode === true) {
+				var data = {
+					title: this.props.title,
+					script: this.editor.getValue()
+				};
+
+				try {
+					precondition.instance(data).stringNotByEmpty('script', 'script 미입력');
+				} catch (errmsg) {
+					this.refs.alertDialog.show('danger', errmsg);
+					return;
+				}
+
+				server.editScript(data).then((function (success) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('success', 'script updated');
+				}).bind(this))['catch']((function (err) {
+					this.refs.alertDialog.onHide((function () {
+						this.props.onClose();
+					}).bind(this)).show('danger', err);
+				}).bind(this));
+			} else if (action === 'cancel') {
+				this.props.onClose();
+			}
+		},
+
+		styles: function styles() {
+			return {
+				editorWrapper: {
+					position: 'relative',
+					height: '250px'
+				},
+				editor: {
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					right: 0,
+					left: 0
+				}
+			};
+		},
+
+		render: function render() {
+			var style = this.styles();
+
+			return React.createElement(
+				Dialog,
+				{
+					title: '스크립트',
+					actions: [{ text: 'ok', onClick: (function (evt) {
+							this.handleAction('ok');
+						}).bind(this) }, { text: 'cancel', onClick: (function (evt) {
+							this.handleAction('cancel');
+						}).bind(this) }],
+					actionFocus: 'ok',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.props.visible },
+				this.props.editMode === true ? null : React.createElement(TextField, {
+					floatingLabelText: 'script name',
+					value: this.state.scriptName,
+					fullWidth: true,
+					onChange: (function (evt) {
+						this.setState({ scriptName: evt.target.value });
+					}).bind(this) }),
+				React.createElement(
+					'div',
+					{ id: 'editor-wrapper', style: style.editorWrapper },
+					React.createElement('div', { id: 'editor', style: style.editor })
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = ScriptConfirmDialog;
+
+/***/ },
+/* 726 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var precondition = function precondition(data) {
+		this.data = data;
+	};
+
+	precondition.prototype.stringNotByEmpty = function (keyName, msg) {
+		var checkFn = (function (keyName) {
+			if (this.data[keyName] == null) throw msg;
+			if (typeof this.data[keyName] !== 'string') throw msg;
+			if (this.data[keyName].trim().length === 0) throw msg;
+		}).bind(this);
+
+		if (Array.isArray(keyName) === true) {
+			keyName.forEach(checkFn);
+		} else {
+			checkFn(keyName);
+		}
+
+		return this;
+	};
+
+	precondition.prototype.check = function (callback, msg) {
+		if (callback(this.data) === false) throw msg;
+		return this;
+	};
+
+	module.exports = {
+		instance: function instance(data) {
+			return new precondition(data);
+		}
+	};
+
+/***/ },
+/* 727 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var util = __webpack_require__(166);
+
+	var ScriptMaker = function ScriptMaker() {
+		var _variable;
+		var _maxQueryVariable;
+		var _minMaxVariable;
+		var _mainQueryVariable;
+		var _storeMax2Min;
+
+		return {
+			//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
+			//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
+			variable: function variable(args) {
+				_variable = util.format(["var type = 'db2file'; ", "var period = %s; ", "var dbVendor = '%s'; ", "var dbIp = '%s'; ", "var dbPort = '%s'; ", "var dbSid = '%s'; ", "var jdbcDriver = '%s'; ", "var jdbcConnUrl= '%s'; ", "var jdbcUsername = '%s'; ", "var jdbcPassword = '%s'; ", "var columns = '%s'; ", "var table = '%s'; ", "var bindingType = '%s'; ", "var bindingColumn = '%s'; ", "var delimiter = '%s'; ", "var charset = '%s'; ", "var outputPath = '%s'; ", "/************************************/", "var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"].join('\n'), args.period, args.dbVendor, args.dbIp, args.dbPort, args.dbSid, args.jdbcDriver, args.jdbcConnUrl, args.jdbcUsername, args.jdbcPassword, args.columns, args.table, args.bindingType, args.bindingColumn, args.delimiter, args.charset, args.outputPath);
+				return this;
+			},
+
+			//args: bindingType
+			maxQueryVariable: function maxQueryVariable(args) {
+				if (args.bindingType !== 'date') return this;
+
+				_maxQueryVariable = ["var maxQuery = format( ", "	'select max(${bindingColumn}) \\", "	from ${table}', ", "	{ bindingColumn: bindingColumn, table: table} ", "); "].join('\n');
+
+				return this;
+			},
+
+			//args: bindingType
+			minMaxVariable: function minMaxVariable(args) {
+				switch (args.bindingType) {
+					case 'date':
+						_minMaxVariable = ["	var min = repo('min');", "	var max = now().format('yyyy-MM-dd HH:mm:ss');"].join('\n');
+						break;
+					case 'sequence':
+						_minMaxVariable = ["	var min = repo('min');", "	var max = database(jdbc).select(maxQuery).get();"].join('\n');
+						break;
+				}
+				return this;
+			},
+
+			//args: bindingType, dbVendor
+			mainQueryVariable: function mainQueryVariable(args) {
+				switch (args.bindingType) {
+					case 'simple':
+						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table}',", "		{ columns: columns, table: table }", "	);"].join('\n');
+						break;
+					case 'date':
+						if (args.dbVendor === 'mysql') {
+							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > str_to_date(\\'${min}\\', \\'%Y-%m-%d %H:%i:%s\\') \\", "		AND ${bindingColumn} <= str_to_date(\\'${max}\\', \\'%Y-%m-%d %H:%i:%s\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+						} else if (args.dbVendor === 'mssql') {
+							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} <= ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+						} else {
+							_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > to_date(\\'${min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') \\", "		AND ${bindingColumn} <= to_date(\\'${max}\\', \\'YYYY-MM-DD HH24:MI:SS\\')',", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+						}
+						break;
+					case 'sequence':
+						_mainQueryVariable = ["	var mainQuery = format( ", "		'SELECT ${columns} \\", "		FROM ${table} \\", "		WHERE ${bindingColumn} > ${min} \\", "		AND ${bindingColumn} < ${max}', ", "		{ columns: columns, table: table, ", "		bindingColumn: bindingColumn, ", "		min: min, max: max } ", "	);"].join('\n');
+						break;
+				}
+
+				return this;
+			},
+
+			//args: bindingType
+			storeMax2Min: function storeMax2Min(args) {
+				if (args.bindingType === 'simple') return this;
+				_storeMax2Min = "repo('min', max);";
+				return this;
+			},
+
+			get: function get(args) {
+				this.variable(args).maxQueryVariable(args).minMaxVariable(args).mainQueryVariable(args).storeMax2Min(args);
+
+				return [_variable, "jdbc.username = decrypt(jdbc.username); ", "jdbc.password = decrypt(jdbc.password); ", "schedule(period).run(function() { ", _maxQueryVariable, _minMaxVariable, _mainQueryVariable, "	database(jdbc)", "		.select(mainQuery)", "		.result(function(resultset) {", "			return resultset.join(delimiter).split('\\n').join('') + '\\n';", "		})", "		.group(100)", "		.writeFile({", "			filename: outputPath,", "			charset: charset", "		});", _storeMax2Min, "});"].join('\n');
+			}
+		};
+	};
+
+	module.exports = ScriptMaker;
+
+/***/ },
+/* 728 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var uuid = __webpack_require__(734);
+	var server = __webpack_require__(583);
+	var MaterialWrapper = __webpack_require__(596);
+	var AlertDialog = __webpack_require__(736);
+	var Button = MaterialWrapper.Button;
+
+	var CodeTab = React.createClass({
+		displayName: 'CodeTab',
+
+		editor: null,
+		uuid: uuid.v4(),
+
+		PropTypes: {
+			title: React.PropTypes.string.isRequired,
+			script: React.PropTypes.string.isRequired
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.editor = ace.edit(this.uuid);
+			this.editor.setTheme('ace/theme/github');
+			this.editor.getSession().setMode('ace/mode/javascript');
+			this.editor.setKeyboardHandler('ace/keyboard/vim');
+			this.editor.$blockScrolling = Infinity;
+			this.editor.setValue(this.props.script);
+		},
+
+		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+			this.editor.setValue(this.props.script);
+		},
+
+		edit: function edit() {
+			server.editScript({
+				title: this.props.title,
+				script: this.editor.getValue()
+			}).then(function () {
+				window.location.reload(true);
+			})['catch']((function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'div',
+					{ id: 'editor-wrapper',
+						style: {
+							position: 'relative',
+							minHeight: '400px'
+						} },
+					React.createElement('div', { id: this.uuid,
+						style: {
+							position: 'absolute',
+							top: 0,
+							bottom: 0,
+							right: 0,
+							left: 0 } }),
+					'}'
+				),
+				React.createElement(Button, {
+					label: '수정',
+					primary: true,
+					onClick: this.edit }),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = CodeTab;
+
+/***/ },
 /* 729 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    ReactDOM = __webpack_require__(158),
+	    precondition = __webpack_require__(726),
+	    AlertDialog = __webpack_require__(736),
+	    DatabaseConfigPanel = __webpack_require__(714),
+	    BindingTypePanel = __webpack_require__(723),
+	    EtcConfigPanel = __webpack_require__(724),
+	    ScriptConfirmDialog = __webpack_require__(725),
+	    MaterialWrapper = __webpack_require__(596),
+	    Button = MaterialWrapper.Button;
+
+	var NewDb2FileView = React.createClass({
+		displayName: 'NewDb2FileView',
+
+		script: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				dbVendor: 'oracle',
+				dbIp: '192.168.10.101',
+				dbPort: '1521',
+				dbSid: 'spiderx',
+				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+				jdbcUsername: 'admin_test',
+				jdbcPassword: 'admin_test',
+				table: '',
+				columns: '',
+				bindingType: 'simple',
+				bindingColumn: '',
+				period: '6 * 1000',
+				charset: 'utf8',
+				delimiter: '|',
+				outputPath: '',
+				confirmScriptDialogVisible: false
+			};
+		},
+
+		onChange: function onChange(args) {
+			if (args.script) {
+				this.script = args.script;
+				delete args.script;
+				if (Object.keys(args).length === 0) return;
+			}
+
+			if (args.columns) args.columns = args.columns.toLowerCase();
+
+			this.setState(args);
+		},
+
+		showScriptDialog: function showScriptDialog() {
+			try {
+				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
+					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
+					return true;
+				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+			} catch (errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			this.setState({
+				confirmScriptDialogVisible: true
+			});
+		},
+
+		render: function render() {
+			var dbConfigPanelParams = {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid,
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword,
+				table: this.state.table,
+				columns: this.state.columns,
+				onChange: this.onChange
+			};
+
+			var bindingTypePanelParams = {
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn,
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword,
+				table: this.state.table,
+				onChange: this.onChange
+			};
+
+			var etcConfigPanelParams = {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath,
+				onChange: this.onChange
+			};
+
+			var scriptConfirmDialogParams = {
+				visible: this.state.confirmScriptDialogVisible,
+				onClose: (function () {
+					this.setState({ confirmScriptDialogVisible: false });
+				}).bind(this),
+				saveMode: true,
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid,
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn,
+				table: this.state.table,
+				columns: this.state.columns,
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath
+			};
+
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'h3',
+					{ style: { marginBottom: '3px' } },
+					'database 설정'
+				),
+				React.createElement(DatabaseConfigPanel, dbConfigPanelParams),
+				React.createElement(BindingTypePanel, bindingTypePanelParams),
+				React.createElement(EtcConfigPanel, etcConfigPanelParams),
+				React.createElement(Button, {
+					label: '생성',
+					primary: true,
+					onClick: this.showScriptDialog }),
+				React.createElement(ScriptConfirmDialog, scriptConfirmDialogParams),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = NewDb2FileView;
+
+/***/ },
+/* 730 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(730);
+	var content = __webpack_require__(731);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(732)(content, {});
+	var update = __webpack_require__(733)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -92654,10 +92778,10 @@
 	}
 
 /***/ },
-/* 730 */
+/* 731 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(731)();
+	exports = module.exports = __webpack_require__(732)();
 	// imports
 
 
@@ -92668,7 +92792,7 @@
 
 
 /***/ },
-/* 731 */
+/* 732 */
 /***/ function(module, exports) {
 
 	/*
@@ -92724,7 +92848,7 @@
 
 
 /***/ },
-/* 732 */
+/* 733 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -92949,361 +93073,417 @@
 
 
 /***/ },
-/* 733 */
-/***/ function(module, exports) {
+/* 734 */
+/***/ function(module, exports, __webpack_require__) {
 
-	/*!
-	 * js-code-context <https://github.com/tunnckoCore/js-code-context>
-	 *
-	 * Copyright (c) 2014 Charlike Mike Reagent, contributors.
-	 * Released under the MIT license.
-	 */
-	(function() {
-	  'use strict';
+	//     uuid.js
+	//
+	//     Copyright (c) 2010-2012 Robert Kieffer
+	//     MIT License - http://opensource.org/licenses/mit-license.php
 
-	  var syncResult = [];
+	// Unique ID creation requires a high quality random # generator.  We feature
+	// detect to determine the best RNG source, normalizing to a function that
+	// returns 128-bits of randomness, since that's what's usually required
+	var _rng = __webpack_require__(735);
 
-	  function parseCodeContextSync(context, line) {
-	    var done = function(err, res) {
-	      syncResult = err ? [err] : res;
-	    };
-	    if (!line) {
-	      line = done;
+	// Maps for number <-> hex string conversion
+	var _byteToHex = [];
+	var _hexToByte = {};
+	for (var i = 0; i < 256; i++) {
+	  _byteToHex[i] = (i + 0x100).toString(16).substr(1);
+	  _hexToByte[_byteToHex[i]] = i;
+	}
+
+	// **`parse()` - Parse a UUID into it's component bytes**
+	function parse(s, buf, offset) {
+	  var i = (buf && offset) || 0, ii = 0;
+
+	  buf = buf || [];
+	  s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
+	    if (ii < 16) { // Don't overflow!
+	      buf[i + ii++] = _hexToByte[oct];
 	    }
-	    parseCodeContext(context, line, done);
-	    return syncResult;
-	  }
-	  function parseCodeContext(context, line, cback) {
-	    var content, result = [];
-	    if (typeof line === 'number') {
-	      content = [context.split('\n')[line]];
-	    } else if (!cback && typeof line === 'function') {
-	      cback = line;
-	      content = context.split('\n');
-	    } else {
-	      content = context.split('\n');
-	    }
+	  });
 
-	    each(content, function(item, index, done) {
-	      index = index;
-	      // function statement
-	      if (/^function ([\w$]+) *\((.*)\)/.exec(item)) {
-	        result.push({
-	          type: 'function',
-	          name: RegExp.$1,
-	          clean: RegExp.$1,
-	          args: RegExp.$2,
-	          string: RegExp.$1 + '()',
-	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
-	        });
-	        // function expression
-	      } else if (/^var *([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
-	        result.push({
-	          type: 'function',
-	          name: RegExp.$1,
-	          clean: RegExp.$1,
-	          args: RegExp.$2,
-	          string: RegExp.$1 + '()',
-	          full: RegExp.$1 + '(' + RegExp.$2 + ')'
-	        });
-	        // prototype method
-	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*function[\s\w]*\((.*)\)/.exec(item)) {
-	        result.push({
-	          type: 'method',
-	          constructor: RegExp.$1,
-	          cons: RegExp.$1,
-	          name: RegExp.$2,
-	          clean: RegExp.$1 + '.prototype.' + RegExp.$2,
-	          args: RegExp.$3,
-	          string: RegExp.$1 + '.prototype.' + RegExp.$2 + '()',
-	          full: RegExp.$1 + '.prototype.' + RegExp.$2 + '(' + RegExp.$3 + ')',
-	        });
-	        // prototype property
-	      } else if (/^([\w$]+)\.prototype\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
-	        result.push({
-	          type: 'property',
-	          constructor: RegExp.$1,
-	          cons: RegExp.$1,
-	          name: RegExp.$2,
-	          value: RegExp.$3,
-	          string: RegExp.$1 + '.prototype.' + RegExp.$2
-	        });
-	        // method
-	      } else if (/^([\w$.]+)\.([\w$]+)[ \t]*=[ \t]*function/.exec(item)) {
-	        result.push({
-	          type: 'method',
-	          receiver: RegExp.$1,
-	          name: RegExp.$2,
-	          clean: RegExp.$1 + '.' + RegExp.$2,
-	          args: RegExp.$3,
-	          string: RegExp.$1 + '.' + RegExp.$2 + '()',
-	          full: RegExp.$1 + '.' + RegExp.$2 + '(' + RegExp.$3 + ')',
-	        });
-	        // property
-	      } else if (/^([\w$]+)\.([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
-	        result.push({
-	          type: 'property',
-	          receiver: RegExp.$1,
-	          name: RegExp.$2,
-	          value: RegExp.$3,
-	          string: RegExp.$1 + '.' + RegExp.$2
-	        });
-	        // declaration
-	      } else if (/^var +([\w$]+)[ \t]*=[ \t]*([^\n;]+)/.exec(item)) {
-	        result.push({
-	          type: 'declaration',
-	          name: RegExp.$1,
-	          value: RegExp.$2,
-	          string: RegExp.$1
-	        });
-	      }
-	      done();
-	    }, function(err) {
-	      if (err) {return cback(err);}
-	    });
-	    return cback(null, result);
+	  // Zero out remaining bytes if string was short
+	  while (ii < 16) {
+	    buf[i + ii++] = 0;
 	  }
 
-	  function once(fn) {
-	    var called = false;
-	    if (typeof fn !== 'function') {
-	      throw new TypeError('Must be fuction.');
-	    }
-	    return function() {
-	      if (called) {
-	        throw new Error('Callback already called.');
-	      }
-	      called = true;
-	      fn.apply(this, arguments);
-	    };
+	  return buf;
+	}
+
+	// **`unparse()` - Convert UUID byte array (ala parse()) into a string**
+	function unparse(buf, offset) {
+	  var i = offset || 0, bth = _byteToHex;
+	  return  bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]];
+	}
+
+	// **`v1()` - Generate time-based UUID**
+	//
+	// Inspired by https://github.com/LiosK/UUID.js
+	// and http://docs.python.org/library/uuid.html
+
+	// random #'s we need to init node and clockseq
+	var _seedBytes = _rng();
+
+	// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+	var _nodeId = [
+	  _seedBytes[0] | 0x01,
+	  _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
+	];
+
+	// Per 4.2.2, randomize (14 bit) clockseq
+	var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
+
+	// Previous uuid creation time
+	var _lastMSecs = 0, _lastNSecs = 0;
+
+	// See https://github.com/broofa/node-uuid for API details
+	function v1(options, buf, offset) {
+	  var i = buf && offset || 0;
+	  var b = buf || [];
+
+	  options = options || {};
+
+	  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+	  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+	  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+	  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+	  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+	  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+	  // Per 4.2.1.2, use count of uuid's generated during the current clock
+	  // cycle to simulate higher resolution clock
+	  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+	  // Time since last uuid creation (in msecs)
+	  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+	  // Per 4.2.1.2, Bump clockseq on clock regression
+	  if (dt < 0 && options.clockseq === undefined) {
+	    clockseq = clockseq + 1 & 0x3fff;
 	  }
 
-	  function each(arr, next, cb) {
-	    var failed = false;
-	    var count = 0;
-	    cb = cb || function() {};
-	    if (!Array.isArray(arr)) {
-	      throw new TypeError('First argument must be an array');
-	    }
-	    if (typeof next !== 'function') {
-	      throw new TypeError('Second argument must be a function');
-	    }
-	    var len = arr.length;
-	    if (!len) {
-	      return cb();
-	    }
+	  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+	  // time interval
+	  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+	    nsecs = 0;
+	  }
 
-	    function callback(err) {
-	      if (failed) {
-	        return;
-	      }
-	      if (err !== undefined && err !== null) {
-	        failed = true;
-	        return cb(err);
-	      }
-	      if (++count === len) {
-	        return cb();
-	      }
-	    }
-	    for (var i = 0; i < len; i++) {
-	      next(arr[i], i, once(callback));
+	  // Per 4.2.1.2 Throw error if too many uuids are requested
+	  if (nsecs >= 10000) {
+	    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+	  }
+
+	  _lastMSecs = msecs;
+	  _lastNSecs = nsecs;
+	  _clockseq = clockseq;
+
+	  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+	  msecs += 12219292800000;
+
+	  // `time_low`
+	  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+	  b[i++] = tl >>> 24 & 0xff;
+	  b[i++] = tl >>> 16 & 0xff;
+	  b[i++] = tl >>> 8 & 0xff;
+	  b[i++] = tl & 0xff;
+
+	  // `time_mid`
+	  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+	  b[i++] = tmh >>> 8 & 0xff;
+	  b[i++] = tmh & 0xff;
+
+	  // `time_high_and_version`
+	  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+	  b[i++] = tmh >>> 16 & 0xff;
+
+	  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+	  b[i++] = clockseq >>> 8 | 0x80;
+
+	  // `clock_seq_low`
+	  b[i++] = clockseq & 0xff;
+
+	  // `node`
+	  var node = options.node || _nodeId;
+	  for (var n = 0; n < 6; n++) {
+	    b[i + n] = node[n];
+	  }
+
+	  return buf ? buf : unparse(b);
+	}
+
+	// **`v4()` - Generate random UUID**
+
+	// See https://github.com/broofa/node-uuid for API details
+	function v4(options, buf, offset) {
+	  // Deprecated - 'format' argument, as supported in v1.2
+	  var i = buf && offset || 0;
+
+	  if (typeof(options) == 'string') {
+	    buf = options == 'binary' ? new Array(16) : null;
+	    options = null;
+	  }
+	  options = options || {};
+
+	  var rnds = options.random || (options.rng || _rng)();
+
+	  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+	  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+	  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+	  // Copy bytes to buffer, if provided
+	  if (buf) {
+	    for (var ii = 0; ii < 16; ii++) {
+	      buf[i + ii] = rnds[ii];
 	    }
 	  }
 
-	  if (typeof module !== 'undefined' && module.exports) {
-	    module.exports = parseCodeContext;
-	    module.exports.sync = parseCodeContextSync;
-	  } else {
-	    window.jsCodeContext = parseCodeContext;
-	  }
-	})();
+	  return buf || unparse(rnds);
+	}
+
+	// Export public API
+	var uuid = v4;
+	uuid.v1 = v1;
+	uuid.v4 = v4;
+	uuid.parse = parse;
+	uuid.unparse = unparse;
+
+	module.exports = uuid;
 
 
 /***/ },
-/* 734 */
+/* 735 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {
+	var rng;
+
+	if (global.crypto && crypto.getRandomValues) {
+	  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
+	  // Moderately fast, high quality
+	  var _rnds8 = new Uint8Array(16);
+	  rng = function whatwgRNG() {
+	    crypto.getRandomValues(_rnds8);
+	    return _rnds8;
+	  };
+	}
+
+	if (!rng) {
+	  // Math.random()-based (RNG)
+	  //
+	  // If all else fails, use Math.random().  It's fast, but is of unspecified
+	  // quality.
+	  var  _rnds = new Array(16);
+	  rng = function() {
+	    for (var i = 0, r; i < 16; i++) {
+	      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+	      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+	    }
+
+	    return _rnds;
+	  };
+	}
+
+	module.exports = rng;
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 736 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    precondition = __webpack_require__(716),
-	    server = __webpack_require__(583),
-	    ScriptMaker = __webpack_require__(717),
-	    AlertDialog = __webpack_require__(714),
 	    MaterialWrapper = __webpack_require__(596),
 	    Dialog = MaterialWrapper.Dialog,
-	    TextField = MaterialWrapper.TextField;
+	    TextField = MaterialWrapper.TextField,
+	    Button = MaterialWrapper.Button,
+	    Alert = __webpack_require__(169).Alert;
 
-	var ScriptConfirmDialog = React.createClass({
-		displayName: 'ScriptConfirmDialog',
+	var AlertDialog = React.createClass({
+		displayName: 'AlertDialog',
 
-		editor: null,
-		scriptMaker: new ScriptMaker(),
-
-		PropTypes: {
-			visible: React.PropTypes.bool.isRequired,
-			onClose: React.PropTypes.func.isRequired,
-			saveMode: React.PropTypes.bool,
-			editMode: React.PropTypes.bool,
-			title: React.PropTypes.string, //required when editMode is true
-			dbVendor: React.PropTypes.string.isRequired,
-			dbIp: React.PropTypes.string.isRequired,
-			dbPort: React.PropTypes.string.isRequired,
-			dbSid: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired,
-			bindingType: React.PropTypes.string.isRequired,
-			bindingColumn: React.PropTypes.string.isRequired,
-			table: React.PropTypes.string.isRequired,
-			columns: React.PropTypes.string.isRequired,
-			period: React.PropTypes.string.isRequired,
-			charset: React.PropTypes.string.isRequired,
-			delimiter: React.PropTypes.string.isRequired,
-			outputPath: React.PropTypes.string.isRequired
-		},
+		onShowCallback: null,
+		onHideCallback: null,
 
 		getInitialState: function getInitialState() {
 			return {
-				scriptName: ''
+				visible: false,
+				bsStyle: 'success', //success, info, warning, danger
+				msg: ''
 			};
 		},
 
-		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-			if (prevProps.visible === true && this.props.visible === false) {
-				this.editor.destroy();
-			} else if (prevProps.visible === false && this.props.visible === true) {
-				this.editor = ace.edit('editor');
-				this.editor.setTheme('ace/theme/github');
-				this.editor.getSession().setMode('ace/mode/javascript');
-				this.editor.setKeyboardHandler('ace/keyboard/vim');
-				this.editor.$blockScrolling = Infinity;
-				this.editor.setValue(this.makeScript());
-			}
+		onShow: function onShow(callback) {
+			this.onShowCallback = callback;
+			return this;
 		},
 
-		makeScript: function makeScript() {
-			return this.scriptMaker.get({
-				period: this.props.period,
-				dbVendor: this.props.dbVendor,
-				dbIp: this.props.dbIp,
-				dbPort: this.props.dbPort,
-				dbSid: this.props.dbSid,
-				jdbcDriver: this.props.jdbcDriver,
-				jdbcConnUrl: this.props.jdbcConnUrl,
-				jdbcUsername: this.props.jdbcUsername,
-				jdbcPassword: this.props.jdbcPassword,
-				columns: this.props.columns,
-				table: this.props.table,
-				bindingType: this.props.bindingType,
-				bindingColumn: this.props.bindingColumn,
-				delimiter: this.props.delimiter,
-				charset: this.props.charset,
-				outputPath: this.props.outputPath
+		onHide: function onHide(callback) {
+			this.onHideCallback = callback;
+			return this;
+		},
+
+		show: function show(bsStyle, msg) {
+			this.setState({
+				visible: true,
+				bsStyle: bsStyle,
+				msg: msg
+			}, function () {
+				if (this.onShowCallback != null) this.onShowCallback();
+				this.onShowCallback = null;
 			});
 		},
 
-		handleAction: function handleAction(action) {
-			if (action === 'ok' && this.props.saveMode === true) {
-				var data = {
-					title: this.state.scriptName,
-					script: this.editor.getValue()
-				};
-
-				try {
-					precondition.instance(data).stringNotByEmpty('title', 'title 미입력').stringNotByEmpty('script', 'script 미입력');
-				} catch (errmsg) {
-					this.refs.alertDialog.show('danger', errmsg);
-					return;
-				}
-
-				server.postScript(data).then((function (success) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('success', 'script registered');
-				}).bind(this))['catch']((function (err) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('danger', err);
-				}).bind(this));
-			} else if (action === 'ok' && this.props.editMode === true) {
-				var data = {
-					title: this.props.title,
-					script: this.editor.getValue()
-				};
-
-				try {
-					precondition.instance(data).stringNotByEmpty('script', 'script 미입력');
-				} catch (errmsg) {
-					this.refs.alertDialog.show('danger', errmsg);
-					return;
-				}
-
-				server.editScript(data).then((function (success) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('success', 'script updated');
-				}).bind(this))['catch']((function (err) {
-					this.refs.alertDialog.onHide((function () {
-						this.props.onClose();
-					}).bind(this)).show('danger', err);
-				}).bind(this));
-			} else if (action === 'cancel') {
-				this.props.onClose();
-			}
-		},
-
-		styles: function styles() {
-			return {
-				editorWrapper: {
-					position: 'relative',
-					height: '250px'
-				},
-				editor: {
-					position: 'absolute',
-					top: 0,
-					bottom: 0,
-					right: 0,
-					left: 0
-				}
-			};
+		hide: function hide() {
+			this.setState({ visible: false }, (function () {
+				if (this.onHideCallback != null) this.onHideCallback();
+				this.onHideCallback = null;
+			}).bind(this));
 		},
 
 		render: function render() {
-			var style = this.styles();
-
 			return React.createElement(
 				Dialog,
 				{
-					title: '스크립트',
-					actions: [{ text: 'ok', onClick: (function (evt) {
-							this.handleAction('ok');
-						}).bind(this) }, { text: 'cancel', onClick: (function (evt) {
-							this.handleAction('cancel');
-						}).bind(this) }],
-					actionFocus: 'ok',
+					actions: [{ text: 'close', onClick: this.hide }],
+					actionFocus: 'close',
 					autoDetectWindowHeight: true,
 					autoScrollBodyContent: true,
-					open: this.props.visible },
-				this.props.editMode === true ? null : React.createElement(TextField, {
-					floatingLabelText: 'script name',
-					value: this.state.scriptName,
-					fullWidth: true,
-					onChange: (function (evt) {
-						this.setState({ scriptName: evt.target.value });
-					}).bind(this) }),
+					open: this.state.visible },
 				React.createElement(
-					'div',
-					{ id: 'editor-wrapper', style: style.editorWrapper },
-					React.createElement('div', { id: 'editor', style: style.editor })
-				),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
+					Alert,
+					{ bsStyle: this.state.bsStyle },
+					React.createElement(
+						'strong',
+						null,
+						this.state.msg
+					)
+				)
 			);
 		}
 	});
 
-	module.exports = ScriptConfirmDialog;
+	module.exports = AlertDialog;
+
+/***/ },
+/* 737 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
+	    MaterialWrapper = __webpack_require__(596),
+	    Dialog = MaterialWrapper.Dialog,
+	    TextField = MaterialWrapper.TextField,
+	    Button = MaterialWrapper.Button,
+	    Alert = __webpack_require__(169).Alert;
+
+	var PromptDialog = React.createClass({
+		displayName: 'PromptDialog',
+
+		onShowCallback: null,
+		onOkCallback: null,
+		onCancelCallback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				msg: '',
+				answer: ''
+			};
+		},
+
+		handleChange: function handleChange(name, evt) {
+			var state = {};
+			state[name] = evt.target.value;
+			this.setState(state);
+		},
+
+		stopPropagation: function stopPropagation(evt) {
+			evt.stopPropagation();
+		},
+
+		onShow: function onShow(callback) {
+			this.onShowCallback = callback;
+			return this;
+		},
+
+		onOk: function onOk(callback) {
+			this.onOkCallback = callback;
+			return this;
+		},
+
+		onCancel: function onCancel(callback) {
+			this.onCancelCallback = callback;
+			return this;
+		},
+
+		show: function show(msg, defaultAnswer) {
+			if (defaultAnswer == null) defaultAnswer = '';
+			this.setState({
+				visible: true,
+				msg: msg,
+				answer: defaultAnswer
+			}, function () {
+				if (this.onShowCallback != null) this.onShowCallback();
+				this.onShowCallback = null;
+			});
+		},
+
+		cancel: function cancel() {
+			this.setState({ visible: false }, (function () {
+				if (this.onCancelCallback != null) this.onCancelCallback();
+				this.onCancelCallback = null;
+			}).bind(this));
+		},
+
+		ok: function ok() {
+			this.setState({ visible: false }, (function () {
+				if (this.onOkCallback != null) this.onOkCallback(this.state.answer);
+				this.onOkCallback = null;
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ onClick: this.stopPropagation },
+				React.createElement(
+					Dialog,
+					{
+						actions: [{ text: 'ok', onClick: this.ok }, { text: 'cancel', onClick: this.cancel }],
+						actionFocus: 'ok',
+						autoDetectWindowHeight: true,
+						autoScrollBodyContent: true,
+						open: this.state.visible },
+					React.createElement(
+						'strong',
+						null,
+						this.state.msg
+					),
+					React.createElement(TextField, {
+						value: this.state.answer,
+						fullWidth: true,
+						onChange: this.handleChange.bind(this, 'answer') })
+				)
+			);
+		}
+	});
+
+	module.exports = PromptDialog;
 
 /***/ }
 /******/ ]);

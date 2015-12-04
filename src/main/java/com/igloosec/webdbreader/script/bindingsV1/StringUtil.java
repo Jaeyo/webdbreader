@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 public class StringUtil {
 	public String stringAt(String line, String delimiter, int index){

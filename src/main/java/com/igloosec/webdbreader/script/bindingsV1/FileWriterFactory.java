@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,12 +19,8 @@ import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 
 public class FileWriterFactory {
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
-	private ScriptLogger logger;
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
-	
-	public FileWriterFactory(ScriptLogger logger) {
-		this.logger = logger;
-	} //INIT
 	
 	/*
 	 * @param args: {

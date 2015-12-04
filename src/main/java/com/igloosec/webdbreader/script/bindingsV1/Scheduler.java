@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,11 +20,7 @@ import sun.org.mozilla.javascript.internal.ScriptableObject;
 import com.igloosec.webdbreader.script.ScriptThread;
 
 public class Scheduler {
-	private ScriptLogger logger;
-	
-	public Scheduler(ScriptLogger logger) {
-		this.logger = logger;
-	} //INIT
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 	
 	/**
 	 * @param args: {

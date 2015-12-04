@@ -14,6 +14,8 @@ var List = MaterialWrapper.List;
 var ListItem = MaterialWrapper.ListItem;
 var IconMenu = MaterialWrapper.IconMenu;
 var MenuItem = MaterialWrapper.MenuItem;
+var PromptDialog = require('./comps/dialog/prompt-dialog.jsx');
+var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
 
 
 var TotalChartPanel = React.createClass({
@@ -112,8 +114,20 @@ var ScriptsPanelItem = React.createClass({
 		//TODO
 	},
 
-	rename() {
-		//TODO
+	rename(evt) {
+		evt.stopPropagation();
+
+		this.refs.promptDialog.onOk(function(newTitle) {
+			server.renameScript({
+				title: this.props.title,
+				newTitle: newTitle
+			}).then(function() {
+				window.location.reload(true);
+			}).catch(function(err) {
+				if(typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}.bind(this));
+		}.bind(this)).show('rename to', this.props.title);
 	},
 
 	delete() {
@@ -187,6 +201,8 @@ var ScriptsPanelItem = React.createClass({
 					<StatisticsValue bg="rgb(41, 128, 185)" value="44" />
 				</div>
 				<Clearfix />
+				<PromptDialog ref="promptDialog" />
+				<AlertDialog ref="alertDialog" />
 			</ListItem>
 		);
 	}

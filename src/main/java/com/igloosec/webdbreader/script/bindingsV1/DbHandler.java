@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -19,20 +19,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.CryptoException;
-import com.igloosec.webdbreader.script.bindings.FileWriterFactory.FileWriter;
+import com.igloosec.webdbreader.script.ScriptThread;
+import com.igloosec.webdbreader.script.bindingsV1.FileWriterFactory.FileWriter;
 import com.igloosec.webdbreader.service.DatabaseService;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
 import com.igloosec.webdbreader.util.SimpleCrypto;
 
 public class DbHandler {
-	private ScriptLogger logger;
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 
-	public DbHandler(ScriptLogger logger) {
-		this.logger = logger;
-	} //INIT
-	
 	/**
 	 * @param args: {
 	 * 		database: {
@@ -352,7 +349,7 @@ public class DbHandler {
 		if(isUserEncrypted == null)
 			isUserEncrypted = true;
 		
-		connUrl = new DateUtil(this.logger).formatReplace(connUrl);
+		connUrl = new DateUtil().formatReplace(connUrl);
 		
 		Preconditions.checkArgument(driver != null, "driver is null");
 		Preconditions.checkArgument(connUrl != null, "connUrl is null");

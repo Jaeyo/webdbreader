@@ -5,31 +5,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.script.SimpleBindings;
 
-import org.mockito.Mockito;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.igloosec.webdbreader.Version;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.exception.VersionException;
-import com.igloosec.webdbreader.script.bindings.DateUtil;
-import com.igloosec.webdbreader.script.bindings.DbHandler;
-import com.igloosec.webdbreader.script.bindings.FileReaderFactory;
-import com.igloosec.webdbreader.script.bindings.FileWriterFactory;
-import com.igloosec.webdbreader.script.bindings.RuntimeUtil;
-import com.igloosec.webdbreader.script.bindings.Scheduler;
-import com.igloosec.webdbreader.script.bindings.ScriptLogger;
-import com.igloosec.webdbreader.script.bindings.SimpleRepo;
-import com.igloosec.webdbreader.script.bindings.StringUtil;
-import com.igloosec.webdbreader.service.ConfigService;
 import com.igloosec.webdbreader.service.NotiService;
 import com.igloosec.webdbreader.service.OperationHistoryService;
 
@@ -37,39 +24,26 @@ public class ScriptExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptExecutor.class);
 	private Map<String, ScriptThread> runningScripts = new HashMap<String, ScriptThread>();
 	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
-	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
 	private NotiService notiService = SingletonInstanceRepo.getInstance(NotiService.class);
 
 	public void execute(final String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException {
 		if(runningScripts.containsKey(scriptName))
 			throw new AlreadyStartedException(scriptName);
 		
-		versionCheck(script);
-		
 		ScriptThread thread = new ScriptThread(scriptName){
 			@Override
 			public void run() {
-				ScriptLogger scriptLogger = new ScriptLogger(scriptName);
 				try{
 					operationHistoryService.saveStartupHistory(getScriptName());
 					
-					Bindings bindings = new SimpleBindings();
-					bindings.put("dateUtil", new DateUtil(scriptLogger));
-					bindings.put("dbHandler", new DbHandler(scriptLogger));
-					bindings.put("fileReaderFactory", new FileReaderFactory(scriptLogger));
-					bindings.put("fileWriterFactory", new FileWriterFactory(scriptLogger));
-					bindings.put("runtimeUtil", new RuntimeUtil(scriptLogger));
-					bindings.put("scheduler", new Scheduler(scriptLogger));
-					bindings.put("simpleRepo", new SimpleRepo(scriptLogger));
-					bindings.put("stringUtil", new StringUtil());
-					bindings.put("logger", scriptLogger);
-					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-					scriptEngine.eval(script, bindings);
+					String middleLayerJs = IOUtils.toString(ScriptExecutor.class.getClassLoader().getResourceAsStream("resource/scripts/middle-layer.js"));
+					scriptEngine.eval(middleLayerJs);
+					scriptEngine.eval(script);
 				} catch(Exception e){
 					if(e.getClass().equals(InterruptedException.class) == true)
 						return;
-					scriptLogger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+					getLogger().error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				} finally{
 					if(isScheduled() == false && isFileReaderMonitoring() == false){
 						operationHistoryService.saveShutdownHistory(getScriptName());
@@ -84,42 +58,6 @@ public class ScriptExecutor {
 		thread.start();
 		logger.info("{} start to running", scriptName);
 		runningScripts.put(scriptName, thread);
-	} 
-	
-	private void versionCheck(String script) throws ScriptException, VersionException{
-		if("false".equals(configService.load("version.check")) == true)
-			return;
-		
-		Bindings bindings = new SimpleBindings();
-		bindings.put("dateUtil", Mockito.mock(DateUtil.class));
-		bindings.put("dbHandler", Mockito.mock(DbHandler.class));
-		bindings.put("fileReaderFactory", Mockito.mock(FileReaderFactory.class));
-		bindings.put("fileWriterFactory", Mockito.mock(FileWriterFactory.class));
-		bindings.put("runtimeUtil", Mockito.mock(RuntimeUtil.class));
-		bindings.put("scheduler", Mockito.mock(Scheduler.class));
-		bindings.put("simpleRepo", Mockito.mock(SimpleRepo.class));
-		bindings.put("stringUtil", Mockito.mock(StringUtil.class));
-		bindings.put("logger", Mockito.mock(Logger.class));
-
-		ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-		try{
-			scriptEngine.eval(script, bindings);
-		} catch(Exception e){}
-		
-		String version = (String) bindings.get("availableVersion");
-		
-		if(version == null)
-			throw new VersionException("no availableVersion in script");
-		
-		int majorVersion = Integer.parseInt(Version.getCurrentVersion().split("\\.")[0]);
-		int scriptMajorVersion = Integer.parseInt(version.split("\\.")[0]);
-		if(majorVersion != scriptMajorVersion)
-			throw new VersionException("unsupported major version: " + version);
-		
-		int minorVersion = Integer.parseInt(Version.getCurrentVersion().split("\\.")[1]);
-		int scriptMinorVersion = Integer.parseInt(version.split("\\.")[1]);
-		if(scriptMinorVersion > minorVersion)
-			throw new VersionException("unsupported minor version: " + version);
 	} 
 	
 	public void stop(String scriptName) throws ScriptNotRunningException {

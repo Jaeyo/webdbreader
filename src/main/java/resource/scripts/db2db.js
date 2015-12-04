@@ -37,7 +37,7 @@ schedule(period).run(function() {
 
 	database(src.jdbc)
 		.select(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return format(
 				'INSERT INTO ${table} (${columns})  VALUES (${values})',
 				{ table: dest.table, columns: dest.columns,
@@ -49,9 +49,9 @@ schedule(period).run(function() {
 			);
 		})
 		.group(100)
-		.run(function(groupset) {
+		.forEach(function(groupset) {
 			database(dest.jdbc).update(groupset);
-		});
+		}).run();
 });
 
 
@@ -82,7 +82,7 @@ schedule(period).run(function() {
 
 	database(src.jdbc)
 		.select(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return format(
 				'INSERT INTO ${table} (${columns})  VALUES (${values})',
 				{ table: dest.table, columns: dest.columns,
@@ -94,9 +94,9 @@ schedule(period).run(function() {
 			);
 		})
 		.group(100)
-		.run(function(groupset) {
+		.forEach(function(groupset) {
 			database(dest.jdbc).update(groupset);
-		});
+		}).run();
 });
 
 
@@ -120,7 +120,7 @@ schedule(period).run(function() {
 
 	database(src.jdbc)
 		.query(mainQuery)
-		.result(function(resultset) {
+		.map(function(resultset) {
 			return format(
 				'INSERT INTO ${table} (${columns})  VALUES (${values})',
 				{ table: dest.table, columns: dest.columns,
@@ -132,7 +132,7 @@ schedule(period).run(function() {
 			);
 		})
 		.group(100)
-		.run(function(groupset) {
+		.forEach(function(groupset) {
 			database(dest.jdbc).update(groupset);
-		});
+		}).run();
 });

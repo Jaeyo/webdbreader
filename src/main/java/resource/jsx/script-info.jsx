@@ -1,10 +1,10 @@
 var React = require('react');
 var Glyphicon = require('react-bootstrap').Glyphicon;
-var uuid = require('uuid');
 var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
+var CodeTab = require('./script-info/code-tab.jsx');
 var server = require('./utils/server.js');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
-var AlertDialog = require('./comps/alert-dialog.jsx');
+var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
 var Button = MaterialWrapper.Button;
 var FlatButton = MaterialWrapper.FlatButton;
 var Card = MaterialWrapper.Card;
@@ -59,7 +59,7 @@ var ScriptInfoView = React.createClass({
 							<ScriptConfigTab title={this.props.title} script={this.state.script} />
 						</Tab>
 						<Tab label="script">
-							<CodeTab script={this.state.script} />
+							<CodeTab title={this.props.title} script={this.state.script} />
 						</Tab>
 					</Tabs>
 				</CardText>
@@ -69,44 +69,3 @@ var ScriptInfoView = React.createClass({
 	}
 });
 module.exports = ScriptInfoView;
-
-var CodeTab = React.createClass({
-	editor: null,
-	uuid: uuid.v4(),
-
-	PropTypes: {
-		script: React.PropTypes.string.isRequired
-	},
-
-	componentDidMount() {
-		this.editor = ace.edit(this.uuid);
-		this.editor.setTheme('ace/theme/github');
-		this.editor.getSession().setMode('ace/mode/javascript');
-		this.editor.setKeyboardHandler('ace/keyboard/vim');
-		this.editor.$blockScrolling = Infinity;
-		this.editor.setValue(this.props.script);
-	},
-
-	componentDidUpdate(prevProps, prevState) {
-		this.editor.setValue(this.props.script);
-	},
-
-	render() {
-		return (
-				<div id="editor-wrapper" 
-					style={{
-						position: 'relative',
-						minHeight: '400px' 
-					}}>
-					<div id={this.uuid}
-						style={{
-							position: 'absolute',
-							top: 0,
-							bottom: 0,
-							right: 0,
-							left: 0 }} />
-					}
-				</div>
-		);
-	}
-});

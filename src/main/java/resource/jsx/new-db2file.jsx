@@ -1,7 +1,7 @@
 var React = require('react'),
 	ReactDOM = require('react-dom'),
 	precondition = require('./utils/precondition.js'),
-	AlertDialog = require('./comps/alert-dialog.jsx'),
+	AlertDialog = require('./comps/dialog/alert-dialog.jsx'),
 	DatabaseConfigPanel = require('./new-db2file/database-config-panel.jsx'),
 	BindingTypePanel = require('./new-db2file/binding-type-panel.jsx'),
 	EtcConfigPanel = require('./new-db2file/etc-config-panel.jsx'),

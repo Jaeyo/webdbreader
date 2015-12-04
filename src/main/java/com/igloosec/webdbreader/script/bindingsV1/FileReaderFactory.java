@@ -1,4 +1,4 @@
-package com.igloosec.webdbreader.script.bindings;
+package com.igloosec.webdbreader.script.bindingsV1;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,11 +13,7 @@ import com.igloosec.webdbreader.util.ContinuousFile;
 import com.igloosec.webdbreader.util.Util;
 
 public class FileReaderFactory {
-	private ScriptLogger logger;
-	
-	public FileReaderFactory(ScriptLogger logger) {
-		this.logger = logger;
-	} //INIT
+	private ScriptLogger logger = ScriptThread.currentThread().getLogger();
 	
 	/**
 	 * @param args: {

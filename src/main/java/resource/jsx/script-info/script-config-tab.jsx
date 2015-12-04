@@ -3,7 +3,7 @@ var parseCodeContext = require('js-code-context');
 var _ = require('underscore');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
-var AlertDialog = require('../comps/alert-dialog.jsx');
+var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
 var Db2File = {
 	DatabaseConfigPanel: require('../new-db2file/database-config-panel.jsx'),
 	BindingTypePanel: require('../new-db2file/binding-type-panel.jsx'),
@@ -55,7 +55,9 @@ var ScriptConfigTab = React.createClass({
 					obj.value = obj.value.substring(1, obj.value.length - 1);
 				scriptObj[obj.name] = obj.value;
 			});
-			this.setState({ scriptObj: scriptObj });
+
+			if(scriptObj.type != null)
+				this.setState({ scriptObj: scriptObj });
 		}.bind(this));
 	},
 

@@ -1,5 +1,5 @@
 var React = require('react'),
-	MaterialWrapper = require('./material-wrapper.jsx'),
+	MaterialWrapper = require('../material-wrapper.jsx'),
 	Dialog = MaterialWrapper.Dialog,
 	TextField = MaterialWrapper.TextField,
 	Button = MaterialWrapper.Button,
