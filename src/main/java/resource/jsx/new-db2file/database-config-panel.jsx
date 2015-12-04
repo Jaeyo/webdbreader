@@ -21,7 +21,8 @@ var React = require('react'),
 	List = MaterialWrapper.List,
 	ListItem = MaterialWrapper.ListItem,
 	ListDivider = MaterialWrapper.ListDivider,
-	Dialog = MaterialWrapper.Dialog;
+	Dialog = MaterialWrapper.Dialog,
+	Toggle = MaterialWrapper.Toggle;
 
 
 var jdbcTmpl = {
@@ -84,13 +85,16 @@ var DatabaseConfigPanel = React.createClass({
 			this.setState({ isDatabaseConfigModalVisible: !this.state.isDatabaseConfigModalVisible });
 			break;
 		case 'tableconfig': 
-			this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
+			if(this.refs.autoloadToggle.isToggled() === true)
+				this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
 			break;
 		case 'columnconfig': 
-			if(this.props.table == null || this.props.table.trim().length === 0)
-				this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
-			else
-				this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+			if(this.refs.autoloadToggle.isToggled() === true) {
+				if(this.props.table == null || this.props.table.trim().length === 0)
+					this.setState({ isTableConfigDialogVisible: !this.state.isTableConfigDialogVisible });
+				else
+					this.setState({ isColumnConfigDialogVisible: !this.state.isColumnConfigDialogVisible });
+			}
 			break;
 		}
 	},
@@ -135,6 +139,8 @@ var DatabaseConfigPanel = React.createClass({
 			}
 			this.props.onChange(state);
 			break;
+		case 'table':
+		case 'columns':
 		case 'jdbcDriver': 
 		case 'jdbcConnUrl': 
 		case 'jdbcUsername': 
@@ -293,14 +299,23 @@ var DatabaseConfigPanel = React.createClass({
 						subtitle="source database의 table/column 정보를 설정합니다."
 						avatar={ <PolymerIcon icon="config" /> } />
 					<CardText>
+						<Toggle
+							name="autoload"
+							value="autoload"
+							label="autoload"
+							ref="autoloadToggle"
+							style={{ width: '150px' }}
+							defaultToggled={true} />
 						<TextField
 							value={this.props.table}
+							onChange={this.handleChange.bind(this, 'table')}
 							floatingLabelText="tables"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
 							onFocus={this.toggleDialog.bind(this, 'tableconfig')} />
 						<TextField
 							value={this.props.columns}
+							onChange={this.handleChange.bind(this, 'columns')}
 							floatingLabelText="columns"
 							inputStyle={style.textfieldInputStyle}
 							fullWidth={true}
@@ -363,10 +378,10 @@ var TableConfigDialog = React.createClass({
 		evt.stopPropagation();
 		switch(name) {
 		case 'table': 
-		var state = {};
-		state[name] = evt.target.value;
-		this.props.onChange(state);
-		break;
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.onChange(state);
+			break;
 		}
 	},
 
