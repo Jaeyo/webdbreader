@@ -14,22 +14,25 @@ public class PrintPipe extends Pipe {
 	@Override
 	public void onNext(Object data) {
 		System.out.println("next");
-		if(data.getClass().equals(List.class)) {
+		if(data instanceof List) {
 			List<Object> list = (List<Object>) data;
 			for(Object item: list)
 				System.out.println(item.toString());
 		} else {
 			System.out.println(data.toString());
 		}
+		next(data);
 	}
 
 	@Override
 	public void onComplete() {
 		System.out.println("complete");
+		complete();
 	}
 
 	@Override
 	public void onException(Exception e) {
 		System.out.println("exception, " + e.toString());
+		exception(e);
 	}
 }

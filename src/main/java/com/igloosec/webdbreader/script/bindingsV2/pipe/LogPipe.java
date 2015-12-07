@@ -26,14 +26,17 @@ public class LogPipe extends Pipe {
 		} else {
 			this.onException(new UnknownLogLevelException(data.toString()));
 		}
+		next(data);
 	}
 
 	@Override
 	public void onComplete() {
+		complete();
 	}
 
 	@Override
 	public void onException(Exception e) {
-			ScriptThread.currentThread().getLogger().error(e.toString());
+		ScriptThread.currentThread().getLogger().error(e.toString());
+		exception(e);
 	}
 }

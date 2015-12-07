@@ -18,21 +18,23 @@ var outputFile = '/data/output/$yyyy$mm$dd$hh$mm.log';
 //simple
 jdbc.username = decrypt(jdbc.username);
 jdbc.password = decrypt(jdbc.password);
+
+
 schedule(period).run(function() {
 	var mainQuery = format(
-		'SELECT ${columns}  \
-		FROM ${table}', 
+		'SELECT {columns}  \
+		FROM {table}', 
 		{ columns: columns, table: table }
 	);
 
 	database(jdbc)
 		.select(mainQuery)
-		.map(function(resultset) {
-			return resultset.join(delimiter).split('\n').join('') + '\n';
+		.map(function(row) {
+			return row.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100)
 		.writeTextFile({
-			fiulename: outputFile,
+			filename: outputFile,
 			charset: charset,
 			dateFormat: true
 		}).run();
@@ -44,8 +46,8 @@ jdbc.username = decrypt(jdbc.username);
 jdbc.password = decrypt(jdbc.password);
 schedule(peroid).run(function() {
 	var maxQuery = format(
-		'SELECT MAX(${bindingColumn}) \
-		FROM ${table}', 
+		'SELECT MAX({bindingColumn}) \
+		FROM {table}', 
 		{ bindingColumn: bindingColumn, table: table }
 	);
 
@@ -53,10 +55,10 @@ schedule(peroid).run(function() {
 	var max = database(jdbc).select(maxQuery).get();
 
 	var mainQuery = format(
-		'SELECT ${columns} \
-		FROM ${table} \
-		WHERE ${bindingColumn} > ${min} \
-		AND ${bindingColumn} < ${max}', 
+		'SELECT {columns} \
+		FROM {table} \
+		WHERE {bindingColumn} > {min} \
+		AND {bindingColumn} < {max}', 
 		{ columns: columns, table: table, 
 		bindingColumn: bindingColumn, 
 		min: min, max: max }
@@ -69,9 +71,10 @@ schedule(peroid).run(function() {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100).
-		writeContinousFile({
+		.writeTextFile({
 			filename: outputFile,
-			charset: charset
+			charset: charset,
+			dateFormat: true
 		}).run();
 
 	repo('min', max);
@@ -86,10 +89,10 @@ schedule(period).run(function() {
 	var max = now().format('yyyy-MM-dd hh:MM:ss');
 
 	var mainQuery = format(
-		'SELECT ${columns} \
-		FROM ${table} \
-		WHERE ${bindingColumn} > ${min} \
-		AND ${bindingColumn} < ${max}', 
+		'SELECT {columns} \
+		FROM {table} \
+		WHERE {bindingColumn} > {min} \
+		AND {bindingColumn} < {max}', 
 		{ columns: columns, table: table, 
 		bindingColumn: bindingColumn
 		min: min, max: max }
@@ -101,9 +104,10 @@ schedule(period).run(function() {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100)
-		.writeContinousFile({
+		.writeTextFile({
 			filename: outputFile,
-			charset: charset
+			charset: charset,
+			dateFormat: true
 		}).run();
 
 	repo('min', max);

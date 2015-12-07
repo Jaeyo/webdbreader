@@ -38,7 +38,9 @@ public class ScriptExecutor {
 					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 					String middleLayerJs = IOUtils.toString(ScriptExecutor.class.getClassLoader().getResourceAsStream("resource/scripts/middle-layer.js"));
+					String stringFormatJs = IOUtils.toString(ScriptExecutor.class.getClassLoader().getResourceAsStream("resource/scripts/string-format.js"));
 					scriptEngine.eval(middleLayerJs);
+					scriptEngine.eval(stringFormatJs);
 					scriptEngine.eval(script);
 				} catch(Exception e){
 					if(e.getClass().equals(InterruptedException.class) == true)
