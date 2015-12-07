@@ -31,9 +31,10 @@ schedule(period).run(function() {
 			return resultset.join(delimiter).split('\n').join('') + '\n';
 		})
 		.group(100)
-		.writeContinousFile({
-			filename: outputFile,
-			charset: charset
+		.writeTextFile({
+			fiulename: outputFile,
+			charset: charset,
+			dateFormat: true
 		}).run();
 });
 

@@ -177,3 +177,60 @@ exports.renameScript = function(args) {
 			});
 	});
 };
+
+//args: title
+exports.startScript = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/Start/%s/', args.title))
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};
+
+//args: title
+exports.stopScript = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/Stop/%s/', args.title))
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};
+
+//args: title
+exports.removeScript = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/Remove/%s/', args.title))
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};

@@ -16,6 +16,7 @@ var IconMenu = MaterialWrapper.IconMenu;
 var MenuItem = MaterialWrapper.MenuItem;
 var PromptDialog = require('./comps/dialog/prompt-dialog.jsx');
 var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
+var ConfirmDialog = require('./comps/dialog/confirm-dialog.jsx');
 
 
 var TotalChartPanel = React.createClass({
@@ -106,12 +107,30 @@ var ScriptsPanelItem = React.createClass({
 		window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
 	},
 
-	start() {
-		//TODO
+	start(evt) {
+		evt.stopPropagation();
+
+		server.startScript({
+			title: this.props.title
+		}).then(function() {
+			window.location.reload(true);
+		}).catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
 	},
 
 	stop() {
-		//TODO
+		evt.stopPropagation();
+
+		server.stopScript({
+			title: this.props.title
+		}).then(function() {
+			window.location.reload(true);
+		}).catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
 	},
 
 	rename(evt) {
@@ -130,8 +149,19 @@ var ScriptsPanelItem = React.createClass({
 		}.bind(this)).show('rename to', this.props.title);
 	},
 
-	delete() {
-		//TODO
+	delete(evt) {
+		evt.stopPropagation();
+
+		this.refs.confirmDialog.onOk(function() {
+			server.removeScript({
+				title: this.props.title
+			}).then(function() {
+				window.location.reload(true);
+			}).catch(function(err) {
+				if(typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			});
+		}.bind(this)).show('delete script: ' + this.props.title);
 	},
 
 	render() {
@@ -203,6 +233,7 @@ var ScriptsPanelItem = React.createClass({
 				<Clearfix />
 				<PromptDialog ref="promptDialog" />
 				<AlertDialog ref="alertDialog" />
+				<ConfirmDialog ref="confirmDialog" />
 			</ListItem>
 		);
 	}
@@ -219,5 +250,4 @@ var ScriptView = React.createClass({
 		);
 	}
 });
-
 module.exports = ScriptView;

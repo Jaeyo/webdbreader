@@ -11,7 +11,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +19,6 @@ import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.exception.AlreadyStartedException;
 import com.igloosec.webdbreader.exception.ScriptNotRunningException;
 import com.igloosec.webdbreader.exception.VersionException;
-import com.igloosec.webdbreader.script.bindingsV1.DateUtil;
-import com.igloosec.webdbreader.script.bindingsV1.DbHandler;
-import com.igloosec.webdbreader.script.bindingsV1.FileReaderFactory;
-import com.igloosec.webdbreader.script.bindingsV1.FileWriterFactory;
-import com.igloosec.webdbreader.script.bindingsV1.RuntimeUtil;
-import com.igloosec.webdbreader.script.bindingsV1.Scheduler;
-import com.igloosec.webdbreader.script.bindingsV1.ScriptLogger;
-import com.igloosec.webdbreader.script.bindingsV1.SimpleRepo;
-import com.igloosec.webdbreader.script.bindingsV1.StringUtil;
 import com.igloosec.webdbreader.service.ConfigService;
 import com.igloosec.webdbreader.service.NotiService;
 import com.igloosec.webdbreader.service.OperationHistoryService;
@@ -53,15 +43,15 @@ public class ScriptExecutor_OLD {
 					operationHistoryService.saveStartupHistory(getScriptName());
 					
 					Bindings bindings = new SimpleBindings();
-					bindings.put("dateUtil", new DateUtil());
-					bindings.put("dbHandler", new DbHandler());
-					bindings.put("fileReaderFactory", new FileReaderFactory());
-					bindings.put("fileWriterFactory", new FileWriterFactory());
-					bindings.put("runtimeUtil", new RuntimeUtil());
-					bindings.put("scheduler", new Scheduler());
-					bindings.put("simpleRepo", new SimpleRepo());
-					bindings.put("stringUtil", new StringUtil());
-					bindings.put("logger", getLogger());
+//					bindings.put("dateUtil", new DateUtil());
+//					bindings.put("dbHandler", new DbHandler());
+//					bindings.put("fileReaderFactory", new FileReaderFactory());
+//					bindings.put("fileWriterFactory", new FileWriterFactory());
+//					bindings.put("runtimeUtil", new RuntimeUtil());
+//					bindings.put("scheduler", new Scheduler());
+//					bindings.put("simpleRepo", new SimpleRepo());
+//					bindings.put("stringUtil", new StringUtil());
+//					bindings.put("logger", getLogger());
 					
 					ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 					scriptEngine.eval(script, bindings);
@@ -90,15 +80,15 @@ public class ScriptExecutor_OLD {
 			return;
 		
 		Bindings bindings = new SimpleBindings();
-		bindings.put("dateUtil", Mockito.mock(DateUtil.class));
-		bindings.put("dbHandler", Mockito.mock(DbHandler.class));
-		bindings.put("fileReaderFactory", Mockito.mock(FileReaderFactory.class));
-		bindings.put("fileWriterFactory", Mockito.mock(FileWriterFactory.class));
-		bindings.put("runtimeUtil", Mockito.mock(RuntimeUtil.class));
-		bindings.put("scheduler", Mockito.mock(Scheduler.class));
-		bindings.put("simpleRepo", Mockito.mock(SimpleRepo.class));
-		bindings.put("stringUtil", Mockito.mock(StringUtil.class));
-		bindings.put("logger", Mockito.mock(Logger.class));
+//		bindings.put("dateUtil", Mockito.mock(DateUtil.class));
+//		bindings.put("dbHandler", Mockito.mock(DbHandler.class));
+//		bindings.put("fileReaderFactory", Mockito.mock(FileReaderFactory.class));
+//		bindings.put("fileWriterFactory", Mockito.mock(FileWriterFactory.class));
+//		bindings.put("runtimeUtil", Mockito.mock(RuntimeUtil.class));
+//		bindings.put("scheduler", Mockito.mock(Scheduler.class));
+//		bindings.put("simpleRepo", Mockito.mock(SimpleRepo.class));
+//		bindings.put("stringUtil", Mockito.mock(StringUtil.class));
+//		bindings.put("logger", Mockito.mock(Logger.class));
 
 		ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 		try{

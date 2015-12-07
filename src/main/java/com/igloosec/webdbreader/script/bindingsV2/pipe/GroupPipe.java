@@ -3,15 +3,15 @@ package com.igloosec.webdbreader.script.bindingsV2.pipe;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.igloosec.webdbreader.script.bindingsV2.base.HeadPipe;
 import com.igloosec.webdbreader.script.bindingsV2.base.Pipe;
+import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
 public class GroupPipe extends Pipe {
 	private int count;
 	private List<Object> list = Lists.newArrayList();
 
-	public GroupPipe(HeadPipe headPipe, int count) {
-		super(headPipe);
+	public GroupPipe(PipeHead pipeHead, int count) {
+		super(pipeHead);
 		this.count = count;
 	}
 	
@@ -27,6 +27,7 @@ public class GroupPipe extends Pipe {
 	@Override
 	public void onComplete() {
 		next(this.list);
+		this.list = Lists.newArrayList();
 		complete();
 	}
 

@@ -2,13 +2,13 @@ package com.igloosec.webdbreader.script.bindingsV2.pipe;
 
 import java.util.List;
 
-import com.igloosec.webdbreader.script.bindingsV2.base.HeadPipe;
 import com.igloosec.webdbreader.script.bindingsV2.base.Pipe;
+import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
 public class PrintPipe extends Pipe {
 
-	public PrintPipe(HeadPipe headPipe) {
-		super(headPipe);
+	public PrintPipe(PipeHead pipeHead) {
+		super(pipeHead);
 	}
 
 	@Override

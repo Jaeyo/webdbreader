@@ -1,8 +1,8 @@
 package com.igloosec.webdbreader.script.bindingsV2.base;
 
 public abstract class Pipe extends Pipeable {
-	public Pipe(HeadPipe headPipe) {
-		super(headPipe);
+	public Pipe(PipeHead pipeHead) {
+		super(pipeHead);
 	}
 	
 	public abstract void onNext(Object data);

@@ -2,12 +2,12 @@ package com.igloosec.webdbreader.script.bindingsV2.headpipe;
 
 import java.util.UUID;
 
-import com.igloosec.webdbreader.script.bindingsV2.base.HeadPipe;
+import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
-public class TestHeadPipe extends HeadPipe {
+public class DummyPipeHead extends PipeHead {
 	private int count;
 
-	public TestHeadPipe(int count) {
+	public DummyPipeHead(int count) {
 		this.count = count;
 	}
 	
