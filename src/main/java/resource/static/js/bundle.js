@@ -54,8 +54,9 @@
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(582);
 	var ScriptInfoView = __webpack_require__(713);
-	var NewDb2FileView = __webpack_require__(733);
-	__webpack_require__(734);
+	var NewDb2FileView = __webpack_require__(734);
+	var NewDb2DbView = __webpack_require__(740);
+	__webpack_require__(735);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -83,6 +84,12 @@
 					Layout,
 					{ active: 'script' },
 					React.createElement(NewDb2FileView, null)
+				);
+			} else if (pathname == '/Script/NewDb2Db') {
+				return React.createElement(
+					Layout,
+					{ active: 'script' },
+					React.createElement(NewDb2DbView, null)
 				);
 			} else if (pathname == '/Api') {
 				return React.createElement(
@@ -73370,24 +73377,17 @@
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var Clearfix = __webpack_require__(580).Clearfix;
 	var server = __webpack_require__(583);
-	var color = __webpack_require__(161).color;
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var MaterialWrapper = __webpack_require__(596);
 	var Button = MaterialWrapper.Button;
-	var FlatButton = MaterialWrapper.FlatButton;
 	var Card = MaterialWrapper.Card;
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var List = MaterialWrapper.List;
 	var ListItem = MaterialWrapper.ListItem;
-	var IconMenu = MaterialWrapper.IconMenu;
-	var MenuItem = MaterialWrapper.MenuItem;
-	var PromptDialog = __webpack_require__(710);
-	var AlertDialog = __webpack_require__(711);
-	var ConfirmDialog = __webpack_require__(712);
+	var ScriptPanelItem = __webpack_require__(710);
+	var NewScriptDialog = __webpack_require__(739);
 
 	var TotalChartPanel = React.createClass({
 		displayName: 'TotalChartPanel',
@@ -73435,6 +73435,11 @@
 			});
 		},
 
+		showNewScriptDialog: function showNewScriptDialog(evt) {
+			evt.stopPropagation();
+			this.refs.newScriptDialog.show();
+		},
+
 		render: function render() {
 			return React.createElement(
 				Card,
@@ -73450,179 +73455,23 @@
 						List,
 						null,
 						this.state.scripts.length === 0 ? React.createElement(ListItem, { primaryText: 'no data' }) : this.state.scripts.map(function (script) {
-							return React.createElement(ScriptsPanelItem, {
+							return React.createElement(ScriptPanelItem, {
 								key: script.SCRIPT_NAME,
 								title: script.SCRIPT_NAME,
 								isRunning: script.IS_RUNNING,
 								regdate: script.REGDATE });
 						})
-					)
-				),
-				React.createElement(
-					'div',
-					{ style: { padding: '10px', textAlign: 'right' } },
-					React.createElement(Button, { label: 'new script', primary: true })
-				)
-			);
-		}
-	});
-
-	var ScriptsPanelItem = React.createClass({
-		displayName: 'ScriptsPanelItem',
-
-		PropTypes: {
-			title: React.PropTypes.string.isRequired,
-			isRunning: React.PropTypes.bool.isRequired,
-			regdate: React.PropTypes.object.isRequired
-		},
-
-		goToInfoPage: function goToInfoPage(evt) {
-			if (evt.target.className.indexOf('glyphicon') !== -1) return;
-			window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
-		},
-
-		start: function start(evt) {
-			evt.stopPropagation();
-
-			server.startScript({
-				title: this.props.title
-			}).then(function () {
-				window.location.reload(true);
-			})['catch']((function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
-		},
-
-		stop: function stop() {
-			evt.stopPropagation();
-
-			server.stopScript({
-				title: this.props.title
-			}).then(function () {
-				window.location.reload(true);
-			})['catch']((function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
-		},
-
-		rename: function rename(evt) {
-			evt.stopPropagation();
-
-			this.refs.promptDialog.onOk((function (newTitle) {
-				server.renameScript({
-					title: this.props.title,
-					newTitle: newTitle
-				}).then(function () {
-					window.location.reload(true);
-				})['catch']((function (err) {
-					if (typeof err === 'object') err = JSON.stringify(err);
-					this.refs.alertDialog.show('danger', err);
-				}).bind(this));
-			}).bind(this)).show('rename to', this.props.title);
-		},
-
-		'delete': function _delete(evt) {
-			evt.stopPropagation();
-
-			this.refs.confirmDialog.onOk((function () {
-				server.removeScript({
-					title: this.props.title
-				}).then(function () {
-					window.location.reload(true);
-				})['catch'](function (err) {
-					if (typeof err === 'object') err = JSON.stringify(err);
-					this.refs.alertDialog.show('danger', err);
-				});
-			}).bind(this)).show('delete script: ' + this.props.title);
-		},
-
-		render: function render() {
-			var StatisticsValue = function StatisticsValue(props) {
-				return React.createElement(
-					'span',
-					{ style: {
-							padding: '10px',
-							color: 'white',
-							backgroundColor: props.bg,
-							display: 'inline-block',
-							minWidth: '58px',
-							textAlign: 'center',
-							lineHeight: '1.1',
-							marginRight: '3px'
-						} },
-					props.value
-				);
-			};
-
-			var OnOffLabel = function OnOffLabel(props) {
-				return React.createElement(
-					'label',
-					{ style: {
-							backgroundColor: props.value === 'on' ? color.blue : color.red,
-							color: 'white',
-							minWidth: '33px',
-							textAlign: 'center',
-							lineHeight: 1.4,
-							borderRadius: '5px',
-							marginRight: '10px'
-						} },
-					props.value.toUpperCase()
-				);
-			};
-
-			return React.createElement(
-				ListItem,
-				{
-					onClick: this.goToInfoPage,
-					style: {
-						borderLeft: '7px solid ' + color.lightBlue,
-						marginBottom: '3px'
-					},
-					rightIconButton: React.createElement(
-						IconMenu,
-						{
-							iconButtonElement: React.createElement(Glyphicon, { glyph: 'option-horizontal' }),
-							style: { cursor: 'pointer', fontSize: '120%' },
-							openDirection: 'top-left' },
-						this.props.isRunning === true ? React.createElement(MenuItem, { primaryText: 'stop', onClick: this.stop }) : React.createElement(MenuItem, { primaryText: 'start', onClick: this.start }),
-						React.createElement(MenuItem, { primaryText: 'rename', onClick: this.rename }),
-						React.createElement(MenuItem, { primaryText: 'delete', onClick: this['delete'] })
-					) },
-				React.createElement(
-					'div',
-					{ style: { float: 'left' } },
-					React.createElement(
-						'h3',
-						{ style: {
-								fontSize: '150%',
-								marginBottom: '10px'
-							} },
-						this.props.title
 					),
 					React.createElement(
 						'div',
-						{ style: { fontSize: '80%', color: 'gray' } },
-						React.createElement(OnOffLabel, { value: this.props.isRunning === true ? 'on' : 'off' }),
-						React.createElement(
-							'label',
-							null,
-							this.props.regdate
-						)
+						{ style: { padding: '10px', textAlign: 'right' } },
+						React.createElement(Button, {
+							label: 'new script',
+							primary: true,
+							onClick: this.showNewScriptDialog })
 					)
 				),
-				React.createElement(
-					'div',
-					{ style: { float: 'right', fontSize: '150%' } },
-					React.createElement(StatisticsValue, { bg: 'rgb(22, 160, 133)', value: '22' }),
-					React.createElement(StatisticsValue, { bg: 'rgb(243, 156, 18)', value: '24' }),
-					React.createElement(StatisticsValue, { bg: 'rgb(41, 128, 185)', value: '44' })
-				),
-				React.createElement(Clearfix, null),
-				React.createElement(PromptDialog, { ref: 'promptDialog' }),
-				React.createElement(AlertDialog, { ref: 'alertDialog' }),
-				React.createElement(ConfirmDialog, { ref: 'confirmDialog' })
+				React.createElement(NewScriptDialog, { ref: 'newScriptDialog' })
 			);
 		}
 	});
@@ -89615,106 +89464,180 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1),
-	    MaterialWrapper = __webpack_require__(596),
-	    Dialog = MaterialWrapper.Dialog,
-	    TextField = MaterialWrapper.TextField,
-	    Button = MaterialWrapper.Button,
-	    Alert = __webpack_require__(169).Alert;
+	var React = __webpack_require__(1);
+	var color = __webpack_require__(161).color;
+	var Clearfix = __webpack_require__(580).Clearfix;
+	var Glyphicon = __webpack_require__(169).Glyphicon;
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var ListItem = MaterialWrapper.ListItem;
+	var IconMenu = MaterialWrapper.IconMenu;
+	var MenuItem = MaterialWrapper.MenuItem;
+	var AlertDialog = __webpack_require__(711);
+	var ConfirmDialog = __webpack_require__(712);
+	var PromptDialog = __webpack_require__(733);
 
-	var PromptDialog = React.createClass({
-		displayName: 'PromptDialog',
+	var ScriptPanelItem = React.createClass({
+		displayName: 'ScriptPanelItem',
 
-		onShowCallback: null,
-		onOkCallback: null,
-		onCancelCallback: null,
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				msg: '',
-				answer: ''
-			};
+		PropTypes: {
+			title: React.PropTypes.string.isRequired,
+			isRunning: React.PropTypes.bool.isRequired,
+			regdate: React.PropTypes.object.isRequired
 		},
 
-		handleChange: function handleChange(name, evt) {
-			var state = {};
-			state[name] = evt.target.value;
-			this.setState(state);
+		goToInfoPage: function goToInfoPage(evt) {
+			if (evt.target.className.indexOf('glyphicon') !== -1) return;
+			window.location.href = '/Script/Info?title=' + encodeURI(this.props.title);
 		},
 
-		stopPropagation: function stopPropagation(evt) {
+		start: function start(evt) {
 			evt.stopPropagation();
-		},
 
-		onShow: function onShow(callback) {
-			this.onShowCallback = callback;
-			return this;
-		},
-
-		onOk: function onOk(callback) {
-			this.onOkCallback = callback;
-			return this;
-		},
-
-		onCancel: function onCancel(callback) {
-			this.onCancelCallback = callback;
-			return this;
-		},
-
-		show: function show(msg, defaultAnswer) {
-			if (defaultAnswer == null) defaultAnswer = '';
-			this.setState({
-				visible: true,
-				msg: msg,
-				answer: defaultAnswer
-			}, function () {
-				if (this.onShowCallback != null) this.onShowCallback();
-				this.onShowCallback = null;
-			});
-		},
-
-		cancel: function cancel() {
-			this.setState({ visible: false }, (function () {
-				if (this.onCancelCallback != null) this.onCancelCallback();
-				this.onCancelCallback = null;
+			server.startScript({
+				title: this.props.title
+			}).then(function () {
+				window.location.reload(true);
+			})['catch']((function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
 			}).bind(this));
 		},
 
-		ok: function ok() {
-			this.setState({ visible: false }, (function () {
-				if (this.onOkCallback != null) this.onOkCallback(this.state.answer);
-				this.onOkCallback = null;
+		stop: function stop(evt) {
+			evt.stopPropagation();
+
+			server.stopScript({
+				title: this.props.title
+			}).then(function () {
+				window.location.reload(true);
+			})['catch']((function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
 			}).bind(this));
+		},
+
+		rename: function rename(evt) {
+			evt.stopPropagation();
+
+			this.refs.promptDialog.onOk((function (newTitle) {
+				server.renameScript({
+					title: this.props.title,
+					newTitle: newTitle
+				}).then(function () {
+					window.location.reload(true);
+				})['catch']((function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				}).bind(this));
+			}).bind(this)).show('rename to', this.props.title);
+		},
+
+		'delete': function _delete(evt) {
+			evt.stopPropagation();
+
+			this.refs.confirmDialog.onOk((function () {
+				server.removeScript({
+					title: this.props.title
+				}).then(function () {
+					window.location.reload(true);
+				})['catch'](function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				});
+			}).bind(this)).show('delete script: ' + this.props.title);
 		},
 
 		render: function render() {
+			var StatisticsValue = function StatisticsValue(props) {
+				return React.createElement(
+					'span',
+					{ style: {
+							padding: '10px',
+							color: 'white',
+							backgroundColor: props.bg,
+							display: 'inline-block',
+							minWidth: '58px',
+							textAlign: 'center',
+							lineHeight: '1.1',
+							marginRight: '3px'
+						} },
+					props.value
+				);
+			};
+
+			var OnOffLabel = function OnOffLabel(props) {
+				return React.createElement(
+					'label',
+					{ style: {
+							backgroundColor: props.value === 'on' ? color.blue : color.red,
+							color: 'white',
+							minWidth: '33px',
+							textAlign: 'center',
+							lineHeight: 1.4,
+							borderRadius: '5px',
+							marginRight: '10px'
+						} },
+					props.value.toUpperCase()
+				);
+			};
+
 			return React.createElement(
-				'div',
-				{ onClick: this.stopPropagation },
+				ListItem,
+				{
+					onClick: this.goToInfoPage,
+					style: {
+						borderLeft: '7px solid ' + color.lightBlue,
+						marginBottom: '3px'
+					},
+					rightIconButton: React.createElement(
+						IconMenu,
+						{
+							iconButtonElement: React.createElement(Glyphicon, { glyph: 'option-horizontal' }),
+							style: { cursor: 'pointer', fontSize: '120%' },
+							openDirection: 'top-left' },
+						this.props.isRunning === true ? React.createElement(MenuItem, { primaryText: 'stop', onClick: this.stop }) : React.createElement(MenuItem, { primaryText: 'start', onClick: this.start }),
+						React.createElement(MenuItem, { primaryText: 'rename', onClick: this.rename }),
+						React.createElement(MenuItem, { primaryText: 'delete', onClick: this['delete'] })
+					) },
 				React.createElement(
-					Dialog,
-					{
-						actions: [{ text: 'ok', onClick: this.ok }, { text: 'cancel', onClick: this.cancel }],
-						actionFocus: 'ok',
-						autoDetectWindowHeight: true,
-						autoScrollBodyContent: true,
-						open: this.state.visible },
+					'div',
+					{ style: { float: 'left' } },
 					React.createElement(
-						'strong',
-						null,
-						this.state.msg
+						'h3',
+						{ style: {
+								fontSize: '150%',
+								marginBottom: '10px'
+							} },
+						this.props.title
 					),
-					React.createElement(TextField, {
-						value: this.state.answer,
-						fullWidth: true,
-						onChange: this.handleChange.bind(this, 'answer') })
-				)
+					React.createElement(
+						'div',
+						{ style: { fontSize: '80%', color: 'gray' } },
+						React.createElement(OnOffLabel, { value: this.props.isRunning === true ? 'on' : 'off' }),
+						React.createElement(
+							'label',
+							null,
+							this.props.regdate
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ style: { float: 'right', fontSize: '150%' } },
+					React.createElement(StatisticsValue, { bg: 'rgb(22, 160, 133)', value: '22' }),
+					React.createElement(StatisticsValue, { bg: 'rgb(243, 156, 18)', value: '24' }),
+					React.createElement(StatisticsValue, { bg: 'rgb(41, 128, 185)', value: '44' })
+				),
+				React.createElement(Clearfix, null),
+				React.createElement(PromptDialog, { ref: 'promptDialog' }),
+				React.createElement(AlertDialog, { ref: 'alertDialog' }),
+				React.createElement(ConfirmDialog, { ref: 'confirmDialog' })
 			);
 		}
 	});
 
-	module.exports = PromptDialog;
+	module.exports = ScriptPanelItem;
 
 /***/ },
 /* 711 */
@@ -89900,7 +89823,6 @@
 	var CodeTab = __webpack_require__(730);
 	var server = __webpack_require__(583);
 	var MaterialWrapper = __webpack_require__(596);
-	var AlertDialog = __webpack_require__(711);
 	var Button = MaterialWrapper.Button;
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Card = MaterialWrapper.Card;
@@ -89912,6 +89834,9 @@
 	var MenuItem = MaterialWrapper.MenuItem;
 	var Tabs = MaterialWrapper.Tabs;
 	var Tab = MaterialWrapper.Tab;
+	var PromptDialog = __webpack_require__(733);
+	var AlertDialog = __webpack_require__(711);
+	var ConfirmDialog = __webpack_require__(712);
 
 	var ScriptInfoView = React.createClass({
 		displayName: 'ScriptInfoView',
@@ -89923,7 +89848,8 @@
 		getInitialState: function getInitialState() {
 			return {
 				regdate: '',
-				script: ''
+				script: '',
+				isRunning: false
 			};
 		},
 
@@ -89931,12 +89857,70 @@
 			server.loadScript({ title: this.props.title }).then((function (script) {
 				this.setState({
 					script: script.SCRIPT,
-					regdate: script.REGDATE
+					regdate: script.REGDATE,
+					isRunning: script.IS_RUNNING
 				});
 			}).bind(this))['catch']((function (err) {
 				console.error(err.stack);
 				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
 			}).bind(this));
+		},
+
+		start: function start(evt) {
+			evt.stopPropagation();
+
+			server.startScript({
+				title: this.props.title
+			}).then(function () {
+				window.location.reload(true);
+			})['catch']((function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}).bind(this));
+		},
+
+		stop: function stop(evt) {
+			evt.stopPropagation();
+
+			server.stopScript({
+				title: this.props.title
+			}).then(function () {
+				window.location.reload(true);
+			})['catch']((function (err) {
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}).bind(this));
+		},
+
+		rename: function rename(evt) {
+			evt.stopPropagation();
+
+			this.refs.promptDialog.onOk((function (newTitle) {
+				server.renameScript({
+					title: this.props.title,
+					newTitle: newTitle
+				}).then(function () {
+					window.location.href = '/Script/Info?title=' + encodeURI(newTitle);
+				})['catch']((function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				}).bind(this));
+			}).bind(this)).show('rename to', this.props.title);
+		},
+
+		'delete': function _delete(evt) {
+			evt.stopPropagation();
+
+			this.refs.confirmDialog.onOk((function () {
+				server.removeScript({
+					title: this.props.title
+				}).then(function () {
+					window.location.href = '/';
+				})['catch'](function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				});
+			}).bind(this)).show('delete script: ' + this.props.title);
 		},
 
 		render: function render() {
@@ -89974,7 +89958,17 @@
 						)
 					)
 				),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
+				React.createElement('hr', null),
+				React.createElement(
+					'div',
+					{ style: { textAlign: 'right' } },
+					this.state.isRunning === false ? React.createElement(Button, { label: 'start', onClick: this.start, primary: true }) : React.createElement(Button, { label: 'stop', onClick: this.stop, primary: true }),
+					React.createElement(Button, { label: 'rename', onClick: this.rename }),
+					React.createElement(Button, { label: 'delete', onClick: this['delete'] })
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' }),
+				React.createElement(PromptDialog, { ref: 'promptDialog' }),
+				React.createElement(ConfirmDialog, { ref: 'confirmDialog' })
 			);
 		}
 	});
@@ -93202,6 +93196,113 @@
 	'use strict';
 
 	var React = __webpack_require__(1),
+	    MaterialWrapper = __webpack_require__(596),
+	    Dialog = MaterialWrapper.Dialog,
+	    TextField = MaterialWrapper.TextField,
+	    Button = MaterialWrapper.Button,
+	    Alert = __webpack_require__(169).Alert;
+
+	var PromptDialog = React.createClass({
+		displayName: 'PromptDialog',
+
+		onShowCallback: null,
+		onOkCallback: null,
+		onCancelCallback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				msg: '',
+				answer: ''
+			};
+		},
+
+		handleChange: function handleChange(name, evt) {
+			var state = {};
+			state[name] = evt.target.value;
+			this.setState(state);
+		},
+
+		stopPropagation: function stopPropagation(evt) {
+			evt.stopPropagation();
+		},
+
+		onShow: function onShow(callback) {
+			this.onShowCallback = callback;
+			return this;
+		},
+
+		onOk: function onOk(callback) {
+			this.onOkCallback = callback;
+			return this;
+		},
+
+		onCancel: function onCancel(callback) {
+			this.onCancelCallback = callback;
+			return this;
+		},
+
+		show: function show(msg, defaultAnswer) {
+			if (defaultAnswer == null) defaultAnswer = '';
+			this.setState({
+				visible: true,
+				msg: msg,
+				answer: defaultAnswer
+			}, function () {
+				if (this.onShowCallback != null) this.onShowCallback();
+				this.onShowCallback = null;
+			});
+		},
+
+		cancel: function cancel() {
+			this.setState({ visible: false }, (function () {
+				if (this.onCancelCallback != null) this.onCancelCallback();
+				this.onCancelCallback = null;
+			}).bind(this));
+		},
+
+		ok: function ok() {
+			this.setState({ visible: false }, (function () {
+				if (this.onOkCallback != null) this.onOkCallback(this.state.answer);
+				this.onOkCallback = null;
+			}).bind(this));
+		},
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ onClick: this.stopPropagation },
+				React.createElement(
+					Dialog,
+					{
+						actions: [{ text: 'ok', onClick: this.ok }, { text: 'cancel', onClick: this.cancel }],
+						actionFocus: 'ok',
+						autoDetectWindowHeight: true,
+						autoScrollBodyContent: true,
+						open: this.state.visible },
+					React.createElement(
+						'strong',
+						null,
+						this.state.msg
+					),
+					React.createElement(TextField, {
+						value: this.state.answer,
+						fullWidth: true,
+						onChange: this.handleChange.bind(this, 'answer') })
+				)
+			);
+		}
+	});
+
+	module.exports = PromptDialog;
+
+/***/ },
+/* 734 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1),
 	    ReactDOM = __webpack_require__(158),
 	    precondition = __webpack_require__(728),
 	    AlertDialog = __webpack_require__(711),
@@ -93328,11 +93429,6 @@
 			return React.createElement(
 				'div',
 				null,
-				React.createElement(
-					'h3',
-					{ style: { marginBottom: '3px' } },
-					'database 설정'
-				),
 				React.createElement(DatabaseConfigPanel, dbConfigPanelParams),
 				React.createElement(BindingTypePanel, bindingTypePanelParams),
 				React.createElement(EtcConfigPanel, etcConfigPanelParams),
@@ -93349,16 +93445,16 @@
 	module.exports = NewDb2FileView;
 
 /***/ },
-/* 734 */
+/* 735 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(735);
+	var content = __webpack_require__(736);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(737)(content, {});
+	var update = __webpack_require__(738)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -93375,10 +93471,10 @@
 	}
 
 /***/ },
-/* 735 */
+/* 736 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(736)();
+	exports = module.exports = __webpack_require__(737)();
 	// imports
 
 
@@ -93389,7 +93485,7 @@
 
 
 /***/ },
-/* 736 */
+/* 737 */
 /***/ function(module, exports) {
 
 	/*
@@ -93445,7 +93541,7 @@
 
 
 /***/ },
-/* 737 */
+/* 738 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -93668,6 +93764,112 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 739 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var FlatButton = MaterialWrapper.FlatButton;
+	var Dialog = MaterialWrapper.Dialog;
+
+	var NewScriptDialog = React.createClass({
+		displayName: 'NewScriptDialog',
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false
+			};
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		goDb2File: function goDb2File(evt) {
+			evt.stopPropagation();
+			window.location.href = '/Script/NewDb2File';
+		},
+
+		goDb2Db: function goDb2Db(evt) {
+			evt.stopPropagation();
+			alert('not implments');
+			//TODO
+			// window.location.href = '/Script/NewDb2Db';
+		},
+
+		goImportVer1Script: function goImportVer1Script(evt) {
+			evt.stopPropagation();
+			alert('not implments');
+			//TODO
+		},
+
+		goNewScript: function goNewScript(evt) {
+			evt.stopPropagation();
+			alert('not implments');
+			//TODO
+		},
+
+		render: function render() {
+			return React.createElement(
+				Dialog,
+				{
+					title: 'new script',
+					actions: [{ text: 'close', onClick: this.hide }],
+					actionFocus: 'close',
+					open: this.state.visible,
+					onRequestClose: this.hide,
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true },
+				React.createElement(FlatButton, {
+					label: '>> database to file',
+					style: { width: '100%', textAlign: 'left' },
+					onClick: this.goDb2File }),
+				React.createElement(FlatButton, {
+					label: '>> database to database',
+					style: { width: '100%', textAlign: 'left' },
+					onClick: this.goDb2Db }),
+				React.createElement(FlatButton, {
+					label: '>> import version 1 script',
+					style: { width: '100%', textAlign: 'left' },
+					onClick: this.goImportVer1Script }),
+				React.createElement(FlatButton, {
+					label: '>> new script',
+					style: { width: '100%', textAlign: 'left' },
+					onClick: this.goImportVer1Script })
+			);
+		}
+	});
+	module.exports = NewScriptDialog;
+
+/***/ },
+/* 740 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var NewDb2DbView = React.createClass({
+		displayName: 'NewDb2DbView',
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				'//TODO IMME'
+			);
+		}
+	});
+	module.exports = NewDb2DbView;
 
 /***/ }
 /******/ ]);

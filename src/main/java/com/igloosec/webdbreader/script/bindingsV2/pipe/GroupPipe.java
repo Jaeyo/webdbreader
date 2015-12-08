@@ -16,7 +16,7 @@ public class GroupPipe extends Pipe {
 	}
 	
 	@Override
-	public void onNext(Object data) {
+	public void onNext(Object data) throws Exception {
 		this.list.add(data);
 		if(this.list.size() >= this.count) {
 			next(this.list);
@@ -25,7 +25,7 @@ public class GroupPipe extends Pipe {
 	}
 
 	@Override
-	public void onComplete() {
+	public void onComplete() throws Exception {
 		next(this.list);
 		this.list = Lists.newArrayList();
 	}

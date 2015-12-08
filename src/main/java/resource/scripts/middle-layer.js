@@ -13,6 +13,22 @@ var data = function(data) {
 	return new DataPipeHead(data);
 };
 
+// date --------------------------------------------------------
+var now = function() {
+	return new java.util.Date();
+};
+
+// schedule --------------------------------------------------------
+var schedule = function(period) {
+	var scheduler;
+	return {
+		run: function(callback) {
+			scheduler = new SchedulePipeHead(period, callback);
+			scheduler.run();
+		}
+	};
+}
+
 // old api --------------------------------------------------------
 var apiV1 = function(callback) {
 	var dateUtil = new DateUtil();
@@ -43,7 +59,6 @@ var error = function(msg) {
 	return data(msg).log('error').run();
 };
 
-
 // database --------------------------------------------------------
 var database = function(jdbc) {
 	return {
@@ -55,9 +70,6 @@ var database = function(jdbc) {
 				password: jdbc.password,
 				query: query
 			});
-		},
-		update: function(query) {
-			//TODO 
 		}
 	};
 };

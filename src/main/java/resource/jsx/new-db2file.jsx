@@ -131,7 +131,6 @@ var NewDb2FileView = React.createClass({
 
 		return (
 			<div> 
-				<h3 style={{ marginBottom: '3px' }}>database 설정</h3>
 				<DatabaseConfigPanel {...dbConfigPanelParams} />
 				<BindingTypePanel {...bindingTypePanelParams} />
 				<EtcConfigPanel {...etcConfigPanelParams} />

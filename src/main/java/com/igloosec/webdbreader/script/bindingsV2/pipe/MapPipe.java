@@ -18,7 +18,7 @@ public class MapPipe extends Pipe {
 	}
 
 	@Override
-	public void onNext(Object data) {
+	public void onNext(Object data) throws Exception {
 		Context context = Context.enter();
 		ScriptableObject scope = context.initStandardObjects();
 		Scriptable that = context.newObject(scope);
@@ -26,10 +26,12 @@ public class MapPipe extends Pipe {
 		next(data);
 	}
 
-	@Override
-	public void onComplete() {
-	}
+	
 
+	@Override
+	public void onComplete() throws Exception {
+	}
+	
 	@Override
 	public void onException(Exception e) {
 	}

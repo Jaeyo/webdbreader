@@ -2,12 +2,10 @@ package com.igloosec.webdbreader.script.bindingsV2.headpipe;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
-import sun.org.mozilla.javascript.internal.NativeArray;
 import sun.org.mozilla.javascript.internal.NativeObject;
 
 import com.igloosec.webdbreader.rdb.JsonJdbcTemplate;
@@ -30,7 +28,7 @@ public class DBSelectPipe extends PipeHead {
 	}
 	
 	@Override
-	public void run() {
+	public void run() throws Exception {
 		Connection conn = null;
 		try {
 			Class.forName(this.driver);
@@ -46,11 +44,8 @@ public class DBSelectPipe extends PipeHead {
 					valueArr[i-1] = result.getObject(i);
 				next(valueArr);
 			}
-		} catch(Exception e) {
-			exception(e);
 		} finally {
-			if(conn != null) try { conn.close(); } catch (SQLException e) {}
-			complete();
+			if(conn != null) conn.close();
 		}
 	}
 }

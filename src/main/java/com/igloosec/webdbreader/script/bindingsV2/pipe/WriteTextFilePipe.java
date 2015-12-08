@@ -1,7 +1,9 @@
 package com.igloosec.webdbreader.script.bindingsV2.pipe;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -12,7 +14,7 @@ import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.script.bindingsV2.base.Pipe;
 import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
-public class WriteTextFilePipe extends Pipe {
+public class WriteTextFilePipe extends Pipe implements Closeable {
 	private String filename = null;
 	private String charset = null;
 	private boolean dateFormat;
@@ -26,20 +28,22 @@ public class WriteTextFilePipe extends Pipe {
 		this.charset = charset;
 		this.dateFormat = dateFormat;
 
+		ScriptThread.currentThread().newCloseable(this);
+		
 		try {
 			if(this.dateFormat == true) {
 				this.file = new File(dateFormat(this.filename));
 			} else {
 				this.file = new File(this.filename);
 			}
-			this.output = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.file), this.charset));
+			this.output = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.file, true), this.charset));
 		} catch(Exception e) {
 			this.onException(e);
 		}
 	}
 
 	@Override
-	public void onNext(Object data) {
+	public void onNext(Object data) throws Exception {
 		try {
 			if(data instanceof List) {
 				List<Object> list = (List<Object>) data;
@@ -48,6 +52,7 @@ public class WriteTextFilePipe extends Pipe {
 			} else {
 				this.output.append(data.toString());
 			}
+			this.output.flush();
 		} catch (Exception e) {
 			this.onException(e);
 		} finally {
@@ -56,10 +61,9 @@ public class WriteTextFilePipe extends Pipe {
 	}
 
 	@Override
-	public void onComplete() {
+	public void onComplete() throws Exception {
 		try {
-			this.output.flush();
-			this.output.close(); 
+			this.close();
 		} catch(Exception e) {
 			this.onException(e);
 		} finally {
@@ -78,5 +82,11 @@ public class WriteTextFilePipe extends Pipe {
 		if(str.contains("$mi")) str = str.replace("$mi", new SimpleDateFormat("mm").format(new Date()));
 		if(str.contains("$ss")) str = str.replace("$ss", new SimpleDateFormat("ss").format(new Date()));
 		return str;
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.output.flush();
+		this.output.close();
 	}
 }

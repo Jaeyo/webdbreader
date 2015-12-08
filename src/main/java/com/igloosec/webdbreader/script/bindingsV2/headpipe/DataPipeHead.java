@@ -3,7 +3,7 @@ package com.igloosec.webdbreader.script.bindingsV2.headpipe;
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
-public class DataPipeHead extends PipeHead{
+public class DataPipeHead extends PipeHead {
 	private Object data;
 	
 	public DataPipeHead(Object data) {
@@ -19,7 +19,13 @@ public class DataPipeHead extends PipeHead{
 			ScriptThread.currentThread().getLogger().error(errmsg, e);
 			exception(e);
 		} finally {
-			complete();
+			try {
+				complete();
+			} catch (Exception e) {
+				String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+				ScriptThread.currentThread().getLogger().error(errmsg, e);
+				exception(e);
+			}
 		}
 	}
 }

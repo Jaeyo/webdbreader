@@ -1,20 +1,18 @@
 package com.igloosec.webdbreader.script;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Timer;
 
 import com.google.common.collect.Lists;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.service.OperationHistoryService;
 
-public class ScriptThread extends Thread{
+public abstract class ScriptThread extends Thread {
 	private static ScriptLogger logger = null;
-	private static ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
-	private OperationHistoryService operationHistoryService = SingletonInstanceRepo.getInstance(OperationHistoryService.class);
-	
+	private boolean isRunMethodRunning = false;
 	private String scriptName;
-	private List<Timer> schedulerTimers = Lists.newArrayList();
-	private List<Thread> fileReaderMonitoringThreads = Lists.newArrayList();
+	private List<Timer> timers = Lists.newArrayList();
+	private List<Closeable> closeables = Lists.newArrayList();
 	
 	public ScriptThread(String scriptName) {
 		this.scriptName = scriptName;
@@ -25,48 +23,61 @@ public class ScriptThread extends Thread{
 		return this.logger;
 	}
 	
-	public void addSchedulerTimer(Timer timer) {
-		this.schedulerTimers.add(timer);
-	}
-	
-	public void addFileReaderMonitoringThread(Thread thread){
-		this.fileReaderMonitoringThreads.add(thread);
-	}
-	
 	public String getScriptName(){
 		return this.scriptName;
 	}
 	
-	public boolean isScheduled(){
-		return this.schedulerTimers.size() != 0;
+	public boolean isRunning() {
+		if(isRunMethodRunning == true) return true;
+		if(this.timers.size() != 0) return true;
+		return false;
 	}
 	
-	public boolean isFileReaderMonitoring(){
-		return this.fileReaderMonitoringThreads.size() != 0;
+	@Override
+	public final void run() {
+		try {
+			this.isRunMethodRunning = true;
+			this.runScript();
+		} catch(Exception e) {
+			if(e instanceof InterruptedException)
+				return;
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			this.logger.error(errmsg, e);
+		} finally {
+			this.isRunMethodRunning = false;
+		}
 	}
-	
+
 	public synchronized void stopScript(){
-		operationHistoryService.saveShutdownHistory(getScriptName());
-		
 		try{
 			super.interrupt();
 		} catch(Exception e){
-			logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
+			this.logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
 		}
 	
 		try{
-			while(schedulerTimers.size() != 0)
-				schedulerTimers.remove(0).cancel();
+			while(this.timers.size() != 0)
+				this.timers.remove(0).cancel();
 		} catch(Exception e){
-			logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
+			this.logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
 		}
 		
 		try{
-			while(fileReaderMonitoringThreads.size() != 0)
-				fileReaderMonitoringThreads.remove(0).interrupt();
+			while(this.closeables.size() != 0)
+				this.closeables.remove(0).close();
 		} catch(Exception e){
-			logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
+			this.logger.error(String.format("%s, errmsg: %s, scriptName: %s", e.getClass().getSimpleName(), e.getMessage(), scriptName), e);
 		}
+	}
+	
+	public Timer newTimer() {
+		Timer timer = new Timer();
+		this.timers.add(timer);
+		return timer;
+	}
+	
+	public void newCloseable(Closeable closeable) {
+		this.closeables.add(closeable);
 	}
 	
 	public static ScriptThread currentThread(){
@@ -75,6 +86,12 @@ public class ScriptThread extends Thread{
 			return (ScriptThread) thread;
 		
 		String scriptName = thread.getName();
-		return scriptExecutor.getScriptThread(scriptName);
+		return SingletonInstanceRepo.getInstance(ScriptExecutor.class).getScriptThread(scriptName);
 	}
+	
+	public static ScriptLogger currentLogger() {
+		return currentThread().getLogger();
+	}
+	
+	public abstract void runScript() throws Exception;
 }

@@ -4,7 +4,6 @@ var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
 var CodeTab = require('./script-info/code-tab.jsx');
 var server = require('./utils/server.js');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
-var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
 var Button = MaterialWrapper.Button;
 var FlatButton = MaterialWrapper.FlatButton;
 var Card = MaterialWrapper.Card;
@@ -16,6 +15,9 @@ var IconMenu = MaterialWrapper.IconMenu;
 var MenuItem = MaterialWrapper.MenuItem;
 var Tabs = MaterialWrapper.Tabs;
 var Tab = MaterialWrapper.Tab;
+var PromptDialog = require('./comps/dialog/prompt-dialog.jsx');
+var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
+var ConfirmDialog = require('./comps/dialog/confirm-dialog.jsx');
 
 var ScriptInfoView = React.createClass({
 	PropTypes: {
@@ -25,7 +27,8 @@ var ScriptInfoView = React.createClass({
 	getInitialState() {
 		return { 
 			regdate: '',
-			script: ''
+			script: '',
+			isRunning: false
 		};
 	},
 
@@ -35,12 +38,70 @@ var ScriptInfoView = React.createClass({
 			.then(function(script) {
 				this.setState({ 
 					script: script.SCRIPT,
-					regdate: script.REGDATE
+					regdate: script.REGDATE,
+					isRunning: script.IS_RUNNING
 				});
 			}.bind(this)).catch(function(err) {
 				console.error(err.stack);
 				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
 			}.bind(this));
+	},
+
+	start(evt) {
+		evt.stopPropagation();
+
+		server.startScript({
+			title: this.props.title
+		}).then(function() {
+			window.location.reload(true);
+		}).catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
+	},
+
+	stop(evt) {
+		evt.stopPropagation();
+
+		server.stopScript({
+			title: this.props.title
+		}).then(function() {
+			window.location.reload(true);
+		}).catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
+	},
+
+	rename(evt) {
+		evt.stopPropagation();
+
+		this.refs.promptDialog.onOk(function(newTitle) {
+			server.renameScript({
+				title: this.props.title,
+				newTitle: newTitle
+			}).then(function() {
+				window.location.href = '/Script/Info?title=' + encodeURI(newTitle);
+			}).catch(function(err) {
+				if(typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}.bind(this));
+		}.bind(this)).show('rename to', this.props.title);
+	},
+
+	delete(evt) {
+		evt.stopPropagation();
+
+		this.refs.confirmDialog.onOk(function() {
+			server.removeScript({
+				title: this.props.title
+			}).then(function() {
+				window.location.href = '/';
+			}).catch(function(err) {
+				if(typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			});
+		}.bind(this)).show('delete script: ' + this.props.title);
 	},
 
 	render() {
@@ -63,7 +124,19 @@ var ScriptInfoView = React.createClass({
 						</Tab>
 					</Tabs>
 				</CardText>
+				<hr />
+				<div style={{ textAlign: 'right' }}>
+					{
+						this.state.isRunning === false  ?
+						(<Button label="start" onClick={this.start} primary={true} />) : 
+						(<Button label="stop" onClick={this.stop} primary={true} />) 
+					}
+					<Button label="rename" onClick={this.rename} />
+					<Button label="delete" onClick={this.delete} />
+				</div>
 				<AlertDialog ref="alertDialog" />
+				<PromptDialog ref="promptDialog" />
+				<ConfirmDialog ref="confirmDialog" />
 			</Card>
 		);
 	}

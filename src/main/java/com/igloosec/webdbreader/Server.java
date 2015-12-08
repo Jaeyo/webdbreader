@@ -24,7 +24,6 @@ import com.igloosec.webdbreader.servlet.Index;
 import com.igloosec.webdbreader.servlet.LoggerWebSocket.LoggerWebSocketServlet;
 import com.igloosec.webdbreader.servlet.MetaREST;
 import com.igloosec.webdbreader.servlet.NotiWebSocket.NotiWebSocketServlet;
-import com.igloosec.webdbreader.servlet.OperationHistoryREST;
 import com.igloosec.webdbreader.servlet.ScriptREST;
 import com.igloosec.webdbreader.servlet.ShutdownREST;
 import com.igloosec.webdbreader.statistics.ScriptScoreStatistics;
@@ -80,7 +79,7 @@ public class Server {
 		context.addServlet(ConfigREST.class, "/REST/Config/*");
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
-		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
+//		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
 		
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
 		context.addServlet(FileOutMsgWebSocketServlet.class, "/WebSocket/FileOutMsg/*");

@@ -1,9 +1,7 @@
 package com.igloosec.webdbreader.servlet;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.script.ScriptException;
@@ -150,7 +148,7 @@ public class ScriptREST extends JadeHttpServlet{
 		return new JSONObject().put("success", 1).toString();
 	} //postEditScript
 	
-	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException{
+	private String postStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException, IOException{
 		String title = pathParams.get("title");
 		
 		Preconditions.checkArgument(title != null, "title is null");

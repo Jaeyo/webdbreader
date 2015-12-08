@@ -12,7 +12,8 @@ public class PrintPipe extends Pipe {
 	}
 
 	@Override
-	public void onNext(Object data) {
+	public void onNext(Object data) throws Exception {
+		System.out.println("next");
 		if(data instanceof List) {
 			List<Object> list = (List<Object>) data;
 			for(Object item: list)
@@ -24,10 +25,12 @@ public class PrintPipe extends Pipe {
 	}
 
 	@Override
-	public void onComplete() {
+	public void onComplete() throws Exception {
+		System.out.println("complete");
 	}
 
 	@Override
 	public void onException(Exception e) {
+		System.out.println("exception");
 	}
 }

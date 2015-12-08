@@ -27,7 +27,16 @@ public class PipeTest {
 	@Test
 	public void test_dummy_group_print() {
 		try {
-			executeScript(" dummy(10).group(3).print().run(); ");
+			String script = "";
+			script += "dummy(10)";
+			script += ".group(3)";
+			script += ".map(function(data) {";
+			script += "data.add('asdfblablalbal---balbla');";
+			script += "return data;";
+			script += "})";
+			script += ".print()";
+			script += ".run();";
+			executeScript(script);
 		} catch(Exception e) {
 			e.printStackTrace();
 			Assert.fail();

@@ -1,5 +1,6 @@
 package com.igloosec.webdbreader.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ public class ScriptService {
 		return scriptJson;
 	} 
 
-	public void startAutoStartScript() throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
+	public void startAutoStartScript() throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException, IOException {
 		JSONArray autoStartScripts = autoStartScriptDAO.load();
 		for (int i = 0; i < autoStartScripts.length(); i++) {
 			JSONObject autoStartScript = autoStartScripts.getJSONObject(i);
@@ -90,7 +91,7 @@ public class ScriptService {
 		}
 	}
 	
-	public void startScript(String scriptName) throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException {
+	public void startScript(String scriptName) throws AlreadyStartedException, ScriptException, VersionException, IOException, JSONException, NotFoundException  {
 		logger.info("scriptName: {}", scriptName);
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);

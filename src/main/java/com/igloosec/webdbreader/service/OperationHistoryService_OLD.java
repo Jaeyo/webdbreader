@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import com.igloosec.webdbreader.common.SingletonInstanceRepo;
 import com.igloosec.webdbreader.dao.OperationHistoryDAO;
 
-public class OperationHistoryService {
-	private static final Logger logger = LoggerFactory.getLogger(OperationHistoryService.class);
+public class OperationHistoryService_OLD {
+	private static final Logger logger = LoggerFactory.getLogger(OperationHistoryService_OLD.class);
 	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
 	
 	public void saveStartupHistory(String scriptName){

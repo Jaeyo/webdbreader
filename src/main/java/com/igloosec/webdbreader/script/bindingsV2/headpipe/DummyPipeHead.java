@@ -2,6 +2,7 @@ package com.igloosec.webdbreader.script.bindingsV2.headpipe;
 
 import java.util.UUID;
 
+import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
 public class DummyPipeHead extends PipeHead {
@@ -10,11 +11,24 @@ public class DummyPipeHead extends PipeHead {
 	public DummyPipeHead(int count) {
 		this.count = count;
 	}
-	
+
 	@Override
 	public void run() {
-		for (int i = 0; i < this.count; i++)
-			next(UUID.randomUUID().toString());
-		complete();
+		try {
+			for (int i = 0; i < this.count; i++)
+				next(UUID.randomUUID().toString());
+		} catch (Exception e) {
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			ScriptThread.currentThread().getLogger().error(errmsg, e);
+			exception(e);
+		} finally {
+			try {
+				complete();
+			} catch (Exception e) {
+				String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+				ScriptThread.currentThread().getLogger().error(errmsg, e);
+				exception(e);
+			}
+		}
 	}
 }

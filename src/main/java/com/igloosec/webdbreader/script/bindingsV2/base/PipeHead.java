@@ -6,7 +6,7 @@ public abstract class PipeHead extends Pipeable {
 		setPipeHead(this);
 	}
 
-	protected void complete() {
+	protected void complete() throws Exception {
 		Pipe pipe = getNextPipe();
 		
 		while(pipe != null) {
@@ -23,5 +23,5 @@ public abstract class PipeHead extends Pipeable {
 		}
 	}
 	
-	public abstract void run();
+	public abstract void run() throws Exception;
 }

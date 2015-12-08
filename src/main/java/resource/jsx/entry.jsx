@@ -7,6 +7,7 @@ var ApiView = require('./api.jsx');
 var ScriptView = require('./script.jsx');
 var ScriptInfoView = require('./script-info.jsx');
 var NewDb2FileView = require('./new-db2file.jsx');
+var NewDb2DbView = require('./new-db2db.jsx');
 require('./reset.css');
 
 jsUtil.initPrototypeFunctions();
@@ -34,6 +35,12 @@ function getDOM() {
 			return (
 				<Layout active="script">
 					<NewDb2FileView />
+				</Layout>
+			);
+		} else if(pathname == '/Script/NewDb2Db') {
+			return (
+				<Layout active="script">
+					<NewDb2DbView />
 				</Layout>
 			);
 		} else if(pathname == '/Api') {
