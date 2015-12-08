@@ -28,11 +28,9 @@ public class GroupPipe extends Pipe {
 	public void onComplete() {
 		next(this.list);
 		this.list = Lists.newArrayList();
-		complete();
 	}
 
 	@Override
 	public void onException(Exception e) {
-		exception(e);
 	}
 }

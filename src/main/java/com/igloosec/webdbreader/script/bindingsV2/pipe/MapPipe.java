@@ -19,24 +19,18 @@ public class MapPipe extends Pipe {
 
 	@Override
 	public void onNext(Object data) {
-		try {
-			Context context = Context.enter();
-			ScriptableObject scope = context.initStandardObjects();
-			Scriptable that = context.newObject(scope);
-			data = this.callback.call(context, that, scope, new Object[]{ data });
-			next(data);
-		} catch(Exception e) {
-			exception(e);
-		}
+		Context context = Context.enter();
+		ScriptableObject scope = context.initStandardObjects();
+		Scriptable that = context.newObject(scope);
+		data = this.callback.call(context, that, scope, new Object[]{ data });
+		next(data);
 	}
 
 	@Override
 	public void onComplete() {
-		complete();
 	}
 
 	@Override
 	public void onException(Exception e) {
-		exception(e);
 	}
 }

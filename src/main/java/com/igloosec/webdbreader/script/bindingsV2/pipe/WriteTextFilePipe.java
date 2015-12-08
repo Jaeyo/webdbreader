@@ -63,15 +63,11 @@ public class WriteTextFilePipe extends Pipe {
 		} catch(Exception e) {
 			this.onException(e);
 		} finally {
-			complete();
 		}
 	}
 
 	@Override
 	public void onException(Exception e) {
-		WHERE TO Exception???
-		String msg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-		ScriptThread.currentThread().getLogger().error(msg, e);
 	}
 	
 	private String dateFormat(String str) {

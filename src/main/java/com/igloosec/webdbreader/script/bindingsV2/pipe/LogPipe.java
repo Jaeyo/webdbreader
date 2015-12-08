@@ -31,12 +31,9 @@ public class LogPipe extends Pipe {
 
 	@Override
 	public void onComplete() {
-		complete();
 	}
 
 	@Override
 	public void onException(Exception e) {
-		ScriptThread.currentThread().getLogger().error(e.toString());
-		exception(e);
 	}
 }

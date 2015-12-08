@@ -21,6 +21,10 @@ public class Pipeable {
 		this.nextPipe = pipe;
 	}
 	
+	protected Pipe getNextPipe() {
+		return this.nextPipe;
+	}
+	
 	protected void setPipeHead(PipeHead pipeHead) {
 		this.pipeHead = pipeHead;
 	}
@@ -28,16 +32,6 @@ public class Pipeable {
 	protected void next(Object data) {
 		if(this.nextPipe != null)
 			this.nextPipe.onNext(data);
-	}
-	
-	protected void complete() {
-		if(this.nextPipe != null)
-			this.nextPipe.onComplete();
-	}
-	
-	protected void exception(Exception e) {
-		if(this.nextPipe != null)
-			this.nextPipe.onException(e);
 	}
 	
 	public MapPipe map(Function callback) {

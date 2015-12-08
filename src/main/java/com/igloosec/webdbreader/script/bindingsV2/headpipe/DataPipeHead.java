@@ -1,5 +1,6 @@
 package com.igloosec.webdbreader.script.bindingsV2.headpipe;
 
+import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
 public class DataPipeHead extends PipeHead{
@@ -11,7 +12,14 @@ public class DataPipeHead extends PipeHead{
 	
 	@Override
 	public void run() {
-		next(this.data);
-		complete();
+		try {
+			next(this.data);
+		} catch(Exception e) {
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			ScriptThread.currentThread().getLogger().error(errmsg, e);
+			exception(e);
+		} finally {
+			complete();
+		}
 	}
 }
