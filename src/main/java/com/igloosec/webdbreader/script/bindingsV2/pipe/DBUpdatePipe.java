@@ -34,8 +34,8 @@ public class DBUpdatePipe extends Pipe {
 			
 			if(data instanceof List) {
 				List<Object> list = (List<Object>) data;
-				for(Object obj: list)
-					jdbcTmpl.update(obj.toString());
+				String[] queries = list.toArray(new String[list.size()]);
+				jdbcTmpl.batchUpdate(queries);
 			} else {
 				jdbcTmpl.update(data.toString());
 			}

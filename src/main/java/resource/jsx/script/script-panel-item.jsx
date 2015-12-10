@@ -1,5 +1,6 @@
 var React = require('react');
 var color = require('../utils/util.js').color;
+var server = require('../utils/server.js');
 var Clearfix = require('../comps/clearfix.jsx').Clearfix;
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var MaterialWrapper = require('../comps/material-wrapper.jsx');

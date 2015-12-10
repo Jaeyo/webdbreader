@@ -132,5 +132,43 @@ exports.initPrototypeFunctions = function() {
 			if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
 		}
 		return true;
+	};
+
+	Object.renameProperty = function(obj, oldName, newName) {
+		if(oldName === newName) return false;
+		if(obj.hasOwnProperty(oldName)) {
+			obj[newName] = obj[oldName];
+			delete obj[oldName];
+			return true;
+		}
+		return false;
+	};
+};
+
+exports.jdbcTmpl = {
+	oracle: {
+		driver: 'oracle.jdbc.driver.OracleDriver',
+		connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
+		port: 1521
+	},
+	mysql: {
+		driver: 'com.mysql.jdbc.Driver',
+		connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
+		port: 3306
+	},
+	mssql: {
+		driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+		connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
+		port: 1433
+	},
+	db2: {
+		driver: 'com.ibm.db2.jcc.DB2Driver',
+		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+		port: 50000
+	},
+	tibero: {
+		driver: 'com.ibm.db2.jcc.DB2Driver',
+		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
+		port: 8629
 	}
 };

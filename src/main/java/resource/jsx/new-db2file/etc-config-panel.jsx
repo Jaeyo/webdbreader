@@ -10,11 +10,7 @@ var React = require('react'),
 
 var EtcConfigPanel = React.createClass({
 	PropTypes: {
-		period: React.PropTypes.string.isRequired,
-		charset: React.PropTypes.string.isRequired,
-		delimiter: React.PropTypes.string.isRequired,
-		outputPath: React.PropTypes.string.isRequired,
-		onChange: React.PropTypes.func.isRequired
+		dataAdapter: React.PropTypes.object.isRequired
 	},
 
 	getInitialState() {
@@ -25,7 +21,8 @@ var EtcConfigPanel = React.createClass({
 	},
 
 	handleChange(name, evt) {
-		
+		evt.stopPropagation();
+
 		switch(name) {
 		case 'simplePeriod':
 		case 'timeUnit':
@@ -42,7 +39,7 @@ var EtcConfigPanel = React.createClass({
 		case 'outputPath':
 			var state = {};
 			state[name] = evt.target.value;
-			this.props.onChange(state);
+			this.props.dataAdapter.emit('stateChange', state);
 			break;
 		}
 	},
@@ -63,7 +60,7 @@ var EtcConfigPanel = React.createClass({
 			period += ' * 24 * 60 * 60 * 1000';
 			break;
 		}
-		this.props.onChange({ period: period });
+		this.props.dataAdapter.emit('stateChange', { period: period });
 	},
 
 	styles() {
@@ -114,19 +111,19 @@ var EtcConfigPanel = React.createClass({
 					<TextField
 						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.charset}
+						value={this.props.dataAdapter.data('charset')}
 						floatingLabelText="charset"
 						onChange={this.handleChange.bind(this, 'charset')} />
 					<TextField
 						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.delimiter}
+						value={this.props.dataAdapter.data('delimiter')}
 						floatingLabelText="delimiter"
 						onChange={this.handleChange.bind(this, 'delimiter')} />
 					<TextField
 						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.outputPath}
+						value={this.props.dataAdapter.data('outputPath')}
 						floatingLabelText="outputPath"
 						onChange={this.handleChange.bind(this, 'outputPath')} />
 				</CardText>

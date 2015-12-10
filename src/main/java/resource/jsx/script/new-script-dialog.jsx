@@ -26,9 +26,7 @@ var NewScriptDialog = React.createClass({
 
 	goDb2Db(evt) {
 		evt.stopPropagation();
-		alert('not implments');
-		//TODO
-		// window.location.href = '/Script/NewDb2Db';
+		window.location.href = '/Script/NewDb2Db';
 	},
 
 	goImportVer1Script(evt) {

@@ -12,31 +12,31 @@ var ScriptConfirmDialog = React.createClass({
 	scriptMaker: new ScriptMaker(),
 
 	PropTypes: {
-		visible: React.PropTypes.bool.isRequired,
-		onClose: React.PropTypes.func.isRequired,
 		saveMode: React.PropTypes.bool,
 		editMode: React.PropTypes.bool,
 		title: React.PropTypes.string, //required when editMode is true
+
+		period: React.PropTypes.string.isRequired,
 		dbVendor: React.PropTypes.string.isRequired,
 		dbIp: React.PropTypes.string.isRequired,
 		dbPort: React.PropTypes.string.isRequired,
 		dbSid: React.PropTypes.string.isRequired,
 		jdbcDriver: React.PropTypes.string.isRequired,
 		jdbcConnUrl: React.PropTypes.string.isRequired,
-		jdbcUsername:React.PropTypes.string.isRequired,
+		jdbcUsername: React.PropTypes.string.isRequired,
 		jdbcPassword: React.PropTypes.string.isRequired,
+		columns: React.PropTypes.string.isRequired,
+		table: React.PropTypes.string.isRequired,
 		bindingType: React.PropTypes.string.isRequired,
 		bindingColumn: React.PropTypes.string.isRequired,
-		table: React.PropTypes.string.isRequired,
-		columns: React.PropTypes.string.isRequired,
-		period: React.PropTypes.string.isRequired,
-		charset: React.PropTypes.string.isRequired,
 		delimiter: React.PropTypes.string.isRequired,
+		charset: React.PropTypes.string.isRequired,
 		outputPath: React.PropTypes.string.isRequired
 	},
 
 	getInitialState() {
 		return { 
+			visible: false,
 			scriptName: ''
 		};
 	},
@@ -52,6 +52,14 @@ var ScriptConfirmDialog = React.createClass({
 			this.editor.$blockScrolling = Infinity;
 			this.editor.setValue(this.makeScript());
 		}
+	},
+
+	show() {
+		this.setState({ visible: true });
+	},
+
+	hide() {
+		this.setState({ visible: false });
 	},
 
 	makeScript() {
@@ -95,12 +103,12 @@ var ScriptConfirmDialog = React.createClass({
 			server.postScript(data)
 				.then(function(success) {
 					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
+						this.hide();
 					}.bind(this)).show('success', 'script registered')
 				}.bind(this))
 				.catch(function(err) {
 					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
+						this.hide();
 					}.bind(this)).show('danger', err);
 				}.bind(this));
 		} else if(action === 'ok' && this.props.editMode === true) {
@@ -121,38 +129,20 @@ var ScriptConfirmDialog = React.createClass({
 			server.editScript(data) 
 				.then(function(success) {
 					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
+						this.hide();
 					}.bind(this)).show('success', 'script updated')
 				}.bind(this))
 				.catch(function(err) {
 					this.refs.alertDialog.onHide(function() {
-						this.props.onClose();
+						this.hide();
 					}.bind(this)).show('danger', err);
 				}.bind(this));
 		} else if(action === 'cancel') {
-			this.props.onClose();
+			this.hide();
 		}
 	},
 
-	styles() {
-		return {
-			editorWrapper: {
-				position: 'relative',
-				height: '250px'
-			},
-			editor: {
-				position: 'absolute',
-				top: 0,
-				bottom: 0,
-				right: 0,
-				left: 0
-			}
-		};
-	},
-
 	render() {
-		var style = this.styles();
-
 		return (
 			<Dialog
 				title="스크립트"
@@ -163,7 +153,7 @@ var ScriptConfirmDialog = React.createClass({
 				actionFocus="ok"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
-				open={this.props.visible}>
+				open={this.state.visible}>
 				{
 					this.props.editMode === true ? null : (
 						<TextField
@@ -173,8 +163,8 @@ var ScriptConfirmDialog = React.createClass({
 							onChange={ function(evt) { this.setState({ scriptName: evt.target.value }); }.bind(this) } />
 					)
 				}
-				<div id="editor-wrapper" style={style.editorWrapper}>
-					<div id="editor" style={style.editor} />
+				<div id="editor-wrapper" style={{ position: 'relative', height: '250px' }}>
+					<div id="editor" style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 }} />
 				</div>
 				<AlertDialog ref="alertDialog" />
 			</Dialog>

@@ -1,16 +1,15 @@
-var React = require('react'),
-	ReactDOM = require('react-dom'),
-	precondition = require('./utils/precondition.js'),
-	AlertDialog = require('./comps/dialog/alert-dialog.jsx'),
-	DatabaseConfigPanel = require('./new-db2file/database-config-panel.jsx'),
-	BindingTypePanel = require('./new-db2file/binding-type-panel.jsx'),
-	EtcConfigPanel = require('./new-db2file/etc-config-panel.jsx'),
-	ScriptConfirmDialog = require('./new-db2file/script-confirm-dialog.jsx'),
-	MaterialWrapper = require('./comps/material-wrapper.jsx'),
-	Button = MaterialWrapper.Button;
+var React = require('react');
+var precondition = require('./utils/precondition.js');
+var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
+var DatabaseConfigCard = require('./new-db2file/database-config-card.jsx');
+var BindingTypePanel = require('./new-db2file/binding-type-panel.jsx');
+var EtcConfigPanel = require('./new-db2file/etc-config-panel.jsx');
+var ScriptConfirmDialog = require('./new-db2file/script-confirm-dialog.jsx');
+var MaterialWrapper = require('./comps/material-wrapper.jsx');
+var Button = MaterialWrapper.Button;
 
 var NewDb2FileView = React.createClass({
-	script: null,
+	dataAdapter: null,
 
 	getInitialState() {
 		return {
@@ -29,21 +28,22 @@ var NewDb2FileView = React.createClass({
 			period: '6 * 1000',
 			charset: 'utf8',
 			delimiter: '|',
-			outputPath: '',
-			confirmScriptDialogVisible: false
+			outputPath: ''
 		};
 	},
 
-	onChange(args) {
-		if(args.script) {
-			this.script = args.script;
-			delete args.script;
-			if(Object.keys(args).length === 0) return;
+	componentWillMount() {
+		if(this.dataAdapter == null) {
+			this.dataAdapter = newDataAdapter();
+			this.dataAdapter.on('stateChange', function(state) {
+				if(state.columns) state.columns = state.columns.toLowerCase();
+				this.setState(state);
+			}.bind(this));
+
+			this.dataAdapter.onData(function(key) {
+				return this.state[key];
+			}.bind(this));
 		}
-
-		if(args.columns) args.columns = args.columns.toLowerCase();
-
-		this.setState(args);
 	},
 
 	showScriptDialog() {
@@ -68,13 +68,17 @@ var NewDb2FileView = React.createClass({
 			return;
 		}
 
-		this.setState({
-			confirmScriptDialogVisible: true
-		});
+		this.refs.scriptConfirmDialog.show();
 	},
 
 	render() {
-		var dbConfigPanelParams = {
+
+		var databaseConfigPanelData = {
+			//TODO		
+		};
+
+		var scriptConfirmDialogData = {
+			period: this.state.period
 			dbVendor: this.state.dbVendor,
 			dbIp: this.state.dbIp,
 			dbPort: this.state.dbPort,
@@ -83,62 +87,28 @@ var NewDb2FileView = React.createClass({
 			jdbcConnUrl: this.state.jdbcConnUrl,
 			jdbcUsername: this.state.jdbcUsername,
 			jdbcPassword: this.state.jdbcPassword,
-			table: this.state.table,
 			columns: this.state.columns,
-			onChange: this.onChange
-		};
-
-		var bindingTypePanelParams = {
+			table: this.state.table,
 			bindingType: this.state.bindingType,
 			bindingColumn: this.state.bindingColumn,
-			jdbcDriver: this.state.jdbcDriver,
-			jdbcConnUrl: this.state.jdbcConnUrl,
-			jdbcUsername: this.state.jdbcUsername,
-			jdbcPassword: this.state.jdbcPassword,
-			table: this.state.table,
-			onChange: this.onChange
-		};
-
-		var etcConfigPanelParams = {
-			period: this.state.period,
-			charset: this.state.charset,
 			delimiter: this.state.delimiter,
-			outputPath: this.state.outputPath,
-			onChange: this.onChange
-		};
-
-		var scriptConfirmDialogParams = {
-			visible: this.state.confirmScriptDialogVisible,
-			onClose: function() { this.setState({ confirmScriptDialogVisible: false }); }.bind(this),
-			saveMode: true,
-			dbVendor: this.state.dbVendor,
-			dbIp: this.state.dbIp,
-			dbPort: this.state.dbPort,
-			dbSid: this.state.dbSid,
-			jdbcDriver: this.state.jdbcDriver,
-			jdbcConnUrl: this.state.jdbcConnUrl,
-			jdbcUsername:this.state.jdbcUsername,
-			jdbcPassword: this.state.jdbcPassword,
-			bindingType: this.state.bindingType,
-			bindingColumn: this.state.bindingColumn,
-			table: this.state.table,
-			columns: this.state.columns,
-			period: this.state.period,
 			charset: this.state.charset,
-			delimiter: this.state.delimiter,
 			outputPath: this.state.outputPath
 		};
 
 		return (
 			<div> 
-				<DatabaseConfigPanel {...dbConfigPanelParams} />
-				<BindingTypePanel {...bindingTypePanelParams} />
-				<EtcConfigPanel {...etcConfigPanelParams} />
+				<DatabaseConfigCard dataAdapter={this.dataAdapter} />
+				<BindingTypePanel dataAdapter={this.dataAdapter} />
+				<EtcConfigPanel dataAdapter={this.dataAdapter} />
 				<Button
 					label="생성"
 					primary={true}
 					onClick={this.showScriptDialog} />
-				<ScriptConfirmDialog {...scriptConfirmDialogParams} />
+				<ScriptConfirmDialog 
+					ref="scriptConfirmDialog"
+					saveMode={true}
+					{...scriptConfirmDialogData} />
 				<AlertDialog ref="alertDialog" />
 			</div>
 		);

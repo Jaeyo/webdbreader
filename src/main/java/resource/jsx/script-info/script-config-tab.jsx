@@ -4,6 +4,7 @@ var _ = require('underscore');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
+var newDataAdapter = require('../utils/data-adapter.js').newDataAdapter;
 var Db2File = {
 	DatabaseConfigPanel: require('../new-db2file/database-config-panel.jsx'),
 	BindingTypePanel: require('../new-db2file/binding-type-panel.jsx'),
@@ -30,10 +31,6 @@ var ScriptConfigTab = React.createClass({
 
 	componentWillReceiveProps(newProps) {
 		this.parseScript(newProps.script);
-	},
-
-	onChange(args) {
-		this.setState(args);
 	},
 
 	parseScript(script) {
@@ -69,12 +66,7 @@ var ScriptConfigTab = React.createClass({
 				parsedView = (<UnknownScriptView />);
 				break;
 			case 'db2file':
-				parsedView = (
-					<Db2FileScriptView 
-						title={this.props.title}
-						scriptObj={this.state.scriptObj} 
-						onChange={this.onChange} />
-				);
+				parsedView = ( <Db2FileScriptView title={this.props.title} scriptObj={this.state.scriptObj} /> );
 				break;
 		}
 
@@ -95,94 +87,73 @@ var UnknownScriptView = (props) => {
 };
 
 
-
 var Db2FileScriptView = React.createClass({
+	dataAdapter: null,
+
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
-		scriptObj: React.PropTypes.object.isRequired,
-		onChange: React.PropTypes.func.isRequired
+		scriptObj: React.PropTypes.object.isRequired
 	},
 
 	getInitialState() {
-		return { scriptConfirmDialogVisible: false };
+		return { 
+			dbVendor: '',
+			dbIp: '',
+			dbPort: '',
+			dbSid: '',
+			jdbcDriver: '',
+			jdbcConnUrl: '',
+			jdbcUsername: '',
+			jdbcPassword: '',
+			table: '',
+			columns: '',
+			bindingType: 'simple',
+			bindingColumn: '',
+			period: '',
+			charset: '',
+			delimiter: '',
+			outputPath: '',
+			scriptConfirmDialogVisible: false 
+		};
+	},
+
+	componentWillMount() {
+		if(this.dataAdapter == null) {
+			this.dataAdapter = newDataAdapter();
+			this.dataAdapter.on('stateChange', function(state) {
+				if(state.columns) state.columns = state.columns.toLowerCase();
+				this.setState(state);
+			}.bind(this));
+
+			this.dataAdapter.onData(function(key) {
+				if(key === 'title') return this.props.title;
+				return this.state[key];
+			}.bind(this));
+		}
+
+		this.setState(this.props.scriptObj);
 	},
 
 	edit(evt) {
 		this.setState({ scriptConfirmDialogVisible: true });
 	},
 
-	onChange(args) {
-		var scriptObj = _.extend({}, this.props.scriptObj, args);
-		this.props.onChange({ scriptObj: scriptObj });
-	},
-
 	render() {
-		var dbConfigPanelParams = {
-			dbVendor: this.props.scriptObj.dbVendor,
-			dbIp: this.props.scriptObj.dbIp,
-			dbPort: this.props.scriptObj.dbPort,
-			dbSid: this.props.scriptObj.dbSid,
-			jdbcDriver: this.props.scriptObj.jdbcDriver,
-			jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
-			jdbcUsername: this.props.scriptObj.jdbcUsername,
-			jdbcPassword: this.props.scriptObj.jdbcPassword,
-			table: this.props.scriptObj.table,
-			columns: this.props.scriptObj.columns,
-			onChange: this.onChange
-		};
-
-		var bindingTypePanelParams = {
-			bindingType: this.props.scriptObj.bindingType,
-			bindingColumn: this.props.scriptObj.bindingColumn,
-			jdbcDriver: this.props.scriptObj.jdbcDriver,
-			jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
-			jdbcUsername: this.props.scriptObj.jdbcUsername,
-			jdbcPassword: this.props.scriptObj.jdbcPassword,
-			table: this.props.scriptObj.table,
-			onChange: this.onChange
-		};
-
-		var etcConfigPanelParams = {
-			period: this.props.scriptObj.period,
-			charset: this.props.scriptObj.charset,
-			delimiter: this.props.scriptObj.delimiter,
-			outputPath: this.props.scriptObj.outputPath,
-			onChange: this.onChange
-		};
-
-		var scriptConfirmDialogParams = {
-			visible: this.state.scriptConfirmDialogVisible,
-			onClose: function() { this.setState({ scriptConfirmDialogVisible: false }); }.bind(this),
-			editMode: true,
-			title: this.props.title,
-			dbVendor: this.props.scriptObj.dbVendor,
-			dbIp: this.props.scriptObj.dbIp,
-			dbPort: this.props.scriptObj.dbPort,
-			dbSid: this.props.scriptObj.dbSid,
-			jdbcDriver: this.props.scriptObj.jdbcDriver,
-			jdbcConnUrl: this.props.scriptObj.jdbcConnUrl,
-			jdbcUsername:this.props.scriptObj.jdbcUsername,
-			jdbcPassword: this.props.scriptObj.jdbcPassword,
-			bindingType: this.props.scriptObj.bindingType,
-			bindingColumn: this.props.scriptObj.bindingColumn,
-			table: this.props.scriptObj.table,
-			columns: this.props.scriptObj.columns,
-			period: this.props.scriptObj.period,
-			charset: this.props.scriptObj.charset,
-			delimiter: this.props.scriptObj.delimiter,
-			outputPath: this.props.scriptObj.outputPath
-		};
-
 		return (
 			<div>
-				<Db2File.DatabaseConfigPanel {...dbConfigPanelParams} />
-				<Db2File.BindingTypePanel {...bindingTypePanelParams} />
-				<Db2File.EtcConfigPanel {...etcConfigPanelParams} />
+				<Db2File.DatabaseConfigPanel dataAdapter={this.dataAdapter} />
+				<Db2File.BindingTypePanel dataAdapter={this.dataAdapter} />
+				<Db2File.EtcConfigPanel dataAdapter={this.dataAdapter} />
 				<Button 
 					label="수정"
 					primary={true}
 					onClick={this.edit} />
-				<Db2File.ScriptConfirmDialog {...scriptConfirmDialogParams} />
+				<Db2File.ScriptConfirmDialog 
+					visible={this.state.scriptConfirmDialogVisible}
+					onClose={ function() { this.setState({ scriptConfirmDialogVisible: false }); }.bind(this) }
+					editMode={true}
+					title={this.dataAdapter.data('title')}
+					dataAdapter={this.dataAdapter} />
 			</div>
 		);
 	}

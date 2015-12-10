@@ -70,6 +70,8 @@ var database = function(jdbc) {
 				password: jdbc.password,
 				query: query
 			});
+		}, update: function(query) {
+			return data(query).dbUpdate(jdbc);
 		}
 	};
 };

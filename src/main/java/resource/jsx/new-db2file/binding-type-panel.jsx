@@ -21,14 +21,7 @@ var React = require('react'),
 
 var BindingTypePanel = React.createClass({
 	PropTypes: {
-		bindingType: React.PropTypes.string.isRequired,
-		bindingColumn: React.PropTypes.string.isRequired,
-		jdbcDriver: React.PropTypes.string.isRequired,
-		jdbcConnUrl: React.PropTypes.string.isRequired,
-		jdbcUsername: React.PropTypes.string.isRequired,
-		jdbcPassword: React.PropTypes.string.isRequired,
-		table: React.PropTypes.string.isRequired,
-		onChange: React.PropTypes.func.isRequired
+		dataAdapter: React.PropTypes.object.isRequired
 	},
 
 	getDefaultProps() {
@@ -42,14 +35,14 @@ var BindingTypePanel = React.createClass({
 	},
 
 	onBindingTypeChanged(evt) {
-		this.props.onChange({ 
+		this.props.dataAdapter.emit('stateChange', {
 			bindingType: evt.target.value,
 			bindingColumn: ''
 		});
 	},
 
 	onBindingColumnChange(bindingColumn) {
-		this.props.onChange({ bindingColumn: bindingColumn });
+		this.props.dataAdapter.emit('stateChange', { bindingColumn: bindingColumn });
 	},
 
 	toggleBindingColumnConfigDialog() {
@@ -70,10 +63,10 @@ var BindingTypePanel = React.createClass({
 	render() {
 		var style = this.styles();
 		var jdbc = {
-			driver: this.props.jdbcDriver,
-			connUrl: this.props.jdbcConnUrl,
-			username: this.props.jdbcUsername,
-			password: this.props.jdbcPassword
+			driver: this.props.dataAdapter.data('jdbcDriver'),
+			connUrl: this.props.dataAdapter.data('jdbcConnUrl'),
+			username: this.props.dataAdapter.data('jdbcUsername'),
+			password: this.props.dataAdapter.data('jdbcPassword')
 		};
 
 		return (
@@ -98,10 +91,10 @@ var BindingTypePanel = React.createClass({
 							label="sequence binding" />
 					</RadioButtonGroup>
 					{
-						this.props.bindingType === 'simple' ? null : (
+						this.props.dataAdapter.data('bindingType') === 'simple' ? null : (
 							<div>
 								<TextField
-									value={this.props.bindingColumn}	
+									value={this.props.dataAdapter.data('bindingColumn')}	
 									floatingLabelText="binding columns"
 									inputStyle={style.textfieldInputStyle}
 									fullWidth={true}
@@ -109,10 +102,8 @@ var BindingTypePanel = React.createClass({
 								<BindingColumnConfigDialog
 									visible={this.state.isBindingColumnConfigDialogVisible}
 									onClose={this.toggleBindingColumnConfigDialog}
-									table={this.props.table}
-									bindingColumn={this.props.bindingColumn}
 									onBindingColumnChange={this.onBindingColumnChange}
-									jdbc={jdbc} />
+									dataAdapter={this.props.dataAdapter} />
 							</div>
 						)
 					}
@@ -127,10 +118,8 @@ var BindingColumnConfigDialog = React.createClass({
 	PropTypes: {
 		visible: React.PropTypes.bool.isRequired,
 		onClose: React.PropTypes.func.isRequired,
-		table: React.PropTypes.string.isRequired,
-		bindingColumn: React.PropTypes.string.isRequired,
 		onBindingColumnChange: React.PropTypes.func.isRequired,
-		jdbc: React.PropTypes.object.isRequired
+		dataAdapter: React.PropTypes.object.isRequired
 	},
 
 	getDefaultProps() {
@@ -154,7 +143,15 @@ var BindingColumnConfigDialog = React.createClass({
 	},
 
 	loadColumns() {
-		server.loadColumns(this.props.jdbc, this.props.table)
+		server.loadColumns({
+			jdbc: {
+				driver: this.props.dataAdapter.data('jdbcDriver'),
+				connUrl: this.props.dataAdapter.data('jdbcConnUrl'),
+				username: this.props.dataAdapter.data('jdbcUsername'),
+				password: this.props.dataAdapter.data('jdbcPassword')
+			},
+			table: this.props.dataAdapter.data('table')
+		})
 		.then(function(columns) {
 			this.setState({
 				isColumnsLoaded: true,
@@ -215,7 +212,7 @@ var BindingColumnConfigDialog = React.createClass({
 					<CardText>
 						<TextField
 							floatingLabelText="columns"
-							value={this.props.bindingColumn} 
+							value={this.props.dataAdapter.data('bindingColumn')} 
 							onChange={this.onBindingColumnTextFieldChange}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
@@ -227,7 +224,5 @@ var BindingColumnConfigDialog = React.createClass({
 		);
 	}
 });
-
-
 
 module.exports = BindingTypePanel;

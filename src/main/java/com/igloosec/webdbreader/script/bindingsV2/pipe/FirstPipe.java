@@ -8,17 +8,20 @@ import sun.org.mozilla.javascript.internal.ScriptableObject;
 import com.igloosec.webdbreader.script.bindingsV2.base.Pipe;
 import com.igloosec.webdbreader.script.bindingsV2.base.PipeHead;
 
-public class MapPipe extends Pipe {
-
+public class FirstPipe extends Pipe {
 	private Function callback;
+	private boolean isFirst = true;
 	
-	public MapPipe(PipeHead headPipe, Function callback) {
-		super(headPipe);
+	
+	public FirstPipe(PipeHead pipeHead, Function callback) {
+		super(pipeHead);
 		this.callback = callback;
 	}
 
 	@Override
 	public void onNext(Object data) throws Exception {
+		if(isFirst == false) return;
+		
 		Context context = Context.enter();
 		ScriptableObject scope = context.initStandardObjects();
 		Scriptable that = context.newObject(scope);
@@ -29,7 +32,7 @@ public class MapPipe extends Pipe {
 	@Override
 	public void onComplete() throws Exception {
 	}
-	
+
 	@Override
 	public void onException(Exception e) {
 	}

@@ -5,6 +5,7 @@ import sun.org.mozilla.javascript.internal.NativeObject;
 
 import com.igloosec.webdbreader.script.ScriptThread;
 import com.igloosec.webdbreader.script.bindingsV2.pipe.DBUpdatePipe;
+import com.igloosec.webdbreader.script.bindingsV2.pipe.FirstPipe;
 import com.igloosec.webdbreader.script.bindingsV2.pipe.GroupPipe;
 import com.igloosec.webdbreader.script.bindingsV2.pipe.LogPipe;
 import com.igloosec.webdbreader.script.bindingsV2.pipe.MapPipe;
@@ -43,6 +44,18 @@ public class Pipeable {
 	public MapPipe map(Function callback) {
 		try {
 			MapPipe nextPipe = new MapPipe(this.pipeHead, callback);
+			setNextPipe(nextPipe);
+			return nextPipe;
+		} catch(Exception e) {
+			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
+			ScriptThread.currentThread().getLogger().error(errmsg, e);
+			return null;
+		}
+	}
+	
+	public FirstPipe first(Function callback) {
+		try {
+			FirstPipe nextPipe = new FirstPipe(this.pipeHead, callback);
 			setNextPipe(nextPipe);
 			return nextPipe;
 		} catch(Exception e) {

@@ -44,6 +44,7 @@ public class DBSelectPipe extends PipeHead {
 					valueArr[i-1] = result.getObject(i);
 				next(valueArr);
 			}
+			complete();
 		} finally {
 			if(conn != null) conn.close();
 		}
