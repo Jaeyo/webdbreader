@@ -54,9 +54,9 @@
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(582);
 	var ScriptInfoView = __webpack_require__(715);
-	var NewDb2FileView = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./new-db2file.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var NewDb2FileView = __webpack_require__(724);
 	var NewDb2DbView = __webpack_require__(731);
-	__webpack_require__(735);
+	__webpack_require__(733);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -90049,7 +90049,7 @@
 	var React = __webpack_require__(1);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var ScriptConfigTab = __webpack_require__(716);
-	var CodeTab = __webpack_require__(727);
+	var CodeTab = __webpack_require__(721);
 	var server = __webpack_require__(583);
 	var MaterialWrapper = __webpack_require__(596);
 	var Button = MaterialWrapper.Button;
@@ -90215,13 +90215,12 @@
 	var MaterialWrapper = __webpack_require__(596);
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(711);
-	var newDataAdapter = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../utils/data-adapter.js\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).newDataAdapter;
 	var Db2File = {
-		DatabaseConfigPanel: __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../new-db2file/database-config-panel.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())),
-		BindingTypePanel: __webpack_require__(722),
-		EtcConfigPanel: __webpack_require__(723),
-		ScriptConfirmDialog: __webpack_require__(724),
-		ScriptMaker: __webpack_require__(726)
+		DatabaseConfigCard: __webpack_require__(725),
+		BindingTypeCard: __webpack_require__(729),
+		EtcConfigCard: __webpack_require__(730),
+		ScriptConfirmDialog: __webpack_require__(718),
+		ScriptMaker: __webpack_require__(720)
 	};
 
 	var ScriptConfigTab = React.createClass({
@@ -90356,9 +90355,9 @@
 			return React.createElement(
 				'div',
 				null,
-				React.createElement(Db2File.DatabaseConfigPanel, { dataAdapter: this.dataAdapter }),
-				React.createElement(Db2File.BindingTypePanel, { dataAdapter: this.dataAdapter }),
-				React.createElement(Db2File.EtcConfigPanel, { dataAdapter: this.dataAdapter }),
+				React.createElement(Db2File.DatabaseConfigCard, { dataAdapter: this.dataAdapter }),
+				React.createElement(Db2File.BindingTypeCard, { dataAdapter: this.dataAdapter }),
+				React.createElement(Db2File.EtcConfigCard, { dataAdapter: this.dataAdapter }),
 				React.createElement(Button, {
 					label: '수정',
 					primary: true,
@@ -90547,465 +90546,15 @@
 
 
 /***/ },
-/* 718 */,
-/* 719 */,
-/* 720 */,
-/* 721 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-
-	var PolymerIcon = React.createClass({
-		displayName: 'PolymerIcon',
-
-		//http://dmfrancisco.github.io/react-icons/
-		propTypes: {
-			icon: React.PropTypes.string.isRequired,
-			size: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-			style: React.PropTypes.object
-		},
-		getDefaultProps: function getDefaultProps() {
-			return { size: 24 };
-		},
-		_mergeStyle: function _mergeStyle() {
-			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-				args[_key] = arguments[_key];
-			}
-
-			return Object.assign.apply(Object, [{}].concat(args));
-		},
-		renderGraphic: function renderGraphic() {
-			switch (this.props.icon) {
-				case 'my-icon':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M7.41 7.84l4.59 4.58 4.59-4.58 1.41 1.41-6 6-6-6z' })
-					);
-				case 'another-icon':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M7.41 15.41l4.59-4.58 4.59 4.58 1.41-1.41-6-6-6 6z' })
-					);
-				case 'config':
-					return React.createElement(
-						'g',
-						null,
-						React.createElement('path', { d: 'M18.622,8.371l-0.545-1.295c0,0,1.268-2.861,1.156-2.971l-1.679-1.639c-0.116-0.113-2.978,1.193-2.978,1.193l-1.32-0.533\r c0,0-1.166-2.9-1.326-2.9H9.561c-0.165,0-1.244,2.906-1.244,2.906L6.999,3.667c0,0-2.922-1.242-3.034-1.131L2.289,4.177\r C2.173,4.29,3.507,7.093,3.507,7.093L2.962,8.386c0,0-2.962,1.141-2.962,1.295v2.322c0,0.162,2.969,1.219,2.969,1.219l0.545,1.291\r c0,0-1.268,2.859-1.157,2.969l1.678,1.643c0.114,0.111,2.977-1.195,2.977-1.195l1.321,0.535c0,0,1.166,2.898,1.327,2.898h2.369\r c0.164,0,1.244-2.906,1.244-2.906l1.322-0.535c0,0,2.916,1.242,3.029,1.133l1.678-1.641c0.117-0.115-1.22-2.916-1.22-2.916\r l0.544-1.293c0,0,2.963-1.143,2.963-1.299v-2.32C21.59,9.425,18.622,8.371,18.622,8.371z M14.256,10.794\r c0,1.867-1.553,3.387-3.461,3.387c-1.906,0-3.461-1.52-3.461-3.387s1.555-3.385,3.461-3.385\r C12.704,7.41,14.256,8.927,14.256,10.794z' })
-					);
-			}
-		},
-		render: function render() {
-			var styles = {
-				fill: 'currentcolor',
-				verticalAlign: 'middle',
-				width: this.props.size,
-				height: this.props.size
-			};
-
-			return React.createElement(
-				'svg',
-				{
-					viewBox: '0 0 24 24',
-					preserveAspectRatio: 'xMidYMid meet',
-					fit: true,
-					style: this._mergeStyle(styles, this.props.style) },
-				this.renderGraphic()
-			);
-		}
-	});
-
-	module.exports = PolymerIcon;
-
-/***/ },
-/* 722 */
+/* 718 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1),
-	    jsUtil = __webpack_require__(161),
-	    color = jsUtil.color,
+	    precondition = __webpack_require__(719),
 	    server = __webpack_require__(583),
-	    PolymerIcon = __webpack_require__(721),
-	    MaterialWrapper = __webpack_require__(596),
-	    Button = MaterialWrapper.Button,
-	    TextField = MaterialWrapper.TextField,
-	    SelectField = MaterialWrapper.SelectField,
-	    Card = MaterialWrapper.Card,
-	    CardHeader = MaterialWrapper.CardHeader,
-	    CardText = MaterialWrapper.CardText,
-	    CircularProgress = MaterialWrapper.CircularProgress,
-	    List = MaterialWrapper.List,
-	    ListItem = MaterialWrapper.ListItem,
-	    ListDivider = MaterialWrapper.ListDivider,
-	    Dialog = MaterialWrapper.Dialog,
-	    RadioButton = MaterialWrapper.RadioButton,
-	    RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
-
-	var BindingTypePanel = React.createClass({
-		displayName: 'BindingTypePanel',
-
-		PropTypes: {
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		getDefaultProps: function getDefaultProps() {
-			return { bindingType: 'simple' };
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isBindingColumnConfigDialogVisible: false
-			};
-		},
-
-		onBindingTypeChanged: function onBindingTypeChanged(evt) {
-			this.props.dataAdapter.emit('stateChange', {
-				bindingType: evt.target.value,
-				bindingColumn: ''
-			});
-		},
-
-		onBindingColumnChange: function onBindingColumnChange(bindingColumn) {
-			this.props.dataAdapter.emit('stateChange', { bindingColumn: bindingColumn });
-		},
-
-		toggleBindingColumnConfigDialog: function toggleBindingColumnConfigDialog() {
-			this.setState({ isBindingColumnConfigDialogVisible: !this.state.isBindingColumnConfigDialogVisible });
-		},
-
-		styles: function styles() {
-			return {
-				card: {
-					marginBottom: '10px'
-				},
-				textfieldInputStyle: {
-					color: 'black'
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-			var jdbc = {
-				driver: this.props.dataAdapter.data('jdbcDriver'),
-				connUrl: this.props.dataAdapter.data('jdbcConnUrl'),
-				username: this.props.dataAdapter.data('jdbcUsername'),
-				password: this.props.dataAdapter.data('jdbcPassword')
-			};
-
-			return React.createElement(
-				Card,
-				{ style: style.card },
-				React.createElement(CardHeader, {
-					title: '바인딩 타입 설정',
-					subtitle: '바인딩 타입을 설정합니다.',
-					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-				React.createElement(
-					CardText,
-					null,
-					React.createElement(
-						RadioButtonGroup,
-						{
-							name: 'bindingType',
-							defaultSelected: 'simple',
-							onChange: this.onBindingTypeChanged },
-						React.createElement(RadioButton, {
-							value: 'simple',
-							label: 'simple binding' }),
-						React.createElement(RadioButton, {
-							value: 'date',
-							label: 'date binding' }),
-						React.createElement(RadioButton, {
-							value: 'sequence',
-							label: 'sequence binding' })
-					),
-					this.props.dataAdapter.data('bindingType') === 'simple' ? null : React.createElement(
-						'div',
-						null,
-						React.createElement(TextField, {
-							value: this.props.dataAdapter.data('bindingColumn'),
-							floatingLabelText: 'binding columns',
-							inputStyle: style.textfieldInputStyle,
-							fullWidth: true,
-							onFocus: this.toggleBindingColumnConfigDialog }),
-						React.createElement(BindingColumnConfigDialog, {
-							visible: this.state.isBindingColumnConfigDialogVisible,
-							onClose: this.toggleBindingColumnConfigDialog,
-							onBindingColumnChange: this.onBindingColumnChange,
-							dataAdapter: this.props.dataAdapter })
-					)
-				)
-			);
-		}
-	});
-
-	var BindingColumnConfigDialog = React.createClass({
-		displayName: 'BindingColumnConfigDialog',
-
-		PropTypes: {
-			visible: React.PropTypes.bool.isRequired,
-			onClose: React.PropTypes.func.isRequired,
-			onBindingColumnChange: React.PropTypes.func.isRequired,
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		getDefaultProps: function getDefaultProps() {
-			return { visible: false };
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				isColumnsLoaded: false,
-				loadedColumns: null
-			};
-		},
-
-		componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-			if (prevProps.visible === false && this.props.visible === true) this.loadColumns();
-		},
-
-		onBindingColumnTextFieldChange: function onBindingColumnTextFieldChange(evt) {
-			this.props.onBindingColumnChange(evt.target.value);
-		},
-
-		loadColumns: function loadColumns() {
-			server.loadColumns({
-				jdbc: {
-					driver: this.props.dataAdapter.data('jdbcDriver'),
-					connUrl: this.props.dataAdapter.data('jdbcConnUrl'),
-					username: this.props.dataAdapter.data('jdbcUsername'),
-					password: this.props.dataAdapter.data('jdbcPassword')
-				},
-				table: this.props.dataAdapter.data('table')
-			}).then((function (columns) {
-				this.setState({
-					isColumnsLoaded: true,
-					loadedColumns: columns
-				});
-			}).bind(this))['catch']((function (err) {
-				console.error(err.stack);
-				this.setState({ isColumnsLoaded: false });
-				if (typeof err !== 'string') err = JSON.stringify(err);
-				//TODO layer popup alert error
-				alert(err);
-			}).bind(this));
-		},
-
-		renderColumnList: function renderColumnList() {
-			if (this.state.isColumnsLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
-
-			return React.createElement(
-				List,
-				null,
-				this.state.loadedColumns.map((function (column) {
-					var columnName = column.columnName.toLowerCase();
-					var columnType = column.columnType;
-
-					var onClick = (function () {
-						this.props.onBindingColumnChange(columnName);
-					}).bind(this);
-
-					return React.createElement(ListItem, {
-						key: columnName,
-						primaryText: columnName,
-						secondaryText: columnType,
-						onClick: onClick });
-				}).bind(this))
-			);
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					actions: [{ text: 'close', onClick: this.props.onClose }],
-					actionFocus: 'close',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.props.visible },
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'binding column 설정',
-						subtitle: 'binding column 정보를 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(TextField, {
-							floatingLabelText: 'columns',
-							value: this.props.dataAdapter.data('bindingColumn'),
-							onChange: this.onBindingColumnTextFieldChange,
-							fullWidth: true }),
-						React.createElement(
-							'div',
-							{ style: { width: '100%', height: '300px', overflow: 'auto' } },
-							this.renderColumnList()
-						)
-					)
-				)
-			);
-		}
-	});
-
-	module.exports = BindingTypePanel;
-
-/***/ },
-/* 723 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1),
-	    PolymerIcon = __webpack_require__(721),
-	    MaterialWrapper = __webpack_require__(596),
-	    Button = MaterialWrapper.Button,
-	    TextField = MaterialWrapper.TextField,
-	    SelectField = MaterialWrapper.SelectField,
-	    Card = MaterialWrapper.Card,
-	    CardHeader = MaterialWrapper.CardHeader,
-	    CardText = MaterialWrapper.CardText;
-
-	var EtcConfigPanel = React.createClass({
-		displayName: 'EtcConfigPanel',
-
-		PropTypes: {
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				timeUnit: 'min',
-				simplePeriod: '1'
-			};
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			switch (name) {
-				case 'simplePeriod':
-				case 'timeUnit':
-					var state = {
-						simplePeriod: this.state.simplePeriod,
-						timeUnit: this.state.timeUnit
-					};
-					state[name] = evt.target.value;
-					this.setState(state);
-					this.updatePeriod(state.simplePeriod, state.timeUnit);
-					break;
-				case 'charset':
-				case 'delimiter':
-				case 'outputPath':
-					var state = {};
-					state[name] = evt.target.value;
-					this.props.dataAdapter.emit('stateChange', state);
-					break;
-			}
-		},
-
-		updatePeriod: function updatePeriod(simplePeriod, timeUnit) {
-			var period = simplePeriod;
-			switch (timeUnit) {
-				case 'sec':
-					period += ' * 1000';
-					break;
-				case 'min':
-					period += ' * 60 * 1000';
-					break;
-				case 'hour':
-					period += ' * 60 * 60 * 1000';
-					break;
-				case 'day':
-					period += ' * 24 * 60 * 60 * 1000';
-					break;
-			}
-			this.props.dataAdapter.emit('stateChange', { period: period });
-		},
-
-		styles: function styles() {
-			return {
-				card: {
-					marginBottom: '10px'
-				},
-				periodTextField: {
-					width: '100px',
-					float: 'left'
-				},
-				timeunitSelectField: {
-					width: '100px',
-					float: 'left'
-				},
-				textFieldInputStyle: {
-					color: 'black'
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-			return React.createElement(
-				Card,
-				{ style: style.card },
-				React.createElement(CardHeader, {
-					title: '기타 설정',
-					subtitle: '기타 설정',
-					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-				React.createElement(
-					CardText,
-					null,
-					React.createElement(TextField, {
-						style: style.periodTextField,
-						value: this.state.simplePeriod,
-						floatingLabelText: 'period',
-						onChange: this.handleChange.bind(this, 'simplePeriod') }),
-					React.createElement(SelectField, {
-						style: style.timeunitSelectField,
-						floatingLabelText: 'timeunit',
-						value: this.state.timeUnit,
-						onChange: this.handleChange.bind(this, 'timeUnit'),
-						menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] }),
-					React.createElement(TextField, {
-						inputStyle: style.textFieldInputStyle,
-						fullWidth: true,
-						value: this.props.dataAdapter.data('charset'),
-						floatingLabelText: 'charset',
-						onChange: this.handleChange.bind(this, 'charset') }),
-					React.createElement(TextField, {
-						inputStyle: style.textFieldInputStyle,
-						fullWidth: true,
-						value: this.props.dataAdapter.data('delimiter'),
-						floatingLabelText: 'delimiter',
-						onChange: this.handleChange.bind(this, 'delimiter') }),
-					React.createElement(TextField, {
-						inputStyle: style.textFieldInputStyle,
-						fullWidth: true,
-						value: this.props.dataAdapter.data('outputPath'),
-						floatingLabelText: 'outputPath',
-						onChange: this.handleChange.bind(this, 'outputPath') })
-				)
-			);
-		}
-	});
-
-	module.exports = EtcConfigPanel;
-
-/***/ },
-/* 724 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1),
-	    precondition = __webpack_require__(725),
-	    server = __webpack_require__(583),
-	    ScriptMaker = __webpack_require__(726),
+	    ScriptMaker = __webpack_require__(720),
 	    AlertDialog = __webpack_require__(711),
 	    MaterialWrapper = __webpack_require__(596),
 	    Dialog = MaterialWrapper.Dialog,
@@ -91173,7 +90722,7 @@
 	module.exports = ScriptConfirmDialog;
 
 /***/ },
-/* 725 */
+/* 719 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -91210,7 +90759,7 @@
 	};
 
 /***/ },
-/* 726 */
+/* 720 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -91295,13 +90844,13 @@
 	module.exports = ScriptMaker;
 
 /***/ },
-/* 727 */
+/* 721 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var uuid = __webpack_require__(728);
+	var uuid = __webpack_require__(722);
 	var server = __webpack_require__(583);
 	var MaterialWrapper = __webpack_require__(596);
 	var AlertDialog = __webpack_require__(711);
@@ -91375,7 +90924,7 @@
 	module.exports = CodeTab;
 
 /***/ },
-/* 728 */
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//     uuid.js
@@ -91386,7 +90935,7 @@
 	// Unique ID creation requires a high quality random # generator.  We feature
 	// detect to determine the best RNG source, normalizing to a function that
 	// returns 128-bits of randomness, since that's what's usually required
-	var _rng = __webpack_require__(729);
+	var _rng = __webpack_require__(723);
 
 	// Maps for number <-> hex string conversion
 	var _byteToHex = [];
@@ -91564,7 +91113,7 @@
 
 
 /***/ },
-/* 729 */
+/* 723 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -91602,25 +91151,845 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 730 */,
+/* 724 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(1);
+	var _ = __webpack_require__(163);
+	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
+	var precondition = __webpack_require__(719);
+	var AlertDialog = __webpack_require__(711);
+	var DatabaseConfigCard = __webpack_require__(725);
+	var TableColumnConfigCard = __webpack_require__(728);
+	var BindingTypeCard = __webpack_require__(729);
+	var EtcConfigCard = __webpack_require__(730);
+	var ScriptConfirmDialog = __webpack_require__(718);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+
+	var NewDb2FileView = React.createClass({
+		displayName: 'NewDb2FileView',
+
+		getInitialState: function getInitialState() {
+			return {
+				dbVendor: 'oracle',
+				dbIp: '192.168.10.101',
+				dbPort: '1521',
+				dbSid: 'spiderx',
+				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+				jdbcUsername: 'admin_test',
+				jdbcPassword: 'admin_test',
+				table: '',
+				columns: '',
+				bindingType: 'simple',
+				bindingColumn: '',
+				period: '6 * 1000',
+				charset: 'utf8',
+				delimiter: '|',
+				outputPath: ''
+			};
+		},
+
+		handleStateChange: function handleStateChange(state) {
+			if (state.columns) state.columns = state.columns.toLowerCase();
+
+			if (state.dbVendor) {
+				if (state.dbVendor != 'etc') {
+					state.jdbcDriver = jdbcTmpl[state.dbVendor].driver;
+					state.dbPort = jdbcTmpl[state.dbVendor].port;
+					state.jdbcConnUrl = jdbcTmpl[state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			}
+			if (state.dbIp) {
+				if (this.state.dbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			}
+			if (state.dbPort) {
+				if (this.state.srcDbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			}
+			if (state.dbSid) {
+				if (this.state.dbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', state.dbSid);
+				}
+			}
+
+			this.setState(state);
+		},
+
+		showScriptDialog: function showScriptDialog() {
+			try {
+				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
+					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
+					return true;
+				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+			} catch (errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			this.refs.scriptConfirmDialog.show();
+		},
+
+		render: function render() {
+			var handleStateChange = { handleStateChange: this.handleStateChange };
+
+			var jdbc = {
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword
+			};
+
+			var dbInfo = {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
+
+			var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
+				title: 'database config',
+				subtitle: 'source database 연결정보를 설정합니다.'
+			});
+
+			var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				columns: this.state.columns
+			});
+
+			var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn
+			});
+
+			var etcConfigCardData = _.extend({}, handleStateChange, {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath
+			});
+
+			var scriptConfirmDialogData = _.extend({}, dbInfo, jdbc, {
+				period: this.state.period,
+				columns: this.state.columns,
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn,
+				delimiter: this.state.delimiter,
+				charset: this.state.charset,
+				outputPath: this.state.outputPath
+			});
+
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(DatabaseConfigCard, databaseConfigCardData),
+				React.createElement(TableColumnConfigCard, tableColumnConfigCardData),
+				React.createElement(BindingTypeCard, bindingTypeCardData),
+				React.createElement(EtcConfigCard, etcConfigCardData),
+				React.createElement(Button, {
+					label: '생성',
+					primary: true,
+					onClick: this.showScriptDialog }),
+				React.createElement(ScriptConfirmDialog, _extends({
+					ref: 'scriptConfirmDialog',
+					saveMode: true
+				}, scriptConfirmDialogData)),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = NewDb2FileView;
+
+/***/ },
+/* 725 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var jsUtil = __webpack_require__(161);
+	var color = jsUtil.color;
+	var jdbcTmpl = jsUtil.jdbcTmpl;
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(726);
+	var DbAddressDialog = __webpack_require__(727);
+
+	var DatabaseConfigCard = React.createClass({
+		displayName: 'DatabaseConfigCard',
+
+		PropTypes: {
+			title: React.PropTypes.string.isRequired,
+			subtitle: React.PropTypes.string.isRequired,
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			dbVendor: React.PropTypes.string.isRequired,
+			dbIp: React.PropTypes.string.isRequired,
+			dbPort: React.PropTypes.string.isRequired,
+			dbSid: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.handleStateChange(state);
+		},
+
+		render: function render() {
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: this.props.title,
+					subtitle: this.props.subtitle,
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(SelectField, {
+						style: { float: 'left', marginRight: '10px' },
+						floatingLabelText: '데이터베이스',
+						value: this.props.dbVendor,
+						menuItems: [{ text: 'oracle', payload: 'oracle' }, { text: 'mysql', payload: 'mysql' }, { text: 'mssql', payload: 'mssql' }, { text: 'db2', payload: 'db2' }, { text: 'tibero', payload: 'tibero' }, { text: 'etc', payload: 'etc' }],
+						onChange: this.handleChange.bind(this, 'dbVendor') }),
+					React.createElement(Button, {
+						label: '설정',
+						secondary: true,
+						style: { float: 'left', marginTop: '27px' },
+						onClick: (function () {
+							this.refs.dbAddressDialog.show();
+						}).bind(this) }),
+					React.createElement(DbAddressDialog, {
+						ref: 'dbAddressDialog',
+						dbIp: this.props.dbIp,
+						dbPort: this.props.dbPort,
+						dbSid: this.props.dbSid }),
+					React.createElement(
+						'div',
+						{ style: {
+								border: '1px dashed ' + color.lightGray,
+								padding: '10px',
+								margin: '1px 0' } },
+						React.createElement(TextField, {
+							inputStyle: { color: 'black' },
+							floatingLabelText: 'jdbc driver',
+							value: this.props.jdbcDriver,
+							fullWidth: true,
+							onChange: this.handleChange.bind(this, 'jdbcDriver') }),
+						React.createElement(TextField, {
+							inputStyle: { color: 'black' },
+							floatingLabelText: 'jdbc connection url',
+							value: this.props.jdbcConnUrl,
+							fullWidth: true,
+							onChange: this.handleChange.bind(this, 'jdbcConnUrl') }),
+						React.createElement(TextField, {
+							inputStyle: { color: 'black' },
+							floatingLabelText: 'jdbc username',
+							value: this.props.jdbcUsername,
+							fullWidth: true,
+							onChange: this.handleChange.bind(this, 'jdbcUsername') }),
+						React.createElement(TextField, {
+							type: 'password',
+							inputStyle: { color: 'black' },
+							floatingLabelText: 'jdbc password',
+							value: this.props.jdbcPassword,
+							fullWidth: true,
+							onChange: this.handleChange.bind(this, 'jdbcPassword') })
+					)
+				)
+			);
+		}
+	});
+	module.exports = DatabaseConfigCard;
+
+/***/ },
+/* 726 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var PolymerIcon = React.createClass({
+		displayName: 'PolymerIcon',
+
+		//http://dmfrancisco.github.io/react-icons/
+		propTypes: {
+			icon: React.PropTypes.string.isRequired,
+			size: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+			style: React.PropTypes.object
+		},
+		getDefaultProps: function getDefaultProps() {
+			return { size: 24 };
+		},
+		_mergeStyle: function _mergeStyle() {
+			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+				args[_key] = arguments[_key];
+			}
+
+			return Object.assign.apply(Object, [{}].concat(args));
+		},
+		renderGraphic: function renderGraphic() {
+			switch (this.props.icon) {
+				case 'my-icon':
+					return React.createElement(
+						'g',
+						null,
+						React.createElement('path', { d: 'M7.41 7.84l4.59 4.58 4.59-4.58 1.41 1.41-6 6-6-6z' })
+					);
+				case 'another-icon':
+					return React.createElement(
+						'g',
+						null,
+						React.createElement('path', { d: 'M7.41 15.41l4.59-4.58 4.59 4.58 1.41-1.41-6-6-6 6z' })
+					);
+				case 'config':
+					return React.createElement(
+						'g',
+						null,
+						React.createElement('path', { d: 'M18.622,8.371l-0.545-1.295c0,0,1.268-2.861,1.156-2.971l-1.679-1.639c-0.116-0.113-2.978,1.193-2.978,1.193l-1.32-0.533\r c0,0-1.166-2.9-1.326-2.9H9.561c-0.165,0-1.244,2.906-1.244,2.906L6.999,3.667c0,0-2.922-1.242-3.034-1.131L2.289,4.177\r C2.173,4.29,3.507,7.093,3.507,7.093L2.962,8.386c0,0-2.962,1.141-2.962,1.295v2.322c0,0.162,2.969,1.219,2.969,1.219l0.545,1.291\r c0,0-1.268,2.859-1.157,2.969l1.678,1.643c0.114,0.111,2.977-1.195,2.977-1.195l1.321,0.535c0,0,1.166,2.898,1.327,2.898h2.369\r c0.164,0,1.244-2.906,1.244-2.906l1.322-0.535c0,0,2.916,1.242,3.029,1.133l1.678-1.641c0.117-0.115-1.22-2.916-1.22-2.916\r l0.544-1.293c0,0,2.963-1.143,2.963-1.299v-2.32C21.59,9.425,18.622,8.371,18.622,8.371z M14.256,10.794\r c0,1.867-1.553,3.387-3.461,3.387c-1.906,0-3.461-1.52-3.461-3.387s1.555-3.385,3.461-3.385\r C12.704,7.41,14.256,8.927,14.256,10.794z' })
+					);
+			}
+		},
+		render: function render() {
+			var styles = {
+				fill: 'currentcolor',
+				verticalAlign: 'middle',
+				width: this.props.size,
+				height: this.props.size
+			};
+
+			return React.createElement(
+				'svg',
+				{
+					viewBox: '0 0 24 24',
+					preserveAspectRatio: 'xMidYMid meet',
+					fit: true,
+					style: this._mergeStyle(styles, this.props.style) },
+				this.renderGraphic()
+			);
+		}
+	});
+
+	module.exports = PolymerIcon;
+
+/***/ },
+/* 727 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(726);
+
+	var DbAddressDialog = React.createClass({
+		displayName: 'DbAddressDialog',
+
+		PropTypes: {
+			dbIp: React.PropTypes.string.isRequired,
+			dbPort: React.PropTypes.string.isRequired,
+			dbSid: React.PropTypes.string.isRequired,
+			handleStateChange: React.PropTypes.func.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false
+			};
+		},
+
+		show: function show() {
+			this.setState({ visible: true });
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.handleStateChange(state);
+		},
+
+		handleKeyUp: function handleKeyUp(evt) {
+			evt.stopPropagation();
+			if (evt.keyCode === 13) this.hide();
+		},
+
+		render: function render() {
+			return React.createElement(
+				Dialog,
+				{
+					title: 'database address config',
+					actions: [{ text: 'ok', onClick: this.hide }],
+					actionFocus: 'ok',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.state.visible },
+				React.createElement(TextField, {
+					style: { width: '170px', marginRight: '3px' },
+					inputStyle: { textAlign: 'center' },
+					floatingLabelText: 'database ip',
+					value: this.props.dbIp,
+					onChange: this.handleChange.bind(this, 'dbIp'),
+					onKeyUp: this.handleKeyUp }),
+				React.createElement(TextField, {
+					style: { width: '60px', marginRight: '3px' },
+					inputStyle: { textAlign: 'center' },
+					floatingLabelText: 'port',
+					value: this.props.dbPort,
+					onChange: this.handleChange.bind(this, 'dbPort'),
+					onKeyUp: this.handleKeyUp }),
+				React.createElement(TextField, {
+					style: { width: '120px', marginRight: '3px' },
+					inputStyle: { textAlign: 'center' },
+					floatingLabelText: 'sid',
+					value: this.props.dbSid,
+					onChange: this.handleChange.bind(this, 'dbSid'),
+					onKeyUp: this.handleKeyUp })
+			);
+		}
+	});
+	module.exports = DbAddressDialog;
+
+/***/ },
+/* 728 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(1);
+	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(726);
+
+	var TableColumnConfigCard = React.createClass({
+		displayName: 'TableColumnConfigCard',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			table: React.PropTypes.string.isRequired,
+			columns: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired
+		},
+
+		handleFocus: function handleFocus(name, evt) {
+			evt.stopPropagation();
+
+			if (this.refs.autoloadToggle.isToggled() === true) {
+				if (name === 'table') {
+					this.refs.tableConfigDialog.show();
+				} else if (name === 'columns') {
+					//TODO IMME
+				}
+			}
+		},
+
+		render: function render() {
+			var jdbc = {
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword
+			};
+
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: 'table/column 설정',
+					subtitle: 'source database의 table/column 정보를 설정합니다.',
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(Toggle, {
+						name: 'autoload',
+						value: 'autoload',
+						label: 'autoload',
+						ref: 'autoloadToggle',
+						style: { width: '150px' },
+						defaultToggled: true }),
+					React.createElement(TextField, {
+						value: this.props.table,
+						onChange: this.handleChange.bind(this, 'table'),
+						floatingLabelText: 'table',
+						fullWidth: true,
+						onFocus: this.handleFocus.bind(this, 'table') }),
+					React.createElement(TextField, {
+						value: this.props.columns,
+						onChange: this.handleChange.bind(this, 'columns'),
+						floatingLabelText: 'columns',
+						fullWidth: true,
+						onFocus: this.handleFocus.bind(this, 'columns') }),
+					React.createElement(TableConfigDialog, _extends({
+						ref: 'tableConfigDialog',
+						handleStateChange: this.props.handleStateChange,
+						table: this.props.table
+					}, jdbc)),
+					React.createElement(ColumnConfigDialog, _extends({
+						ref: 'columnConfigDialog',
+						table: this.props.table,
+						columns: this.props.columns
+					}, jdbc))
+				)
+			);
+		}
+	});
+	module.exports = TableColumnConfigCard;
+
+/***/ },
+/* 729 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(1);
+	var jsUtil = __webpack_require__(161);
+	var color = jsUtil.color;
+	var server = __webpack_require__(583);
+	var PolymerIcon = __webpack_require__(726);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var RadioButton = MaterialWrapper.RadioButton;
+	var RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
+	var Toggle = MaterialWrapper.Toggle;
+
+	var BindingTypeCard = React.createClass({
+		displayName: 'BindingTypeCard',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired,
+			table: React.PropTypes.string.isRequired,
+			bindingType: React.PropTypes.string.isRequired,
+			bindingColumn: React.PropTypes.string.isRequired
+		},
+
+		handleChange: function handleChange(name, evt) {
+			switch (name) {
+				case 'bindingType':
+					var state = {};
+					state[name] = evt.target.value;
+					this.props.handleStateChange(state);
+					break;
+			}
+		},
+
+		handleFocus: function handleFocus(name, evt) {
+			switch (name) {
+				case 'bindingColumn':
+					if (this.autoloadToggle.isToggled() === false) return;
+					this.refs.bindingColumnConfigDialog.show();
+					break;
+			}
+		},
+
+		render: function render() {
+			var jdbc = {
+				driver: this.props.jdbcDriver,
+				connUrl: this.props.jdbcConnUrl,
+				username: this.props.jdbcUsername,
+				password: this.props.jdbcPassword
+			};
+
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: '바인딩 타입 설정',
+					subtitle: '바인딩 타입을 설정합니다.',
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(
+						RadioButtonGroup,
+						{
+							name: 'bindingType',
+							defaultSelected: 'simple',
+							onChange: this.handleChange.bind(this, 'bindingType') },
+						React.createElement(RadioButton, {
+							value: 'simple',
+							label: 'simple binding' }),
+						React.createElement(RadioButton, {
+							value: 'date',
+							label: 'date binding' }),
+						React.createElement(RadioButton, {
+							value: 'sequence',
+							label: 'sequence binding' })
+					),
+					this.props.dataAdapter.data('bindingType') === 'simple' ? null : React.createElement(
+						'div',
+						null,
+						React.createElement(Toggle, {
+							name: 'autoload',
+							value: 'autoload',
+							label: 'autoload',
+							ref: 'autoloadToggle',
+							style: { width: '150px' },
+							defaultToggled: true }),
+						React.createElement(TextField, {
+							value: this.props.bindingColumn,
+							floatingLabelText: 'binding column',
+							fullWidth: true,
+							onFocus: this.handleFocus.bind(this, 'bindingColumn') })
+					)
+				),
+				React.createElement(BindingColumnConfigDialog, _extends({
+					handleStateChange: this.props.handleStateChange,
+					table: this.props.table,
+					ref: 'bindingColumnConfigDialog'
+				}, jdbc))
+			);
+		}
+	});
+	module.exports = BindingTypeCard;
+
+/***/ },
+/* 730 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var PolymerIcon = __webpack_require__(726);
+	var MaterialWrapper = __webpack_require__(596);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+
+	var EtcConfigCard = React.createClass({
+		displayName: 'EtcConfigCard',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			period: React.PropTypes.string.isRequired,
+			charset: React.PropTypes.string.isRequired,
+			delimiter: React.PropTypes.string.isRequired,
+			outputPath: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				timeUnit: 'min',
+				simplePeriod: '1'
+			};
+		},
+
+		componentWillMount: function componentWillMount() {
+			this.initTimeUnitAndSimplePeriod();
+		},
+
+		initTimeUnitAndSimplePeriod: function initTimeUnitAndSimplePeriod() {
+			var period = this.props.period.split(' ').join('');
+			if (String.contains(period, '*24*60*60*1000')) {
+				this.setState({
+					timeUnit: 'day',
+					simplePeriod: period.replace('*24*60*60*1000')
+				});
+			} else if (String.contains(period, '*60*60*1000')) {
+				this.setState({
+					timeUnit: 'hour',
+					simplePeriod: period.replace('*60*60*1000')
+				});
+			} else if (String.contains(period, '*60*1000')) {
+				this.setState({
+					timeUnit: 'min',
+					simplePeriod: period.replace('*60*1000')
+				});
+			} else if (String.contains(period, '*1000')) {
+				this.setState({
+					timeUnit: 'sec',
+					simplePeriod: period.replace('*1000')
+				});
+			}
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			switch (name) {
+				case 'simplePeriod':
+				case 'timeUnit':
+					var state = {
+						simplePeriod: this.state.simplePeriod,
+						timeUnit: this.state.timeUnit
+					};
+					state[name] = evt.target.value;
+					this.setState(state);
+					this.updatePeriod(state.simplePeriod, state.timeUnit);
+					break;
+				case 'charset':
+				case 'delimiter':
+				case 'outputPath':
+					var state = {};
+					state[name] = evt.target.value;
+					this.props.handleStateChange(state);
+					break;
+			}
+		},
+
+		updatePeriod: function updatePeriod(simplePeriod, timeUnit) {
+			var period = simplePeriod;
+			switch (timeUnit) {
+				case 'sec':
+					period += ' * 1000';
+					break;
+				case 'min':
+					period += ' * 60 * 1000';
+					break;
+				case 'hour':
+					period += ' * 60 * 60 * 1000';
+					break;
+				case 'day':
+					period += ' * 24 * 60 * 60 * 1000';
+					break;
+			}
+			this.props.handleStateChange({ period: period });
+		},
+
+		render: function render() {
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: '기타 설정',
+					subtitle: '기타 설정',
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(TextField, {
+						style: { width: '100px', float: 'left' },
+						value: this.state.simplePeriod,
+						floatingLabelText: 'period',
+						onChange: this.handleChange.bind(this, 'simplePeriod') }),
+					React.createElement(SelectField, {
+						style: { width: '100px', float: 'left' },
+						floatingLabelText: 'timeunit',
+						value: this.state.timeUnit,
+						onChange: this.handleChange.bind(this, 'timeUnit'),
+						menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] }),
+					React.createElement(TextField, {
+						fullWidth: true,
+						value: this.props.charset,
+						floatingLabelText: 'charset',
+						onChange: this.handleChange.bind(this, 'charset') }),
+					React.createElement(TextField, {
+						fullWidth: true,
+						value: this.props.delimiter,
+						floatingLabelText: 'delimiter',
+						onChange: this.handleChange.bind(this, 'delimiter') }),
+					React.createElement(TextField, {
+						fullWidth: true,
+						value: this.props.outputPath,
+						floatingLabelText: 'outputPath',
+						onChange: this.handleChange.bind(this, 'outputPath') })
+				)
+			);
+		}
+	});
+
+	module.exports = EtcConfigCard;
+
+/***/ },
 /* 731 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
+	var _ = __webpack_require__(163);
 	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var newDataAdapter = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./utils/data-adapter.js\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).newDataAdapter;
-	var DatabaseConfigCard = __webpack_require__(740);
-	var TableColumnsMappingCard = __webpack_require__(734);
-	var BindingTypePanel = __webpack_require__(722);
+	var DatabaseConfigCard = __webpack_require__(725);
+	var TableColumnsMappingCard = __webpack_require__(732);
+	var BindingTypeCard = __webpack_require__(729);
 
 	var NewDb2DbView = React.createClass({
 		displayName: 'NewDb2DbView',
-
-		dataAdapter: null,
-		srcDbDataAdapter: null,
-		destDbDataAdapter: null,
 
 		getInitialState: function getInitialState() {
 			return {
@@ -91650,113 +92019,118 @@
 			};
 		},
 
-		componentWillMount: function componentWillMount() {
-			if (this.dataAdapter == null) {
-				this.dataAdapter = newDataAdapter();
-				this.dataAdapter.on('stateChange', (function (state) {
-					this.setState(state);
-				}).bind(this));
+		handleStateChange: function handleStateChange(state) {
+			this.setState(state);
+		},
 
-				this.dataAdapter.onData((function (key) {
-					return this.state[key];
-				}).bind(this));
+		handleSrcDbStateChange: function handleSrcDbStateChange(state) {
+			if (state.dbVendor) {
+				Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
+				if (state.srcDbVendor != 'etc') {
+					state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
+					state.srcDbPort = jdbcTmpl[state.srcDbVendor].port;
+					state.srcJdbcConnUrl = jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
 			}
-			if (this.srcDbDataAdapter == null) {
-				this.srcDbDataAdapter = newDataAdapter();
-				this.srcDbDataAdapter.on('stateChange', (function (state) {
-					if (state.dbVendor) {
-						Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
-						if (state.srcDbVendor != 'etc') {
-							state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
-							state.srcDbPort = jdbcTmpl[state.srcDbVendor].port;
-							state.srcJdbcConnUrl = jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
-						}
-					}
-					if (state.dbIp) {
-						Object.renameProperty(state, 'dbIp', 'srcDbIp');
-						if (this.state.srcDbVendor != 'etc') {
-							state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
-						}
-					}
-					if (state.dbPort) {
-						Object.renameProperty(state, 'dbPort', 'srcDbPort');
-						if (this.state.srcDbVendor != 'etc') {
-							state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
-						}
-					}
-					if (state.dbSid) {
-						Object.renameProperty(state, 'dbSid', 'srcDbSid');
-						if (this.state.srcDbVendor != 'etc') {
-							state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
-						}
-					}
-					if (state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'srcJdbcDriver');
-					if (state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'srcJdbcConnUrl');
-					if (state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'srcJdbcUsername');
-					if (state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'srcJdbcPassword');
-					this.setState(state);
-				}).bind(this));
+			if (state.dbIp) {
+				Object.renameProperty(state, 'dbIp', 'srcDbIp');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
+			}
+			if (state.dbPort) {
+				Object.renameProperty(state, 'dbPort', 'srcDbPort');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
+			}
+			if (state.dbSid) {
+				Object.renameProperty(state, 'dbSid', 'srcDbSid');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
+				}
+			}
 
-				this.srcDbDataAdapter.onData((function (key) {
-					if (key === 'dbVendor') return this.state.srcDbVendor;else if (key === 'dbIp') return this.state.srcDbIp;else if (key === 'dbPort') return this.state.srcDbPort;else if (key === 'dbSid') return this.state.srcDbSid;else if (key === 'jdbcDriver') return this.state.srcJdbcDriver;else if (key === 'jdbcConnUrl') return this.state.srcJdbcConnUrl;else if (key === 'jdbcUsername') return this.state.srcJdbcUsername;else if (key === 'jdbcPassword') return this.state.srcJdbcPassword;
-					return this.state[key];
-				}).bind(this));
-			}
-			if (this.destDbDataAdapter == null) {
-				this.destDbDataAdapter = newDataAdapter();
-				this.destDbDataAdapter.on('stateChange', (function (state) {
-					if (state.dbVendor) {
-						Object.renameProperty(state, 'dbVendor', 'destDbVendor');
-						if (state.destDbVendor != 'etc') {
-							state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
-							state.destDbPort = jdbcTmpl[state.destDbVendor].port;
-							state.destJdbcConnUrl = jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
-						}
-					}
-					if (state.dbIp) {
-						Object.renameProperty(state, 'dbIp', 'destDbIp');
-						if (this.state.destDbVendor != 'etc') {
-							state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
-						}
-					}
-					if (state.dbPort) {
-						Object.renameProperty(state, 'dbPort', 'destDbPort');
-						if (this.state.destDbVendor != 'etc') {
-							state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
-						}
-					}
-					if (state.dbSid) {
-						Object.renameProperty(state, 'dbSid', 'destDbSid');
-						if (this.state.destDbVendor != 'etc') {
-							state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
-						}
-					}
-					if (state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'destJdbcDriver');
-					if (state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'destJdbcConnUrl');
-					if (state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'destJdbcUsername');
-					if (state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'destJdbcPassword');
-					this.setState(state);
-				}).bind(this));
+			this.setState(state);
+		},
 
-				this.destDbDataAdapter.onData((function (key) {
-					if (key === 'dbVendor') return this.state.destDbVendor;else if (key === 'dbIp') return this.state.destDbIp;else if (key === 'dbPort') return this.state.destDbPort;else if (key === 'dbSid') return this.state.destDbSid;else if (key === 'jdbcDriver') return this.state.destJdbcDriver;else if (key === 'jdbcConnUrl') return this.state.destJdbcConnUrl;else if (key === 'jdbcUsername') return this.state.destJdbcUsername;else if (key === 'jdbcPassword') return this.state.destJdbcPassword;
-					return this.state[key];
-				}).bind(this));
+		handleDestDbStateChange: function handleDestDbStateChange(state) {
+			if (state.dbVendor) {
+				Object.renameProperty(state, 'dbVendor', 'destDbVendor');
+				if (state.destDbVendor != 'etc') {
+					state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
+					state.destDbPort = jdbcTmpl[state.destDbVendor].port;
+					state.destJdbcConnUrl = jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
 			}
+			if (state.dbIp) {
+				Object.renameProperty(state, 'dbIp', 'destDbIp');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
+			}
+			if (state.dbPort) {
+				Object.renameProperty(state, 'dbPort', 'destDbPort');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
+			}
+			if (state.dbSid) {
+				Object.renameProperty(state, 'dbSid', 'destDbSid');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
+				}
+			}
+
+			this.setState(state);
 		},
 
 		render: function render() {
+			var srcJdbc = {
+				jdbcDriver: this.state.srcJdbcDriver,
+				jdbcConnUrl: this.state.srcJdbcConnUrl,
+				jdbcUsername: this.state.srcJdbcUsername,
+				jdbcPassword: this.state.srcJdbcPassword
+			};
+
+			var destJdbc = {
+				jdbcDriver: this.state.destJdbcDriver,
+				jdbcConnUrl: this.state.destJdbcConnUrl,
+				jdbcUsername: this.state.destJdbcUsername,
+				jdbcPassword: this.state.destJdbcPassword
+			};
+
+			var srcDbInfo = {
+				dbVendor: this.state.srcDbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
+
+			var destDbInfo = {
+				dbVendor: this.state.destDbVendor,
+				dbIp: this.state.destDbIp,
+				dbPort: this.state.destDbPort,
+				dbSid: this.state.destDbSid
+			};
+
+			var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
+				title: "source database 설정",
+				subtitle: "source database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleSrcDbStateChange
+			});
+
+			var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
+				title: "destination database 설정",
+				subtitle: "destination database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleDestDbStateChange
+			});
+
 			return React.createElement(
 				'div',
 				null,
-				React.createElement(DatabaseConfigCard, {
-					title: 'source database 설정',
-					subtitle: 'source database의 연결정보를 설정합니다.',
-					dataAdapter: this.srcDbDataAdapter }),
-				React.createElement(DatabaseConfigCard, {
-					title: 'destination database 설정',
-					subtitle: 'destination database의 연결정보를 설정합니다.',
-					dataAdapter: this.destDbDataAdapter }),
+				React.createElement(DatabaseConfigCard, srcDatabaseConfigCardData),
+				React.createElement(DatabaseConfigCard, destDatabaseConfigCardData),
 				React.createElement(TableColumnsMappingCard, { dataAdapter: this.dataAdapter })
 			);
 		}
@@ -91764,9 +92138,7 @@
 	module.exports = NewDb2DbView;
 
 /***/ },
-/* 732 */,
-/* 733 */,
-/* 734 */
+/* 732 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -91786,7 +92158,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(721);
+	var PolymerIcon = __webpack_require__(726);
 	var Col = __webpack_require__(169).Col;
 
 	var TableColumnsMappingCard = React.createClass({
@@ -91891,16 +92263,16 @@
 	});
 
 /***/ },
-/* 735 */
+/* 733 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(736);
+	var content = __webpack_require__(734);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(738)(content, {});
+	var update = __webpack_require__(736)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -91917,10 +92289,10 @@
 	}
 
 /***/ },
-/* 736 */
+/* 734 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(737)();
+	exports = module.exports = __webpack_require__(735)();
 	// imports
 
 
@@ -91931,7 +92303,7 @@
 
 
 /***/ },
-/* 737 */
+/* 735 */
 /***/ function(module, exports) {
 
 	/*
@@ -91987,7 +92359,7 @@
 
 
 /***/ },
-/* 738 */
+/* 736 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -92210,220 +92582,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 739 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var MaterialWrapper = __webpack_require__(596);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(721);
-
-	var DbAddressDialog = React.createClass({
-		displayName: 'DbAddressDialog',
-
-		PropTypes: {
-			dbIp: React.PropTypes.string.isRequired,
-			dbPort: React.PropTypes.string.isRequired,
-			dbSid: React.PropTypes.string.isRequired,
-			handleStateChange: React.PropTypes.func.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false
-			};
-		},
-
-		show: function show() {
-			this.setState({ visible: true });
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			var state = {};
-			state[name] = evt.target.value;
-			this.props.handleStateChange(state);
-		},
-
-		handleKeyUp: function handleKeyUp(evt) {
-			evt.stopPropagation();
-			if (evt.keyCode === 13) this.hide();
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					title: 'database address config',
-					actions: [{ text: 'ok', onClick: this.hide }],
-					actionFocus: 'ok',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.state.visible },
-				React.createElement(TextField, {
-					style: { width: '170px', marginRight: '3px' },
-					inputStyle: { textAlign: 'center' },
-					floatingLabelText: 'database ip',
-					value: this.props.dbIp,
-					onChange: this.handleChange.bind(this, 'dbIp'),
-					onKeyUp: this.handleKeyUp }),
-				React.createElement(TextField, {
-					style: { width: '60px', marginRight: '3px' },
-					inputStyle: { textAlign: 'center' },
-					floatingLabelText: 'port',
-					value: this.props.dbPort,
-					onChange: this.handleChange.bind(this, 'dbPort'),
-					onKeyUp: this.handleKeyUp }),
-				React.createElement(TextField, {
-					style: { width: '120px', marginRight: '3px' },
-					inputStyle: { textAlign: 'center' },
-					floatingLabelText: 'sid',
-					value: this.props.dbSid,
-					onChange: this.handleChange.bind(this, 'dbSid'),
-					onKeyUp: this.handleKeyUp })
-			);
-		}
-	});
-	module.exports = DbAddressDialog;
-
-/***/ },
-/* 740 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var jsUtil = __webpack_require__(161);
-	var color = jsUtil.color;
-	var jdbcTmpl = jsUtil.jdbcTmpl;
-	var MaterialWrapper = __webpack_require__(596);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(721);
-	var DbAddressDialog = __webpack_require__(739);
-
-	var DatabaseConfigCard = React.createClass({
-		displayName: 'DatabaseConfigCard',
-
-		PropTypes: {
-			title: React.PropTypes.string.isRequired,
-			subtitle: React.PropTypes.string.isRequired,
-			handleStateChange: React.PropTypes.func.isRequired,
-
-			dbVendor: React.PropTypes.string.isRequired,
-			dbIp: React.PropTypes.string.isRequired,
-			dbPort: React.PropTypes.string.isRequired,
-			dbSid: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			var state = {};
-			state[name] = evt.target.value;
-			this.props.handleStateChange(state);
-		},
-
-		render: function render() {
-			return React.createElement(
-				Card,
-				{ style: { marginBottom: '10px' } },
-				React.createElement(CardHeader, {
-					title: this.props.title,
-					subtitle: this.props.subtitle,
-					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-				React.createElement(
-					CardText,
-					null,
-					React.createElement(SelectField, {
-						style: { float: 'left', marginRight: '10px' },
-						floatingLabelText: '데이터베이스',
-						value: this.props.dbVendor,
-						menuItems: [{ text: 'oracle', payload: 'oracle' }, { text: 'mysql', payload: 'mysql' }, { text: 'mssql', payload: 'mssql' }, { text: 'db2', payload: 'db2' }, { text: 'tibero', payload: 'tibero' }, { text: 'etc', payload: 'etc' }],
-						onChange: this.handleChange.bind(this, 'dbVendor') }),
-					React.createElement(Button, {
-						label: '설정',
-						secondary: true,
-						style: { float: 'left', marginTop: '27px' },
-						onClick: (function () {
-							this.refs.dbAddressDialog.show();
-						}).bind(this) }),
-					React.createElement(DbAddressDialog, {
-						ref: 'dbAddressDialog',
-						dbIp: this.props.dbIp,
-						dbPort: this.props.dbPort,
-						dbSid: this.props.dbSid }),
-					React.createElement(
-						'div',
-						{ style: {
-								border: '1px dashed ' + color.lightGray,
-								padding: '10px',
-								margin: '1px 0' } },
-						React.createElement(TextField, {
-							inputStyle: { color: 'black' },
-							floatingLabelText: 'jdbc driver',
-							value: this.props.jdbcDriver,
-							fullWidth: true,
-							onChange: this.handleChange.bind(this, 'jdbcDriver') }),
-						React.createElement(TextField, {
-							inputStyle: { color: 'black' },
-							floatingLabelText: 'jdbc connection url',
-							value: this.props.jdbcConnUrl,
-							fullWidth: true,
-							onChange: this.handleChange.bind(this, 'jdbcConnUrl') }),
-						React.createElement(TextField, {
-							inputStyle: { color: 'black' },
-							floatingLabelText: 'jdbc username',
-							value: this.props.jdbcUsername,
-							fullWidth: true,
-							onChange: this.handleChange.bind(this, 'jdbcUsername') }),
-						React.createElement(TextField, {
-							type: 'password',
-							inputStyle: { color: 'black' },
-							floatingLabelText: 'jdbc password',
-							value: this.props.jdbcPassword,
-							fullWidth: true,
-							onChange: this.handleChange.bind(this, 'jdbcPassword') })
-					)
-				)
-			);
-		}
-	});
-	module.exports = DatabaseConfigCard;
 
 /***/ }
 /******/ ]);

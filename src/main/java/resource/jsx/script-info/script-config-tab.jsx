@@ -4,11 +4,10 @@ var _ = require('underscore');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
-var newDataAdapter = require('../utils/data-adapter.js').newDataAdapter;
 var Db2File = {
-	DatabaseConfigPanel: require('../new-db2file/database-config-panel.jsx'),
-	BindingTypePanel: require('../new-db2file/binding-type-panel.jsx'),
-	EtcConfigPanel: require('../new-db2file/etc-config-panel.jsx'),
+	DatabaseConfigCard: require('../new-db2file/database-config-card.jsx'),
+	BindingTypeCard: require('../new-db2file/binding-type-card.jsx'),
+	EtcConfigCard: require('../new-db2file/etc-config-card.jsx'),
 	ScriptConfirmDialog: require('../new-db2file/script-confirm-dialog.jsx'),
 	ScriptMaker: require('../new-db2file/db2file-script-maker.js')
 };
@@ -141,9 +140,9 @@ var Db2FileScriptView = React.createClass({
 	render() {
 		return (
 			<div>
-				<Db2File.DatabaseConfigPanel dataAdapter={this.dataAdapter} />
-				<Db2File.BindingTypePanel dataAdapter={this.dataAdapter} />
-				<Db2File.EtcConfigPanel dataAdapter={this.dataAdapter} />
+				<Db2File.DatabaseConfigCard dataAdapter={this.dataAdapter} />
+				<Db2File.BindingTypeCard dataAdapter={this.dataAdapter} />
+				<Db2File.EtcConfigCard dataAdapter={this.dataAdapter} />
 				<Button 
 					label="수정"
 					primary={true}

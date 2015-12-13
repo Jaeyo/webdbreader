@@ -17,6 +17,8 @@ var PolymerIcon = require('../comps/polymer-icon.jsx');
 
 var TableColumnConfigCard = React.createClass({
 	PropTypes: {
+		handleStateChange: React.PropTypes.func.isRequired,
+
 		table: React.PropTypes.string.isRequired,
 		columns: React.PropTypes.string.isRequired,
 		jdbcDriver: React.PropTypes.string.isRequired,
@@ -27,9 +29,24 @@ var TableColumnConfigCard = React.createClass({
 
 	handleFocus(name, evt) {
 		evt.stopPropagation();
+
+		if(this.refs.autoloadToggle.isToggled() === true) {
+			if(name === 'table') {
+				this.refs.tableConfigDialog.show();
+			} else if(name === 'columns') {
+				//TODO IMME
+			}
+		}
 	},
 
 	render() {
+		var jdbc = {
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword
+		};
+
 		return (
 			<Card style={{ marginBottom: '10px' }}>
 				<CardHeader
@@ -55,20 +72,17 @@ var TableColumnConfigCard = React.createClass({
 						onChange={this.handleChange.bind(this, 'columns')}
 						floatingLabelText="columns"
 						fullWidth={true}
-						onFocus={this.handleFocus.bind(this, 'column')} />
+						onFocus={this.handleFocus.bind(this, 'columns')} />
 					<TableConfigDialog
-						visible={this.state.isTableConfigDialogVisible}
+						ref="tableConfigDialog"
+						handleStateChange={this.props.handleStateChange}
 						table={this.props.table}
-						onChange={this.props.onChange}
-						onAction={this.onTableConfigAction}
-						jdbc={jdbc} />
+						{...jdbc} />
 					<ColumnConfigDialog
-						visible={this.state.isColumnConfigDialogVisible}
-						onClose={this.toggleDialog.bind(this, 'columnconfig')}
+						ref="columnConfigDialog"
 						table={this.props.table}
-						columns={this.props.columns}
-						onChange={this.props.onChange}
-						jdbc={jdbc} />
+						columns={this.props.columns} 
+						{...jdbc} />
 				</CardText>
 			</Card>
 		);

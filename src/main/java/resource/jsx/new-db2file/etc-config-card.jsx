@@ -1,16 +1,22 @@
-var React = require('react'),
-	PolymerIcon = require('../comps/polymer-icon.jsx'),
-	MaterialWrapper = require('../comps/material-wrapper.jsx'),
-	Button = MaterialWrapper.Button,
-	TextField = MaterialWrapper.TextField,
-	SelectField = MaterialWrapper.SelectField,
-	Card = MaterialWrapper.Card,
-	CardHeader = MaterialWrapper.CardHeader,
-	CardText = MaterialWrapper.CardText;
+var React = require('react');
+var PolymerIcon = require('../comps/polymer-icon.jsx');
+var MaterialWrapper = require('../comps/material-wrapper.jsx');
+var Button = MaterialWrapper.Button;
+var TextField = MaterialWrapper.TextField;
+var SelectField = MaterialWrapper.SelectField;
+var Card = MaterialWrapper.Card;
+var CardHeader = MaterialWrapper.CardHeader;
+var CardText = MaterialWrapper.CardText;
 
-var EtcConfigPanel = React.createClass({
+
+var EtcConfigCard = React.createClass({
 	PropTypes: {
-		dataAdapter: React.PropTypes.object.isRequired
+		handleStateChange: React.PropTypes.func.isRequired,
+
+		period: React.PropTypes.string.isRequired,
+		charset: React.PropTypes.string.isRequired,
+		delimiter: React.PropTypes.string.isRequired,
+		outputPath: React.PropTypes.string.isRequired
 	},
 
 	getInitialState() {
@@ -18,6 +24,35 @@ var EtcConfigPanel = React.createClass({
 			timeUnit: 'min',
 			simplePeriod: '1'
 		};
+	},
+
+	componentWillMount() {
+		this.initTimeUnitAndSimplePeriod();
+	},
+
+	initTimeUnitAndSimplePeriod() {
+		var period = this.props.period.split(' ').join('');
+		if(String.contains(period, '*24*60*60*1000')) {
+			this.setState({
+				timeUnit: 'day',
+				simplePeriod: period.replace('*24*60*60*1000')
+			});
+		} else if(String.contains(period, '*60*60*1000')) {
+			this.setState({
+				timeUnit: 'hour',
+				simplePeriod: period.replace('*60*60*1000')
+			});
+		} else if(String.contains(period, '*60*1000')) {
+			this.setState({
+				timeUnit: 'min',
+				simplePeriod: period.replace('*60*1000')
+			});
+		} else if(String.contains(period, '*1000')) {
+			this.setState({
+				timeUnit: 'sec',
+				simplePeriod: period.replace('*1000')
+			});
+		}
 	},
 
 	handleChange(name, evt) {
@@ -39,7 +74,7 @@ var EtcConfigPanel = React.createClass({
 		case 'outputPath':
 			var state = {};
 			state[name] = evt.target.value;
-			this.props.dataAdapter.emit('stateChange', state);
+			this.props.handleStateChange(state);
 			break;
 		}
 	},
@@ -60,44 +95,24 @@ var EtcConfigPanel = React.createClass({
 			period += ' * 24 * 60 * 60 * 1000';
 			break;
 		}
-		this.props.dataAdapter.emit('stateChange', { period: period });
-	},
-
-	styles() {
-		return {
-			card: {
-				marginBottom: '10px'
-			},
-			periodTextField: {
-				width: '100px',
-				float: 'left'
-			},
-			timeunitSelectField: {
-				width: '100px',
-				float: 'left'
-			},
-			textFieldInputStyle: {
-				color: 'black'
-			}
-		};
+		this.props.handleStateChange({ period: period });
 	},
 
 	render() {
-		var style = this.styles();
 		return (
-			<Card style={style.card}>
+			<Card style={{ marginBottom: '10px' }}>
 				<CardHeader
 					title="기타 설정"
 					subtitle="기타 설정"
 					avatar={ <PolymerIcon icon="config" /> } />
 				<CardText>
 					<TextField
-						style={style.periodTextField}
+						style={{ width: '100px', float: 'left' }}
 						value={this.state.simplePeriod}
 						floatingLabelText="period"
 						onChange={this.handleChange.bind(this, 'simplePeriod')} />
 					<SelectField
-						style={style.timeunitSelectField}
+						style={{ width: '100px', float: 'left' }}
 						floatingLabelText="timeunit"
 						value={this.state.timeUnit}
 						onChange={this.handleChange.bind(this, 'timeUnit')}
@@ -109,21 +124,18 @@ var EtcConfigPanel = React.createClass({
 							{ text: '일2', payload: 'day2' }
 						]} />
 					<TextField
-						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.dataAdapter.data('charset')}
+						value={this.props.charset}
 						floatingLabelText="charset"
 						onChange={this.handleChange.bind(this, 'charset')} />
 					<TextField
-						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.dataAdapter.data('delimiter')}
+						value={this.props.delimiter}
 						floatingLabelText="delimiter"
 						onChange={this.handleChange.bind(this, 'delimiter')} />
 					<TextField
-						inputStyle={style.textFieldInputStyle}
 						fullWidth={true}
-						value={this.props.dataAdapter.data('outputPath')}
+						value={this.props.outputPath}
 						floatingLabelText="outputPath"
 						onChange={this.handleChange.bind(this, 'outputPath')} />
 				</CardText>
@@ -132,4 +144,4 @@ var EtcConfigPanel = React.createClass({
 	}
 });
 
-module.exports = EtcConfigPanel;
+module.exports = EtcConfigCard;

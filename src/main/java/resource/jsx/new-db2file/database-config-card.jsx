@@ -16,7 +16,7 @@ var ListDivider = MaterialWrapper.ListDivider;
 var Dialog = MaterialWrapper.Dialog;
 var Toggle = MaterialWrapper.Toggle;
 var PolymerIcon = require('../comps/polymer-icon.jsx');
-var DbAddressDialog = require('./database-config-panel/db-address-dialog.jsx');
+var DbAddressDialog = require('./database-config-card/db-address-dialog.jsx');
 
 var DatabaseConfigCard = React.createClass({
 	PropTypes: {

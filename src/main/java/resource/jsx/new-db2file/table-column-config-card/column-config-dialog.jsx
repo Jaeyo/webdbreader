@@ -16,11 +16,12 @@ var PolymerIcon = require('../comps/polymer-icon.jsx');
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
 
 
-var TableConfigDialog = React.createClass({
+var ColumnConfigDialog = React.createClass({
 	PropTypes: {
 		handleStateChange: React.PropTypes.func.isRequired,
 
 		table: React.PropTypes.string.isRequired,
+		columns: React.PropTypes.string.isRequired,
 		jdbcDriver: React.PropTypes.string.isRequired,
 		jdbcConnUrl: React.PropTypes.string.isRequired,
 		jdbcUsername: React.PropTypes.string.isRequired,
@@ -30,14 +31,14 @@ var TableConfigDialog = React.createClass({
 	getInitialState() {
 		return {
 			visible: false,
-			isTablesLoaded: false,
-			loadedTables: null
+			isColumnsLoaded: false,
+			loadedColumns: null
 		}
 	},
 
 	show() {
 		this.setState({ visible: true }, function() {
-			this.loadTables();
+			this.loadColumns();
 		}.bind(this));
 	},
 
@@ -49,59 +50,70 @@ var TableConfigDialog = React.createClass({
 		evt.stopPropagation();
 
 		switch(name) {
-		case 'table': 
-			this.props.handleStateChange({ table: evt.target.value });
+		case 'column': 
+			this.props.handleStateChange({ columns: evt.target.value });
 			break;
 		}
 	},
 
-	loadTables() {
-		server.loadTables({
+	loadColumns() {
+		server.loadColumns({
 			jdbc: {
 				driver: this.props.jdbcDriver,
 				connUrl: this.props.jdbcConnUrl,
 				username: this.props.jdbcUsername,
 				password: this.props.jdbcPassword
-			}
-		}).then(function(tables) {
+			},
+			table: this.props.table
+		}).then(function(columns) {
 			this.setState({
-				isTablesLoaded: true,
-				loadedTables: tables
+				isColumnsLoaded: true,
+				loadedColumns: columns
 			});
 		}.bind(this)).catch(function(err) {
 			console.error(err.stack);
-			this.setState({ isTablesLoaded: true });
+			this.setState({ isColumnsLoaded: false });
 			if(typeof err !== 'string') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
 
-	renderTableList() {
-		if(this.state.isTablesLoaded === false) 
+	renderColumnList() {
+		if(this.state.isColumnsLoaded === false) 
 			return (<CircularProgress mode="indeterminate" size={0.5} />);
 
-		var isShouldFilter = (this.props.table != null && this.props.table.trim().length  !== 0);
+		var selectedColumnsArr = 
+			this.props.columns.split(',')
+				.map(function(s) { return s.trim(); })
+				.filter(function(s){ if(s === '') return false; return true; });
 
 		return (
 			<List>
 			{
-				this.state.loadedTables.filter(function(table) {
-					if(isShouldFilter === false) return true;
-					return String.containsIgnoreCase(table, this.props.table);
-				}.bind(this)).map(function(table) {
+				this.state.loadedColumns.map(function(column) {
+					var columnName = column.columnName.toLowerCase();
+					var columnType = column.columnType;
+
 					var onClick = function(evt) {
 						evt.stopPropagation();
-						this.props.handleStateChange({ table: table });
+						if(Array.contains(selectedColumnsArr, columnName)) {
+							selectedColumnsArr.remove(columnName);
+						} else {
+							selectedColumnsArr.push(columnName);
+						}
+						this.props.handleStateChange({ columns: selectedColumnsArr.join(',') })
 					}.bind(this);
+
 					return (
 						<ListItem
-							key={table}
-							primaryText={table}
+							key={columnName}
+							primaryText={columnName}
+							secondaryText={columnType}
 							onClick={onClick} />
 					);
 				}.bind(this))
 			}
-			</List> 
+			</List>
 		);
 	},
 
@@ -109,26 +121,25 @@ var TableConfigDialog = React.createClass({
 		return (
 			<Dialog
 				actions={[
-					{ text: 'ok', onClick: this.onOk },
-					{ text: 'cancel', onClick: this.onCancel }
+					{ text: 'close', onClick: this.props.onClose }
 				]}
-				actionFocus="ok"
+				actionFocus="close"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
 				open={this.props.visible}>
 				<Card>
 					<CardHeader
-						title="table 설정"
-						subtitle="source database의 table 정보를 설정합니다."
+						title="column 설정"
+						subtitle="사용할 column 정보를 설정합니다."
 						avatar={ <PolymerIcon icon="config" /> } />
 					<CardText>
 						<TextField
-							floatingLabelText="table"
-							value={this.props.table} 
-							onChange={this.handleChange.bind(this, 'table')}
+							floatingLabelText="columns"
+							value={this.props.columns} 
+							onChange={this.handleChange.bind(this, 'columns')}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
-							{ this.renderTableList() }
+							{ this.renderColumnList() }
 						</div>
 					</CardText>
 				</Card>
