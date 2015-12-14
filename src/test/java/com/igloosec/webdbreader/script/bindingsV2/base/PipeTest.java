@@ -10,7 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.igloosec.webdbreader.script.ScriptExecutor;
+import com.igloosec.scripter.script.ScriptExecutor;
 
 public class PipeTest {
 

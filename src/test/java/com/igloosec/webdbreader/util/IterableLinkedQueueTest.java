@@ -10,6 +10,8 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+import com.igloosec.scripter.util.IterableLinkedQueue;
+
 public class IterableLinkedQueueTest {
 
 	@Test
