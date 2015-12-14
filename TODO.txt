@@ -1,1 +1,0 @@
-TODO IMME, new-db2file/table-column-config-card/table-config-dialog.jsx
