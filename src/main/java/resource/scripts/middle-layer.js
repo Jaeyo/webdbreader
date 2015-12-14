@@ -1,4 +1,5 @@
 importPackage(Packages.com.igloosec.webdbreader.script.bindingsV1);
+importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2);
 importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.base);
 importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.headpipe);
 importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.pipe);
@@ -11,6 +12,14 @@ var dummy = function(count) {
 // common --------------------------------------------------------
 var data = function(data) {
 	return new DataPipeHead(data);
+};
+
+var repo = function(key, value) {
+	if(value == null) {
+		return new SimpleRepo().get(key);
+	} else {
+		return new SimpleRepo().set(key, value);
+	}
 };
 
 // date --------------------------------------------------------
