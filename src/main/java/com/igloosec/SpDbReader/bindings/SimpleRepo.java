@@ -10,7 +10,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.igloosec.webdbreader.common.Path;
+import com.igloosec.scripter.common.Path;
 
 public class SimpleRepo {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleRepo.class);

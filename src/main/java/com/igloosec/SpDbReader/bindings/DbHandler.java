@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
-import com.igloosec.webdbreader.common.SingletonInstanceRepo;
-import com.igloosec.webdbreader.exception.NotExistsException;
-import com.igloosec.webdbreader.script.ScriptThread;
-import com.igloosec.webdbreader.service.SimpleRepoService;
+import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.exception.NotExistsException;
+import com.igloosec.scripter.script.ScriptThread;
+import com.igloosec.scripter.service.SimpleRepoService;
 
 public class DbHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
