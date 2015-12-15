@@ -74,7 +74,7 @@ var Nav = React.createClass({
 			<div style={style.outer}>
 				<div style={style.innerDiv}>
 					<Nav.Btn gly="console" name="script" href="/" isActive={this.props.active === 'script'} />
-					<Nav.Btn gly="cog" name="config" href="/TODO" isActive={this.props.active === 'config'} />
+					<Nav.Btn gly="cog" name="config" href="/Config" isActive={this.props.active === 'config'} />
 					<Nav.Btn gly="modal-window" name="api" href="/Api" isActive={this.props.active === 'api'} />
 				</div>
 			</div>

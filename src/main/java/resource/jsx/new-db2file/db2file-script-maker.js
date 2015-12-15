@@ -1,5 +1,39 @@
 var util = require('util');
 
+//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, 
+//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
+exports.get = function(args) {
+	var script = '';
+
+	script += [
+		util.format("var type = 'db2file-%s';", args.bindingType),
+		util.format("var period = %s;", args.period),
+		util.format("var dbVendor = '%s';", args.dbVendor),
+		util.format("var dbIp = '%s';", args.dbIp),
+		util.format("var dbPort = '%s';", args.dbPort),
+		util.format("var dbSid = '%s';", args.dbSid),
+		util.format("var jdbcDriver = '%s';", args.jdbcDriver),
+		util.format("var jdbcConnUrl = '%s';", args.jdbcConnUrl),
+		util.format("var jdbcUsername = '%s';", args.jdbcUsername),
+		util.format("var jdbcPassword = '%s';", args.jdbcPassword),
+		util.format("var columns = '%s';", args.columns),
+		util.format("var table = '%s';", args.table),
+		util.format("var bindingType = '%s';", args.bindingType)
+	].join('\n');
+
+	if(args.bindingType !== 'simple')
+		script += util.format("var bindingColumn = '%s';", args.bindingColumn);
+
+	script += [
+		util.format("var delimiter = '%s';", args.delimiter),
+		util.format("var charset = '%s';", args.charset),
+		util.format("var outputPath = '%s';", args.outputPath)
+	].join('\n');
+
+};
+
+
+
 var ScriptMaker = function() {
 	var variable;
 	var maxQueryVariable;

@@ -12,7 +12,6 @@ public class Conf{
 	public static final String PORT = "port";
 	public static final String DERBY_PATH= "derby.path";
 	public static final String JETTY_THREAD_POOL_SIZE = "jetty.thread.pool.size";
-	public static final String TOTAL_CHART_TIME = "total.chart.time";
 	
 	private static final Logger logger = LoggerFactory.getLogger(Conf.class);
 	private static Map<String, Object> props = Maps.newHashMap();
@@ -33,13 +32,6 @@ public class Conf{
 				props.put(JETTY_THREAD_POOL_SIZE, 20);
 			}
 			
-			try {
-				props.put(TOTAL_CHART_TIME, Integer.parseInt(System.getProperty(JETTY_THREAD_POOL_SIZE, "6")));
-			} catch(NumberFormatException e) {
-				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
-				props.put(TOTAL_CHART_TIME, 6);
-			}
-			
 			String derbyDefaultPath = new File(Path.getPackagePath(), "derby").getAbsolutePath();
 			props.put(DERBY_PATH, System.getProperty(DERBY_PATH, derbyDefaultPath));
 			
@@ -47,7 +39,6 @@ public class Conf{
 			logger.info(String.format("%s: %s", PORT, props.get(PORT)));
 			logger.info(String.format("%s: %s", DERBY_PATH, props.get(DERBY_PATH)));
 			logger.info(String.format("%s: %s", JETTY_THREAD_POOL_SIZE, props.get(JETTY_THREAD_POOL_SIZE)));
-			logger.info(String.format("%s: %s", TOTAL_CHART_TIME, props.get(TOTAL_CHART_TIME)));
 			logger.info("--------------------------------------------");
 		} catch(Exception e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));

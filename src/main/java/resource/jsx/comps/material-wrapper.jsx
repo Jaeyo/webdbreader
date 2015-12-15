@@ -76,5 +76,7 @@ module.exports = {
 	Toggle: require('material-ui/lib/toggle'),
 
 	Tabs: getMaterialComponent(require('material-ui/lib/tabs/tabs')),
-	Tab: require('material-ui/lib/tabs/tab')
+	Tab: require('material-ui/lib/tabs/tab'),
+
+	Paper: require('material-ui/lib/paper')
 };

@@ -1,8 +1,8 @@
-importPackage(Packages.com.igloosec.webdbreader.script.bindingsV1);
-importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2);
-importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.base);
-importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.headpipe);
-importPackage(Packages.com.igloosec.webdbreader.script.bindingsV2.pipe);
+importPackage(Packages.com.igloosec.scripter.script.bindingsV1);
+importPackage(Packages.com.igloosec.scripter.script.bindingsV2);
+importPackage(Packages.com.igloosec.scripter.script.bindingsV2.base);
+importPackage(Packages.com.igloosec.scripter.script.bindingsV2.headpipe);
+importPackage(Packages.com.igloosec.scripter.script.bindingsV2.pipe);
 
 
 var dummy = function(count) {
@@ -24,8 +24,29 @@ var repo = function(key, value) {
 
 // date --------------------------------------------------------
 var now = function() {
-	return new java.util.Date();
+	return date(new Date());
 };
+
+var date = function(arg) {
+	var javaDateObj = null;
+	if(arg instanceof java.util.Date) {
+		javaDateObj = arg;
+	} else if(arg instanceof java.lang.Integer || arg instanceof java.lang.Long || typeof arg === 'number') {
+		javaDateObj = new Date(arg);
+	} else if(arg instanceof Date) {
+		javaDateObj = new Date(arg.getTime());
+	}
+
+	return {
+		getDate: function() {
+			return javaDateObj;
+		}, 
+		format: function(format) {
+			return new java.text.SimpleDateFormat(format).format(javaDateObj);
+		}
+	};
+};
+
 
 // schedule --------------------------------------------------------
 var schedule = function(period) {

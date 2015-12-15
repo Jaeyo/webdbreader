@@ -2,6 +2,7 @@ package com.igloosec.scripter;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.xml.DOMConfigurator;
