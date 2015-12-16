@@ -1,5 +1,6 @@
 var React = require('react');
-var MaterialWrapper = require('../comps/material-wrapper.jsx');
+var server = require('../../utils/server.js');
+var MaterialWrapper = require('../../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var TextField = MaterialWrapper.TextField;
 var SelectField = MaterialWrapper.SelectField;
@@ -12,8 +13,8 @@ var ListItem = MaterialWrapper.ListItem;
 var ListDivider = MaterialWrapper.ListDivider;
 var Dialog = MaterialWrapper.Dialog;
 var Toggle = MaterialWrapper.Toggle;
-var PolymerIcon = require('../comps/polymer-icon.jsx');
-var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
+var PolymerIcon = require('../../comps/polymer-icon.jsx');
+var AlertDialog = require('../../comps/dialog/alert-dialog.jsx');
 
 
 var ColumnConfigDialog = React.createClass({
@@ -117,16 +118,21 @@ var ColumnConfigDialog = React.createClass({
 		);
 	},
 
+	onClose(evt) {
+		evt.stopPropagation();
+		this.hide();
+	},
+
 	render() {
 		return (
 			<Dialog
 				actions={[
-					{ text: 'close', onClick: this.props.onClose }
+					{ text: 'close', onClick: this.onClose }
 				]}
 				actionFocus="close"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
-				open={this.props.visible}>
+				open={this.state.visible}>
 				<Card>
 					<CardHeader
 						title="column 설정"
@@ -148,3 +154,4 @@ var ColumnConfigDialog = React.createClass({
 		);
 	}
 });
+module.exports = ColumnConfigDialog;

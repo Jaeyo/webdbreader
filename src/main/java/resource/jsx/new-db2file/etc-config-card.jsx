@@ -35,22 +35,22 @@ var EtcConfigCard = React.createClass({
 		if(String.contains(period, '*24*60*60*1000')) {
 			this.setState({
 				timeUnit: 'day',
-				simplePeriod: period.replace('*24*60*60*1000')
+				simplePeriod: period.replace('*24*60*60*1000', '')
 			});
 		} else if(String.contains(period, '*60*60*1000')) {
 			this.setState({
 				timeUnit: 'hour',
-				simplePeriod: period.replace('*60*60*1000')
+				simplePeriod: period.replace('*60*60*1000', '')
 			});
 		} else if(String.contains(period, '*60*1000')) {
 			this.setState({
 				timeUnit: 'min',
-				simplePeriod: period.replace('*60*1000')
+				simplePeriod: period.replace('*60*1000', '')
 			});
 		} else if(String.contains(period, '*1000')) {
 			this.setState({
 				timeUnit: 'sec',
-				simplePeriod: period.replace('*1000')
+				simplePeriod: period.replace('*1000', '')
 			});
 		}
 	},

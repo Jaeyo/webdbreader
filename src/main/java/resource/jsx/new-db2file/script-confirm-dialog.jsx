@@ -9,7 +9,6 @@ var React = require('react'),
 
 var ScriptConfirmDialog = React.createClass({
 	editor: null,
-	scriptMaker: new ScriptMaker(),
 
 	PropTypes: {
 		saveMode: React.PropTypes.bool,
@@ -63,7 +62,7 @@ var ScriptConfirmDialog = React.createClass({
 	},
 
 	makeScript() {
-		return this.scriptMaker.get({
+		return ScriptMaker.get({
 			period: this.props.period,
 			dbVendor: this.props.dbVendor,
 			dbIp: this.props.dbIp,

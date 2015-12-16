@@ -14,6 +14,8 @@ var ListDivider = MaterialWrapper.ListDivider;
 var Dialog = MaterialWrapper.Dialog;
 var Toggle = MaterialWrapper.Toggle;
 var PolymerIcon = require('../comps/polymer-icon.jsx');
+var TableConfigDialog = require('./table-column-config-card/table-config-dialog.jsx');
+var ColumnConfigDialog = require('./table-column-config-card/column-config-dialog.jsx');
 
 var TableColumnConfigCard = React.createClass({
 	PropTypes: {
@@ -34,9 +36,16 @@ var TableColumnConfigCard = React.createClass({
 			if(name === 'table') {
 				this.refs.tableConfigDialog.show();
 			} else if(name === 'columns') {
-				//TODO IMME
+				this.refs.columnConfigDialog.show();
 			}
 		}
+	},
+
+	handleChange(name, evt) {
+		evt.stopPropagation();
+		var state = {};
+		state[name] = evt.target.value;
+		this.props.handleStateChange(state);
 	},
 
 	render() {
@@ -80,6 +89,7 @@ var TableColumnConfigCard = React.createClass({
 						{...jdbc} />
 					<ColumnConfigDialog
 						ref="columnConfigDialog"
+						handleStateChange={this.props.handleStateChange}
 						table={this.props.table}
 						columns={this.props.columns} 
 						{...jdbc} />

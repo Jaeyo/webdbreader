@@ -26,6 +26,7 @@ var BindingColumnConfigDialog = React.createClass({
 		jdbcConnUrl: React.PropTypes.string.isRequired,
 		jdbcUsername: React.PropTypes.string.isRequired,
 		jdbcPassword: React.PropTypes.string.isRequired,
+		bindingColumn: React.PropTypes.string.isRequired,
 		table: React.PropTypes.string.isRequired
 	},
 
@@ -77,6 +78,11 @@ var BindingColumnConfigDialog = React.createClass({
 		this.props.handleStateChange(state);
 	},
 
+	onClose(evt) {
+		evt.stopPropagation();
+		this.hide();
+	},
+
 	renderColumnList() {
 		if(this.state.isColumnsLoaded === false) 
 			return (<CircularProgress mode="indeterminate" size={0.5} />);
@@ -109,12 +115,12 @@ var BindingColumnConfigDialog = React.createClass({
 		return (
 			<Dialog
 				actions={[
-					{ text: 'close', onClick: this.props.hide }
+					{ text: 'close', onClick: this.onClose }
 				]}
 				actionFocus="close"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
-				open={this.props.visible}>
+				open={this.state.visible}>
 				<Card>
 					<CardHeader
 						title="binding column 설정"
@@ -123,7 +129,7 @@ var BindingColumnConfigDialog = React.createClass({
 					<CardText>
 						<TextField
 							floatingLabelText="columns"
-							value={this.props.dataAdapter.data('bindingColumn')} 
+							value={this.props.bindingColumn} 
 							onChange={this.handleChange.bind(this, 'bindingColumn')}
 							fullWidth={true} />
 						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>

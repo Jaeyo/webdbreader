@@ -1,5 +1,6 @@
 var React = require('react');
-var MaterialWrapper = require('../comps/material-wrapper.jsx');
+var server = require('../../utils/server.js');
+var MaterialWrapper = require('../../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var TextField = MaterialWrapper.TextField;
 var SelectField = MaterialWrapper.SelectField;
@@ -12,8 +13,8 @@ var ListItem = MaterialWrapper.ListItem;
 var ListDivider = MaterialWrapper.ListDivider;
 var Dialog = MaterialWrapper.Dialog;
 var Toggle = MaterialWrapper.Toggle;
-var PolymerIcon = require('../comps/polymer-icon.jsx');
-var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
+var PolymerIcon = require('../../comps/polymer-icon.jsx');
+var AlertDialog = require('../../comps/dialog/alert-dialog.jsx');
 
 
 var TableConfigDialog = React.createClass({
@@ -105,17 +106,21 @@ var TableConfigDialog = React.createClass({
 		);
 	},
 
+	onClose(evt) {
+		evt.stopPropagation();
+		this.hide();
+	},
+
 	render() {
 		return (
 			<Dialog
 				actions={[
-					{ text: 'ok', onClick: this.onOk },
-					{ text: 'cancel', onClick: this.onCancel }
+					{ text: 'close', onClick: this.onClose }
 				]}
 				actionFocus="ok"
 				autoDetectWindowHeight={true}
 				autoScrollBodyContent={true}
-				open={this.props.visible}>
+				open={this.state.visible}>
 				<Card>
 					<CardHeader
 						title="table 설정"
@@ -137,3 +142,4 @@ var TableConfigDialog = React.createClass({
 		);
 	}
 });
+module.exports = TableConfigDialog;

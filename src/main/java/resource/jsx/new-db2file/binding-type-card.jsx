@@ -18,6 +18,7 @@ var Dialog = MaterialWrapper.Dialog;
 var RadioButton = MaterialWrapper.RadioButton;
 var RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
 var Toggle = MaterialWrapper.Toggle;
+var BindingColumnConfigDialog = require('./binding-type-card/binding-column-config-dialog.jsx');
 
 
 var BindingTypeCard = React.createClass({
@@ -36,6 +37,7 @@ var BindingTypeCard = React.createClass({
 	handleChange(name, evt) {
 		switch(name) {
 		case 'bindingType': 
+		case 'bindingColumn': 
 			var state = {};
 			state[name] = evt.target.value;
 			this.props.handleStateChange(state);
@@ -46,8 +48,7 @@ var BindingTypeCard = React.createClass({
 	handleFocus(name, evt) {
 		switch(name) {
 		case 'bindingColumn': 
-			if(this.autoloadToggle.isToggled() === false)
-				return;
+			if(this.refs.autoloadToggle.isToggled() === false) return;
 			this.refs.bindingColumnConfigDialog.show();
 			break;
 		}
@@ -55,10 +56,10 @@ var BindingTypeCard = React.createClass({
 
 	render() {
 		var jdbc = {
-			driver: this.props.jdbcDriver,
-			connUrl: this.props.jdbcConnUrl,
-			username: this.props.jdbcUsername,
-			password: this.props.jdbcPassword
+			jdbcDriver: this.props.jdbcDriver,
+			jdbcConnUrl: this.props.jdbcConnUrl,
+			jdbcUsername: this.props.jdbcUsername,
+			jdbcPassword: this.props.jdbcPassword
 		};
 
 		return (
@@ -83,7 +84,7 @@ var BindingTypeCard = React.createClass({
 							label="sequence binding" />
 					</RadioButtonGroup>
 					{
-						this.props.dataAdapter.data('bindingType') === 'simple' ? null : (
+						this.props.bindingType === 'simple' ? null : (
 							<div>
 								<Toggle
 									name="autoload"
@@ -96,6 +97,7 @@ var BindingTypeCard = React.createClass({
 									value={this.props.bindingColumn}	
 									floatingLabelText="binding column"
 									fullWidth={true}
+									onChange={this.handleChange.bind(this, 'bindingColumn')}
 									onFocus={this.handleFocus.bind(this, 'bindingColumn')} />
 								
 							</div>
@@ -105,6 +107,7 @@ var BindingTypeCard = React.createClass({
 				<BindingColumnConfigDialog 
 					handleStateChange={this.props.handleStateChange}
 					table={this.props.table}
+					bindingColumn={this.props.bindingColumn}
 					ref="bindingColumnConfigDialog"
 					{...jdbc} />
 			</Card>

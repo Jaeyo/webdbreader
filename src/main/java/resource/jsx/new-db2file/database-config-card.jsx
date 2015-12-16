@@ -70,6 +70,7 @@ var DatabaseConfigCard = React.createClass({
 						onClick={ function() { this.refs.dbAddressDialog.show(); }.bind(this) } />
 					<DbAddressDialog 
 						ref="dbAddressDialog"
+						handleStateChange={this.props.handleStateChange}
 						dbIp={this.props.dbIp}
 						dbPort={this.props.dbPort}
 						dbSid={this.props.dbSid} />

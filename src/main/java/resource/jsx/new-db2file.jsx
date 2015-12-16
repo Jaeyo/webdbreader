@@ -26,7 +26,7 @@ var NewDb2FileView = React.createClass({
 			columns: '',
 			bindingType: 'simple',
 			bindingColumn: '',
-			period: '6 * 1000',
+			period: '60 * 1000',
 			charset: 'utf8',
 			delimiter: '|',
 			outputPath: ''
