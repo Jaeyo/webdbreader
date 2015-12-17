@@ -1,15 +1,17 @@
 var React = require('react');
 var _ = require('underscore');
 var jdbcTmpl = require('./utils/util.js').jdbcTmpl;
+var server = require('./utils/server.js');
 var precondition = require('./utils/precondition.js');
 var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
 var DatabaseConfigCard = require('./new-db2file/database-config-card.jsx');
 var TableColumnConfigCard = require('./new-db2file/table-column-config-card.jsx');
 var BindingTypeCard = require('./new-db2file/binding-type-card.jsx');
 var EtcConfigCard = require('./new-db2file/etc-config-card.jsx');
-var ScriptConfirmDialog = require('./new-db2file/script-confirm-dialog.jsx');
+var ScriptDialog = require('./comps/dialog/script-dialog.jsx');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
+var scriptMaker = require('./new-db2file/db2file-script-maker.js');
 
 var NewDb2FileView = React.createClass({
 	getInitialState() {
@@ -45,24 +47,21 @@ var NewDb2FileView = React.createClass({
 											.replace('{port}', state.dbPort)
 											.replace('{database}', this.state.dbSid);
 			}
-		}
-		if(state.dbIp) {
+		} else if(state.dbIp) {
 			if(this.state.dbVendor != 'etc') {
 				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
 											.replace('{ip}', state.dbIp)
 											.replace('{port}', this.state.dbPort)
 											.replace('{database}', this.state.dbSid);
 			}
-		}
-		if(state.dbPort) {
+		} else if(state.dbPort) {
 			if(this.state.srcDbVendor != 'etc') {
 				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
 											.replace('{ip}', this.state.dbIp)
 											.replace('{port}', state.dbPort)
 											.replace('{database}', this.state.dbSid);
 			}
-		}
-		if(state.dbSid) {
+		} else if(state.dbSid) {
 			if(this.state.dbVendor != 'etc') {
 				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
 											.replace('{ip}', this.state.dbIp)
@@ -70,7 +69,7 @@ var NewDb2FileView = React.createClass({
 											.replace('{database}', state.dbSid);
 			}
 		}
-
+		
 		this.setState(state);
 	},
 
@@ -96,7 +95,46 @@ var NewDb2FileView = React.createClass({
 			return;
 		}
 
-		this.refs.scriptConfirmDialog.show();
+		var script = scriptMaker.get({
+			period: this.state.period,
+			dbVendor: this.state.dbVendor,
+			dbIp: this.state.dbIp,
+			dbPort: this.state.dbPort,
+			dbSid: this.state.dbSid,
+			jdbcDriver: this.state.jdbcDriver,
+			jdbcConnUrl: this.state.jdbcConnUrl,
+			jdbcUsername: this.state.jdbcUsername,
+			jdbcPassword: this.state.jdbcPassword,
+			columns: this.state.columns,
+			table: this.state.table,
+			bindingType: this.state.bindingType,
+			bindingColumn: this.state.bindingColumn,
+			delimiter: this.state.delimiter,
+			charset: this.state.charset,
+			outputPath: this.state.outputPath
+		});
+
+		this.refs.scriptDialog.show('', script, function(result, scriptName, script) {
+			if(result === false) {
+				this.refs.scriptDialog.hide();
+				return;
+			}
+
+			if(scriptName == null || scriptName.trim().length === 0) {
+				this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
+				return;
+			}
+
+			server.postScript({ title: scriptName, script: script })
+				.then(function(success) {
+					this.refs.scriptDialog.hide();
+					this.refs.alertDialog.show('success', 'script registered');
+				}.bind(this))
+				.catch(function(err) {
+					if(typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				}.bind(this));
+		}.bind(this));
 	},
 
 	render() {
@@ -139,17 +177,6 @@ var NewDb2FileView = React.createClass({
 			outputPath: this.state.outputPath
 		});
 
-		var scriptConfirmDialogData = _.extend({}, dbInfo, jdbc, {
-			period: this.state.period,
-			columns: this.state.columns,
-			table: this.state.table,
-			bindingType: this.state.bindingType,
-			bindingColumn: this.state.bindingColumn,
-			delimiter: this.state.delimiter,
-			charset: this.state.charset,
-			outputPath: this.state.outputPath
-		});
-
 		return (
 			<div> 
 				<DatabaseConfigCard {...databaseConfigCardData} />
@@ -160,10 +187,7 @@ var NewDb2FileView = React.createClass({
 					label="생성"
 					primary={true}
 					onClick={this.showScriptDialog} />
-				<ScriptConfirmDialog 
-					ref="scriptConfirmDialog"
-					saveMode={true}
-					{...scriptConfirmDialogData} />
+				<ScriptDialog ref="scriptDialog" />
 				<AlertDialog ref="alertDialog" />
 			</div>
 		);

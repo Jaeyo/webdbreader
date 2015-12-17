@@ -18,29 +18,30 @@ exports.get = function(args) {
 		util.format("var columns = '%s';", args.columns),
 		util.format("var table = '%s';", args.table),
 		util.format("var bindingType = '%s';", args.bindingType)
-	].join('\n');
+	].join('\n') + '\n';
 
 	if(args.bindingType !== 'simple') {
 		script += [
 			util.format("var bindingColumn = '%s';", args.bindingColumn)
-		].join('\n');
+		].join('\n') + '\n';
 	}
 
 	script += [
 		util.format("var delimiter = '%s';", args.delimiter),
 		util.format("var charset = '%s';", args.charset),
-		util.format("var outputPath = '%s';", args.outputPath)
-	].join('\n');
+		util.format("var outputPath = '%s';", args.outputPath),
+		''
+	].join('\n') + '\n';
 
 
 	script += [
 		"var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"
-	].join('\n');
+	].join('\n') + '\n';
 
 
 	script += [
 		"schedule(period).run(function() {"
-	].join('\n');
+	].join('\n') + '\n';
 
 	if(args.bindingType !== 'simple') {
 		script += [
@@ -49,7 +50,7 @@ exports.get = function(args) {
 			"		{ bindingColumn: bindingColumn, table: table } ",
 			"	); ",
 			""
-		].join('\n');
+		].join('\n') + '\n';
 	}
 
 	switch(args.bindingType) {
@@ -64,7 +65,7 @@ exports.get = function(args) {
 				"",
 				"	if(min === max) return;",
 				""
-			].join('\n'); break;
+			].join('\n') + '\n'; break;
 		case 'date': 
 			script += [
 				"	var min = repo('min');",
@@ -79,7 +80,7 @@ exports.get = function(args) {
 				"		return;",
 				"	}",
 				""
-			].join('\n'); break;
+			].join('\n') + '\n'; break;
 	}
 
 	switch(args.bindingType) {
@@ -89,14 +90,14 @@ exports.get = function(args) {
 				"		'SELECT {columns} FROM {table}', ",
 				"		{ columns: columns, table: table } ",
 				"	); ",
-			].join('\n'); break;
+			].join('\n') + '\n'; break;
 		case 'sequence':
 			script += [
 				"	var mainQuery = format( ",
 				"		'SELECT {columns} FROM {table} WHERE {bindingColumn} > {min} AND {bindingColumn} <= {max}', ",
 				"		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ",
 				"	); "
-			].join('\n'); break;
+			].join('\n') + '\n'; break;
 		case 'date':
 			switch(args.dbVendor) {
 				case 'oracle':
@@ -106,29 +107,29 @@ exports.get = function(args) {
 					script += [
 						"	var mainQuery = format( ",
 						"		'SELECT {columns} FROM {table} ' +  ",
-						"		' WHERE {bindingColumn} > TO_DATE(\'{min}\', \'YYYY-MM-DD HH24:MI:SS\') ' + ",
-						"		' AND {bindingColumn} <= TO_DATE(\'{max}\', \'YYYY-MM-DD HH24:MI:SS\') ', ",
+						"		' WHERE {bindingColumn} > TO_DATE(\\'{min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ' + ",
+						"		' AND {bindingColumn} <= TO_DATE(\\'{max}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ', ",
 						"		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ",
 						"	); "
-					].join('\n'); break;
+					].join('\n') + '\n'; break;
 				case 'mysql':
 					script += [
 						"	var mainQuery = format( ",
 						"		'SELECT {columns} FROM {table} ' +  ",
-						"		' WHERE {bindingColumn} > STR_TO_DATE(\'{min}\', \'%Y-%m-%d %H:%i:%s\') ' + ",
-						"		' AND {bindingColumn} <= STR_TO_DATE(\'{max}\', \'%Y-%m-%d %H:%i:%s\') ', ",
+						"		' WHERE {bindingColumn} > STR_TO_DATE(\\'{min}\\', \\'%Y-%m-%d %H:%i:%s\\') ' + ",
+						"		' AND {bindingColumn} <= STR_TO_DATE(\\'{max}\\', \\'%Y-%m-%d %H:%i:%s\\') ', ",
 						"		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ",
 						"	); "
-					].join('\n'); break;
-				case 'mysql':
+					].join('\n') + '\n'; break;
+				case 'mssql':
 					script += [
 						"	var mainQuery = format( ",
 						"		'SELECT {columns} FROM {table} ' +  ",
-						"		' WHERE {bindingColumn} > \'{min}\' ' + ",
-						"		' AND {bindingColumn} <= \'{max}\' ', ",
+						"		' WHERE {bindingColumn} > \\'{min}\\' ' + ",
+						"		' AND {bindingColumn} <= \\'{max}\\' ', ",
 						"		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ",
 						"	); "
-					].join('\n'); break;
+					].join('\n') + '\n'; break;
 			}
 			break;
 	}
@@ -138,7 +139,7 @@ exports.get = function(args) {
 		"	database(jdbc)",
 		"		.select(mainQuery)",
 		"		.map(function(row) {",
-		"			return row.join(delimiter).split('\n').join('') + '\n';",
+		"			return row.join(delimiter).split('\\n').join('') + '\\n';",
 		"		}) ",
 		"		.group(100) ",
 		"		.writeTextFile({ ",
@@ -147,5 +148,7 @@ exports.get = function(args) {
 		"			dateFormat: true, ",
 		"		}).run(); ",
 		"}); "
-	].join('\n');
+	].join('\n') + '\n';
+
+	return script;
 };

@@ -2,6 +2,7 @@ var React = require('react');
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
 var CodeTab = require('./script-info/code-tab.jsx');
+var InfoTab = require('./script-info/info-tab.jsx');
 var server = require('./utils/server.js');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
@@ -114,7 +115,7 @@ var ScriptInfoView = React.createClass({
 				<CardText>
 					<Tabs>
 						<Tab label="infomation">
-							<div>infomation</div>
+							<InfoTab title={this.props.title} />
 						</Tab>
 						<Tab label="configuration">
 							<ScriptConfigTab title={this.props.title} script={this.state.script} />
