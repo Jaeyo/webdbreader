@@ -4,12 +4,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 
+import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
+import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.script.bindingsV2.base.Pipe;
 import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class DBUpdatePipe extends Pipe {
+	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
+	
 	private String driver = null;
 	private String connUrl = null;
 	private String username = null;
@@ -35,14 +40,16 @@ public class DBUpdatePipe extends Pipe {
 				List<Object> list = (List<Object>) data;
 				String[] queries = list.toArray(new String[list.size()]);
 				jdbcTmpl.batchUpdate(queries);
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE, queries.length);
 			} else {
 				jdbcTmpl.update(data.toString());
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE);
 			}
 		} finally {
 			if(conn != null) conn.close();
 		}
 	}
-
+	
 	@Override
 	public void onComplete() {
 	}

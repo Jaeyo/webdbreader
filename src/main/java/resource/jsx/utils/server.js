@@ -234,3 +234,19 @@ exports.removeScript = function(args) {
 			});
 	});
 };
+
+exports.chartTotal = function() {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Chart/ScriptScoreStatistics/Total/')
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.data);
+					});
+			});
+	});
+};

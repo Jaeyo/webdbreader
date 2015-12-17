@@ -8,34 +8,9 @@ var CardHeader = MaterialWrapper.CardHeader;
 var CardText = MaterialWrapper.CardText;
 var List = MaterialWrapper.List;
 var ListItem = MaterialWrapper.ListItem;
+var TotalChartCard = require('./script/total-chart-card.jsx');
 var ScriptPanelItem = require('./script/script-panel-item.jsx');
 var NewScriptDialog = require('./script/new-script-dialog.jsx');
-
-
-var TotalChartPanel = React.createClass({
-	styles() {
-		return {
-			card: {
-				marginBottom: '10px'
-			}
-		};
-	},
-
-	render() {
-		var style = this.styles();
-		return (
-			<Card style={style.card}>
-				<CardHeader
-					title="chart"
-					subtitle="등록된 스크립트들의 통계를 제공합니다."
-					avatar={ <Glyphicon glyph="signal" /> } />
-				<CardText>
-					//TODO IMME
-				</CardText>
-			</Card>
-		);
-	}
-});
 
 
 var ScriptsPanel = React.createClass({
@@ -100,7 +75,7 @@ var ScriptView = React.createClass({
 	render() {
 		return (
 			<div>	
-				<TotalChartPanel />
+				<TotalChartCard />
 				<ScriptsPanel/>
 			</div>	
 		);

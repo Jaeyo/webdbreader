@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class ChartREST extends HttpServlet {
 	} //doGet
 	
 	private String getTotalChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParmas){
-		JSONObject totalStatistics = scriptScoreStatisticsService.getTotalScriptStatistics();
+		JSONArray totalStatistics = scriptScoreStatisticsService.getTotalScriptStatistics();
 		return new JSONObject().put("success", 1).put("data", totalStatistics).toString();
 	} //getCategoryChart
 } //class

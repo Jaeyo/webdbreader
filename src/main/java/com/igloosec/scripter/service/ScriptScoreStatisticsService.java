@@ -26,7 +26,15 @@ public class ScriptScoreStatisticsService {
 		scriptScoreStatisticsDAO.deleteUnderTimestamp(timestamp);
 	} //deleteUnderTimestamp
 	
+	public JSONArray getTotalScriptStatistics(){
+		return scriptScoreStatisticsDAO.getTotal();
+	}
+	
+	
 	public JSONObject getTotalScriptStatistics(){
+		
+		TODO IMME
+		
 		JSONArray oldRows = scriptScoreStatisticsDAO.getTotal();
 		Map<Date, JSONObject> rebuildedRows = Maps.newHashMap();
 		Set<String> yKeysSet = Sets.newHashSet();
@@ -39,7 +47,7 @@ public class ScriptScoreStatisticsService {
 				row = new JSONObject().put("timestamp", timestamp);
 				rebuildedRows.put(timestamp, row);
 			} //i
-			String key = String.format("[%s][%s]", oldRow.getString("SCRIPT_NAME"), oldRow.getString("CATEGORY"));
+			String key = String.format("%s(%s)", oldRow.getString("CATEGORY"), oldRow.getString("SCRIPT_NAME"));
 			yKeysSet.add(key);
 			row.put(key, oldRow.getInt("COUNT_VALUE"));
 		} //for i
@@ -52,9 +60,9 @@ public class ScriptScoreStatisticsService {
 			oldRows.put(row);
 		} //for row
 	
-		JSONArray yKeys = new JSONArray();
+		JSONArray labels = new JSONArray();
 		for(String yKey : yKeysSet)
-			yKeys.put(yKey);
-		return new JSONObject().put("data", oldRows).put("yKeys", yKeys);
+			labels.put(yKey);
+		return new JSONObject().put("data", oldRows).put("labels", labels);
 	} //getScriptStatisticsCategory
 } //class

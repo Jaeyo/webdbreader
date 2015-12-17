@@ -54,10 +54,10 @@
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(529);
 	var ScriptInfoView = __webpack_require__(555);
-	var NewDb2FileView = __webpack_require__(568);
-	var NewDb2DbView = __webpack_require__(572);
-	var ConfigView = __webpack_require__(574);
-	__webpack_require__(575);
+	var NewDb2FileView = __webpack_require__(657);
+	var NewDb2DbView = __webpack_require__(661);
+	var ConfigView = __webpack_require__(663);
+	__webpack_require__(664);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -53171,37 +53171,9 @@
 	var CardText = MaterialWrapper.CardText;
 	var List = MaterialWrapper.List;
 	var ListItem = MaterialWrapper.ListItem;
+	var TotalChartCard = __webpack_require__(668);
 	var ScriptPanelItem = __webpack_require__(543);
 	var NewScriptDialog = __webpack_require__(548);
-
-	var TotalChartPanel = React.createClass({
-		displayName: 'TotalChartPanel',
-
-		styles: function styles() {
-			return {
-				card: {
-					marginBottom: '10px'
-				}
-			};
-		},
-
-		render: function render() {
-			var style = this.styles();
-			return React.createElement(
-				Card,
-				{ style: style.card },
-				React.createElement(CardHeader, {
-					title: 'chart',
-					subtitle: '등록된 스크립트들의 통계를 제공합니다.',
-					avatar: React.createElement(Glyphicon, { glyph: 'signal' }) }),
-				React.createElement(
-					CardText,
-					null,
-					'//TODO IMME'
-				)
-			);
-		}
-	});
 
 	var ScriptsPanel = React.createClass({
 		displayName: 'ScriptsPanel',
@@ -53268,7 +53240,7 @@
 			return React.createElement(
 				'div',
 				null,
-				React.createElement(TotalChartPanel, null),
+				React.createElement(TotalChartCard, null),
 				React.createElement(ScriptsPanel, null)
 			);
 		}
@@ -53471,6 +53443,19 @@
 					reject(err);
 				}).then(function (body) {
 					resolve(body.success);
+				});
+			});
+		});
+	};
+
+	exports.chartTotal = function () {
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Chart/ScriptScoreStatistics/Total/').end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.data);
 				});
 			});
 		});
@@ -58118,9 +58103,9 @@
 
 	var React = __webpack_require__(1);
 	var util = __webpack_require__(166);
-	var moment = __webpack_require__(580);
+	var moment = __webpack_require__(567);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
-	var Websocket = __webpack_require__(567);
+	var Websocket = __webpack_require__(655);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var FlatButton = MaterialWrapper.FlatButton;
@@ -58231,1362 +58216,6 @@
 
 /***/ },
 /* 567 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var WS = __webpack_require__(579);
-
-	var Websocket = React.createClass({
-		displayName: 'Websocket',
-
-		ws: null,
-
-		PropTypes: {
-			url: React.PropTypes.string.isRequired,
-			onOpen: React.PropTypes.func,
-			onMessage: React.PropTypes.func,
-			onClose: React.PropTypes.func
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.ws = new WS(this.props.url);
-			if (this.props.onOpen) this.ws.addEventListener('open', this.props.onOpen);
-			if (this.props.onClose) this.ws.addEventListener('close', this.props.onClose);
-			if (this.props.onMessage) this.ws.addEventListener('message', this.onMessage);
-		},
-
-		send: function send(msg) {
-			if (typeof msg === 'object') msg = JSON.stringify(msg);
-			this.ws.send(msg);
-		},
-
-		onMessage: function onMessage(msg) {
-			this.props.onMessage(msg.data);
-		},
-
-		close: function close() {
-			this.ws.close();
-		},
-
-		render: function render() {
-			return React.createElement('div', null);
-		}
-	});
-	module.exports = Websocket;
-
-/***/ },
-/* 568 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var server = __webpack_require__(530);
-	var precondition = __webpack_require__(551);
-	var AlertDialog = __webpack_require__(545);
-	var DatabaseConfigCard = __webpack_require__(558);
-	var TableColumnConfigCard = __webpack_require__(569);
-	var BindingTypeCard = __webpack_require__(561);
-	var EtcConfigCard = __webpack_require__(563);
-	var ScriptDialog = __webpack_require__(550);
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var scriptMaker = __webpack_require__(552);
-
-	var NewDb2FileView = React.createClass({
-		displayName: 'NewDb2FileView',
-
-		getInitialState: function getInitialState() {
-			return {
-				dbVendor: 'oracle',
-				dbIp: '192.168.10.101',
-				dbPort: '1521',
-				dbSid: 'spiderx',
-				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				jdbcUsername: 'admin_test',
-				jdbcPassword: 'admin_test',
-				table: '',
-				columns: '',
-				bindingType: 'simple',
-				bindingColumn: '',
-				period: '60 * 1000',
-				charset: 'utf8',
-				delimiter: '|',
-				outputPath: ''
-			};
-		},
-
-		handleStateChange: function handleStateChange(state) {
-			if (state.columns) state.columns = state.columns.toLowerCase();
-
-			if (state.dbVendor) {
-				if (state.dbVendor != 'etc') {
-					state.jdbcDriver = jdbcTmpl[state.dbVendor].driver;
-					state.dbPort = jdbcTmpl[state.dbVendor].port;
-					state.jdbcConnUrl = jdbcTmpl[state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
-				}
-			} else if (state.dbIp) {
-				if (this.state.dbVendor != 'etc') {
-					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', this.state.dbSid);
-				}
-			} else if (state.dbPort) {
-				if (this.state.srcDbVendor != 'etc') {
-					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
-				}
-			} else if (state.dbSid) {
-				if (this.state.dbVendor != 'etc') {
-					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', state.dbSid);
-				}
-			}
-
-			this.setState(state);
-		},
-
-		showScriptDialog: function showScriptDialog() {
-			try {
-				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
-					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
-					return true;
-				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
-			} catch (errmsg) {
-				this.refs.alertDialog.show('danger', errmsg);
-				return;
-			}
-
-			var script = scriptMaker.get({
-				period: this.state.period,
-				dbVendor: this.state.dbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid,
-				jdbcDriver: this.state.jdbcDriver,
-				jdbcConnUrl: this.state.jdbcConnUrl,
-				jdbcUsername: this.state.jdbcUsername,
-				jdbcPassword: this.state.jdbcPassword,
-				columns: this.state.columns,
-				table: this.state.table,
-				bindingType: this.state.bindingType,
-				bindingColumn: this.state.bindingColumn,
-				delimiter: this.state.delimiter,
-				charset: this.state.charset,
-				outputPath: this.state.outputPath
-			});
-
-			this.refs.scriptDialog.show('', script, (function (result, scriptName, script) {
-				if (result === false) {
-					this.refs.scriptDialog.hide();
-					return;
-				}
-
-				if (scriptName == null || scriptName.trim().length === 0) {
-					this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
-					return;
-				}
-
-				server.postScript({ title: scriptName, script: script }).then((function (success) {
-					this.refs.scriptDialog.hide();
-					this.refs.alertDialog.show('success', 'script registered');
-				}).bind(this))['catch']((function (err) {
-					if (typeof err === 'object') err = JSON.stringify(err);
-					this.refs.alertDialog.show('danger', err);
-				}).bind(this));
-			}).bind(this));
-		},
-
-		render: function render() {
-			var handleStateChange = { handleStateChange: this.handleStateChange };
-
-			var jdbc = {
-				jdbcDriver: this.state.jdbcDriver,
-				jdbcConnUrl: this.state.jdbcConnUrl,
-				jdbcUsername: this.state.jdbcUsername,
-				jdbcPassword: this.state.jdbcPassword
-			};
-
-			var dbInfo = {
-				dbVendor: this.state.dbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid
-			};
-
-			var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
-				title: 'database config',
-				subtitle: 'source database 연결정보를 설정합니다.'
-			});
-
-			var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
-				table: this.state.table,
-				columns: this.state.columns
-			});
-
-			var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
-				table: this.state.table,
-				bindingType: this.state.bindingType,
-				bindingColumn: this.state.bindingColumn
-			});
-
-			var etcConfigCardData = _.extend({}, handleStateChange, {
-				period: this.state.period,
-				charset: this.state.charset,
-				delimiter: this.state.delimiter,
-				outputPath: this.state.outputPath
-			});
-
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(DatabaseConfigCard, databaseConfigCardData),
-				React.createElement(TableColumnConfigCard, tableColumnConfigCardData),
-				React.createElement(BindingTypeCard, bindingTypeCardData),
-				React.createElement(EtcConfigCard, etcConfigCardData),
-				React.createElement(Button, {
-					label: '생성',
-					primary: true,
-					onClick: this.showScriptDialog }),
-				React.createElement(ScriptDialog, { ref: 'scriptDialog' }),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
-			);
-		}
-	});
-
-	module.exports = NewDb2FileView;
-
-/***/ },
-/* 569 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var React = __webpack_require__(1);
-	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(559);
-	var TableConfigDialog = __webpack_require__(570);
-	var ColumnConfigDialog = __webpack_require__(571);
-
-	var TableColumnConfigCard = React.createClass({
-		displayName: 'TableColumnConfigCard',
-
-		PropTypes: {
-			handleStateChange: React.PropTypes.func.isRequired,
-
-			table: React.PropTypes.string.isRequired,
-			columns: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired
-		},
-
-		handleFocus: function handleFocus(name, evt) {
-			evt.stopPropagation();
-
-			if (this.refs.autoloadToggle.isToggled() === true) {
-				if (name === 'table') {
-					this.refs.tableConfigDialog.show();
-				} else if (name === 'columns') {
-					this.refs.columnConfigDialog.show();
-				}
-			}
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-			var state = {};
-			state[name] = evt.target.value;
-			this.props.handleStateChange(state);
-		},
-
-		render: function render() {
-			var jdbc = {
-				jdbcDriver: this.props.jdbcDriver,
-				jdbcConnUrl: this.props.jdbcConnUrl,
-				jdbcUsername: this.props.jdbcUsername,
-				jdbcPassword: this.props.jdbcPassword
-			};
-
-			return React.createElement(
-				Card,
-				{ style: { marginBottom: '10px' } },
-				React.createElement(CardHeader, {
-					title: 'table/column 설정',
-					subtitle: 'source database의 table/column 정보를 설정합니다.',
-					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-				React.createElement(
-					CardText,
-					null,
-					React.createElement(Toggle, {
-						name: 'autoload',
-						value: 'autoload',
-						label: 'autoload',
-						ref: 'autoloadToggle',
-						style: { width: '150px' },
-						defaultToggled: true }),
-					React.createElement(TextField, {
-						value: this.props.table,
-						onChange: this.handleChange.bind(this, 'table'),
-						floatingLabelText: 'table',
-						fullWidth: true,
-						onFocus: this.handleFocus.bind(this, 'table') }),
-					React.createElement(TextField, {
-						value: this.props.columns,
-						onChange: this.handleChange.bind(this, 'columns'),
-						floatingLabelText: 'columns',
-						fullWidth: true,
-						onFocus: this.handleFocus.bind(this, 'columns') }),
-					React.createElement(TableConfigDialog, _extends({
-						ref: 'tableConfigDialog',
-						handleStateChange: this.props.handleStateChange,
-						table: this.props.table
-					}, jdbc)),
-					React.createElement(ColumnConfigDialog, _extends({
-						ref: 'columnConfigDialog',
-						handleStateChange: this.props.handleStateChange,
-						table: this.props.table,
-						columns: this.props.columns
-					}, jdbc))
-				)
-			);
-		}
-	});
-	module.exports = TableColumnConfigCard;
-
-/***/ },
-/* 570 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var server = __webpack_require__(530);
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(559);
-	var AlertDialog = __webpack_require__(545);
-
-	var TableConfigDialog = React.createClass({
-		displayName: 'TableConfigDialog',
-
-		PropTypes: {
-			handleStateChange: React.PropTypes.func.isRequired,
-
-			table: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				isTablesLoaded: false,
-				loadedTables: null
-			};
-		},
-
-		show: function show() {
-			this.setState({ visible: true }, (function () {
-				this.loadTables();
-			}).bind(this));
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			switch (name) {
-				case 'table':
-					this.props.handleStateChange({ table: evt.target.value });
-					break;
-			}
-		},
-
-		loadTables: function loadTables() {
-			server.loadTables({
-				jdbc: {
-					driver: this.props.jdbcDriver,
-					connUrl: this.props.jdbcConnUrl,
-					username: this.props.jdbcUsername,
-					password: this.props.jdbcPassword
-				}
-			}).then((function (tables) {
-				this.setState({
-					isTablesLoaded: true,
-					loadedTables: tables
-				});
-			}).bind(this))['catch']((function (err) {
-				console.error(err.stack);
-				this.setState({ isTablesLoaded: true });
-				if (typeof err !== 'string') err = JSON.stringify(err);
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
-		},
-
-		renderTableList: function renderTableList() {
-			if (this.state.isTablesLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
-
-			var isShouldFilter = this.props.table != null && this.props.table.trim().length !== 0;
-
-			return React.createElement(
-				List,
-				null,
-				this.state.loadedTables.filter((function (table) {
-					if (isShouldFilter === false) return true;
-					return String.containsIgnoreCase(table, this.props.table);
-				}).bind(this)).map((function (table) {
-					var onClick = (function (evt) {
-						evt.stopPropagation();
-						this.props.handleStateChange({ table: table });
-					}).bind(this);
-					return React.createElement(ListItem, {
-						key: table,
-						primaryText: table,
-						onClick: onClick });
-				}).bind(this))
-			);
-		},
-
-		onClose: function onClose(evt) {
-			evt.stopPropagation();
-			this.hide();
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					actions: [{ text: 'close', onClick: this.onClose }],
-					actionFocus: 'ok',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.state.visible },
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'table 설정',
-						subtitle: 'source database의 table 정보를 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(TextField, {
-							floatingLabelText: 'table',
-							value: this.props.table,
-							onChange: this.handleChange.bind(this, 'table'),
-							fullWidth: true }),
-						React.createElement(
-							'div',
-							{ style: { width: '100%', height: '300px', overflow: 'auto' } },
-							this.renderTableList()
-						)
-					)
-				),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
-			);
-		}
-	});
-	module.exports = TableConfigDialog;
-
-/***/ },
-/* 571 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var server = __webpack_require__(530);
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(559);
-	var AlertDialog = __webpack_require__(545);
-
-	var ColumnConfigDialog = React.createClass({
-		displayName: 'ColumnConfigDialog',
-
-		PropTypes: {
-			handleStateChange: React.PropTypes.func.isRequired,
-
-			table: React.PropTypes.string.isRequired,
-			columns: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				isColumnsLoaded: false,
-				loadedColumns: null
-			};
-		},
-
-		show: function show() {
-			this.setState({ visible: true }, (function () {
-				this.loadColumns();
-			}).bind(this));
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			switch (name) {
-				case 'column':
-					this.props.handleStateChange({ columns: evt.target.value });
-					break;
-			}
-		},
-
-		loadColumns: function loadColumns() {
-			server.loadColumns({
-				jdbc: {
-					driver: this.props.jdbcDriver,
-					connUrl: this.props.jdbcConnUrl,
-					username: this.props.jdbcUsername,
-					password: this.props.jdbcPassword
-				},
-				table: this.props.table
-			}).then((function (columns) {
-				this.setState({
-					isColumnsLoaded: true,
-					loadedColumns: columns
-				});
-			}).bind(this))['catch']((function (err) {
-				console.error(err.stack);
-				this.setState({ isColumnsLoaded: false });
-				if (typeof err !== 'string') err = JSON.stringify(err);
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
-		},
-
-		renderColumnList: function renderColumnList() {
-			if (this.state.isColumnsLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
-
-			var selectedColumnsArr = this.props.columns.split(',').map(function (s) {
-				return s.trim();
-			}).filter(function (s) {
-				if (s === '') return false;return true;
-			});
-
-			return React.createElement(
-				List,
-				null,
-				this.state.loadedColumns.map((function (column) {
-					var columnName = column.columnName.toLowerCase();
-					var columnType = column.columnType;
-
-					var onClick = (function (evt) {
-						evt.stopPropagation();
-						if (Array.contains(selectedColumnsArr, columnName)) {
-							selectedColumnsArr.remove(columnName);
-						} else {
-							selectedColumnsArr.push(columnName);
-						}
-						this.props.handleStateChange({ columns: selectedColumnsArr.join(',') });
-					}).bind(this);
-
-					return React.createElement(ListItem, {
-						key: columnName,
-						primaryText: columnName,
-						secondaryText: columnType,
-						onClick: onClick });
-				}).bind(this))
-			);
-		},
-
-		onClose: function onClose(evt) {
-			evt.stopPropagation();
-			this.hide();
-		},
-
-		render: function render() {
-			return React.createElement(
-				Dialog,
-				{
-					actions: [{ text: 'close', onClick: this.onClose }],
-					actionFocus: 'close',
-					autoDetectWindowHeight: true,
-					autoScrollBodyContent: true,
-					open: this.state.visible },
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'column 설정',
-						subtitle: '사용할 column 정보를 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(TextField, {
-							floatingLabelText: 'columns',
-							value: this.props.columns,
-							onChange: this.handleChange.bind(this, 'columns'),
-							fullWidth: true }),
-						React.createElement(
-							'div',
-							{ style: { width: '100%', height: '300px', overflow: 'auto' } },
-							this.renderColumnList()
-						)
-					)
-				),
-				React.createElement(AlertDialog, { ref: 'alertDialog' })
-			);
-		}
-	});
-	module.exports = ColumnConfigDialog;
-
-/***/ },
-/* 572 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var DatabaseConfigCard = __webpack_require__(558);
-	var TableColumnsMappingCard = __webpack_require__(573);
-	var BindingTypeCard = __webpack_require__(561);
-
-	var NewDb2DbView = React.createClass({
-		displayName: 'NewDb2DbView',
-
-		getInitialState: function getInitialState() {
-			return {
-				srcDbVendor: 'oracle',
-				srcDbIp: '192.168.10.101',
-				srcDbPort: '1521',
-				srcDbSid: 'spiderx',
-				srcJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				srcJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				srcJdbcUsername: 'admin_test',
-				srcJdbcPassword: 'admin_test',
-				srcTable: '',
-				srcColumns: '',
-				destDbVendor: 'oracle',
-				destDbIp: '192.168.10.101',
-				destDbPort: '1521',
-				destDbSid: 'spiderx',
-				destJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				destJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				destJdbcUsername: 'admin_test',
-				destJdbcPassword: 'admin_test',
-				destTable: '',
-				destColumns: '',
-				bindingType: 'simple',
-				srcBindingColumn: '',
-				period: '6 * 1000'
-			};
-		},
-
-		handleStateChange: function handleStateChange(state) {
-			this.setState(state);
-		},
-
-		handleSrcDbStateChange: function handleSrcDbStateChange(state) {
-			if (state.dbVendor) {
-				Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
-				if (state.srcDbVendor != 'etc') {
-					state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
-					state.srcDbPort = jdbcTmpl[state.srcDbVendor].port;
-					state.srcJdbcConnUrl = jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
-				}
-			}
-			if (state.dbIp) {
-				Object.renameProperty(state, 'dbIp', 'srcDbIp');
-				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
-				}
-			}
-			if (state.dbPort) {
-				Object.renameProperty(state, 'dbPort', 'srcDbPort');
-				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
-				}
-			}
-			if (state.dbSid) {
-				Object.renameProperty(state, 'dbSid', 'srcDbSid');
-				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
-				}
-			}
-
-			this.setState(state);
-		},
-
-		handleDestDbStateChange: function handleDestDbStateChange(state) {
-			if (state.dbVendor) {
-				Object.renameProperty(state, 'dbVendor', 'destDbVendor');
-				if (state.destDbVendor != 'etc') {
-					state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
-					state.destDbPort = jdbcTmpl[state.destDbVendor].port;
-					state.destJdbcConnUrl = jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
-				}
-			}
-			if (state.dbIp) {
-				Object.renameProperty(state, 'dbIp', 'destDbIp');
-				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
-				}
-			}
-			if (state.dbPort) {
-				Object.renameProperty(state, 'dbPort', 'destDbPort');
-				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
-				}
-			}
-			if (state.dbSid) {
-				Object.renameProperty(state, 'dbSid', 'destDbSid');
-				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
-				}
-			}
-
-			this.setState(state);
-		},
-
-		render: function render() {
-			var srcJdbc = {
-				jdbcDriver: this.state.srcJdbcDriver,
-				jdbcConnUrl: this.state.srcJdbcConnUrl,
-				jdbcUsername: this.state.srcJdbcUsername,
-				jdbcPassword: this.state.srcJdbcPassword
-			};
-
-			var destJdbc = {
-				jdbcDriver: this.state.destJdbcDriver,
-				jdbcConnUrl: this.state.destJdbcConnUrl,
-				jdbcUsername: this.state.destJdbcUsername,
-				jdbcPassword: this.state.destJdbcPassword
-			};
-
-			var srcDbInfo = {
-				dbVendor: this.state.srcDbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid
-			};
-
-			var destDbInfo = {
-				dbVendor: this.state.destDbVendor,
-				dbIp: this.state.destDbIp,
-				dbPort: this.state.destDbPort,
-				dbSid: this.state.destDbSid
-			};
-
-			var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
-				title: "source database 설정",
-				subtitle: "source database의 연결정보를 설정합니다.",
-				handleStateChange: this.handleSrcDbStateChange
-			});
-
-			var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
-				title: "destination database 설정",
-				subtitle: "destination database의 연결정보를 설정합니다.",
-				handleStateChange: this.handleDestDbStateChange
-			});
-
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(DatabaseConfigCard, srcDatabaseConfigCardData),
-				React.createElement(DatabaseConfigCard, destDatabaseConfigCardData),
-				React.createElement(TableColumnsMappingCard, { dataAdapter: this.dataAdapter })
-			);
-		}
-	});
-	module.exports = NewDb2DbView;
-
-/***/ },
-/* 573 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(559);
-	var Col = __webpack_require__(169).Col;
-
-	var TableColumnsMappingCard = React.createClass({
-		displayName: 'TableColumnsMappingCard',
-
-		PropTypes: {
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				columnCount: 1,
-				srcColumn0: '',
-				destColumn0: ''
-			};
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-			switch (name) {
-				case 'srcTable':
-				case 'destTable':
-					var state = {};
-					state[name] = evt.target.value;
-					this.props.dataAdapter.emit('stateChange', state);
-					break;
-			}
-		},
-
-		render: function render() {
-			return React.createElement(
-				Card,
-				{ style: { marginBottom: '10px' } },
-				React.createElement(CardHeader, {
-					title: 'mapping table/columns',
-					subtitle: '매핑시킬 테이블과 컬럼들을 설정합니다.',
-					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-				React.createElement(
-					CardText,
-					null,
-					React.createElement(Toggle, {
-						name: 'autoload',
-						value: 'autoload',
-						label: 'autoload',
-						ref: 'autoloadToggle',
-						style: { width: '150px' },
-						defaultToggled: true }),
-					React.createElement(
-						Col,
-						{ xs: 6 },
-						React.createElement(AddableColumnTextFields, { isSrc: true, dataAdapter: this.props.dataAdapter })
-					),
-					React.createElement(
-						Col,
-						{ xs: 6 },
-						React.createElement(AddableColumnTextFields, { isDest: true, dataAdapter: this.props.dataAdapter })
-					)
-				)
-			);
-		}
-	});
-	module.exports = TableColumnsMappingCard;
-
-	var AddableColumnTextFields = React.createClass({
-		displayName: 'AddableColumnTextFields',
-
-		PropTypes: {
-			isSrc: React.PropTypes.bool,
-			isDest: React.PropTypes.bool,
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		handleChange: function handleChange(index, evt) {
-			evt.stopPropagation();
-
-			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
-			var columns = this.props.dataAdapter.data(columnKind);
-			var splitedColumns = columns.split(',');
-			splitedColumns[index] = evt.target.value;
-
-			var state = {};
-			state[columnKind] = splitedColumns.join(',');
-			this.props.dataAdapter.emit(columnKind, state);
-		},
-
-		render: function render() {
-			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
-			var columns = this.props.dataAdapter.data(columnKind);
-
-			return React.createElement(
-				'div',
-				null,
-				columns.split(',').map((function (column, index) {
-					return React.createElement(TextField, {
-						floatingLabelText: 'column',
-						value: column,
-						fullWidth: true,
-						onChange: this.handleChange.bind(this, index) });
-				}).bind(this))
-			);
-		}
-	});
-
-/***/ },
-/* 574 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(559);
-	var MaterialWrapper = __webpack_require__(414);
-	var Button = MaterialWrapper.Button;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-
-	var ConfigView = React.createClass({
-		displayName: 'ConfigView',
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'todo',
-						subtitle: 'todo',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						'//TODO IMME'
-					)
-				)
-			);
-		}
-	});
-
-	module.exports = ConfigView;
-
-/***/ },
-/* 575 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(576);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(578)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../../node_modules/css-loader/index.js!./reset.css", function() {
-				var newContent = require("!!./../../../../../node_modules/css-loader/index.js!./reset.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 576 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(577)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/ \r\n   v2.0 | 20110126\r\n   License: none (public domain)\r\n*/\r\n\r\nhtml, body, div, span, applet, object, iframe,\r\nh1, h2, h3, h4, h5, h6, p, blockquote, pre,\r\na, abbr, acronym, address, big, cite, code,\r\ndel, dfn, em, img, ins, kbd, q, s, samp,\r\nsmall, strike, strong, sub, sup, tt, var,\r\nb, u, i, center,\r\ndl, dt, dd, ol, ul, li,\r\nfieldset, form, label, legend,\r\ntable, caption, tbody, tfoot, thead, tr, th, td,\r\narticle, aside, canvas, details, embed, \r\nfigure, figcaption, footer, header, hgroup, \r\nmenu, nav, output, ruby, section, summary,\r\ntime, mark, audio, video {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\tborder: 0;\r\n\tfont-size: 100%;\r\n\tfont: inherit;\r\n\tvertical-align: baseline;\r\n}\r\n/* HTML5 display-role reset for older browsers */\r\narticle, aside, details, figcaption, figure, \r\nfooter, header, hgroup, menu, nav, section {\r\n\tdisplay: block;\r\n}\r\nbody {\r\n\tline-height: 1;\r\n}\r\nol, ul {\r\n\tlist-style: none;\r\n}\r\nblockquote, q {\r\n\tquotes: none;\r\n}\r\nblockquote:before, blockquote:after,\r\nq:before, q:after {\r\n\tcontent: '';\r\n\tcontent: none;\r\n}\r\ntable {\r\n\tborder-collapse: collapse;\r\n\tborder-spacing: 0;\r\n}", ""]);
-
-	// exports
-
-
-/***/ },
-/* 577 */
-/***/ function(module, exports) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	// css base code, injected by the css-loader
-	module.exports = function() {
-		var list = [];
-
-		// return the list of modules as css string
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-
-		// import a list of modules into the list
-		list.i = function(modules, mediaQuery) {
-			if(typeof modules === "string")
-				modules = [[null, modules, ""]];
-			var alreadyImportedModules = {};
-			for(var i = 0; i < this.length; i++) {
-				var id = this[i][0];
-				if(typeof id === "number")
-					alreadyImportedModules[id] = true;
-			}
-			for(i = 0; i < modules.length; i++) {
-				var item = modules[i];
-				// skip already imported module
-				// this implementation is not 100% perfect for weird media query combinations
-				//  when a module is imported multiple times with different media queries.
-				//  I hope this will never occur (Hey this way we have smaller bundles)
-				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-					if(mediaQuery && !item[2]) {
-						item[2] = mediaQuery;
-					} else if(mediaQuery) {
-						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-					}
-					list.push(item);
-				}
-			}
-		};
-		return list;
-	};
-
-
-/***/ },
-/* 578 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0;
-
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
-
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
-
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
-
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
-
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
-
-	function createStyleElement() {
-		var styleElement = document.createElement("style");
-		var head = getHeadElement();
-		styleElement.type = "text/css";
-		head.appendChild(styleElement);
-		return styleElement;
-	}
-
-	function createLinkElement() {
-		var linkElement = document.createElement("link");
-		var head = getHeadElement();
-		linkElement.rel = "stylesheet";
-		head.appendChild(linkElement);
-		return linkElement;
-	}
-
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
-
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement());
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement();
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement();
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-			};
-		}
-
-		update(obj);
-
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
-
-	var replaceText = (function () {
-		var textStore = [];
-
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
-	})();
-
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
-
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
-
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
-
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
-
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
-
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
-
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
-
-		var blob = new Blob([css], { type: "text/css" });
-
-		var oldSrc = linkElement.href;
-
-		linkElement.href = URL.createObjectURL(blob);
-
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
-
-
-/***/ },
-/* 579 */
-/***/ function(module, exports) {
-
-	
-	/**
-	 * Module dependencies.
-	 */
-
-	var global = (function() { return this; })();
-
-	/**
-	 * WebSocket constructor.
-	 */
-
-	var WebSocket = global.WebSocket || global.MozWebSocket;
-
-	/**
-	 * Module exports.
-	 */
-
-	module.exports = WebSocket ? ws : null;
-
-	/**
-	 * WebSocket constructor.
-	 *
-	 * The third `opts` options object gets ignored in web browsers, since it's
-	 * non-standard, and throws a TypeError if passed to the constructor.
-	 * See: https://github.com/einaros/ws/issues/227
-	 *
-	 * @param {String} uri
-	 * @param {Array} protocols (optional)
-	 * @param {Object) opts (optional)
-	 * @api public
-	 */
-
-	function ws(uri, protocols, opts) {
-	  var instance;
-	  if (protocols) {
-	    instance = new WebSocket(uri, protocols);
-	  } else {
-	    instance = new WebSocket(uri);
-	  }
-	  return instance;
-	}
-
-	if (WebSocket) ws.prototype = WebSocket.prototype;
-
-
-/***/ },
-/* 580 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -59857,7 +58486,7 @@
 	                module && module.exports) {
 	            try {
 	                oldLocale = globalLocale._abbr;
-	                __webpack_require__(582)("./" + name);
+	                __webpack_require__(569)("./" + name);
 	                // because defineLocale currently also sets the global locale, we
 	                // want to undo that for lazy loaded locales
 	                locale_locales__getSetGlobalLocale(oldLocale);
@@ -62784,10 +61413,10 @@
 	    return _moment;
 
 	}));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(581)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(568)(module)))
 
 /***/ },
-/* 581 */
+/* 568 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -62803,180 +61432,180 @@
 
 
 /***/ },
-/* 582 */
+/* 569 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 583,
-		"./af.js": 583,
-		"./ar": 584,
-		"./ar-ma": 585,
-		"./ar-ma.js": 585,
-		"./ar-sa": 586,
-		"./ar-sa.js": 586,
-		"./ar-tn": 587,
-		"./ar-tn.js": 587,
-		"./ar.js": 584,
-		"./az": 588,
-		"./az.js": 588,
-		"./be": 589,
-		"./be.js": 589,
-		"./bg": 590,
-		"./bg.js": 590,
-		"./bn": 591,
-		"./bn.js": 591,
-		"./bo": 592,
-		"./bo.js": 592,
-		"./br": 593,
-		"./br.js": 593,
-		"./bs": 594,
-		"./bs.js": 594,
-		"./ca": 595,
-		"./ca.js": 595,
-		"./cs": 596,
-		"./cs.js": 596,
-		"./cv": 597,
-		"./cv.js": 597,
-		"./cy": 598,
-		"./cy.js": 598,
-		"./da": 599,
-		"./da.js": 599,
-		"./de": 600,
-		"./de-at": 601,
-		"./de-at.js": 601,
-		"./de.js": 600,
-		"./el": 602,
-		"./el.js": 602,
-		"./en-au": 603,
-		"./en-au.js": 603,
-		"./en-ca": 604,
-		"./en-ca.js": 604,
-		"./en-gb": 605,
-		"./en-gb.js": 605,
-		"./eo": 606,
-		"./eo.js": 606,
-		"./es": 607,
-		"./es.js": 607,
-		"./et": 608,
-		"./et.js": 608,
-		"./eu": 609,
-		"./eu.js": 609,
-		"./fa": 610,
-		"./fa.js": 610,
-		"./fi": 611,
-		"./fi.js": 611,
-		"./fo": 612,
-		"./fo.js": 612,
-		"./fr": 613,
-		"./fr-ca": 614,
-		"./fr-ca.js": 614,
-		"./fr.js": 613,
-		"./fy": 615,
-		"./fy.js": 615,
-		"./gl": 616,
-		"./gl.js": 616,
-		"./he": 617,
-		"./he.js": 617,
-		"./hi": 618,
-		"./hi.js": 618,
-		"./hr": 619,
-		"./hr.js": 619,
-		"./hu": 620,
-		"./hu.js": 620,
-		"./hy-am": 621,
-		"./hy-am.js": 621,
-		"./id": 622,
-		"./id.js": 622,
-		"./is": 623,
-		"./is.js": 623,
-		"./it": 624,
-		"./it.js": 624,
-		"./ja": 625,
-		"./ja.js": 625,
-		"./jv": 626,
-		"./jv.js": 626,
-		"./ka": 627,
-		"./ka.js": 627,
-		"./km": 628,
-		"./km.js": 628,
-		"./ko": 629,
-		"./ko.js": 629,
-		"./lb": 630,
-		"./lb.js": 630,
-		"./lt": 631,
-		"./lt.js": 631,
-		"./lv": 632,
-		"./lv.js": 632,
-		"./me": 633,
-		"./me.js": 633,
-		"./mk": 634,
-		"./mk.js": 634,
-		"./ml": 635,
-		"./ml.js": 635,
-		"./mr": 636,
-		"./mr.js": 636,
-		"./ms": 637,
-		"./ms-my": 638,
-		"./ms-my.js": 638,
-		"./ms.js": 637,
-		"./my": 639,
-		"./my.js": 639,
-		"./nb": 640,
-		"./nb.js": 640,
-		"./ne": 641,
-		"./ne.js": 641,
-		"./nl": 642,
-		"./nl.js": 642,
-		"./nn": 643,
-		"./nn.js": 643,
-		"./pl": 644,
-		"./pl.js": 644,
-		"./pt": 645,
-		"./pt-br": 646,
-		"./pt-br.js": 646,
-		"./pt.js": 645,
-		"./ro": 647,
-		"./ro.js": 647,
-		"./ru": 648,
-		"./ru.js": 648,
-		"./si": 649,
-		"./si.js": 649,
-		"./sk": 650,
-		"./sk.js": 650,
-		"./sl": 651,
-		"./sl.js": 651,
-		"./sq": 652,
-		"./sq.js": 652,
-		"./sr": 653,
-		"./sr-cyrl": 654,
-		"./sr-cyrl.js": 654,
-		"./sr.js": 653,
-		"./sv": 655,
-		"./sv.js": 655,
-		"./ta": 656,
-		"./ta.js": 656,
-		"./th": 657,
-		"./th.js": 657,
-		"./tl-ph": 658,
-		"./tl-ph.js": 658,
-		"./tr": 659,
-		"./tr.js": 659,
-		"./tzl": 660,
-		"./tzl.js": 660,
-		"./tzm": 661,
-		"./tzm-latn": 662,
-		"./tzm-latn.js": 662,
-		"./tzm.js": 661,
-		"./uk": 663,
-		"./uk.js": 663,
-		"./uz": 664,
-		"./uz.js": 664,
-		"./vi": 665,
-		"./vi.js": 665,
-		"./zh-cn": 666,
-		"./zh-cn.js": 666,
-		"./zh-tw": 667,
-		"./zh-tw.js": 667
+		"./af": 570,
+		"./af.js": 570,
+		"./ar": 571,
+		"./ar-ma": 572,
+		"./ar-ma.js": 572,
+		"./ar-sa": 573,
+		"./ar-sa.js": 573,
+		"./ar-tn": 574,
+		"./ar-tn.js": 574,
+		"./ar.js": 571,
+		"./az": 575,
+		"./az.js": 575,
+		"./be": 576,
+		"./be.js": 576,
+		"./bg": 577,
+		"./bg.js": 577,
+		"./bn": 578,
+		"./bn.js": 578,
+		"./bo": 579,
+		"./bo.js": 579,
+		"./br": 580,
+		"./br.js": 580,
+		"./bs": 581,
+		"./bs.js": 581,
+		"./ca": 582,
+		"./ca.js": 582,
+		"./cs": 583,
+		"./cs.js": 583,
+		"./cv": 584,
+		"./cv.js": 584,
+		"./cy": 585,
+		"./cy.js": 585,
+		"./da": 586,
+		"./da.js": 586,
+		"./de": 587,
+		"./de-at": 588,
+		"./de-at.js": 588,
+		"./de.js": 587,
+		"./el": 589,
+		"./el.js": 589,
+		"./en-au": 590,
+		"./en-au.js": 590,
+		"./en-ca": 591,
+		"./en-ca.js": 591,
+		"./en-gb": 592,
+		"./en-gb.js": 592,
+		"./eo": 593,
+		"./eo.js": 593,
+		"./es": 594,
+		"./es.js": 594,
+		"./et": 595,
+		"./et.js": 595,
+		"./eu": 596,
+		"./eu.js": 596,
+		"./fa": 597,
+		"./fa.js": 597,
+		"./fi": 598,
+		"./fi.js": 598,
+		"./fo": 599,
+		"./fo.js": 599,
+		"./fr": 600,
+		"./fr-ca": 601,
+		"./fr-ca.js": 601,
+		"./fr.js": 600,
+		"./fy": 602,
+		"./fy.js": 602,
+		"./gl": 603,
+		"./gl.js": 603,
+		"./he": 604,
+		"./he.js": 604,
+		"./hi": 605,
+		"./hi.js": 605,
+		"./hr": 606,
+		"./hr.js": 606,
+		"./hu": 607,
+		"./hu.js": 607,
+		"./hy-am": 608,
+		"./hy-am.js": 608,
+		"./id": 609,
+		"./id.js": 609,
+		"./is": 610,
+		"./is.js": 610,
+		"./it": 611,
+		"./it.js": 611,
+		"./ja": 612,
+		"./ja.js": 612,
+		"./jv": 613,
+		"./jv.js": 613,
+		"./ka": 614,
+		"./ka.js": 614,
+		"./km": 615,
+		"./km.js": 615,
+		"./ko": 616,
+		"./ko.js": 616,
+		"./lb": 617,
+		"./lb.js": 617,
+		"./lt": 618,
+		"./lt.js": 618,
+		"./lv": 619,
+		"./lv.js": 619,
+		"./me": 620,
+		"./me.js": 620,
+		"./mk": 621,
+		"./mk.js": 621,
+		"./ml": 622,
+		"./ml.js": 622,
+		"./mr": 623,
+		"./mr.js": 623,
+		"./ms": 624,
+		"./ms-my": 625,
+		"./ms-my.js": 625,
+		"./ms.js": 624,
+		"./my": 626,
+		"./my.js": 626,
+		"./nb": 627,
+		"./nb.js": 627,
+		"./ne": 628,
+		"./ne.js": 628,
+		"./nl": 629,
+		"./nl.js": 629,
+		"./nn": 630,
+		"./nn.js": 630,
+		"./pl": 631,
+		"./pl.js": 631,
+		"./pt": 632,
+		"./pt-br": 633,
+		"./pt-br.js": 633,
+		"./pt.js": 632,
+		"./ro": 634,
+		"./ro.js": 634,
+		"./ru": 635,
+		"./ru.js": 635,
+		"./si": 636,
+		"./si.js": 636,
+		"./sk": 637,
+		"./sk.js": 637,
+		"./sl": 638,
+		"./sl.js": 638,
+		"./sq": 639,
+		"./sq.js": 639,
+		"./sr": 640,
+		"./sr-cyrl": 641,
+		"./sr-cyrl.js": 641,
+		"./sr.js": 640,
+		"./sv": 642,
+		"./sv.js": 642,
+		"./ta": 643,
+		"./ta.js": 643,
+		"./th": 644,
+		"./th.js": 644,
+		"./tl-ph": 645,
+		"./tl-ph.js": 645,
+		"./tr": 646,
+		"./tr.js": 646,
+		"./tzl": 647,
+		"./tzl.js": 647,
+		"./tzm": 648,
+		"./tzm-latn": 649,
+		"./tzm-latn.js": 649,
+		"./tzm.js": 648,
+		"./uk": 650,
+		"./uk.js": 650,
+		"./uz": 651,
+		"./uz.js": 651,
+		"./vi": 652,
+		"./vi.js": 652,
+		"./zh-cn": 653,
+		"./zh-cn.js": 653,
+		"./zh-tw": 654,
+		"./zh-tw.js": 654
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -62989,11 +61618,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 582;
+	webpackContext.id = 569;
 
 
 /***/ },
-/* 583 */
+/* 570 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63001,7 +61630,7 @@
 	//! author : Werner Mollentze : https://github.com/wernerm
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63070,7 +61699,7 @@
 	}));
 
 /***/ },
-/* 584 */
+/* 571 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63080,7 +61709,7 @@
 	//! Native plural forms: forabi https://github.com/forabi
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63210,7 +61839,7 @@
 	}));
 
 /***/ },
-/* 585 */
+/* 572 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63219,7 +61848,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63273,7 +61902,7 @@
 	}));
 
 /***/ },
-/* 586 */
+/* 573 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63281,7 +61910,7 @@
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63380,14 +62009,14 @@
 	}));
 
 /***/ },
-/* 587 */
+/* 574 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale  : Tunisian Arabic (ar-tn)
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63441,7 +62070,7 @@
 	}));
 
 /***/ },
-/* 588 */
+/* 575 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63449,7 +62078,7 @@
 	//! author : topchiyev : https://github.com/topchiyev
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63549,7 +62178,7 @@
 	}));
 
 /***/ },
-/* 589 */
+/* 576 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63559,7 +62188,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63700,7 +62329,7 @@
 	}));
 
 /***/ },
-/* 590 */
+/* 577 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63708,7 +62337,7 @@
 	//! author : Krasen Borisov : https://github.com/kraz
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63794,7 +62423,7 @@
 	}));
 
 /***/ },
-/* 591 */
+/* 578 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63802,7 +62431,7 @@
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -63911,7 +62540,7 @@
 	}));
 
 /***/ },
-/* 592 */
+/* 579 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -63919,7 +62548,7 @@
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64025,7 +62654,7 @@
 	}));
 
 /***/ },
-/* 593 */
+/* 580 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64033,7 +62662,7 @@
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64136,7 +62765,7 @@
 	}));
 
 /***/ },
-/* 594 */
+/* 581 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64145,7 +62774,7 @@
 	//! based on (hr) translation by Bojan Marković
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64281,7 +62910,7 @@
 	}));
 
 /***/ },
-/* 595 */
+/* 582 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64289,7 +62918,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64364,7 +62993,7 @@
 	}));
 
 /***/ },
-/* 596 */
+/* 583 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64372,7 +63001,7 @@
 	//! author : petrbela : https://github.com/petrbela
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64525,7 +63154,7 @@
 	}));
 
 /***/ },
-/* 597 */
+/* 584 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64533,7 +63162,7 @@
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64592,7 +63221,7 @@
 	}));
 
 /***/ },
-/* 598 */
+/* 585 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64600,7 +63229,7 @@
 	//! author : Robert Allen
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64675,7 +63304,7 @@
 	}));
 
 /***/ },
-/* 599 */
+/* 586 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64683,7 +63312,7 @@
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64739,7 +63368,7 @@
 	}));
 
 /***/ },
-/* 600 */
+/* 587 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64748,7 +63377,7 @@
 	//! author: Menelion Elensúle: https://github.com/Oire
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64818,7 +63447,7 @@
 	}));
 
 /***/ },
-/* 601 */
+/* 588 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64828,7 +63457,7 @@
 	//! author : Martin Groller : https://github.com/MadMG
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64898,7 +63527,7 @@
 	}));
 
 /***/ },
-/* 602 */
+/* 589 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -64906,7 +63535,7 @@
 	//! author : Aggelos Karalias : https://github.com/mehiel
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -64996,14 +63625,14 @@
 	}));
 
 /***/ },
-/* 603 */
+/* 590 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : australian english (en-au)
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65066,7 +63695,7 @@
 	}));
 
 /***/ },
-/* 604 */
+/* 591 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65074,7 +63703,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65133,7 +63762,7 @@
 	}));
 
 /***/ },
-/* 605 */
+/* 592 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65141,7 +63770,7 @@
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65204,7 +63833,7 @@
 	}));
 
 /***/ },
-/* 606 */
+/* 593 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65214,7 +63843,7 @@
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65281,7 +63910,7 @@
 	}));
 
 /***/ },
-/* 607 */
+/* 594 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65289,7 +63918,7 @@
 	//! author : Julio Napurí : https://github.com/julionc
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65364,7 +63993,7 @@
 	}));
 
 /***/ },
-/* 608 */
+/* 595 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65373,7 +64002,7 @@
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65448,7 +64077,7 @@
 	}));
 
 /***/ },
-/* 609 */
+/* 596 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65456,7 +64085,7 @@
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65516,7 +64145,7 @@
 	}));
 
 /***/ },
-/* 610 */
+/* 597 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65524,7 +64153,7 @@
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65625,7 +64254,7 @@
 	}));
 
 /***/ },
-/* 611 */
+/* 598 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65633,7 +64262,7 @@
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65736,7 +64365,7 @@
 	}));
 
 /***/ },
-/* 612 */
+/* 599 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65744,7 +64373,7 @@
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65800,7 +64429,7 @@
 	}));
 
 /***/ },
-/* 613 */
+/* 600 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65808,7 +64437,7 @@
 	//! author : John Fischer : https://github.com/jfroffice
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65866,7 +64495,7 @@
 	}));
 
 /***/ },
-/* 614 */
+/* 601 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65874,7 +64503,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -65928,7 +64557,7 @@
 	}));
 
 /***/ },
-/* 615 */
+/* 602 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -65936,7 +64565,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66003,7 +64632,7 @@
 	}));
 
 /***/ },
-/* 616 */
+/* 603 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66011,7 +64640,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66082,7 +64711,7 @@
 	}));
 
 /***/ },
-/* 617 */
+/* 604 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66092,7 +64721,7 @@
 	//! author : Tal Ater : https://github.com/TalAter
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66168,7 +64797,7 @@
 	}));
 
 /***/ },
-/* 618 */
+/* 605 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66176,7 +64805,7 @@
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66295,7 +64924,7 @@
 	}));
 
 /***/ },
-/* 619 */
+/* 606 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66303,7 +64932,7 @@
 	//! author : Bojan Marković : https://github.com/bmarkovic
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66439,7 +65068,7 @@
 	}));
 
 /***/ },
-/* 620 */
+/* 607 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66447,7 +65076,7 @@
 	//! author : Adam Brunner : https://github.com/adambrunner
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66552,7 +65181,7 @@
 	}));
 
 /***/ },
-/* 621 */
+/* 608 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66560,7 +65189,7 @@
 	//! author : Armendarabyan : https://github.com/armendarabyan
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66667,7 +65296,7 @@
 	}));
 
 /***/ },
-/* 622 */
+/* 609 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66676,7 +65305,7 @@
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66754,7 +65383,7 @@
 	}));
 
 /***/ },
-/* 623 */
+/* 610 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66762,7 +65391,7 @@
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66885,7 +65514,7 @@
 	}));
 
 /***/ },
-/* 624 */
+/* 611 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66894,7 +65523,7 @@
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -66959,7 +65588,7 @@
 	}));
 
 /***/ },
-/* 625 */
+/* 612 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -66967,7 +65596,7 @@
 	//! author : LI Long : https://github.com/baryon
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67028,7 +65657,7 @@
 	}));
 
 /***/ },
-/* 626 */
+/* 613 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67037,7 +65666,7 @@
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67115,7 +65744,7 @@
 	}));
 
 /***/ },
-/* 627 */
+/* 614 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67123,7 +65752,7 @@
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67222,7 +65851,7 @@
 	}));
 
 /***/ },
-/* 628 */
+/* 615 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67230,7 +65859,7 @@
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67284,7 +65913,7 @@
 	}));
 
 /***/ },
-/* 629 */
+/* 616 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67296,7 +65925,7 @@
 	//! - Jeeeyul Lee <jeeeyul@gmail.com>
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67356,7 +65985,7 @@
 	}));
 
 /***/ },
-/* 630 */
+/* 617 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67364,7 +65993,7 @@
 	//! author : mweimerskirch : https://github.com/mweimerskirch, David Raison : https://github.com/kwisatz
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67494,7 +66123,7 @@
 	}));
 
 /***/ },
-/* 631 */
+/* 618 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67502,7 +66131,7 @@
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67623,7 +66252,7 @@
 	}));
 
 /***/ },
-/* 632 */
+/* 619 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67632,7 +66261,7 @@
 	//! author : Jānis Elmeris : https://github.com/JanisE
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67723,7 +66352,7 @@
 	}));
 
 /***/ },
-/* 633 */
+/* 620 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67731,7 +66360,7 @@
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67836,7 +66465,7 @@
 	}));
 
 /***/ },
-/* 634 */
+/* 621 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67844,7 +66473,7 @@
 	//! author : Borislav Mickov : https://github.com/B0k0
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -67930,7 +66559,7 @@
 	}));
 
 /***/ },
-/* 635 */
+/* 622 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -67938,7 +66567,7 @@
 	//! author : Floyd Pink : https://github.com/floydpink
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68005,7 +66634,7 @@
 	}));
 
 /***/ },
-/* 636 */
+/* 623 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68013,7 +66642,7 @@
 	//! author : Harshad Kale : https://github.com/kalehv
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68130,7 +66759,7 @@
 	}));
 
 /***/ },
-/* 637 */
+/* 624 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68138,7 +66767,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68216,7 +66845,7 @@
 	}));
 
 /***/ },
-/* 638 */
+/* 625 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68224,7 +66853,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68302,7 +66931,7 @@
 	}));
 
 /***/ },
-/* 639 */
+/* 626 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68310,7 +66939,7 @@
 	//! author : Squar team, mysquar.com
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68399,7 +67028,7 @@
 	}));
 
 /***/ },
-/* 640 */
+/* 627 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68408,7 +67037,7 @@
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68464,7 +67093,7 @@
 	}));
 
 /***/ },
-/* 641 */
+/* 628 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68472,7 +67101,7 @@
 	//! author : suvash : https://github.com/suvash
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68591,7 +67220,7 @@
 	}));
 
 /***/ },
-/* 642 */
+/* 629 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68599,7 +67228,7 @@
 	//! author : Joris Röling : https://github.com/jjupiter
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68666,7 +67295,7 @@
 	}));
 
 /***/ },
-/* 643 */
+/* 630 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68674,7 +67303,7 @@
 	//! author : https://github.com/mechuwind
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68730,7 +67359,7 @@
 	}));
 
 /***/ },
-/* 644 */
+/* 631 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68738,7 +67367,7 @@
 	//! author : Rafal Hirsz : https://github.com/evoL
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68839,7 +67468,7 @@
 	}));
 
 /***/ },
-/* 645 */
+/* 632 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68847,7 +67476,7 @@
 	//! author : Jefferson : https://github.com/jalex79
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68907,7 +67536,7 @@
 	}));
 
 /***/ },
-/* 646 */
+/* 633 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68915,7 +67544,7 @@
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -68971,7 +67600,7 @@
 	}));
 
 /***/ },
-/* 647 */
+/* 634 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -68980,7 +67609,7 @@
 	//! author : Valentin Agachi : https://github.com/avaly
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69049,7 +67678,7 @@
 	}));
 
 /***/ },
-/* 648 */
+/* 635 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69058,7 +67687,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69217,7 +67846,7 @@
 	}));
 
 /***/ },
-/* 649 */
+/* 636 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69225,7 +67854,7 @@
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69286,7 +67915,7 @@
 	}));
 
 /***/ },
-/* 650 */
+/* 637 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69295,7 +67924,7 @@
 	//! based on work of petrbela : https://github.com/petrbela
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69448,7 +68077,7 @@
 	}));
 
 /***/ },
-/* 651 */
+/* 638 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69456,7 +68085,7 @@
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69612,7 +68241,7 @@
 	}));
 
 /***/ },
-/* 652 */
+/* 639 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69622,7 +68251,7 @@
 	//! author : Oerd Cukalla : https://github.com/oerd (fixes)
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69685,7 +68314,7 @@
 	}));
 
 /***/ },
-/* 653 */
+/* 640 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69693,7 +68322,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69797,7 +68426,7 @@
 	}));
 
 /***/ },
-/* 654 */
+/* 641 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69805,7 +68434,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69909,7 +68538,7 @@
 	}));
 
 /***/ },
-/* 655 */
+/* 642 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69917,7 +68546,7 @@
 	//! author : Jens Alm : https://github.com/ulmus
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -69980,7 +68609,7 @@
 	}));
 
 /***/ },
-/* 656 */
+/* 643 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -69988,7 +68617,7 @@
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70079,7 +68708,7 @@
 	}));
 
 /***/ },
-/* 657 */
+/* 644 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70087,7 +68716,7 @@
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70148,7 +68777,7 @@
 	}));
 
 /***/ },
-/* 658 */
+/* 645 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70156,7 +68785,7 @@
 	//! author : Dan Hagman
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70214,7 +68843,7 @@
 	}));
 
 /***/ },
-/* 659 */
+/* 646 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70223,7 +68852,7 @@
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70308,7 +68937,7 @@
 	}));
 
 /***/ },
-/* 660 */
+/* 647 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70316,7 +68945,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v with the help of Iustì Canun
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70397,7 +69026,7 @@
 	}));
 
 /***/ },
-/* 661 */
+/* 648 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70405,7 +69034,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70459,7 +69088,7 @@
 	}));
 
 /***/ },
-/* 662 */
+/* 649 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70467,7 +69096,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70521,7 +69150,7 @@
 	}));
 
 /***/ },
-/* 663 */
+/* 650 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70530,7 +69159,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70678,7 +69307,7 @@
 	}));
 
 /***/ },
-/* 664 */
+/* 651 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70686,7 +69315,7 @@
 	//! author : Sardor Muminov : https://github.com/muminoff
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70740,7 +69369,7 @@
 	}));
 
 /***/ },
-/* 665 */
+/* 652 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70748,7 +69377,7 @@
 	//! author : Bang Nguyen : https://github.com/bangnk
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70810,7 +69439,7 @@
 	}));
 
 /***/ },
-/* 666 */
+/* 653 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70819,7 +69448,7 @@
 	//! author : Zeno Zeng : https://github.com/zenozeng
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -70941,7 +69570,7 @@
 	}));
 
 /***/ },
-/* 667 */
+/* 654 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -70949,7 +69578,7 @@
 	//! author : Ben : https://github.com/ben-lin
 
 	(function (global, factory) {
-	    true ? factory(__webpack_require__(580)) :
+	    true ? factory(__webpack_require__(567)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -71044,6 +69673,5070 @@
 	    return zh_tw;
 
 	}));
+
+/***/ },
+/* 655 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var WS = __webpack_require__(656);
+
+	var Websocket = React.createClass({
+		displayName: 'Websocket',
+
+		ws: null,
+
+		PropTypes: {
+			url: React.PropTypes.string.isRequired,
+			onOpen: React.PropTypes.func,
+			onMessage: React.PropTypes.func,
+			onClose: React.PropTypes.func
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.ws = new WS(this.props.url);
+			if (this.props.onOpen) this.ws.addEventListener('open', this.props.onOpen);
+			if (this.props.onClose) this.ws.addEventListener('close', this.props.onClose);
+			if (this.props.onMessage) this.ws.addEventListener('message', this.onMessage);
+		},
+
+		send: function send(msg) {
+			if (typeof msg === 'object') msg = JSON.stringify(msg);
+			this.ws.send(msg);
+		},
+
+		onMessage: function onMessage(msg) {
+			this.props.onMessage(msg.data);
+		},
+
+		close: function close() {
+			this.ws.close();
+		},
+
+		render: function render() {
+			return React.createElement('div', null);
+		}
+	});
+	module.exports = Websocket;
+
+/***/ },
+/* 656 */
+/***/ function(module, exports) {
+
+	
+	/**
+	 * Module dependencies.
+	 */
+
+	var global = (function() { return this; })();
+
+	/**
+	 * WebSocket constructor.
+	 */
+
+	var WebSocket = global.WebSocket || global.MozWebSocket;
+
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = WebSocket ? ws : null;
+
+	/**
+	 * WebSocket constructor.
+	 *
+	 * The third `opts` options object gets ignored in web browsers, since it's
+	 * non-standard, and throws a TypeError if passed to the constructor.
+	 * See: https://github.com/einaros/ws/issues/227
+	 *
+	 * @param {String} uri
+	 * @param {Array} protocols (optional)
+	 * @param {Object) opts (optional)
+	 * @api public
+	 */
+
+	function ws(uri, protocols, opts) {
+	  var instance;
+	  if (protocols) {
+	    instance = new WebSocket(uri, protocols);
+	  } else {
+	    instance = new WebSocket(uri);
+	  }
+	  return instance;
+	}
+
+	if (WebSocket) ws.prototype = WebSocket.prototype;
+
+
+/***/ },
+/* 657 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var _ = __webpack_require__(163);
+	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
+	var server = __webpack_require__(530);
+	var precondition = __webpack_require__(551);
+	var AlertDialog = __webpack_require__(545);
+	var DatabaseConfigCard = __webpack_require__(558);
+	var TableColumnConfigCard = __webpack_require__(658);
+	var BindingTypeCard = __webpack_require__(561);
+	var EtcConfigCard = __webpack_require__(563);
+	var ScriptDialog = __webpack_require__(550);
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var scriptMaker = __webpack_require__(552);
+
+	var NewDb2FileView = React.createClass({
+		displayName: 'NewDb2FileView',
+
+		getInitialState: function getInitialState() {
+			return {
+				dbVendor: 'oracle',
+				dbIp: '192.168.10.101',
+				dbPort: '1521',
+				dbSid: 'spiderx',
+				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+				jdbcUsername: 'admin_test',
+				jdbcPassword: 'admin_test',
+				table: '',
+				columns: '',
+				bindingType: 'simple',
+				bindingColumn: '',
+				period: '60 * 1000',
+				charset: 'utf8',
+				delimiter: '|',
+				outputPath: ''
+			};
+		},
+
+		handleStateChange: function handleStateChange(state) {
+			if (state.columns) state.columns = state.columns.toLowerCase();
+
+			if (state.dbVendor) {
+				if (state.dbVendor != 'etc') {
+					state.jdbcDriver = jdbcTmpl[state.dbVendor].driver;
+					state.dbPort = jdbcTmpl[state.dbVendor].port;
+					state.jdbcConnUrl = jdbcTmpl[state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			} else if (state.dbIp) {
+				if (this.state.dbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			} else if (state.dbPort) {
+				if (this.state.srcDbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', state.dbPort).replace('{database}', this.state.dbSid);
+				}
+			} else if (state.dbSid) {
+				if (this.state.dbVendor != 'etc') {
+					state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl.replace('{ip}', this.state.dbIp).replace('{port}', this.state.dbPort).replace('{database}', state.dbSid);
+				}
+			}
+
+			this.setState(state);
+		},
+
+		showScriptDialog: function showScriptDialog() {
+			try {
+				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
+					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
+					return true;
+				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+			} catch (errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			var script = scriptMaker.get({
+				period: this.state.period,
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid,
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword,
+				columns: this.state.columns,
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn,
+				delimiter: this.state.delimiter,
+				charset: this.state.charset,
+				outputPath: this.state.outputPath
+			});
+
+			this.refs.scriptDialog.show('', script, (function (result, scriptName, script) {
+				if (result === false) {
+					this.refs.scriptDialog.hide();
+					return;
+				}
+
+				if (scriptName == null || scriptName.trim().length === 0) {
+					this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
+					return;
+				}
+
+				server.postScript({ title: scriptName, script: script }).then((function (success) {
+					this.refs.scriptDialog.hide();
+					this.refs.alertDialog.show('success', 'script registered');
+				}).bind(this))['catch']((function (err) {
+					if (typeof err === 'object') err = JSON.stringify(err);
+					this.refs.alertDialog.show('danger', err);
+				}).bind(this));
+			}).bind(this));
+		},
+
+		render: function render() {
+			var handleStateChange = { handleStateChange: this.handleStateChange };
+
+			var jdbc = {
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword
+			};
+
+			var dbInfo = {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
+
+			var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
+				title: 'database config',
+				subtitle: 'source database 연결정보를 설정합니다.'
+			});
+
+			var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				columns: this.state.columns
+			});
+
+			var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn
+			});
+
+			var etcConfigCardData = _.extend({}, handleStateChange, {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath
+			});
+
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(DatabaseConfigCard, databaseConfigCardData),
+				React.createElement(TableColumnConfigCard, tableColumnConfigCardData),
+				React.createElement(BindingTypeCard, bindingTypeCardData),
+				React.createElement(EtcConfigCard, etcConfigCardData),
+				React.createElement(Button, {
+					label: '생성',
+					primary: true,
+					onClick: this.showScriptDialog }),
+				React.createElement(ScriptDialog, { ref: 'scriptDialog' }),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+
+	module.exports = NewDb2FileView;
+
+/***/ },
+/* 658 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var React = __webpack_require__(1);
+	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(559);
+	var TableConfigDialog = __webpack_require__(659);
+	var ColumnConfigDialog = __webpack_require__(660);
+
+	var TableColumnConfigCard = React.createClass({
+		displayName: 'TableColumnConfigCard',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			table: React.PropTypes.string.isRequired,
+			columns: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired
+		},
+
+		handleFocus: function handleFocus(name, evt) {
+			evt.stopPropagation();
+
+			if (this.refs.autoloadToggle.isToggled() === true) {
+				if (name === 'table') {
+					this.refs.tableConfigDialog.show();
+				} else if (name === 'columns') {
+					this.refs.columnConfigDialog.show();
+				}
+			}
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+			var state = {};
+			state[name] = evt.target.value;
+			this.props.handleStateChange(state);
+		},
+
+		render: function render() {
+			var jdbc = {
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword
+			};
+
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: 'table/column 설정',
+					subtitle: 'source database의 table/column 정보를 설정합니다.',
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(Toggle, {
+						name: 'autoload',
+						value: 'autoload',
+						label: 'autoload',
+						ref: 'autoloadToggle',
+						style: { width: '150px' },
+						defaultToggled: true }),
+					React.createElement(TextField, {
+						value: this.props.table,
+						onChange: this.handleChange.bind(this, 'table'),
+						floatingLabelText: 'table',
+						fullWidth: true,
+						onFocus: this.handleFocus.bind(this, 'table') }),
+					React.createElement(TextField, {
+						value: this.props.columns,
+						onChange: this.handleChange.bind(this, 'columns'),
+						floatingLabelText: 'columns',
+						fullWidth: true,
+						onFocus: this.handleFocus.bind(this, 'columns') }),
+					React.createElement(TableConfigDialog, _extends({
+						ref: 'tableConfigDialog',
+						handleStateChange: this.props.handleStateChange,
+						table: this.props.table
+					}, jdbc)),
+					React.createElement(ColumnConfigDialog, _extends({
+						ref: 'columnConfigDialog',
+						handleStateChange: this.props.handleStateChange,
+						table: this.props.table,
+						columns: this.props.columns
+					}, jdbc))
+				)
+			);
+		}
+	});
+	module.exports = TableColumnConfigCard;
+
+/***/ },
+/* 659 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var server = __webpack_require__(530);
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(559);
+	var AlertDialog = __webpack_require__(545);
+
+	var TableConfigDialog = React.createClass({
+		displayName: 'TableConfigDialog',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			table: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				isTablesLoaded: false,
+				loadedTables: null
+			};
+		},
+
+		show: function show() {
+			this.setState({ visible: true }, (function () {
+				this.loadTables();
+			}).bind(this));
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			switch (name) {
+				case 'table':
+					this.props.handleStateChange({ table: evt.target.value });
+					break;
+			}
+		},
+
+		loadTables: function loadTables() {
+			server.loadTables({
+				jdbc: {
+					driver: this.props.jdbcDriver,
+					connUrl: this.props.jdbcConnUrl,
+					username: this.props.jdbcUsername,
+					password: this.props.jdbcPassword
+				}
+			}).then((function (tables) {
+				this.setState({
+					isTablesLoaded: true,
+					loadedTables: tables
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error(err.stack);
+				this.setState({ isTablesLoaded: true });
+				if (typeof err !== 'string') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}).bind(this));
+		},
+
+		renderTableList: function renderTableList() {
+			if (this.state.isTablesLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
+
+			var isShouldFilter = this.props.table != null && this.props.table.trim().length !== 0;
+
+			return React.createElement(
+				List,
+				null,
+				this.state.loadedTables.filter((function (table) {
+					if (isShouldFilter === false) return true;
+					return String.containsIgnoreCase(table, this.props.table);
+				}).bind(this)).map((function (table) {
+					var onClick = (function (evt) {
+						evt.stopPropagation();
+						this.props.handleStateChange({ table: table });
+					}).bind(this);
+					return React.createElement(ListItem, {
+						key: table,
+						primaryText: table,
+						onClick: onClick });
+				}).bind(this))
+			);
+		},
+
+		onClose: function onClose(evt) {
+			evt.stopPropagation();
+			this.hide();
+		},
+
+		render: function render() {
+			return React.createElement(
+				Dialog,
+				{
+					actions: [{ text: 'close', onClick: this.onClose }],
+					actionFocus: 'ok',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.state.visible },
+				React.createElement(
+					Card,
+					null,
+					React.createElement(CardHeader, {
+						title: 'table 설정',
+						subtitle: 'source database의 table 정보를 설정합니다.',
+						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+					React.createElement(
+						CardText,
+						null,
+						React.createElement(TextField, {
+							floatingLabelText: 'table',
+							value: this.props.table,
+							onChange: this.handleChange.bind(this, 'table'),
+							fullWidth: true }),
+						React.createElement(
+							'div',
+							{ style: { width: '100%', height: '300px', overflow: 'auto' } },
+							this.renderTableList()
+						)
+					)
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+	module.exports = TableConfigDialog;
+
+/***/ },
+/* 660 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var server = __webpack_require__(530);
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(559);
+	var AlertDialog = __webpack_require__(545);
+
+	var ColumnConfigDialog = React.createClass({
+		displayName: 'ColumnConfigDialog',
+
+		PropTypes: {
+			handleStateChange: React.PropTypes.func.isRequired,
+
+			table: React.PropTypes.string.isRequired,
+			columns: React.PropTypes.string.isRequired,
+			jdbcDriver: React.PropTypes.string.isRequired,
+			jdbcConnUrl: React.PropTypes.string.isRequired,
+			jdbcUsername: React.PropTypes.string.isRequired,
+			jdbcPassword: React.PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				isColumnsLoaded: false,
+				loadedColumns: null
+			};
+		},
+
+		show: function show() {
+			this.setState({ visible: true }, (function () {
+				this.loadColumns();
+			}).bind(this));
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			switch (name) {
+				case 'column':
+					this.props.handleStateChange({ columns: evt.target.value });
+					break;
+			}
+		},
+
+		loadColumns: function loadColumns() {
+			server.loadColumns({
+				jdbc: {
+					driver: this.props.jdbcDriver,
+					connUrl: this.props.jdbcConnUrl,
+					username: this.props.jdbcUsername,
+					password: this.props.jdbcPassword
+				},
+				table: this.props.table
+			}).then((function (columns) {
+				this.setState({
+					isColumnsLoaded: true,
+					loadedColumns: columns
+				});
+			}).bind(this))['catch']((function (err) {
+				console.error(err.stack);
+				this.setState({ isColumnsLoaded: false });
+				if (typeof err !== 'string') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
+			}).bind(this));
+		},
+
+		renderColumnList: function renderColumnList() {
+			if (this.state.isColumnsLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
+
+			var selectedColumnsArr = this.props.columns.split(',').map(function (s) {
+				return s.trim();
+			}).filter(function (s) {
+				if (s === '') return false;return true;
+			});
+
+			return React.createElement(
+				List,
+				null,
+				this.state.loadedColumns.map((function (column) {
+					var columnName = column.columnName.toLowerCase();
+					var columnType = column.columnType;
+
+					var onClick = (function (evt) {
+						evt.stopPropagation();
+						if (Array.contains(selectedColumnsArr, columnName)) {
+							selectedColumnsArr.remove(columnName);
+						} else {
+							selectedColumnsArr.push(columnName);
+						}
+						this.props.handleStateChange({ columns: selectedColumnsArr.join(',') });
+					}).bind(this);
+
+					return React.createElement(ListItem, {
+						key: columnName,
+						primaryText: columnName,
+						secondaryText: columnType,
+						onClick: onClick });
+				}).bind(this))
+			);
+		},
+
+		onClose: function onClose(evt) {
+			evt.stopPropagation();
+			this.hide();
+		},
+
+		render: function render() {
+			return React.createElement(
+				Dialog,
+				{
+					actions: [{ text: 'close', onClick: this.onClose }],
+					actionFocus: 'close',
+					autoDetectWindowHeight: true,
+					autoScrollBodyContent: true,
+					open: this.state.visible },
+				React.createElement(
+					Card,
+					null,
+					React.createElement(CardHeader, {
+						title: 'column 설정',
+						subtitle: '사용할 column 정보를 설정합니다.',
+						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+					React.createElement(
+						CardText,
+						null,
+						React.createElement(TextField, {
+							floatingLabelText: 'columns',
+							value: this.props.columns,
+							onChange: this.handleChange.bind(this, 'columns'),
+							fullWidth: true }),
+						React.createElement(
+							'div',
+							{ style: { width: '100%', height: '300px', overflow: 'auto' } },
+							this.renderColumnList()
+						)
+					)
+				),
+				React.createElement(AlertDialog, { ref: 'alertDialog' })
+			);
+		}
+	});
+	module.exports = ColumnConfigDialog;
+
+/***/ },
+/* 661 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var _ = __webpack_require__(163);
+	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
+	var DatabaseConfigCard = __webpack_require__(558);
+	var TableColumnsMappingCard = __webpack_require__(662);
+	var BindingTypeCard = __webpack_require__(561);
+
+	var NewDb2DbView = React.createClass({
+		displayName: 'NewDb2DbView',
+
+		getInitialState: function getInitialState() {
+			return {
+				srcDbVendor: 'oracle',
+				srcDbIp: '192.168.10.101',
+				srcDbPort: '1521',
+				srcDbSid: 'spiderx',
+				srcJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+				srcJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+				srcJdbcUsername: 'admin_test',
+				srcJdbcPassword: 'admin_test',
+				srcTable: '',
+				srcColumns: '',
+				destDbVendor: 'oracle',
+				destDbIp: '192.168.10.101',
+				destDbPort: '1521',
+				destDbSid: 'spiderx',
+				destJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
+				destJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
+				destJdbcUsername: 'admin_test',
+				destJdbcPassword: 'admin_test',
+				destTable: '',
+				destColumns: '',
+				bindingType: 'simple',
+				srcBindingColumn: '',
+				period: '6 * 1000'
+			};
+		},
+
+		handleStateChange: function handleStateChange(state) {
+			this.setState(state);
+		},
+
+		handleSrcDbStateChange: function handleSrcDbStateChange(state) {
+			if (state.dbVendor) {
+				Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
+				if (state.srcDbVendor != 'etc') {
+					state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
+					state.srcDbPort = jdbcTmpl[state.srcDbVendor].port;
+					state.srcJdbcConnUrl = jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
+			}
+			if (state.dbIp) {
+				Object.renameProperty(state, 'dbIp', 'srcDbIp');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
+			}
+			if (state.dbPort) {
+				Object.renameProperty(state, 'dbPort', 'srcDbPort');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+				}
+			}
+			if (state.dbSid) {
+				Object.renameProperty(state, 'dbSid', 'srcDbSid');
+				if (this.state.srcDbVendor != 'etc') {
+					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
+				}
+			}
+
+			this.setState(state);
+		},
+
+		handleDestDbStateChange: function handleDestDbStateChange(state) {
+			if (state.dbVendor) {
+				Object.renameProperty(state, 'dbVendor', 'destDbVendor');
+				if (state.destDbVendor != 'etc') {
+					state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
+					state.destDbPort = jdbcTmpl[state.destDbVendor].port;
+					state.destJdbcConnUrl = jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
+			}
+			if (state.dbIp) {
+				Object.renameProperty(state, 'dbIp', 'destDbIp');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
+			}
+			if (state.dbPort) {
+				Object.renameProperty(state, 'dbPort', 'destDbPort');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+				}
+			}
+			if (state.dbSid) {
+				Object.renameProperty(state, 'dbSid', 'destDbSid');
+				if (this.state.destDbVendor != 'etc') {
+					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
+				}
+			}
+
+			this.setState(state);
+		},
+
+		render: function render() {
+			var srcJdbc = {
+				jdbcDriver: this.state.srcJdbcDriver,
+				jdbcConnUrl: this.state.srcJdbcConnUrl,
+				jdbcUsername: this.state.srcJdbcUsername,
+				jdbcPassword: this.state.srcJdbcPassword
+			};
+
+			var destJdbc = {
+				jdbcDriver: this.state.destJdbcDriver,
+				jdbcConnUrl: this.state.destJdbcConnUrl,
+				jdbcUsername: this.state.destJdbcUsername,
+				jdbcPassword: this.state.destJdbcPassword
+			};
+
+			var srcDbInfo = {
+				dbVendor: this.state.srcDbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
+
+			var destDbInfo = {
+				dbVendor: this.state.destDbVendor,
+				dbIp: this.state.destDbIp,
+				dbPort: this.state.destDbPort,
+				dbSid: this.state.destDbSid
+			};
+
+			var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
+				title: "source database 설정",
+				subtitle: "source database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleSrcDbStateChange
+			});
+
+			var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
+				title: "destination database 설정",
+				subtitle: "destination database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleDestDbStateChange
+			});
+
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(DatabaseConfigCard, srcDatabaseConfigCardData),
+				React.createElement(DatabaseConfigCard, destDatabaseConfigCardData),
+				React.createElement(TableColumnsMappingCard, { dataAdapter: this.dataAdapter })
+			);
+		}
+	});
+	module.exports = NewDb2DbView;
+
+/***/ },
+/* 662 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var _ = __webpack_require__(163);
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var TextField = MaterialWrapper.TextField;
+	var SelectField = MaterialWrapper.SelectField;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var CircularProgress = MaterialWrapper.CircularProgress;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var ListDivider = MaterialWrapper.ListDivider;
+	var Dialog = MaterialWrapper.Dialog;
+	var Toggle = MaterialWrapper.Toggle;
+	var PolymerIcon = __webpack_require__(559);
+	var Col = __webpack_require__(169).Col;
+
+	var TableColumnsMappingCard = React.createClass({
+		displayName: 'TableColumnsMappingCard',
+
+		PropTypes: {
+			dataAdapter: React.PropTypes.object.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				columnCount: 1,
+				srcColumn0: '',
+				destColumn0: ''
+			};
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+			switch (name) {
+				case 'srcTable':
+				case 'destTable':
+					var state = {};
+					state[name] = evt.target.value;
+					this.props.dataAdapter.emit('stateChange', state);
+					break;
+			}
+		},
+
+		render: function render() {
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: 'mapping table/columns',
+					subtitle: '매핑시킬 테이블과 컬럼들을 설정합니다.',
+					avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(Toggle, {
+						name: 'autoload',
+						value: 'autoload',
+						label: 'autoload',
+						ref: 'autoloadToggle',
+						style: { width: '150px' },
+						defaultToggled: true }),
+					React.createElement(
+						Col,
+						{ xs: 6 },
+						React.createElement(AddableColumnTextFields, { isSrc: true, dataAdapter: this.props.dataAdapter })
+					),
+					React.createElement(
+						Col,
+						{ xs: 6 },
+						React.createElement(AddableColumnTextFields, { isDest: true, dataAdapter: this.props.dataAdapter })
+					)
+				)
+			);
+		}
+	});
+	module.exports = TableColumnsMappingCard;
+
+	var AddableColumnTextFields = React.createClass({
+		displayName: 'AddableColumnTextFields',
+
+		PropTypes: {
+			isSrc: React.PropTypes.bool,
+			isDest: React.PropTypes.bool,
+			dataAdapter: React.PropTypes.object.isRequired
+		},
+
+		handleChange: function handleChange(index, evt) {
+			evt.stopPropagation();
+
+			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
+			var columns = this.props.dataAdapter.data(columnKind);
+			var splitedColumns = columns.split(',');
+			splitedColumns[index] = evt.target.value;
+
+			var state = {};
+			state[columnKind] = splitedColumns.join(',');
+			this.props.dataAdapter.emit(columnKind, state);
+		},
+
+		render: function render() {
+			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
+			var columns = this.props.dataAdapter.data(columnKind);
+
+			return React.createElement(
+				'div',
+				null,
+				columns.split(',').map((function (column, index) {
+					return React.createElement(TextField, {
+						floatingLabelText: 'column',
+						value: column,
+						fullWidth: true,
+						onChange: this.handleChange.bind(this, index) });
+				}).bind(this))
+			);
+		}
+	});
+
+/***/ },
+/* 663 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var PolymerIcon = __webpack_require__(559);
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+
+	var ConfigView = React.createClass({
+		displayName: 'ConfigView',
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					Card,
+					null,
+					React.createElement(CardHeader, {
+						title: 'todo',
+						subtitle: 'todo',
+						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+					React.createElement(
+						CardText,
+						null,
+						'//TODO IMME'
+					)
+				)
+			);
+		}
+	});
+
+	module.exports = ConfigView;
+
+/***/ },
+/* 664 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(665);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(667)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../node_modules/css-loader/index.js!./reset.css", function() {
+				var newContent = require("!!./../../../../../node_modules/css-loader/index.js!./reset.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 665 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(666)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "/* http://meyerweb.com/eric/tools/css/reset/ \r\n   v2.0 | 20110126\r\n   License: none (public domain)\r\n*/\r\n\r\nhtml, body, div, span, applet, object, iframe,\r\nh1, h2, h3, h4, h5, h6, p, blockquote, pre,\r\na, abbr, acronym, address, big, cite, code,\r\ndel, dfn, em, img, ins, kbd, q, s, samp,\r\nsmall, strike, strong, sub, sup, tt, var,\r\nb, u, i, center,\r\ndl, dt, dd, ol, ul, li,\r\nfieldset, form, label, legend,\r\ntable, caption, tbody, tfoot, thead, tr, th, td,\r\narticle, aside, canvas, details, embed, \r\nfigure, figcaption, footer, header, hgroup, \r\nmenu, nav, output, ruby, section, summary,\r\ntime, mark, audio, video {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\tborder: 0;\r\n\tfont-size: 100%;\r\n\tfont: inherit;\r\n\tvertical-align: baseline;\r\n}\r\n/* HTML5 display-role reset for older browsers */\r\narticle, aside, details, figcaption, figure, \r\nfooter, header, hgroup, menu, nav, section {\r\n\tdisplay: block;\r\n}\r\nbody {\r\n\tline-height: 1;\r\n}\r\nol, ul {\r\n\tlist-style: none;\r\n}\r\nblockquote, q {\r\n\tquotes: none;\r\n}\r\nblockquote:before, blockquote:after,\r\nq:before, q:after {\r\n\tcontent: '';\r\n\tcontent: none;\r\n}\r\ntable {\r\n\tborder-collapse: collapse;\r\n\tborder-spacing: 0;\r\n}", ""]);
+
+	// exports
+
+
+/***/ },
+/* 666 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 667 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0;
+
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+
+	function createStyleElement() {
+		var styleElement = document.createElement("style");
+		var head = getHeadElement();
+		styleElement.type = "text/css";
+		head.appendChild(styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement() {
+		var linkElement = document.createElement("link");
+		var head = getHeadElement();
+		linkElement.rel = "stylesheet";
+		head.appendChild(linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement());
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement();
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement();
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
+
+/***/ },
+/* 668 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var server = __webpack_require__(530);
+	var Glyphicon = __webpack_require__(169).Glyphicon;
+	var MaterialWrapper = __webpack_require__(414);
+	var Button = MaterialWrapper.Button;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var List = MaterialWrapper.List;
+	var ListItem = MaterialWrapper.ListItem;
+	var LineChart = __webpack_require__(669).Line;
+
+	var TotalChartCard = React.createClass({
+		displayName: 'TotalChartCard',
+
+		render: function render() {
+			return React.createElement(
+				Card,
+				{ style: { marginBottom: '10px' } },
+				React.createElement(CardHeader, {
+					title: 'chart',
+					subtitle: '등록된 스크립트들의 통계를 제공합니다.',
+					avatar: React.createElement(Glyphicon, { glyph: 'signal' }) }),
+				React.createElement(
+					CardText,
+					null,
+					React.createElement(LineChart, null)
+				)
+			);
+		}
+	});
+	module.exports = TotalChartCard;
+
+/***/ },
+/* 669 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = {
+	  Bar: __webpack_require__(670),
+	  Doughnut: __webpack_require__(674),
+	  Line: __webpack_require__(675),
+	  Pie: __webpack_require__(676),
+	  PolarArea: __webpack_require__(677),
+	  Radar: __webpack_require__(678),
+	  createClass: __webpack_require__(671).createClass
+	};
+
+
+/***/ },
+/* 670 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('Bar', ['getBarsAtEvent']);
+
+
+/***/ },
+/* 671 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = {
+	  createClass: function(chartType, methodNames, dataKey) {
+	    var classData = {
+	      displayName: chartType + 'Chart',
+	      getInitialState: function() { return {}; },
+	      render: function() {
+	        var _props = {
+	          ref: 'canvass'
+	        };
+	        for (var name in this.props) {
+	          if (this.props.hasOwnProperty(name)) {
+	            if (name !== 'data' && name !== 'options') {
+	              _props[name] = this.props[name];
+	            }
+	          }
+	        }
+	        return React.createElement('canvas', _props);
+	      }
+	    };
+
+	    var extras = ['clear', 'stop', 'resize', 'toBase64Image', 'generateLegend', 'update', 'addData', 'removeData'];
+	    function extra(type) {
+	      classData[type] = function() {
+	        this.state.chart[name].apply(this.state.chart, arguments);
+	      };
+	    }
+
+	    classData.componentDidMount = function() {
+	      this.initializeChart(this.props);
+	    };
+
+	    classData.componentWillUnmount = function() {
+	      var chart = this.state.chart;
+	      chart.destroy();
+	    };
+
+	    classData.componentWillReceiveProps = function(nextProps) {
+	      var chart = this.state.chart;
+	      if (this.props.redraw) {
+	        chart.destroy();
+	        this.initializeChart(nextProps);
+	      } else {
+	        dataKey = dataKey || dataKeys[chart.name];
+	        updatePoints(nextProps, chart, dataKey);
+	        chart.update();
+	      }
+	    };
+
+	    classData.initializeChart = function(nextProps) {
+	      var Chart = __webpack_require__(672);
+	      var el = this.getDOMNode();
+	      var ctx = el.getContext("2d");
+	      var chart = new Chart(ctx)[chartType](nextProps.data, nextProps.options || {});
+	      this.state.chart = chart;
+	    };
+
+	    // return the chartjs instance
+	    classData.getChart = function() {
+	      return this.state.chart;
+	    };
+
+	    // return the canvass element that contains the chart
+	    classData.getCanvass = function() {
+	      return this.refs.canvass.getDOMNode();
+	    };
+
+	    var i;
+	    for (i=0; i<extras.length; i++) {
+	      extra(extras[i]);
+	    }
+	    for (i=0; i<methodNames.length; i++) {
+	      extra(methodNames[i]);
+	    }
+
+	    var React = __webpack_require__(1);
+	    return React.createClass(classData);
+	  }
+	};
+
+	var dataKeys = {
+	  'Line': 'points',
+	  'Radar': 'points',
+	  'Bar': 'bars'
+	};
+
+	var updatePoints = function(nextProps, chart, dataKey) {
+	  var name = chart.name;
+
+	  if (name === 'PolarArea' || name === 'Pie' || name === 'Doughnut') {
+	    nextProps.data.forEach(function(segment, segmentIndex) {
+	      chart.segments[segmentIndex].value = segment.value;
+	    });
+	  } else {
+	    nextProps.data.datasets.forEach(function(set, setIndex) {
+	      set.data.forEach(function(val, pointIndex) {
+	        chart.datasets[setIndex][dataKey][pointIndex].value = val;
+	      });
+	    });
+	  }
+	};
+
+
+
+
+
+
+/***/ },
+/* 672 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * Chart.js
+	 * http://chartjs.org/
+	 * Version: 1.0.2
+	 *
+	 * Copyright 2015 Nick Downie
+	 * Released under the MIT license
+	 * https://github.com/nnnick/Chart.js/blob/master/LICENSE.md
+	 */
+
+
+	(function(){
+
+		"use strict";
+
+		//Declare root variable - window in the browser, global on the server
+		var root = this,
+			previous = root.Chart;
+
+		//Occupy the global variable of Chart, and create a simple base class
+		var Chart = function(context){
+			var chart = this;
+			this.canvas = context.canvas;
+
+			this.ctx = context;
+
+			//Variables global to the chart
+			var computeDimension = function(element,dimension)
+			{
+				if (element['offset'+dimension])
+				{
+					return element['offset'+dimension];
+				}
+				else
+				{
+					return document.defaultView.getComputedStyle(element).getPropertyValue(dimension);
+				}
+			}
+
+			var width = this.width = computeDimension(context.canvas,'Width');
+			var height = this.height = computeDimension(context.canvas,'Height');
+
+			// Firefox requires this to work correctly
+			context.canvas.width  = width;
+			context.canvas.height = height;
+
+			var width = this.width = context.canvas.width;
+			var height = this.height = context.canvas.height;
+			this.aspectRatio = this.width / this.height;
+			//High pixel density displays - multiply the size of the canvas height/width by the device pixel ratio, then scale.
+			helpers.retinaScale(this);
+
+			return this;
+		};
+		//Globally expose the defaults to allow for user updating/changing
+		Chart.defaults = {
+			global: {
+				// Boolean - Whether to animate the chart
+				animation: true,
+
+				// Number - Number of animation steps
+				animationSteps: 60,
+
+				// String - Animation easing effect
+				animationEasing: "easeOutQuart",
+
+				// Boolean - If we should show the scale at all
+				showScale: true,
+
+				// Boolean - If we want to override with a hard coded scale
+				scaleOverride: false,
+
+				// ** Required if scaleOverride is true **
+				// Number - The number of steps in a hard coded scale
+				scaleSteps: null,
+				// Number - The value jump in the hard coded scale
+				scaleStepWidth: null,
+				// Number - The scale starting value
+				scaleStartValue: null,
+
+				// String - Colour of the scale line
+				scaleLineColor: "rgba(0,0,0,.1)",
+
+				// Number - Pixel width of the scale line
+				scaleLineWidth: 1,
+
+				// Boolean - Whether to show labels on the scale
+				scaleShowLabels: true,
+
+				// Interpolated JS string - can access value
+				scaleLabel: "<%=value%>",
+
+				// Boolean - Whether the scale should stick to integers, and not show any floats even if drawing space is there
+				scaleIntegersOnly: true,
+
+				// Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+				scaleBeginAtZero: false,
+
+				// String - Scale label font declaration for the scale label
+				scaleFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+
+				// Number - Scale label font size in pixels
+				scaleFontSize: 12,
+
+				// String - Scale label font weight style
+				scaleFontStyle: "normal",
+
+				// String - Scale label font colour
+				scaleFontColor: "#666",
+
+				// Boolean - whether or not the chart should be responsive and resize when the browser does.
+				responsive: false,
+
+				// Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+				maintainAspectRatio: true,
+
+				// Boolean - Determines whether to draw tooltips on the canvas or not - attaches events to touchmove & mousemove
+				showTooltips: true,
+
+				// Boolean - Determines whether to draw built-in tooltip or call custom tooltip function
+				customTooltips: false,
+
+				// Array - Array of string names to attach tooltip events
+				tooltipEvents: ["mousemove", "touchstart", "touchmove", "mouseout"],
+
+				// String - Tooltip background colour
+				tooltipFillColor: "rgba(0,0,0,0.8)",
+
+				// String - Tooltip label font declaration for the scale label
+				tooltipFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+
+				// Number - Tooltip label font size in pixels
+				tooltipFontSize: 14,
+
+				// String - Tooltip font weight style
+				tooltipFontStyle: "normal",
+
+				// String - Tooltip label font colour
+				tooltipFontColor: "#fff",
+
+				// String - Tooltip title font declaration for the scale label
+				tooltipTitleFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+
+				// Number - Tooltip title font size in pixels
+				tooltipTitleFontSize: 14,
+
+				// String - Tooltip title font weight style
+				tooltipTitleFontStyle: "bold",
+
+				// String - Tooltip title font colour
+				tooltipTitleFontColor: "#fff",
+
+				// Number - pixel width of padding around tooltip text
+				tooltipYPadding: 6,
+
+				// Number - pixel width of padding around tooltip text
+				tooltipXPadding: 6,
+
+				// Number - Size of the caret on the tooltip
+				tooltipCaretSize: 8,
+
+				// Number - Pixel radius of the tooltip border
+				tooltipCornerRadius: 6,
+
+				// Number - Pixel offset from point x to tooltip edge
+				tooltipXOffset: 10,
+
+				// String - Template string for single tooltips
+				tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %>",
+
+				// String - Template string for single tooltips
+				multiTooltipTemplate: "<%= value %>",
+
+				// String - Colour behind the legend colour block
+				multiTooltipKeyBackground: '#fff',
+
+				// Function - Will fire on animation progression.
+				onAnimationProgress: function(){},
+
+				// Function - Will fire on animation completion.
+				onAnimationComplete: function(){}
+
+			}
+		};
+
+		//Create a dictionary of chart types, to allow for extension of existing types
+		Chart.types = {};
+
+		//Global Chart helpers object for utility methods and classes
+		var helpers = Chart.helpers = {};
+
+			//-- Basic js utility methods
+		var each = helpers.each = function(loopable,callback,self){
+				var additionalArgs = Array.prototype.slice.call(arguments, 3);
+				// Check to see if null or undefined firstly.
+				if (loopable){
+					if (loopable.length === +loopable.length){
+						var i;
+						for (i=0; i<loopable.length; i++){
+							callback.apply(self,[loopable[i], i].concat(additionalArgs));
+						}
+					}
+					else{
+						for (var item in loopable){
+							callback.apply(self,[loopable[item],item].concat(additionalArgs));
+						}
+					}
+				}
+			},
+			clone = helpers.clone = function(obj){
+				var objClone = {};
+				each(obj,function(value,key){
+					if (obj.hasOwnProperty(key)) objClone[key] = value;
+				});
+				return objClone;
+			},
+			extend = helpers.extend = function(base){
+				each(Array.prototype.slice.call(arguments,1), function(extensionObject) {
+					each(extensionObject,function(value,key){
+						if (extensionObject.hasOwnProperty(key)) base[key] = value;
+					});
+				});
+				return base;
+			},
+			merge = helpers.merge = function(base,master){
+				//Merge properties in left object over to a shallow clone of object right.
+				var args = Array.prototype.slice.call(arguments,0);
+				args.unshift({});
+				return extend.apply(null, args);
+			},
+			indexOf = helpers.indexOf = function(arrayToSearch, item){
+				if (Array.prototype.indexOf) {
+					return arrayToSearch.indexOf(item);
+				}
+				else{
+					for (var i = 0; i < arrayToSearch.length; i++) {
+						if (arrayToSearch[i] === item) return i;
+					}
+					return -1;
+				}
+			},
+			where = helpers.where = function(collection, filterCallback){
+				var filtered = [];
+
+				helpers.each(collection, function(item){
+					if (filterCallback(item)){
+						filtered.push(item);
+					}
+				});
+
+				return filtered;
+			},
+			findNextWhere = helpers.findNextWhere = function(arrayToSearch, filterCallback, startIndex){
+				// Default to start of the array
+				if (!startIndex){
+					startIndex = -1;
+				}
+				for (var i = startIndex + 1; i < arrayToSearch.length; i++) {
+					var currentItem = arrayToSearch[i];
+					if (filterCallback(currentItem)){
+						return currentItem;
+					}
+				}
+			},
+			findPreviousWhere = helpers.findPreviousWhere = function(arrayToSearch, filterCallback, startIndex){
+				// Default to end of the array
+				if (!startIndex){
+					startIndex = arrayToSearch.length;
+				}
+				for (var i = startIndex - 1; i >= 0; i--) {
+					var currentItem = arrayToSearch[i];
+					if (filterCallback(currentItem)){
+						return currentItem;
+					}
+				}
+			},
+			inherits = helpers.inherits = function(extensions){
+				//Basic javascript inheritance based on the model created in Backbone.js
+				var parent = this;
+				var ChartElement = (extensions && extensions.hasOwnProperty("constructor")) ? extensions.constructor : function(){ return parent.apply(this, arguments); };
+
+				var Surrogate = function(){ this.constructor = ChartElement;};
+				Surrogate.prototype = parent.prototype;
+				ChartElement.prototype = new Surrogate();
+
+				ChartElement.extend = inherits;
+
+				if (extensions) extend(ChartElement.prototype, extensions);
+
+				ChartElement.__super__ = parent.prototype;
+
+				return ChartElement;
+			},
+			noop = helpers.noop = function(){},
+			uid = helpers.uid = (function(){
+				var id=0;
+				return function(){
+					return "chart-" + id++;
+				};
+			})(),
+			warn = helpers.warn = function(str){
+				//Method for warning of errors
+				if (window.console && typeof window.console.warn == "function") console.warn(str);
+			},
+			amd = helpers.amd = ("function" == 'function' && __webpack_require__(673)),
+			//-- Math methods
+			isNumber = helpers.isNumber = function(n){
+				return !isNaN(parseFloat(n)) && isFinite(n);
+			},
+			max = helpers.max = function(array){
+				return Math.max.apply( Math, array );
+			},
+			min = helpers.min = function(array){
+				return Math.min.apply( Math, array );
+			},
+			cap = helpers.cap = function(valueToCap,maxValue,minValue){
+				if(isNumber(maxValue)) {
+					if( valueToCap > maxValue ) {
+						return maxValue;
+					}
+				}
+				else if(isNumber(minValue)){
+					if ( valueToCap < minValue ){
+						return minValue;
+					}
+				}
+				return valueToCap;
+			},
+			getDecimalPlaces = helpers.getDecimalPlaces = function(num){
+				if (num%1!==0 && isNumber(num)){
+					return num.toString().split(".")[1].length;
+				}
+				else {
+					return 0;
+				}
+			},
+			toRadians = helpers.radians = function(degrees){
+				return degrees * (Math.PI/180);
+			},
+			// Gets the angle from vertical upright to the point about a centre.
+			getAngleFromPoint = helpers.getAngleFromPoint = function(centrePoint, anglePoint){
+				var distanceFromXCenter = anglePoint.x - centrePoint.x,
+					distanceFromYCenter = anglePoint.y - centrePoint.y,
+					radialDistanceFromCenter = Math.sqrt( distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
+
+
+				var angle = Math.PI * 2 + Math.atan2(distanceFromYCenter, distanceFromXCenter);
+
+				//If the segment is in the top left quadrant, we need to add another rotation to the angle
+				if (distanceFromXCenter < 0 && distanceFromYCenter < 0){
+					angle += Math.PI*2;
+				}
+
+				return {
+					angle: angle,
+					distance: radialDistanceFromCenter
+				};
+			},
+			aliasPixel = helpers.aliasPixel = function(pixelWidth){
+				return (pixelWidth % 2 === 0) ? 0 : 0.5;
+			},
+			splineCurve = helpers.splineCurve = function(FirstPoint,MiddlePoint,AfterPoint,t){
+				//Props to Rob Spencer at scaled innovation for his post on splining between points
+				//http://scaledinnovation.com/analytics/splines/aboutSplines.html
+				var d01=Math.sqrt(Math.pow(MiddlePoint.x-FirstPoint.x,2)+Math.pow(MiddlePoint.y-FirstPoint.y,2)),
+					d12=Math.sqrt(Math.pow(AfterPoint.x-MiddlePoint.x,2)+Math.pow(AfterPoint.y-MiddlePoint.y,2)),
+					fa=t*d01/(d01+d12),// scaling factor for triangle Ta
+					fb=t*d12/(d01+d12);
+				return {
+					inner : {
+						x : MiddlePoint.x-fa*(AfterPoint.x-FirstPoint.x),
+						y : MiddlePoint.y-fa*(AfterPoint.y-FirstPoint.y)
+					},
+					outer : {
+						x: MiddlePoint.x+fb*(AfterPoint.x-FirstPoint.x),
+						y : MiddlePoint.y+fb*(AfterPoint.y-FirstPoint.y)
+					}
+				};
+			},
+			calculateOrderOfMagnitude = helpers.calculateOrderOfMagnitude = function(val){
+				return Math.floor(Math.log(val) / Math.LN10);
+			},
+			calculateScaleRange = helpers.calculateScaleRange = function(valuesArray, drawingSize, textSize, startFromZero, integersOnly){
+
+				//Set a minimum step of two - a point at the top of the graph, and a point at the base
+				var minSteps = 2,
+					maxSteps = Math.floor(drawingSize/(textSize * 1.5)),
+					skipFitting = (minSteps >= maxSteps);
+
+				var maxValue = max(valuesArray),
+					minValue = min(valuesArray);
+
+				// We need some degree of seperation here to calculate the scales if all the values are the same
+				// Adding/minusing 0.5 will give us a range of 1.
+				if (maxValue === minValue){
+					maxValue += 0.5;
+					// So we don't end up with a graph with a negative start value if we've said always start from zero
+					if (minValue >= 0.5 && !startFromZero){
+						minValue -= 0.5;
+					}
+					else{
+						// Make up a whole number above the values
+						maxValue += 0.5;
+					}
+				}
+
+				var	valueRange = Math.abs(maxValue - minValue),
+					rangeOrderOfMagnitude = calculateOrderOfMagnitude(valueRange),
+					graphMax = Math.ceil(maxValue / (1 * Math.pow(10, rangeOrderOfMagnitude))) * Math.pow(10, rangeOrderOfMagnitude),
+					graphMin = (startFromZero) ? 0 : Math.floor(minValue / (1 * Math.pow(10, rangeOrderOfMagnitude))) * Math.pow(10, rangeOrderOfMagnitude),
+					graphRange = graphMax - graphMin,
+					stepValue = Math.pow(10, rangeOrderOfMagnitude),
+					numberOfSteps = Math.round(graphRange / stepValue);
+
+				//If we have more space on the graph we'll use it to give more definition to the data
+				while((numberOfSteps > maxSteps || (numberOfSteps * 2) < maxSteps) && !skipFitting) {
+					if(numberOfSteps > maxSteps){
+						stepValue *=2;
+						numberOfSteps = Math.round(graphRange/stepValue);
+						// Don't ever deal with a decimal number of steps - cancel fitting and just use the minimum number of steps.
+						if (numberOfSteps % 1 !== 0){
+							skipFitting = true;
+						}
+					}
+					//We can fit in double the amount of scale points on the scale
+					else{
+						//If user has declared ints only, and the step value isn't a decimal
+						if (integersOnly && rangeOrderOfMagnitude >= 0){
+							//If the user has said integers only, we need to check that making the scale more granular wouldn't make it a float
+							if(stepValue/2 % 1 === 0){
+								stepValue /=2;
+								numberOfSteps = Math.round(graphRange/stepValue);
+							}
+							//If it would make it a float break out of the loop
+							else{
+								break;
+							}
+						}
+						//If the scale doesn't have to be an int, make the scale more granular anyway.
+						else{
+							stepValue /=2;
+							numberOfSteps = Math.round(graphRange/stepValue);
+						}
+
+					}
+				}
+
+				if (skipFitting){
+					numberOfSteps = minSteps;
+					stepValue = graphRange / numberOfSteps;
+				}
+
+				return {
+					steps : numberOfSteps,
+					stepValue : stepValue,
+					min : graphMin,
+					max	: graphMin + (numberOfSteps * stepValue)
+				};
+
+			},
+			/* jshint ignore:start */
+			// Blows up jshint errors based on the new Function constructor
+			//Templating methods
+			//Javascript micro templating by John Resig - source at http://ejohn.org/blog/javascript-micro-templating/
+			template = helpers.template = function(templateString, valuesObject){
+
+				// If templateString is function rather than string-template - call the function for valuesObject
+
+				if(templateString instanceof Function){
+				 	return templateString(valuesObject);
+			 	}
+
+				var cache = {};
+				function tmpl(str, data){
+					// Figure out if we're getting a template, or if we need to
+					// load the template - and be sure to cache the result.
+					var fn = !/\W/.test(str) ?
+					cache[str] = cache[str] :
+
+					// Generate a reusable function that will serve as a template
+					// generator (and which will be cached).
+					new Function("obj",
+						"var p=[],print=function(){p.push.apply(p,arguments);};" +
+
+						// Introduce the data as local variables using with(){}
+						"with(obj){p.push('" +
+
+						// Convert the template into pure JavaScript
+						str
+							.replace(/[\r\t\n]/g, " ")
+							.split("<%").join("\t")
+							.replace(/((^|%>)[^\t]*)'/g, "$1\r")
+							.replace(/\t=(.*?)%>/g, "',$1,'")
+							.split("\t").join("');")
+							.split("%>").join("p.push('")
+							.split("\r").join("\\'") +
+						"');}return p.join('');"
+					);
+
+					// Provide some basic currying to the user
+					return data ? fn( data ) : fn;
+				}
+				return tmpl(templateString,valuesObject);
+			},
+			/* jshint ignore:end */
+			generateLabels = helpers.generateLabels = function(templateString,numberOfSteps,graphMin,stepValue){
+				var labelsArray = new Array(numberOfSteps);
+				if (labelTemplateString){
+					each(labelsArray,function(val,index){
+						labelsArray[index] = template(templateString,{value: (graphMin + (stepValue*(index+1)))});
+					});
+				}
+				return labelsArray;
+			},
+			//--Animation methods
+			//Easing functions adapted from Robert Penner's easing equations
+			//http://www.robertpenner.com/easing/
+			easingEffects = helpers.easingEffects = {
+				linear: function (t) {
+					return t;
+				},
+				easeInQuad: function (t) {
+					return t * t;
+				},
+				easeOutQuad: function (t) {
+					return -1 * t * (t - 2);
+				},
+				easeInOutQuad: function (t) {
+					if ((t /= 1 / 2) < 1) return 1 / 2 * t * t;
+					return -1 / 2 * ((--t) * (t - 2) - 1);
+				},
+				easeInCubic: function (t) {
+					return t * t * t;
+				},
+				easeOutCubic: function (t) {
+					return 1 * ((t = t / 1 - 1) * t * t + 1);
+				},
+				easeInOutCubic: function (t) {
+					if ((t /= 1 / 2) < 1) return 1 / 2 * t * t * t;
+					return 1 / 2 * ((t -= 2) * t * t + 2);
+				},
+				easeInQuart: function (t) {
+					return t * t * t * t;
+				},
+				easeOutQuart: function (t) {
+					return -1 * ((t = t / 1 - 1) * t * t * t - 1);
+				},
+				easeInOutQuart: function (t) {
+					if ((t /= 1 / 2) < 1) return 1 / 2 * t * t * t * t;
+					return -1 / 2 * ((t -= 2) * t * t * t - 2);
+				},
+				easeInQuint: function (t) {
+					return 1 * (t /= 1) * t * t * t * t;
+				},
+				easeOutQuint: function (t) {
+					return 1 * ((t = t / 1 - 1) * t * t * t * t + 1);
+				},
+				easeInOutQuint: function (t) {
+					if ((t /= 1 / 2) < 1) return 1 / 2 * t * t * t * t * t;
+					return 1 / 2 * ((t -= 2) * t * t * t * t + 2);
+				},
+				easeInSine: function (t) {
+					return -1 * Math.cos(t / 1 * (Math.PI / 2)) + 1;
+				},
+				easeOutSine: function (t) {
+					return 1 * Math.sin(t / 1 * (Math.PI / 2));
+				},
+				easeInOutSine: function (t) {
+					return -1 / 2 * (Math.cos(Math.PI * t / 1) - 1);
+				},
+				easeInExpo: function (t) {
+					return (t === 0) ? 1 : 1 * Math.pow(2, 10 * (t / 1 - 1));
+				},
+				easeOutExpo: function (t) {
+					return (t === 1) ? 1 : 1 * (-Math.pow(2, -10 * t / 1) + 1);
+				},
+				easeInOutExpo: function (t) {
+					if (t === 0) return 0;
+					if (t === 1) return 1;
+					if ((t /= 1 / 2) < 1) return 1 / 2 * Math.pow(2, 10 * (t - 1));
+					return 1 / 2 * (-Math.pow(2, -10 * --t) + 2);
+				},
+				easeInCirc: function (t) {
+					if (t >= 1) return t;
+					return -1 * (Math.sqrt(1 - (t /= 1) * t) - 1);
+				},
+				easeOutCirc: function (t) {
+					return 1 * Math.sqrt(1 - (t = t / 1 - 1) * t);
+				},
+				easeInOutCirc: function (t) {
+					if ((t /= 1 / 2) < 1) return -1 / 2 * (Math.sqrt(1 - t * t) - 1);
+					return 1 / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1);
+				},
+				easeInElastic: function (t) {
+					var s = 1.70158;
+					var p = 0;
+					var a = 1;
+					if (t === 0) return 0;
+					if ((t /= 1) == 1) return 1;
+					if (!p) p = 1 * 0.3;
+					if (a < Math.abs(1)) {
+						a = 1;
+						s = p / 4;
+					} else s = p / (2 * Math.PI) * Math.asin(1 / a);
+					return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * 1 - s) * (2 * Math.PI) / p));
+				},
+				easeOutElastic: function (t) {
+					var s = 1.70158;
+					var p = 0;
+					var a = 1;
+					if (t === 0) return 0;
+					if ((t /= 1) == 1) return 1;
+					if (!p) p = 1 * 0.3;
+					if (a < Math.abs(1)) {
+						a = 1;
+						s = p / 4;
+					} else s = p / (2 * Math.PI) * Math.asin(1 / a);
+					return a * Math.pow(2, -10 * t) * Math.sin((t * 1 - s) * (2 * Math.PI) / p) + 1;
+				},
+				easeInOutElastic: function (t) {
+					var s = 1.70158;
+					var p = 0;
+					var a = 1;
+					if (t === 0) return 0;
+					if ((t /= 1 / 2) == 2) return 1;
+					if (!p) p = 1 * (0.3 * 1.5);
+					if (a < Math.abs(1)) {
+						a = 1;
+						s = p / 4;
+					} else s = p / (2 * Math.PI) * Math.asin(1 / a);
+					if (t < 1) return -0.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * 1 - s) * (2 * Math.PI) / p));
+					return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * 1 - s) * (2 * Math.PI) / p) * 0.5 + 1;
+				},
+				easeInBack: function (t) {
+					var s = 1.70158;
+					return 1 * (t /= 1) * t * ((s + 1) * t - s);
+				},
+				easeOutBack: function (t) {
+					var s = 1.70158;
+					return 1 * ((t = t / 1 - 1) * t * ((s + 1) * t + s) + 1);
+				},
+				easeInOutBack: function (t) {
+					var s = 1.70158;
+					if ((t /= 1 / 2) < 1) return 1 / 2 * (t * t * (((s *= (1.525)) + 1) * t - s));
+					return 1 / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2);
+				},
+				easeInBounce: function (t) {
+					return 1 - easingEffects.easeOutBounce(1 - t);
+				},
+				easeOutBounce: function (t) {
+					if ((t /= 1) < (1 / 2.75)) {
+						return 1 * (7.5625 * t * t);
+					} else if (t < (2 / 2.75)) {
+						return 1 * (7.5625 * (t -= (1.5 / 2.75)) * t + 0.75);
+					} else if (t < (2.5 / 2.75)) {
+						return 1 * (7.5625 * (t -= (2.25 / 2.75)) * t + 0.9375);
+					} else {
+						return 1 * (7.5625 * (t -= (2.625 / 2.75)) * t + 0.984375);
+					}
+				},
+				easeInOutBounce: function (t) {
+					if (t < 1 / 2) return easingEffects.easeInBounce(t * 2) * 0.5;
+					return easingEffects.easeOutBounce(t * 2 - 1) * 0.5 + 1 * 0.5;
+				}
+			},
+			//Request animation polyfill - http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+			requestAnimFrame = helpers.requestAnimFrame = (function(){
+				return window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					window.oRequestAnimationFrame ||
+					window.msRequestAnimationFrame ||
+					function(callback) {
+						return window.setTimeout(callback, 1000 / 60);
+					};
+			})(),
+			cancelAnimFrame = helpers.cancelAnimFrame = (function(){
+				return window.cancelAnimationFrame ||
+					window.webkitCancelAnimationFrame ||
+					window.mozCancelAnimationFrame ||
+					window.oCancelAnimationFrame ||
+					window.msCancelAnimationFrame ||
+					function(callback) {
+						return window.clearTimeout(callback, 1000 / 60);
+					};
+			})(),
+			animationLoop = helpers.animationLoop = function(callback,totalSteps,easingString,onProgress,onComplete,chartInstance){
+
+				var currentStep = 0,
+					easingFunction = easingEffects[easingString] || easingEffects.linear;
+
+				var animationFrame = function(){
+					currentStep++;
+					var stepDecimal = currentStep/totalSteps;
+					var easeDecimal = easingFunction(stepDecimal);
+
+					callback.call(chartInstance,easeDecimal,stepDecimal, currentStep);
+					onProgress.call(chartInstance,easeDecimal,stepDecimal);
+					if (currentStep < totalSteps){
+						chartInstance.animationFrame = requestAnimFrame(animationFrame);
+					} else{
+						onComplete.apply(chartInstance);
+					}
+				};
+				requestAnimFrame(animationFrame);
+			},
+			//-- DOM methods
+			getRelativePosition = helpers.getRelativePosition = function(evt){
+				var mouseX, mouseY;
+				var e = evt.originalEvent || evt,
+					canvas = evt.currentTarget || evt.srcElement,
+					boundingRect = canvas.getBoundingClientRect();
+
+				if (e.touches){
+					mouseX = e.touches[0].clientX - boundingRect.left;
+					mouseY = e.touches[0].clientY - boundingRect.top;
+
+				}
+				else{
+					mouseX = e.clientX - boundingRect.left;
+					mouseY = e.clientY - boundingRect.top;
+				}
+
+				return {
+					x : mouseX,
+					y : mouseY
+				};
+
+			},
+			addEvent = helpers.addEvent = function(node,eventType,method){
+				if (node.addEventListener){
+					node.addEventListener(eventType,method);
+				} else if (node.attachEvent){
+					node.attachEvent("on"+eventType, method);
+				} else {
+					node["on"+eventType] = method;
+				}
+			},
+			removeEvent = helpers.removeEvent = function(node, eventType, handler){
+				if (node.removeEventListener){
+					node.removeEventListener(eventType, handler, false);
+				} else if (node.detachEvent){
+					node.detachEvent("on"+eventType,handler);
+				} else{
+					node["on" + eventType] = noop;
+				}
+			},
+			bindEvents = helpers.bindEvents = function(chartInstance, arrayOfEvents, handler){
+				// Create the events object if it's not already present
+				if (!chartInstance.events) chartInstance.events = {};
+
+				each(arrayOfEvents,function(eventName){
+					chartInstance.events[eventName] = function(){
+						handler.apply(chartInstance, arguments);
+					};
+					addEvent(chartInstance.chart.canvas,eventName,chartInstance.events[eventName]);
+				});
+			},
+			unbindEvents = helpers.unbindEvents = function (chartInstance, arrayOfEvents) {
+				each(arrayOfEvents, function(handler,eventName){
+					removeEvent(chartInstance.chart.canvas, eventName, handler);
+				});
+			},
+			getMaximumWidth = helpers.getMaximumWidth = function(domNode){
+				var container = domNode.parentNode;
+				// TODO = check cross browser stuff with this.
+				return container.clientWidth;
+			},
+			getMaximumHeight = helpers.getMaximumHeight = function(domNode){
+				var container = domNode.parentNode;
+				// TODO = check cross browser stuff with this.
+				return container.clientHeight;
+			},
+			getMaximumSize = helpers.getMaximumSize = helpers.getMaximumWidth, // legacy support
+			retinaScale = helpers.retinaScale = function(chart){
+				var ctx = chart.ctx,
+					width = chart.canvas.width,
+					height = chart.canvas.height;
+
+				if (window.devicePixelRatio) {
+					ctx.canvas.style.width = width + "px";
+					ctx.canvas.style.height = height + "px";
+					ctx.canvas.height = height * window.devicePixelRatio;
+					ctx.canvas.width = width * window.devicePixelRatio;
+					ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+				}
+			},
+			//-- Canvas methods
+			clear = helpers.clear = function(chart){
+				chart.ctx.clearRect(0,0,chart.width,chart.height);
+			},
+			fontString = helpers.fontString = function(pixelSize,fontStyle,fontFamily){
+				return fontStyle + " " + pixelSize+"px " + fontFamily;
+			},
+			longestText = helpers.longestText = function(ctx,font,arrayOfStrings){
+				ctx.font = font;
+				var longest = 0;
+				each(arrayOfStrings,function(string){
+					var textWidth = ctx.measureText(string).width;
+					longest = (textWidth > longest) ? textWidth : longest;
+				});
+				return longest;
+			},
+			drawRoundedRectangle = helpers.drawRoundedRectangle = function(ctx,x,y,width,height,radius){
+				ctx.beginPath();
+				ctx.moveTo(x + radius, y);
+				ctx.lineTo(x + width - radius, y);
+				ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+				ctx.lineTo(x + width, y + height - radius);
+				ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+				ctx.lineTo(x + radius, y + height);
+				ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+				ctx.lineTo(x, y + radius);
+				ctx.quadraticCurveTo(x, y, x + radius, y);
+				ctx.closePath();
+			};
+
+
+		//Store a reference to each instance - allowing us to globally resize chart instances on window resize.
+		//Destroy method on the chart will remove the instance of the chart from this reference.
+		Chart.instances = {};
+
+		Chart.Type = function(data,options,chart){
+			this.options = options;
+			this.chart = chart;
+			this.id = uid();
+			//Add the chart instance to the global namespace
+			Chart.instances[this.id] = this;
+
+			// Initialize is always called when a chart type is created
+			// By default it is a no op, but it should be extended
+			if (options.responsive){
+				this.resize();
+			}
+			this.initialize.call(this,data);
+		};
+
+		//Core methods that'll be a part of every chart type
+		extend(Chart.Type.prototype,{
+			initialize : function(){return this;},
+			clear : function(){
+				clear(this.chart);
+				return this;
+			},
+			stop : function(){
+				// Stops any current animation loop occuring
+				cancelAnimFrame(this.animationFrame);
+				return this;
+			},
+			resize : function(callback){
+				this.stop();
+				var canvas = this.chart.canvas,
+					newWidth = getMaximumWidth(this.chart.canvas),
+					newHeight = this.options.maintainAspectRatio ? newWidth / this.chart.aspectRatio : getMaximumHeight(this.chart.canvas);
+
+				canvas.width = this.chart.width = newWidth;
+				canvas.height = this.chart.height = newHeight;
+
+				retinaScale(this.chart);
+
+				if (typeof callback === "function"){
+					callback.apply(this, Array.prototype.slice.call(arguments, 1));
+				}
+				return this;
+			},
+			reflow : noop,
+			render : function(reflow){
+				if (reflow){
+					this.reflow();
+				}
+				if (this.options.animation && !reflow){
+					helpers.animationLoop(
+						this.draw,
+						this.options.animationSteps,
+						this.options.animationEasing,
+						this.options.onAnimationProgress,
+						this.options.onAnimationComplete,
+						this
+					);
+				}
+				else{
+					this.draw();
+					this.options.onAnimationComplete.call(this);
+				}
+				return this;
+			},
+			generateLegend : function(){
+				return template(this.options.legendTemplate,this);
+			},
+			destroy : function(){
+				this.clear();
+				unbindEvents(this, this.events);
+				var canvas = this.chart.canvas;
+
+				// Reset canvas height/width attributes starts a fresh with the canvas context
+				canvas.width = this.chart.width;
+				canvas.height = this.chart.height;
+
+				// < IE9 doesn't support removeProperty
+				if (canvas.style.removeProperty) {
+					canvas.style.removeProperty('width');
+					canvas.style.removeProperty('height');
+				} else {
+					canvas.style.removeAttribute('width');
+					canvas.style.removeAttribute('height');
+				}
+
+				delete Chart.instances[this.id];
+			},
+			showTooltip : function(ChartElements, forceRedraw){
+				// Only redraw the chart if we've actually changed what we're hovering on.
+				if (typeof this.activeElements === 'undefined') this.activeElements = [];
+
+				var isChanged = (function(Elements){
+					var changed = false;
+
+					if (Elements.length !== this.activeElements.length){
+						changed = true;
+						return changed;
+					}
+
+					each(Elements, function(element, index){
+						if (element !== this.activeElements[index]){
+							changed = true;
+						}
+					}, this);
+					return changed;
+				}).call(this, ChartElements);
+
+				if (!isChanged && !forceRedraw){
+					return;
+				}
+				else{
+					this.activeElements = ChartElements;
+				}
+				this.draw();
+				if(this.options.customTooltips){
+					this.options.customTooltips(false);
+				}
+				if (ChartElements.length > 0){
+					// If we have multiple datasets, show a MultiTooltip for all of the data points at that index
+					if (this.datasets && this.datasets.length > 1) {
+						var dataArray,
+							dataIndex;
+
+						for (var i = this.datasets.length - 1; i >= 0; i--) {
+							dataArray = this.datasets[i].points || this.datasets[i].bars || this.datasets[i].segments;
+							dataIndex = indexOf(dataArray, ChartElements[0]);
+							if (dataIndex !== -1){
+								break;
+							}
+						}
+						var tooltipLabels = [],
+							tooltipColors = [],
+							medianPosition = (function(index) {
+
+								// Get all the points at that particular index
+								var Elements = [],
+									dataCollection,
+									xPositions = [],
+									yPositions = [],
+									xMax,
+									yMax,
+									xMin,
+									yMin;
+								helpers.each(this.datasets, function(dataset){
+									dataCollection = dataset.points || dataset.bars || dataset.segments;
+									if (dataCollection[dataIndex] && dataCollection[dataIndex].hasValue()){
+										Elements.push(dataCollection[dataIndex]);
+									}
+								});
+
+								helpers.each(Elements, function(element) {
+									xPositions.push(element.x);
+									yPositions.push(element.y);
+
+
+									//Include any colour information about the element
+									tooltipLabels.push(helpers.template(this.options.multiTooltipTemplate, element));
+									tooltipColors.push({
+										fill: element._saved.fillColor || element.fillColor,
+										stroke: element._saved.strokeColor || element.strokeColor
+									});
+
+								}, this);
+
+								yMin = min(yPositions);
+								yMax = max(yPositions);
+
+								xMin = min(xPositions);
+								xMax = max(xPositions);
+
+								return {
+									x: (xMin > this.chart.width/2) ? xMin : xMax,
+									y: (yMin + yMax)/2
+								};
+							}).call(this, dataIndex);
+
+						new Chart.MultiTooltip({
+							x: medianPosition.x,
+							y: medianPosition.y,
+							xPadding: this.options.tooltipXPadding,
+							yPadding: this.options.tooltipYPadding,
+							xOffset: this.options.tooltipXOffset,
+							fillColor: this.options.tooltipFillColor,
+							textColor: this.options.tooltipFontColor,
+							fontFamily: this.options.tooltipFontFamily,
+							fontStyle: this.options.tooltipFontStyle,
+							fontSize: this.options.tooltipFontSize,
+							titleTextColor: this.options.tooltipTitleFontColor,
+							titleFontFamily: this.options.tooltipTitleFontFamily,
+							titleFontStyle: this.options.tooltipTitleFontStyle,
+							titleFontSize: this.options.tooltipTitleFontSize,
+							cornerRadius: this.options.tooltipCornerRadius,
+							labels: tooltipLabels,
+							legendColors: tooltipColors,
+							legendColorBackground : this.options.multiTooltipKeyBackground,
+							title: ChartElements[0].label,
+							chart: this.chart,
+							ctx: this.chart.ctx,
+							custom: this.options.customTooltips
+						}).draw();
+
+					} else {
+						each(ChartElements, function(Element) {
+							var tooltipPosition = Element.tooltipPosition();
+							new Chart.Tooltip({
+								x: Math.round(tooltipPosition.x),
+								y: Math.round(tooltipPosition.y),
+								xPadding: this.options.tooltipXPadding,
+								yPadding: this.options.tooltipYPadding,
+								fillColor: this.options.tooltipFillColor,
+								textColor: this.options.tooltipFontColor,
+								fontFamily: this.options.tooltipFontFamily,
+								fontStyle: this.options.tooltipFontStyle,
+								fontSize: this.options.tooltipFontSize,
+								caretHeight: this.options.tooltipCaretSize,
+								cornerRadius: this.options.tooltipCornerRadius,
+								text: template(this.options.tooltipTemplate, Element),
+								chart: this.chart,
+								custom: this.options.customTooltips
+							}).draw();
+						}, this);
+					}
+				}
+				return this;
+			},
+			toBase64Image : function(){
+				return this.chart.canvas.toDataURL.apply(this.chart.canvas, arguments);
+			}
+		});
+
+		Chart.Type.extend = function(extensions){
+
+			var parent = this;
+
+			var ChartType = function(){
+				return parent.apply(this,arguments);
+			};
+
+			//Copy the prototype object of the this class
+			ChartType.prototype = clone(parent.prototype);
+			//Now overwrite some of the properties in the base class with the new extensions
+			extend(ChartType.prototype, extensions);
+
+			ChartType.extend = Chart.Type.extend;
+
+			if (extensions.name || parent.prototype.name){
+
+				var chartName = extensions.name || parent.prototype.name;
+				//Assign any potential default values of the new chart type
+
+				//If none are defined, we'll use a clone of the chart type this is being extended from.
+				//I.e. if we extend a line chart, we'll use the defaults from the line chart if our new chart
+				//doesn't define some defaults of their own.
+
+				var baseDefaults = (Chart.defaults[parent.prototype.name]) ? clone(Chart.defaults[parent.prototype.name]) : {};
+
+				Chart.defaults[chartName] = extend(baseDefaults,extensions.defaults);
+
+				Chart.types[chartName] = ChartType;
+
+				//Register this new chart type in the Chart prototype
+				Chart.prototype[chartName] = function(data,options){
+					var config = merge(Chart.defaults.global, Chart.defaults[chartName], options || {});
+					return new ChartType(data,config,this);
+				};
+			} else{
+				warn("Name not provided for this chart, so it hasn't been registered");
+			}
+			return parent;
+		};
+
+		Chart.Element = function(configuration){
+			extend(this,configuration);
+			this.initialize.apply(this,arguments);
+			this.save();
+		};
+		extend(Chart.Element.prototype,{
+			initialize : function(){},
+			restore : function(props){
+				if (!props){
+					extend(this,this._saved);
+				} else {
+					each(props,function(key){
+						this[key] = this._saved[key];
+					},this);
+				}
+				return this;
+			},
+			save : function(){
+				this._saved = clone(this);
+				delete this._saved._saved;
+				return this;
+			},
+			update : function(newProps){
+				each(newProps,function(value,key){
+					this._saved[key] = this[key];
+					this[key] = value;
+				},this);
+				return this;
+			},
+			transition : function(props,ease){
+				each(props,function(value,key){
+					this[key] = ((value - this._saved[key]) * ease) + this._saved[key];
+				},this);
+				return this;
+			},
+			tooltipPosition : function(){
+				return {
+					x : this.x,
+					y : this.y
+				};
+			},
+			hasValue: function(){
+				return isNumber(this.value);
+			}
+		});
+
+		Chart.Element.extend = inherits;
+
+
+		Chart.Point = Chart.Element.extend({
+			display: true,
+			inRange: function(chartX,chartY){
+				var hitDetectionRange = this.hitDetectionRadius + this.radius;
+				return ((Math.pow(chartX-this.x, 2)+Math.pow(chartY-this.y, 2)) < Math.pow(hitDetectionRange,2));
+			},
+			draw : function(){
+				if (this.display){
+					var ctx = this.ctx;
+					ctx.beginPath();
+
+					ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+					ctx.closePath();
+
+					ctx.strokeStyle = this.strokeColor;
+					ctx.lineWidth = this.strokeWidth;
+
+					ctx.fillStyle = this.fillColor;
+
+					ctx.fill();
+					ctx.stroke();
+				}
+
+
+				//Quick debug for bezier curve splining
+				//Highlights control points and the line between them.
+				//Handy for dev - stripped in the min version.
+
+				// ctx.save();
+				// ctx.fillStyle = "black";
+				// ctx.strokeStyle = "black"
+				// ctx.beginPath();
+				// ctx.arc(this.controlPoints.inner.x,this.controlPoints.inner.y, 2, 0, Math.PI*2);
+				// ctx.fill();
+
+				// ctx.beginPath();
+				// ctx.arc(this.controlPoints.outer.x,this.controlPoints.outer.y, 2, 0, Math.PI*2);
+				// ctx.fill();
+
+				// ctx.moveTo(this.controlPoints.inner.x,this.controlPoints.inner.y);
+				// ctx.lineTo(this.x, this.y);
+				// ctx.lineTo(this.controlPoints.outer.x,this.controlPoints.outer.y);
+				// ctx.stroke();
+
+				// ctx.restore();
+
+
+
+			}
+		});
+
+		Chart.Arc = Chart.Element.extend({
+			inRange : function(chartX,chartY){
+
+				var pointRelativePosition = helpers.getAngleFromPoint(this, {
+					x: chartX,
+					y: chartY
+				});
+
+				//Check if within the range of the open/close angle
+				var betweenAngles = (pointRelativePosition.angle >= this.startAngle && pointRelativePosition.angle <= this.endAngle),
+					withinRadius = (pointRelativePosition.distance >= this.innerRadius && pointRelativePosition.distance <= this.outerRadius);
+
+				return (betweenAngles && withinRadius);
+				//Ensure within the outside of the arc centre, but inside arc outer
+			},
+			tooltipPosition : function(){
+				var centreAngle = this.startAngle + ((this.endAngle - this.startAngle) / 2),
+					rangeFromCentre = (this.outerRadius - this.innerRadius) / 2 + this.innerRadius;
+				return {
+					x : this.x + (Math.cos(centreAngle) * rangeFromCentre),
+					y : this.y + (Math.sin(centreAngle) * rangeFromCentre)
+				};
+			},
+			draw : function(animationPercent){
+
+				var easingDecimal = animationPercent || 1;
+
+				var ctx = this.ctx;
+
+				ctx.beginPath();
+
+				ctx.arc(this.x, this.y, this.outerRadius, this.startAngle, this.endAngle);
+
+				ctx.arc(this.x, this.y, this.innerRadius, this.endAngle, this.startAngle, true);
+
+				ctx.closePath();
+				ctx.strokeStyle = this.strokeColor;
+				ctx.lineWidth = this.strokeWidth;
+
+				ctx.fillStyle = this.fillColor;
+
+				ctx.fill();
+				ctx.lineJoin = 'bevel';
+
+				if (this.showStroke){
+					ctx.stroke();
+				}
+			}
+		});
+
+		Chart.Rectangle = Chart.Element.extend({
+			draw : function(){
+				var ctx = this.ctx,
+					halfWidth = this.width/2,
+					leftX = this.x - halfWidth,
+					rightX = this.x + halfWidth,
+					top = this.base - (this.base - this.y),
+					halfStroke = this.strokeWidth / 2;
+
+				// Canvas doesn't allow us to stroke inside the width so we can
+				// adjust the sizes to fit if we're setting a stroke on the line
+				if (this.showStroke){
+					leftX += halfStroke;
+					rightX -= halfStroke;
+					top += halfStroke;
+				}
+
+				ctx.beginPath();
+
+				ctx.fillStyle = this.fillColor;
+				ctx.strokeStyle = this.strokeColor;
+				ctx.lineWidth = this.strokeWidth;
+
+				// It'd be nice to keep this class totally generic to any rectangle
+				// and simply specify which border to miss out.
+				ctx.moveTo(leftX, this.base);
+				ctx.lineTo(leftX, top);
+				ctx.lineTo(rightX, top);
+				ctx.lineTo(rightX, this.base);
+				ctx.fill();
+				if (this.showStroke){
+					ctx.stroke();
+				}
+			},
+			height : function(){
+				return this.base - this.y;
+			},
+			inRange : function(chartX,chartY){
+				return (chartX >= this.x - this.width/2 && chartX <= this.x + this.width/2) && (chartY >= this.y && chartY <= this.base);
+			}
+		});
+
+		Chart.Tooltip = Chart.Element.extend({
+			draw : function(){
+
+				var ctx = this.chart.ctx;
+
+				ctx.font = fontString(this.fontSize,this.fontStyle,this.fontFamily);
+
+				this.xAlign = "center";
+				this.yAlign = "above";
+
+				//Distance between the actual element.y position and the start of the tooltip caret
+				var caretPadding = this.caretPadding = 2;
+
+				var tooltipWidth = ctx.measureText(this.text).width + 2*this.xPadding,
+					tooltipRectHeight = this.fontSize + 2*this.yPadding,
+					tooltipHeight = tooltipRectHeight + this.caretHeight + caretPadding;
+
+				if (this.x + tooltipWidth/2 >this.chart.width){
+					this.xAlign = "left";
+				} else if (this.x - tooltipWidth/2 < 0){
+					this.xAlign = "right";
+				}
+
+				if (this.y - tooltipHeight < 0){
+					this.yAlign = "below";
+				}
+
+
+				var tooltipX = this.x - tooltipWidth/2,
+					tooltipY = this.y - tooltipHeight;
+
+				ctx.fillStyle = this.fillColor;
+
+				// Custom Tooltips
+				if(this.custom){
+					this.custom(this);
+				}
+				else{
+					switch(this.yAlign)
+					{
+					case "above":
+						//Draw a caret above the x/y
+						ctx.beginPath();
+						ctx.moveTo(this.x,this.y - caretPadding);
+						ctx.lineTo(this.x + this.caretHeight, this.y - (caretPadding + this.caretHeight));
+						ctx.lineTo(this.x - this.caretHeight, this.y - (caretPadding + this.caretHeight));
+						ctx.closePath();
+						ctx.fill();
+						break;
+					case "below":
+						tooltipY = this.y + caretPadding + this.caretHeight;
+						//Draw a caret below the x/y
+						ctx.beginPath();
+						ctx.moveTo(this.x, this.y + caretPadding);
+						ctx.lineTo(this.x + this.caretHeight, this.y + caretPadding + this.caretHeight);
+						ctx.lineTo(this.x - this.caretHeight, this.y + caretPadding + this.caretHeight);
+						ctx.closePath();
+						ctx.fill();
+						break;
+					}
+
+					switch(this.xAlign)
+					{
+					case "left":
+						tooltipX = this.x - tooltipWidth + (this.cornerRadius + this.caretHeight);
+						break;
+					case "right":
+						tooltipX = this.x - (this.cornerRadius + this.caretHeight);
+						break;
+					}
+
+					drawRoundedRectangle(ctx,tooltipX,tooltipY,tooltipWidth,tooltipRectHeight,this.cornerRadius);
+
+					ctx.fill();
+
+					ctx.fillStyle = this.textColor;
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
+					ctx.fillText(this.text, tooltipX + tooltipWidth/2, tooltipY + tooltipRectHeight/2);
+				}
+			}
+		});
+
+		Chart.MultiTooltip = Chart.Element.extend({
+			initialize : function(){
+				this.font = fontString(this.fontSize,this.fontStyle,this.fontFamily);
+
+				this.titleFont = fontString(this.titleFontSize,this.titleFontStyle,this.titleFontFamily);
+
+				this.height = (this.labels.length * this.fontSize) + ((this.labels.length-1) * (this.fontSize/2)) + (this.yPadding*2) + this.titleFontSize *1.5;
+
+				this.ctx.font = this.titleFont;
+
+				var titleWidth = this.ctx.measureText(this.title).width,
+					//Label has a legend square as well so account for this.
+					labelWidth = longestText(this.ctx,this.font,this.labels) + this.fontSize + 3,
+					longestTextWidth = max([labelWidth,titleWidth]);
+
+				this.width = longestTextWidth + (this.xPadding*2);
+
+
+				var halfHeight = this.height/2;
+
+				//Check to ensure the height will fit on the canvas
+				if (this.y - halfHeight < 0 ){
+					this.y = halfHeight;
+				} else if (this.y + halfHeight > this.chart.height){
+					this.y = this.chart.height - halfHeight;
+				}
+
+				//Decide whether to align left or right based on position on canvas
+				if (this.x > this.chart.width/2){
+					this.x -= this.xOffset + this.width;
+				} else {
+					this.x += this.xOffset;
+				}
+
+
+			},
+			getLineHeight : function(index){
+				var baseLineHeight = this.y - (this.height/2) + this.yPadding,
+					afterTitleIndex = index-1;
+
+				//If the index is zero, we're getting the title
+				if (index === 0){
+					return baseLineHeight + this.titleFontSize/2;
+				} else{
+					return baseLineHeight + ((this.fontSize*1.5*afterTitleIndex) + this.fontSize/2) + this.titleFontSize * 1.5;
+				}
+
+			},
+			draw : function(){
+				// Custom Tooltips
+				if(this.custom){
+					this.custom(this);
+				}
+				else{
+					drawRoundedRectangle(this.ctx,this.x,this.y - this.height/2,this.width,this.height,this.cornerRadius);
+					var ctx = this.ctx;
+					ctx.fillStyle = this.fillColor;
+					ctx.fill();
+					ctx.closePath();
+
+					ctx.textAlign = "left";
+					ctx.textBaseline = "middle";
+					ctx.fillStyle = this.titleTextColor;
+					ctx.font = this.titleFont;
+
+					ctx.fillText(this.title,this.x + this.xPadding, this.getLineHeight(0));
+
+					ctx.font = this.font;
+					helpers.each(this.labels,function(label,index){
+						ctx.fillStyle = this.textColor;
+						ctx.fillText(label,this.x + this.xPadding + this.fontSize + 3, this.getLineHeight(index + 1));
+
+						//A bit gnarly, but clearing this rectangle breaks when using explorercanvas (clears whole canvas)
+						//ctx.clearRect(this.x + this.xPadding, this.getLineHeight(index + 1) - this.fontSize/2, this.fontSize, this.fontSize);
+						//Instead we'll make a white filled block to put the legendColour palette over.
+
+						ctx.fillStyle = this.legendColorBackground;
+						ctx.fillRect(this.x + this.xPadding, this.getLineHeight(index + 1) - this.fontSize/2, this.fontSize, this.fontSize);
+
+						ctx.fillStyle = this.legendColors[index].fill;
+						ctx.fillRect(this.x + this.xPadding, this.getLineHeight(index + 1) - this.fontSize/2, this.fontSize, this.fontSize);
+
+
+					},this);
+				}
+			}
+		});
+
+		Chart.Scale = Chart.Element.extend({
+			initialize : function(){
+				this.fit();
+			},
+			buildYLabels : function(){
+				this.yLabels = [];
+
+				var stepDecimalPlaces = getDecimalPlaces(this.stepValue);
+
+				for (var i=0; i<=this.steps; i++){
+					this.yLabels.push(template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)}));
+				}
+				this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) : 0;
+			},
+			addXLabel : function(label){
+				this.xLabels.push(label);
+				this.valuesCount++;
+				this.fit();
+			},
+			removeXLabel : function(){
+				this.xLabels.shift();
+				this.valuesCount--;
+				this.fit();
+			},
+			// Fitting loop to rotate x Labels and figure out what fits there, and also calculate how many Y steps to use
+			fit: function(){
+				// First we need the width of the yLabels, assuming the xLabels aren't rotated
+
+				// To do that we need the base line at the top and base of the chart, assuming there is no x label rotation
+				this.startPoint = (this.display) ? this.fontSize : 0;
+				this.endPoint = (this.display) ? this.height - (this.fontSize * 1.5) - 5 : this.height; // -5 to pad labels
+
+				// Apply padding settings to the start and end point.
+				this.startPoint += this.padding;
+				this.endPoint -= this.padding;
+
+				// Cache the starting height, so can determine if we need to recalculate the scale yAxis
+				var cachedHeight = this.endPoint - this.startPoint,
+					cachedYLabelWidth;
+
+				// Build the current yLabels so we have an idea of what size they'll be to start
+				/*
+				 *	This sets what is returned from calculateScaleRange as static properties of this class:
+				 *
+					this.steps;
+					this.stepValue;
+					this.min;
+					this.max;
+				 *
+				 */
+				this.calculateYRange(cachedHeight);
+
+				// With these properties set we can now build the array of yLabels
+				// and also the width of the largest yLabel
+				this.buildYLabels();
+
+				this.calculateXLabelRotation();
+
+				while((cachedHeight > this.endPoint - this.startPoint)){
+					cachedHeight = this.endPoint - this.startPoint;
+					cachedYLabelWidth = this.yLabelWidth;
+
+					this.calculateYRange(cachedHeight);
+					this.buildYLabels();
+
+					// Only go through the xLabel loop again if the yLabel width has changed
+					if (cachedYLabelWidth < this.yLabelWidth){
+						this.calculateXLabelRotation();
+					}
+				}
+
+			},
+			calculateXLabelRotation : function(){
+				//Get the width of each grid by calculating the difference
+				//between x offsets between 0 and 1.
+
+				this.ctx.font = this.font;
+
+				var firstWidth = this.ctx.measureText(this.xLabels[0]).width,
+					lastWidth = this.ctx.measureText(this.xLabels[this.xLabels.length - 1]).width,
+					firstRotated,
+					lastRotated;
+
+
+				this.xScalePaddingRight = lastWidth/2 + 3;
+				this.xScalePaddingLeft = (firstWidth/2 > this.yLabelWidth + 10) ? firstWidth/2 : this.yLabelWidth + 10;
+
+				this.xLabelRotation = 0;
+				if (this.display){
+					var originalLabelWidth = longestText(this.ctx,this.font,this.xLabels),
+						cosRotation,
+						firstRotatedWidth;
+					this.xLabelWidth = originalLabelWidth;
+					//Allow 3 pixels x2 padding either side for label readability
+					var xGridWidth = Math.floor(this.calculateX(1) - this.calculateX(0)) - 6;
+
+					//Max label rotate should be 90 - also act as a loop counter
+					while ((this.xLabelWidth > xGridWidth && this.xLabelRotation === 0) || (this.xLabelWidth > xGridWidth && this.xLabelRotation <= 90 && this.xLabelRotation > 0)){
+						cosRotation = Math.cos(toRadians(this.xLabelRotation));
+
+						firstRotated = cosRotation * firstWidth;
+						lastRotated = cosRotation * lastWidth;
+
+						// We're right aligning the text now.
+						if (firstRotated + this.fontSize / 2 > this.yLabelWidth + 8){
+							this.xScalePaddingLeft = firstRotated + this.fontSize / 2;
+						}
+						this.xScalePaddingRight = this.fontSize/2;
+
+
+						this.xLabelRotation++;
+						this.xLabelWidth = cosRotation * originalLabelWidth;
+
+					}
+					if (this.xLabelRotation > 0){
+						this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
+					}
+				}
+				else{
+					this.xLabelWidth = 0;
+					this.xScalePaddingRight = this.padding;
+					this.xScalePaddingLeft = this.padding;
+				}
+
+			},
+			// Needs to be overidden in each Chart type
+			// Otherwise we need to pass all the data into the scale class
+			calculateYRange: noop,
+			drawingArea: function(){
+				return this.startPoint - this.endPoint;
+			},
+			calculateY : function(value){
+				var scalingFactor = this.drawingArea() / (this.min - this.max);
+				return this.endPoint - (scalingFactor * (value - this.min));
+			},
+			calculateX : function(index){
+				var isRotated = (this.xLabelRotation > 0),
+					// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
+					innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight),
+					valueWidth = innerWidth/Math.max((this.valuesCount - ((this.offsetGridLines) ? 0 : 1)), 1),
+					valueOffset = (valueWidth * index) + this.xScalePaddingLeft;
+
+				if (this.offsetGridLines){
+					valueOffset += (valueWidth/2);
+				}
+
+				return Math.round(valueOffset);
+			},
+			update : function(newProps){
+				helpers.extend(this, newProps);
+				this.fit();
+			},
+			draw : function(){
+				var ctx = this.ctx,
+					yLabelGap = (this.endPoint - this.startPoint) / this.steps,
+					xStart = Math.round(this.xScalePaddingLeft);
+				if (this.display){
+					ctx.fillStyle = this.textColor;
+					ctx.font = this.font;
+					each(this.yLabels,function(labelString,index){
+						var yLabelCenter = this.endPoint - (yLabelGap * index),
+							linePositionY = Math.round(yLabelCenter),
+							drawHorizontalLine = this.showHorizontalLines;
+
+						ctx.textAlign = "right";
+						ctx.textBaseline = "middle";
+						if (this.showLabels){
+							ctx.fillText(labelString,xStart - 10,yLabelCenter);
+						}
+
+						// This is X axis, so draw it
+						if (index === 0 && !drawHorizontalLine){
+							drawHorizontalLine = true;
+						}
+
+						if (drawHorizontalLine){
+							ctx.beginPath();
+						}
+
+						if (index > 0){
+							// This is a grid line in the centre, so drop that
+							ctx.lineWidth = this.gridLineWidth;
+							ctx.strokeStyle = this.gridLineColor;
+						} else {
+							// This is the first line on the scale
+							ctx.lineWidth = this.lineWidth;
+							ctx.strokeStyle = this.lineColor;
+						}
+
+						linePositionY += helpers.aliasPixel(ctx.lineWidth);
+
+						if(drawHorizontalLine){
+							ctx.moveTo(xStart, linePositionY);
+							ctx.lineTo(this.width, linePositionY);
+							ctx.stroke();
+							ctx.closePath();
+						}
+
+						ctx.lineWidth = this.lineWidth;
+						ctx.strokeStyle = this.lineColor;
+						ctx.beginPath();
+						ctx.moveTo(xStart - 5, linePositionY);
+						ctx.lineTo(xStart, linePositionY);
+						ctx.stroke();
+						ctx.closePath();
+
+					},this);
+
+					each(this.xLabels,function(label,index){
+						var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
+							// Check to see if line/bar here and decide where to place the line
+							linePos = this.calculateX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
+							isRotated = (this.xLabelRotation > 0),
+							drawVerticalLine = this.showVerticalLines;
+
+						// This is Y axis, so draw it
+						if (index === 0 && !drawVerticalLine){
+							drawVerticalLine = true;
+						}
+
+						if (drawVerticalLine){
+							ctx.beginPath();
+						}
+
+						if (index > 0){
+							// This is a grid line in the centre, so drop that
+							ctx.lineWidth = this.gridLineWidth;
+							ctx.strokeStyle = this.gridLineColor;
+						} else {
+							// This is the first line on the scale
+							ctx.lineWidth = this.lineWidth;
+							ctx.strokeStyle = this.lineColor;
+						}
+
+						if (drawVerticalLine){
+							ctx.moveTo(linePos,this.endPoint);
+							ctx.lineTo(linePos,this.startPoint - 3);
+							ctx.stroke();
+							ctx.closePath();
+						}
+
+
+						ctx.lineWidth = this.lineWidth;
+						ctx.strokeStyle = this.lineColor;
+
+
+						// Small lines at the bottom of the base grid line
+						ctx.beginPath();
+						ctx.moveTo(linePos,this.endPoint);
+						ctx.lineTo(linePos,this.endPoint + 5);
+						ctx.stroke();
+						ctx.closePath();
+
+						ctx.save();
+						ctx.translate(xPos,(isRotated) ? this.endPoint + 12 : this.endPoint + 8);
+						ctx.rotate(toRadians(this.xLabelRotation)*-1);
+						ctx.font = this.font;
+						ctx.textAlign = (isRotated) ? "right" : "center";
+						ctx.textBaseline = (isRotated) ? "middle" : "top";
+						ctx.fillText(label, 0, 0);
+						ctx.restore();
+					},this);
+
+				}
+			}
+
+		});
+
+		Chart.RadialScale = Chart.Element.extend({
+			initialize: function(){
+				this.size = min([this.height, this.width]);
+				this.drawingArea = (this.display) ? (this.size/2) - (this.fontSize/2 + this.backdropPaddingY) : (this.size/2);
+			},
+			calculateCenterOffset: function(value){
+				// Take into account half font size + the yPadding of the top value
+				var scalingFactor = this.drawingArea / (this.max - this.min);
+
+				return (value - this.min) * scalingFactor;
+			},
+			update : function(){
+				if (!this.lineArc){
+					this.setScaleSize();
+				} else {
+					this.drawingArea = (this.display) ? (this.size/2) - (this.fontSize/2 + this.backdropPaddingY) : (this.size/2);
+				}
+				this.buildYLabels();
+			},
+			buildYLabels: function(){
+				this.yLabels = [];
+
+				var stepDecimalPlaces = getDecimalPlaces(this.stepValue);
+
+				for (var i=0; i<=this.steps; i++){
+					this.yLabels.push(template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)}));
+				}
+			},
+			getCircumference : function(){
+				return ((Math.PI*2) / this.valuesCount);
+			},
+			setScaleSize: function(){
+				/*
+				 * Right, this is really confusing and there is a lot of maths going on here
+				 * The gist of the problem is here: https://gist.github.com/nnnick/696cc9c55f4b0beb8fe9
+				 *
+				 * Reaction: https://dl.dropboxusercontent.com/u/34601363/toomuchscience.gif
+				 *
+				 * Solution:
+				 *
+				 * We assume the radius of the polygon is half the size of the canvas at first
+				 * at each index we check if the text overlaps.
+				 *
+				 * Where it does, we store that angle and that index.
+				 *
+				 * After finding the largest index and angle we calculate how much we need to remove
+				 * from the shape radius to move the point inwards by that x.
+				 *
+				 * We average the left and right distances to get the maximum shape radius that can fit in the box
+				 * along with labels.
+				 *
+				 * Once we have that, we can find the centre point for the chart, by taking the x text protrusion
+				 * on each side, removing that from the size, halving it and adding the left x protrusion width.
+				 *
+				 * This will mean we have a shape fitted to the canvas, as large as it can be with the labels
+				 * and position it in the most space efficient manner
+				 *
+				 * https://dl.dropboxusercontent.com/u/34601363/yeahscience.gif
+				 */
+
+
+				// Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
+				// Use this to calculate the offset + change. - Make sure L/R protrusion is at least 0 to stop issues with centre points
+				var largestPossibleRadius = min([(this.height/2 - this.pointLabelFontSize - 5), this.width/2]),
+					pointPosition,
+					i,
+					textWidth,
+					halfTextWidth,
+					furthestRight = this.width,
+					furthestRightIndex,
+					furthestRightAngle,
+					furthestLeft = 0,
+					furthestLeftIndex,
+					furthestLeftAngle,
+					xProtrusionLeft,
+					xProtrusionRight,
+					radiusReductionRight,
+					radiusReductionLeft,
+					maxWidthRadius;
+				this.ctx.font = fontString(this.pointLabelFontSize,this.pointLabelFontStyle,this.pointLabelFontFamily);
+				for (i=0;i<this.valuesCount;i++){
+					// 5px to space the text slightly out - similar to what we do in the draw function.
+					pointPosition = this.getPointPosition(i, largestPossibleRadius);
+					textWidth = this.ctx.measureText(template(this.templateString, { value: this.labels[i] })).width + 5;
+					if (i === 0 || i === this.valuesCount/2){
+						// If we're at index zero, or exactly the middle, we're at exactly the top/bottom
+						// of the radar chart, so text will be aligned centrally, so we'll half it and compare
+						// w/left and right text sizes
+						halfTextWidth = textWidth/2;
+						if (pointPosition.x + halfTextWidth > furthestRight) {
+							furthestRight = pointPosition.x + halfTextWidth;
+							furthestRightIndex = i;
+						}
+						if (pointPosition.x - halfTextWidth < furthestLeft) {
+							furthestLeft = pointPosition.x - halfTextWidth;
+							furthestLeftIndex = i;
+						}
+					}
+					else if (i < this.valuesCount/2) {
+						// Less than half the values means we'll left align the text
+						if (pointPosition.x + textWidth > furthestRight) {
+							furthestRight = pointPosition.x + textWidth;
+							furthestRightIndex = i;
+						}
+					}
+					else if (i > this.valuesCount/2){
+						// More than half the values means we'll right align the text
+						if (pointPosition.x - textWidth < furthestLeft) {
+							furthestLeft = pointPosition.x - textWidth;
+							furthestLeftIndex = i;
+						}
+					}
+				}
+
+				xProtrusionLeft = furthestLeft;
+
+				xProtrusionRight = Math.ceil(furthestRight - this.width);
+
+				furthestRightAngle = this.getIndexAngle(furthestRightIndex);
+
+				furthestLeftAngle = this.getIndexAngle(furthestLeftIndex);
+
+				radiusReductionRight = xProtrusionRight / Math.sin(furthestRightAngle + Math.PI/2);
+
+				radiusReductionLeft = xProtrusionLeft / Math.sin(furthestLeftAngle + Math.PI/2);
+
+				// Ensure we actually need to reduce the size of the chart
+				radiusReductionRight = (isNumber(radiusReductionRight)) ? radiusReductionRight : 0;
+				radiusReductionLeft = (isNumber(radiusReductionLeft)) ? radiusReductionLeft : 0;
+
+				this.drawingArea = largestPossibleRadius - (radiusReductionLeft + radiusReductionRight)/2;
+
+				//this.drawingArea = min([maxWidthRadius, (this.height - (2 * (this.pointLabelFontSize + 5)))/2])
+				this.setCenterPoint(radiusReductionLeft, radiusReductionRight);
+
+			},
+			setCenterPoint: function(leftMovement, rightMovement){
+
+				var maxRight = this.width - rightMovement - this.drawingArea,
+					maxLeft = leftMovement + this.drawingArea;
+
+				this.xCenter = (maxLeft + maxRight)/2;
+				// Always vertically in the centre as the text height doesn't change
+				this.yCenter = (this.height/2);
+			},
+
+			getIndexAngle : function(index){
+				var angleMultiplier = (Math.PI * 2) / this.valuesCount;
+				// Start from the top instead of right, so remove a quarter of the circle
+
+				return index * angleMultiplier - (Math.PI/2);
+			},
+			getPointPosition : function(index, distanceFromCenter){
+				var thisAngle = this.getIndexAngle(index);
+				return {
+					x : (Math.cos(thisAngle) * distanceFromCenter) + this.xCenter,
+					y : (Math.sin(thisAngle) * distanceFromCenter) + this.yCenter
+				};
+			},
+			draw: function(){
+				if (this.display){
+					var ctx = this.ctx;
+					each(this.yLabels, function(label, index){
+						// Don't draw a centre value
+						if (index > 0){
+							var yCenterOffset = index * (this.drawingArea/this.steps),
+								yHeight = this.yCenter - yCenterOffset,
+								pointPosition;
+
+							// Draw circular lines around the scale
+							if (this.lineWidth > 0){
+								ctx.strokeStyle = this.lineColor;
+								ctx.lineWidth = this.lineWidth;
+
+								if(this.lineArc){
+									ctx.beginPath();
+									ctx.arc(this.xCenter, this.yCenter, yCenterOffset, 0, Math.PI*2);
+									ctx.closePath();
+									ctx.stroke();
+								} else{
+									ctx.beginPath();
+									for (var i=0;i<this.valuesCount;i++)
+									{
+										pointPosition = this.getPointPosition(i, this.calculateCenterOffset(this.min + (index * this.stepValue)));
+										if (i === 0){
+											ctx.moveTo(pointPosition.x, pointPosition.y);
+										} else {
+											ctx.lineTo(pointPosition.x, pointPosition.y);
+										}
+									}
+									ctx.closePath();
+									ctx.stroke();
+								}
+							}
+							if(this.showLabels){
+								ctx.font = fontString(this.fontSize,this.fontStyle,this.fontFamily);
+								if (this.showLabelBackdrop){
+									var labelWidth = ctx.measureText(label).width;
+									ctx.fillStyle = this.backdropColor;
+									ctx.fillRect(
+										this.xCenter - labelWidth/2 - this.backdropPaddingX,
+										yHeight - this.fontSize/2 - this.backdropPaddingY,
+										labelWidth + this.backdropPaddingX*2,
+										this.fontSize + this.backdropPaddingY*2
+									);
+								}
+								ctx.textAlign = 'center';
+								ctx.textBaseline = "middle";
+								ctx.fillStyle = this.fontColor;
+								ctx.fillText(label, this.xCenter, yHeight);
+							}
+						}
+					}, this);
+
+					if (!this.lineArc){
+						ctx.lineWidth = this.angleLineWidth;
+						ctx.strokeStyle = this.angleLineColor;
+						for (var i = this.valuesCount - 1; i >= 0; i--) {
+							if (this.angleLineWidth > 0){
+								var outerPosition = this.getPointPosition(i, this.calculateCenterOffset(this.max));
+								ctx.beginPath();
+								ctx.moveTo(this.xCenter, this.yCenter);
+								ctx.lineTo(outerPosition.x, outerPosition.y);
+								ctx.stroke();
+								ctx.closePath();
+							}
+							// Extra 3px out for some label spacing
+							var pointLabelPosition = this.getPointPosition(i, this.calculateCenterOffset(this.max) + 5);
+							ctx.font = fontString(this.pointLabelFontSize,this.pointLabelFontStyle,this.pointLabelFontFamily);
+							ctx.fillStyle = this.pointLabelFontColor;
+
+							var labelsCount = this.labels.length,
+								halfLabelsCount = this.labels.length/2,
+								quarterLabelsCount = halfLabelsCount/2,
+								upperHalf = (i < quarterLabelsCount || i > labelsCount - quarterLabelsCount),
+								exactQuarter = (i === quarterLabelsCount || i === labelsCount - quarterLabelsCount);
+							if (i === 0){
+								ctx.textAlign = 'center';
+							} else if(i === halfLabelsCount){
+								ctx.textAlign = 'center';
+							} else if (i < halfLabelsCount){
+								ctx.textAlign = 'left';
+							} else {
+								ctx.textAlign = 'right';
+							}
+
+							// Set the correct text baseline based on outer positioning
+							if (exactQuarter){
+								ctx.textBaseline = 'middle';
+							} else if (upperHalf){
+								ctx.textBaseline = 'bottom';
+							} else {
+								ctx.textBaseline = 'top';
+							}
+
+							ctx.fillText(this.labels[i], pointLabelPosition.x, pointLabelPosition.y);
+						}
+					}
+				}
+			}
+		});
+
+		// Attach global event to resize each chart instance when the browser resizes
+		helpers.addEvent(window, "resize", (function(){
+			// Basic debounce of resize function so it doesn't hurt performance when resizing browser.
+			var timeout;
+			return function(){
+				clearTimeout(timeout);
+				timeout = setTimeout(function(){
+					each(Chart.instances,function(instance){
+						// If the responsive flag is set in the chart instance config
+						// Cascade the resize event down to the chart.
+						if (instance.options.responsive){
+							instance.resize(instance.render, true);
+						}
+					});
+				}, 50);
+			};
+		})());
+
+
+		if (amd) {
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
+				return Chart;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else if (typeof module === 'object' && module.exports) {
+			module.exports = Chart;
+		}
+
+		root.Chart = Chart;
+
+		Chart.noConflict = function(){
+			root.Chart = previous;
+			return Chart;
+		};
+
+	}).call(this);
+
+	(function(){
+		"use strict";
+
+		var root = this,
+			Chart = root.Chart,
+			helpers = Chart.helpers;
+
+
+		var defaultConfig = {
+			//Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+			scaleBeginAtZero : true,
+
+			//Boolean - Whether grid lines are shown across the chart
+			scaleShowGridLines : true,
+
+			//String - Colour of the grid lines
+			scaleGridLineColor : "rgba(0,0,0,.05)",
+
+			//Number - Width of the grid lines
+			scaleGridLineWidth : 1,
+
+			//Boolean - Whether to show horizontal lines (except X axis)
+			scaleShowHorizontalLines: true,
+
+			//Boolean - Whether to show vertical lines (except Y axis)
+			scaleShowVerticalLines: true,
+
+			//Boolean - If there is a stroke on each bar
+			barShowStroke : true,
+
+			//Number - Pixel width of the bar stroke
+			barStrokeWidth : 2,
+
+			//Number - Spacing between each of the X value sets
+			barValueSpacing : 5,
+
+			//Number - Spacing between data sets within X values
+			barDatasetSpacing : 1,
+
+			//String - A legend template
+			legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+
+		};
+
+
+		Chart.Type.extend({
+			name: "Bar",
+			defaults : defaultConfig,
+			initialize:  function(data){
+
+				//Expose options as a scope variable here so we can access it in the ScaleClass
+				var options = this.options;
+
+				this.ScaleClass = Chart.Scale.extend({
+					offsetGridLines : true,
+					calculateBarX : function(datasetCount, datasetIndex, barIndex){
+						//Reusable method for calculating the xPosition of a given bar based on datasetIndex & width of the bar
+						var xWidth = this.calculateBaseWidth(),
+							xAbsolute = this.calculateX(barIndex) - (xWidth/2),
+							barWidth = this.calculateBarWidth(datasetCount);
+
+						return xAbsolute + (barWidth * datasetIndex) + (datasetIndex * options.barDatasetSpacing) + barWidth/2;
+					},
+					calculateBaseWidth : function(){
+						return (this.calculateX(1) - this.calculateX(0)) - (2*options.barValueSpacing);
+					},
+					calculateBarWidth : function(datasetCount){
+						//The padding between datasets is to the right of each bar, providing that there are more than 1 dataset
+						var baseWidth = this.calculateBaseWidth() - ((datasetCount - 1) * options.barDatasetSpacing);
+
+						return (baseWidth / datasetCount);
+					}
+				});
+
+				this.datasets = [];
+
+				//Set up tooltip events on the chart
+				if (this.options.showTooltips){
+					helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
+						var activeBars = (evt.type !== 'mouseout') ? this.getBarsAtEvent(evt) : [];
+
+						this.eachBars(function(bar){
+							bar.restore(['fillColor', 'strokeColor']);
+						});
+						helpers.each(activeBars, function(activeBar){
+							activeBar.fillColor = activeBar.highlightFill;
+							activeBar.strokeColor = activeBar.highlightStroke;
+						});
+						this.showTooltip(activeBars);
+					});
+				}
+
+				//Declare the extension of the default point, to cater for the options passed in to the constructor
+				this.BarClass = Chart.Rectangle.extend({
+					strokeWidth : this.options.barStrokeWidth,
+					showStroke : this.options.barShowStroke,
+					ctx : this.chart.ctx
+				});
+
+				//Iterate through each of the datasets, and build this into a property of the chart
+				helpers.each(data.datasets,function(dataset,datasetIndex){
+
+					var datasetObject = {
+						label : dataset.label || null,
+						fillColor : dataset.fillColor,
+						strokeColor : dataset.strokeColor,
+						bars : []
+					};
+
+					this.datasets.push(datasetObject);
+
+					helpers.each(dataset.data,function(dataPoint,index){
+						//Add a new point for each piece of data, passing any required data to draw.
+						datasetObject.bars.push(new this.BarClass({
+							value : dataPoint,
+							label : data.labels[index],
+							datasetLabel: dataset.label,
+							strokeColor : dataset.strokeColor,
+							fillColor : dataset.fillColor,
+							highlightFill : dataset.highlightFill || dataset.fillColor,
+							highlightStroke : dataset.highlightStroke || dataset.strokeColor
+						}));
+					},this);
+
+				},this);
+
+				this.buildScale(data.labels);
+
+				this.BarClass.prototype.base = this.scale.endPoint;
+
+				this.eachBars(function(bar, index, datasetIndex){
+					helpers.extend(bar, {
+						width : this.scale.calculateBarWidth(this.datasets.length),
+						x: this.scale.calculateBarX(this.datasets.length, datasetIndex, index),
+						y: this.scale.endPoint
+					});
+					bar.save();
+				}, this);
+
+				this.render();
+			},
+			update : function(){
+				this.scale.update();
+				// Reset any highlight colours before updating.
+				helpers.each(this.activeElements, function(activeElement){
+					activeElement.restore(['fillColor', 'strokeColor']);
+				});
+
+				this.eachBars(function(bar){
+					bar.save();
+				});
+				this.render();
+			},
+			eachBars : function(callback){
+				helpers.each(this.datasets,function(dataset, datasetIndex){
+					helpers.each(dataset.bars, callback, this, datasetIndex);
+				},this);
+			},
+			getBarsAtEvent : function(e){
+				var barsArray = [],
+					eventPosition = helpers.getRelativePosition(e),
+					datasetIterator = function(dataset){
+						barsArray.push(dataset.bars[barIndex]);
+					},
+					barIndex;
+
+				for (var datasetIndex = 0; datasetIndex < this.datasets.length; datasetIndex++) {
+					for (barIndex = 0; barIndex < this.datasets[datasetIndex].bars.length; barIndex++) {
+						if (this.datasets[datasetIndex].bars[barIndex].inRange(eventPosition.x,eventPosition.y)){
+							helpers.each(this.datasets, datasetIterator);
+							return barsArray;
+						}
+					}
+				}
+
+				return barsArray;
+			},
+			buildScale : function(labels){
+				var self = this;
+
+				var dataTotal = function(){
+					var values = [];
+					self.eachBars(function(bar){
+						values.push(bar.value);
+					});
+					return values;
+				};
+
+				var scaleOptions = {
+					templateString : this.options.scaleLabel,
+					height : this.chart.height,
+					width : this.chart.width,
+					ctx : this.chart.ctx,
+					textColor : this.options.scaleFontColor,
+					fontSize : this.options.scaleFontSize,
+					fontStyle : this.options.scaleFontStyle,
+					fontFamily : this.options.scaleFontFamily,
+					valuesCount : labels.length,
+					beginAtZero : this.options.scaleBeginAtZero,
+					integersOnly : this.options.scaleIntegersOnly,
+					calculateYRange: function(currentHeight){
+						var updatedRanges = helpers.calculateScaleRange(
+							dataTotal(),
+							currentHeight,
+							this.fontSize,
+							this.beginAtZero,
+							this.integersOnly
+						);
+						helpers.extend(this, updatedRanges);
+					},
+					xLabels : labels,
+					font : helpers.fontString(this.options.scaleFontSize, this.options.scaleFontStyle, this.options.scaleFontFamily),
+					lineWidth : this.options.scaleLineWidth,
+					lineColor : this.options.scaleLineColor,
+					showHorizontalLines : this.options.scaleShowHorizontalLines,
+					showVerticalLines : this.options.scaleShowVerticalLines,
+					gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
+					gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
+					padding : (this.options.showScale) ? 0 : (this.options.barShowStroke) ? this.options.barStrokeWidth : 0,
+					showLabels : this.options.scaleShowLabels,
+					display : this.options.showScale
+				};
+
+				if (this.options.scaleOverride){
+					helpers.extend(scaleOptions, {
+						calculateYRange: helpers.noop,
+						steps: this.options.scaleSteps,
+						stepValue: this.options.scaleStepWidth,
+						min: this.options.scaleStartValue,
+						max: this.options.scaleStartValue + (this.options.scaleSteps * this.options.scaleStepWidth)
+					});
+				}
+
+				this.scale = new this.ScaleClass(scaleOptions);
+			},
+			addData : function(valuesArray,label){
+				//Map the values array for each of the datasets
+				helpers.each(valuesArray,function(value,datasetIndex){
+					//Add a new point for each piece of data, passing any required data to draw.
+					this.datasets[datasetIndex].bars.push(new this.BarClass({
+						value : value,
+						label : label,
+						x: this.scale.calculateBarX(this.datasets.length, datasetIndex, this.scale.valuesCount+1),
+						y: this.scale.endPoint,
+						width : this.scale.calculateBarWidth(this.datasets.length),
+						base : this.scale.endPoint,
+						strokeColor : this.datasets[datasetIndex].strokeColor,
+						fillColor : this.datasets[datasetIndex].fillColor
+					}));
+				},this);
+
+				this.scale.addXLabel(label);
+				//Then re-render the chart.
+				this.update();
+			},
+			removeData : function(){
+				this.scale.removeXLabel();
+				//Then re-render the chart.
+				helpers.each(this.datasets,function(dataset){
+					dataset.bars.shift();
+				},this);
+				this.update();
+			},
+			reflow : function(){
+				helpers.extend(this.BarClass.prototype,{
+					y: this.scale.endPoint,
+					base : this.scale.endPoint
+				});
+				var newScaleProps = helpers.extend({
+					height : this.chart.height,
+					width : this.chart.width
+				});
+				this.scale.update(newScaleProps);
+			},
+			draw : function(ease){
+				var easingDecimal = ease || 1;
+				this.clear();
+
+				var ctx = this.chart.ctx;
+
+				this.scale.draw(easingDecimal);
+
+				//Draw all the bars for each dataset
+				helpers.each(this.datasets,function(dataset,datasetIndex){
+					helpers.each(dataset.bars,function(bar,index){
+						if (bar.hasValue()){
+							bar.base = this.scale.endPoint;
+							//Transition then draw
+							bar.transition({
+								x : this.scale.calculateBarX(this.datasets.length, datasetIndex, index),
+								y : this.scale.calculateY(bar.value),
+								width : this.scale.calculateBarWidth(this.datasets.length)
+							}, easingDecimal).draw();
+						}
+					},this);
+
+				},this);
+			}
+		});
+
+
+	}).call(this);
+
+	(function(){
+		"use strict";
+
+		var root = this,
+			Chart = root.Chart,
+			//Cache a local reference to Chart.helpers
+			helpers = Chart.helpers;
+
+		var defaultConfig = {
+			//Boolean - Whether we should show a stroke on each segment
+			segmentShowStroke : true,
+
+			//String - The colour of each segment stroke
+			segmentStrokeColor : "#fff",
+
+			//Number - The width of each segment stroke
+			segmentStrokeWidth : 2,
+
+			//The percentage of the chart that we cut out of the middle.
+			percentageInnerCutout : 50,
+
+			//Number - Amount of animation steps
+			animationSteps : 100,
+
+			//String - Animation easing effect
+			animationEasing : "easeOutBounce",
+
+			//Boolean - Whether we animate the rotation of the Doughnut
+			animateRotate : true,
+
+			//Boolean - Whether we animate scaling the Doughnut from the centre
+			animateScale : false,
+
+			//String - A legend template
+			legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+
+		};
+
+
+		Chart.Type.extend({
+			//Passing in a name registers this chart in the Chart namespace
+			name: "Doughnut",
+			//Providing a defaults will also register the deafults in the chart namespace
+			defaults : defaultConfig,
+			//Initialize is fired when the chart is initialized - Data is passed in as a parameter
+			//Config is automatically merged by the core of Chart.js, and is available at this.options
+			initialize:  function(data){
+
+				//Declare segments as a static property to prevent inheriting across the Chart type prototype
+				this.segments = [];
+				this.outerRadius = (helpers.min([this.chart.width,this.chart.height]) -	this.options.segmentStrokeWidth/2)/2;
+
+				this.SegmentArc = Chart.Arc.extend({
+					ctx : this.chart.ctx,
+					x : this.chart.width/2,
+					y : this.chart.height/2
+				});
+
+				//Set up tooltip events on the chart
+				if (this.options.showTooltips){
+					helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
+						var activeSegments = (evt.type !== 'mouseout') ? this.getSegmentsAtEvent(evt) : [];
+
+						helpers.each(this.segments,function(segment){
+							segment.restore(["fillColor"]);
+						});
+						helpers.each(activeSegments,function(activeSegment){
+							activeSegment.fillColor = activeSegment.highlightColor;
+						});
+						this.showTooltip(activeSegments);
+					});
+				}
+				this.calculateTotal(data);
+
+				helpers.each(data,function(datapoint, index){
+					this.addData(datapoint, index, true);
+				},this);
+
+				this.render();
+			},
+			getSegmentsAtEvent : function(e){
+				var segmentsArray = [];
+
+				var location = helpers.getRelativePosition(e);
+
+				helpers.each(this.segments,function(segment){
+					if (segment.inRange(location.x,location.y)) segmentsArray.push(segment);
+				},this);
+				return segmentsArray;
+			},
+			addData : function(segment, atIndex, silent){
+				var index = atIndex || this.segments.length;
+				this.segments.splice(index, 0, new this.SegmentArc({
+					value : segment.value,
+					outerRadius : (this.options.animateScale) ? 0 : this.outerRadius,
+					innerRadius : (this.options.animateScale) ? 0 : (this.outerRadius/100) * this.options.percentageInnerCutout,
+					fillColor : segment.color,
+					highlightColor : segment.highlight || segment.color,
+					showStroke : this.options.segmentShowStroke,
+					strokeWidth : this.options.segmentStrokeWidth,
+					strokeColor : this.options.segmentStrokeColor,
+					startAngle : Math.PI * 1.5,
+					circumference : (this.options.animateRotate) ? 0 : this.calculateCircumference(segment.value),
+					label : segment.label
+				}));
+				if (!silent){
+					this.reflow();
+					this.update();
+				}
+			},
+			calculateCircumference : function(value){
+				return (Math.PI*2)*(Math.abs(value) / this.total);
+			},
+			calculateTotal : function(data){
+				this.total = 0;
+				helpers.each(data,function(segment){
+					this.total += Math.abs(segment.value);
+				},this);
+			},
+			update : function(){
+				this.calculateTotal(this.segments);
+
+				// Reset any highlight colours before updating.
+				helpers.each(this.activeElements, function(activeElement){
+					activeElement.restore(['fillColor']);
+				});
+
+				helpers.each(this.segments,function(segment){
+					segment.save();
+				});
+				this.render();
+			},
+
+			removeData: function(atIndex){
+				var indexToDelete = (helpers.isNumber(atIndex)) ? atIndex : this.segments.length-1;
+				this.segments.splice(indexToDelete, 1);
+				this.reflow();
+				this.update();
+			},
+
+			reflow : function(){
+				helpers.extend(this.SegmentArc.prototype,{
+					x : this.chart.width/2,
+					y : this.chart.height/2
+				});
+				this.outerRadius = (helpers.min([this.chart.width,this.chart.height]) -	this.options.segmentStrokeWidth/2)/2;
+				helpers.each(this.segments, function(segment){
+					segment.update({
+						outerRadius : this.outerRadius,
+						innerRadius : (this.outerRadius/100) * this.options.percentageInnerCutout
+					});
+				}, this);
+			},
+			draw : function(easeDecimal){
+				var animDecimal = (easeDecimal) ? easeDecimal : 1;
+				this.clear();
+				helpers.each(this.segments,function(segment,index){
+					segment.transition({
+						circumference : this.calculateCircumference(segment.value),
+						outerRadius : this.outerRadius,
+						innerRadius : (this.outerRadius/100) * this.options.percentageInnerCutout
+					},animDecimal);
+
+					segment.endAngle = segment.startAngle + segment.circumference;
+
+					segment.draw();
+					if (index === 0){
+						segment.startAngle = Math.PI * 1.5;
+					}
+					//Check to see if it's the last segment, if not get the next and update the start angle
+					if (index < this.segments.length-1){
+						this.segments[index+1].startAngle = segment.endAngle;
+					}
+				},this);
+
+			}
+		});
+
+		Chart.types.Doughnut.extend({
+			name : "Pie",
+			defaults : helpers.merge(defaultConfig,{percentageInnerCutout : 0})
+		});
+
+	}).call(this);
+	(function(){
+		"use strict";
+
+		var root = this,
+			Chart = root.Chart,
+			helpers = Chart.helpers;
+
+		var defaultConfig = {
+
+			///Boolean - Whether grid lines are shown across the chart
+			scaleShowGridLines : true,
+
+			//String - Colour of the grid lines
+			scaleGridLineColor : "rgba(0,0,0,.05)",
+
+			//Number - Width of the grid lines
+			scaleGridLineWidth : 1,
+
+			//Boolean - Whether to show horizontal lines (except X axis)
+			scaleShowHorizontalLines: true,
+
+			//Boolean - Whether to show vertical lines (except Y axis)
+			scaleShowVerticalLines: true,
+
+			//Boolean - Whether the line is curved between points
+			bezierCurve : true,
+
+			//Number - Tension of the bezier curve between points
+			bezierCurveTension : 0.4,
+
+			//Boolean - Whether to show a dot for each point
+			pointDot : true,
+
+			//Number - Radius of each point dot in pixels
+			pointDotRadius : 4,
+
+			//Number - Pixel width of point dot stroke
+			pointDotStrokeWidth : 1,
+
+			//Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+			pointHitDetectionRadius : 20,
+
+			//Boolean - Whether to show a stroke for datasets
+			datasetStroke : true,
+
+			//Number - Pixel width of dataset stroke
+			datasetStrokeWidth : 2,
+
+			//Boolean - Whether to fill the dataset with a colour
+			datasetFill : true,
+
+			//String - A legend template
+			legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+
+		};
+
+
+		Chart.Type.extend({
+			name: "Line",
+			defaults : defaultConfig,
+			initialize:  function(data){
+				//Declare the extension of the default point, to cater for the options passed in to the constructor
+				this.PointClass = Chart.Point.extend({
+					strokeWidth : this.options.pointDotStrokeWidth,
+					radius : this.options.pointDotRadius,
+					display: this.options.pointDot,
+					hitDetectionRadius : this.options.pointHitDetectionRadius,
+					ctx : this.chart.ctx,
+					inRange : function(mouseX){
+						return (Math.pow(mouseX-this.x, 2) < Math.pow(this.radius + this.hitDetectionRadius,2));
+					}
+				});
+
+				this.datasets = [];
+
+				//Set up tooltip events on the chart
+				if (this.options.showTooltips){
+					helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
+						var activePoints = (evt.type !== 'mouseout') ? this.getPointsAtEvent(evt) : [];
+						this.eachPoints(function(point){
+							point.restore(['fillColor', 'strokeColor']);
+						});
+						helpers.each(activePoints, function(activePoint){
+							activePoint.fillColor = activePoint.highlightFill;
+							activePoint.strokeColor = activePoint.highlightStroke;
+						});
+						this.showTooltip(activePoints);
+					});
+				}
+
+				//Iterate through each of the datasets, and build this into a property of the chart
+				helpers.each(data.datasets,function(dataset){
+
+					var datasetObject = {
+						label : dataset.label || null,
+						fillColor : dataset.fillColor,
+						strokeColor : dataset.strokeColor,
+						pointColor : dataset.pointColor,
+						pointStrokeColor : dataset.pointStrokeColor,
+						points : []
+					};
+
+					this.datasets.push(datasetObject);
+
+
+					helpers.each(dataset.data,function(dataPoint,index){
+						//Add a new point for each piece of data, passing any required data to draw.
+						datasetObject.points.push(new this.PointClass({
+							value : dataPoint,
+							label : data.labels[index],
+							datasetLabel: dataset.label,
+							strokeColor : dataset.pointStrokeColor,
+							fillColor : dataset.pointColor,
+							highlightFill : dataset.pointHighlightFill || dataset.pointColor,
+							highlightStroke : dataset.pointHighlightStroke || dataset.pointStrokeColor
+						}));
+					},this);
+
+					this.buildScale(data.labels);
+
+
+					this.eachPoints(function(point, index){
+						helpers.extend(point, {
+							x: this.scale.calculateX(index),
+							y: this.scale.endPoint
+						});
+						point.save();
+					}, this);
+
+				},this);
+
+
+				this.render();
+			},
+			update : function(){
+				this.scale.update();
+				// Reset any highlight colours before updating.
+				helpers.each(this.activeElements, function(activeElement){
+					activeElement.restore(['fillColor', 'strokeColor']);
+				});
+				this.eachPoints(function(point){
+					point.save();
+				});
+				this.render();
+			},
+			eachPoints : function(callback){
+				helpers.each(this.datasets,function(dataset){
+					helpers.each(dataset.points,callback,this);
+				},this);
+			},
+			getPointsAtEvent : function(e){
+				var pointsArray = [],
+					eventPosition = helpers.getRelativePosition(e);
+				helpers.each(this.datasets,function(dataset){
+					helpers.each(dataset.points,function(point){
+						if (point.inRange(eventPosition.x,eventPosition.y)) pointsArray.push(point);
+					});
+				},this);
+				return pointsArray;
+			},
+			buildScale : function(labels){
+				var self = this;
+
+				var dataTotal = function(){
+					var values = [];
+					self.eachPoints(function(point){
+						values.push(point.value);
+					});
+
+					return values;
+				};
+
+				var scaleOptions = {
+					templateString : this.options.scaleLabel,
+					height : this.chart.height,
+					width : this.chart.width,
+					ctx : this.chart.ctx,
+					textColor : this.options.scaleFontColor,
+					fontSize : this.options.scaleFontSize,
+					fontStyle : this.options.scaleFontStyle,
+					fontFamily : this.options.scaleFontFamily,
+					valuesCount : labels.length,
+					beginAtZero : this.options.scaleBeginAtZero,
+					integersOnly : this.options.scaleIntegersOnly,
+					calculateYRange : function(currentHeight){
+						var updatedRanges = helpers.calculateScaleRange(
+							dataTotal(),
+							currentHeight,
+							this.fontSize,
+							this.beginAtZero,
+							this.integersOnly
+						);
+						helpers.extend(this, updatedRanges);
+					},
+					xLabels : labels,
+					font : helpers.fontString(this.options.scaleFontSize, this.options.scaleFontStyle, this.options.scaleFontFamily),
+					lineWidth : this.options.scaleLineWidth,
+					lineColor : this.options.scaleLineColor,
+					showHorizontalLines : this.options.scaleShowHorizontalLines,
+					showVerticalLines : this.options.scaleShowVerticalLines,
+					gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
+					gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
+					padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
+					showLabels : this.options.scaleShowLabels,
+					display : this.options.showScale
+				};
+
+				if (this.options.scaleOverride){
+					helpers.extend(scaleOptions, {
+						calculateYRange: helpers.noop,
+						steps: this.options.scaleSteps,
+						stepValue: this.options.scaleStepWidth,
+						min: this.options.scaleStartValue,
+						max: this.options.scaleStartValue + (this.options.scaleSteps * this.options.scaleStepWidth)
+					});
+				}
+
+
+				this.scale = new Chart.Scale(scaleOptions);
+			},
+			addData : function(valuesArray,label){
+				//Map the values array for each of the datasets
+
+				helpers.each(valuesArray,function(value,datasetIndex){
+					//Add a new point for each piece of data, passing any required data to draw.
+					this.datasets[datasetIndex].points.push(new this.PointClass({
+						value : value,
+						label : label,
+						x: this.scale.calculateX(this.scale.valuesCount+1),
+						y: this.scale.endPoint,
+						strokeColor : this.datasets[datasetIndex].pointStrokeColor,
+						fillColor : this.datasets[datasetIndex].pointColor
+					}));
+				},this);
+
+				this.scale.addXLabel(label);
+				//Then re-render the chart.
+				this.update();
+			},
+			removeData : function(){
+				this.scale.removeXLabel();
+				//Then re-render the chart.
+				helpers.each(this.datasets,function(dataset){
+					dataset.points.shift();
+				},this);
+				this.update();
+			},
+			reflow : function(){
+				var newScaleProps = helpers.extend({
+					height : this.chart.height,
+					width : this.chart.width
+				});
+				this.scale.update(newScaleProps);
+			},
+			draw : function(ease){
+				var easingDecimal = ease || 1;
+				this.clear();
+
+				var ctx = this.chart.ctx;
+
+				// Some helper methods for getting the next/prev points
+				var hasValue = function(item){
+					return item.value !== null;
+				},
+				nextPoint = function(point, collection, index){
+					return helpers.findNextWhere(collection, hasValue, index) || point;
+				},
+				previousPoint = function(point, collection, index){
+					return helpers.findPreviousWhere(collection, hasValue, index) || point;
+				};
+
+				this.scale.draw(easingDecimal);
+
+
+				helpers.each(this.datasets,function(dataset){
+					var pointsWithValues = helpers.where(dataset.points, hasValue);
+
+					//Transition each point first so that the line and point drawing isn't out of sync
+					//We can use this extra loop to calculate the control points of this dataset also in this loop
+
+					helpers.each(dataset.points, function(point, index){
+						if (point.hasValue()){
+							point.transition({
+								y : this.scale.calculateY(point.value),
+								x : this.scale.calculateX(index)
+							}, easingDecimal);
+						}
+					},this);
+
+
+					// Control points need to be calculated in a seperate loop, because we need to know the current x/y of the point
+					// This would cause issues when there is no animation, because the y of the next point would be 0, so beziers would be skewed
+					if (this.options.bezierCurve){
+						helpers.each(pointsWithValues, function(point, index){
+							var tension = (index > 0 && index < pointsWithValues.length - 1) ? this.options.bezierCurveTension : 0;
+							point.controlPoints = helpers.splineCurve(
+								previousPoint(point, pointsWithValues, index),
+								point,
+								nextPoint(point, pointsWithValues, index),
+								tension
+							);
+
+							// Prevent the bezier going outside of the bounds of the graph
+
+							// Cap puter bezier handles to the upper/lower scale bounds
+							if (point.controlPoints.outer.y > this.scale.endPoint){
+								point.controlPoints.outer.y = this.scale.endPoint;
+							}
+							else if (point.controlPoints.outer.y < this.scale.startPoint){
+								point.controlPoints.outer.y = this.scale.startPoint;
+							}
+
+							// Cap inner bezier handles to the upper/lower scale bounds
+							if (point.controlPoints.inner.y > this.scale.endPoint){
+								point.controlPoints.inner.y = this.scale.endPoint;
+							}
+							else if (point.controlPoints.inner.y < this.scale.startPoint){
+								point.controlPoints.inner.y = this.scale.startPoint;
+							}
+						},this);
+					}
+
+
+					//Draw the line between all the points
+					ctx.lineWidth = this.options.datasetStrokeWidth;
+					ctx.strokeStyle = dataset.strokeColor;
+					ctx.beginPath();
+
+					helpers.each(pointsWithValues, function(point, index){
+						if (index === 0){
+							ctx.moveTo(point.x, point.y);
+						}
+						else{
+							if(this.options.bezierCurve){
+								var previous = previousPoint(point, pointsWithValues, index);
+
+								ctx.bezierCurveTo(
+									previous.controlPoints.outer.x,
+									previous.controlPoints.outer.y,
+									point.controlPoints.inner.x,
+									point.controlPoints.inner.y,
+									point.x,
+									point.y
+								);
+							}
+							else{
+								ctx.lineTo(point.x,point.y);
+							}
+						}
+					}, this);
+
+					ctx.stroke();
+
+					if (this.options.datasetFill && pointsWithValues.length > 0){
+						//Round off the line by going to the base of the chart, back to the start, then fill.
+						ctx.lineTo(pointsWithValues[pointsWithValues.length - 1].x, this.scale.endPoint);
+						ctx.lineTo(pointsWithValues[0].x, this.scale.endPoint);
+						ctx.fillStyle = dataset.fillColor;
+						ctx.closePath();
+						ctx.fill();
+					}
+
+					//Now draw the points over the line
+					//A little inefficient double looping, but better than the line
+					//lagging behind the point positions
+					helpers.each(pointsWithValues,function(point){
+						point.draw();
+					});
+				},this);
+			}
+		});
+
+
+	}).call(this);
+
+	(function(){
+		"use strict";
+
+		var root = this,
+			Chart = root.Chart,
+			//Cache a local reference to Chart.helpers
+			helpers = Chart.helpers;
+
+		var defaultConfig = {
+			//Boolean - Show a backdrop to the scale label
+			scaleShowLabelBackdrop : true,
+
+			//String - The colour of the label backdrop
+			scaleBackdropColor : "rgba(255,255,255,0.75)",
+
+			// Boolean - Whether the scale should begin at zero
+			scaleBeginAtZero : true,
+
+			//Number - The backdrop padding above & below the label in pixels
+			scaleBackdropPaddingY : 2,
+
+			//Number - The backdrop padding to the side of the label in pixels
+			scaleBackdropPaddingX : 2,
+
+			//Boolean - Show line for each value in the scale
+			scaleShowLine : true,
+
+			//Boolean - Stroke a line around each segment in the chart
+			segmentShowStroke : true,
+
+			//String - The colour of the stroke on each segement.
+			segmentStrokeColor : "#fff",
+
+			//Number - The width of the stroke value in pixels
+			segmentStrokeWidth : 2,
+
+			//Number - Amount of animation steps
+			animationSteps : 100,
+
+			//String - Animation easing effect.
+			animationEasing : "easeOutBounce",
+
+			//Boolean - Whether to animate the rotation of the chart
+			animateRotate : true,
+
+			//Boolean - Whether to animate scaling the chart from the centre
+			animateScale : false,
+
+			//String - A legend template
+			legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+		};
+
+
+		Chart.Type.extend({
+			//Passing in a name registers this chart in the Chart namespace
+			name: "PolarArea",
+			//Providing a defaults will also register the deafults in the chart namespace
+			defaults : defaultConfig,
+			//Initialize is fired when the chart is initialized - Data is passed in as a parameter
+			//Config is automatically merged by the core of Chart.js, and is available at this.options
+			initialize:  function(data){
+				this.segments = [];
+				//Declare segment class as a chart instance specific class, so it can share props for this instance
+				this.SegmentArc = Chart.Arc.extend({
+					showStroke : this.options.segmentShowStroke,
+					strokeWidth : this.options.segmentStrokeWidth,
+					strokeColor : this.options.segmentStrokeColor,
+					ctx : this.chart.ctx,
+					innerRadius : 0,
+					x : this.chart.width/2,
+					y : this.chart.height/2
+				});
+				this.scale = new Chart.RadialScale({
+					display: this.options.showScale,
+					fontStyle: this.options.scaleFontStyle,
+					fontSize: this.options.scaleFontSize,
+					fontFamily: this.options.scaleFontFamily,
+					fontColor: this.options.scaleFontColor,
+					showLabels: this.options.scaleShowLabels,
+					showLabelBackdrop: this.options.scaleShowLabelBackdrop,
+					backdropColor: this.options.scaleBackdropColor,
+					backdropPaddingY : this.options.scaleBackdropPaddingY,
+					backdropPaddingX: this.options.scaleBackdropPaddingX,
+					lineWidth: (this.options.scaleShowLine) ? this.options.scaleLineWidth : 0,
+					lineColor: this.options.scaleLineColor,
+					lineArc: true,
+					width: this.chart.width,
+					height: this.chart.height,
+					xCenter: this.chart.width/2,
+					yCenter: this.chart.height/2,
+					ctx : this.chart.ctx,
+					templateString: this.options.scaleLabel,
+					valuesCount: data.length
+				});
+
+				this.updateScaleRange(data);
+
+				this.scale.update();
+
+				helpers.each(data,function(segment,index){
+					this.addData(segment,index,true);
+				},this);
+
+				//Set up tooltip events on the chart
+				if (this.options.showTooltips){
+					helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
+						var activeSegments = (evt.type !== 'mouseout') ? this.getSegmentsAtEvent(evt) : [];
+						helpers.each(this.segments,function(segment){
+							segment.restore(["fillColor"]);
+						});
+						helpers.each(activeSegments,function(activeSegment){
+							activeSegment.fillColor = activeSegment.highlightColor;
+						});
+						this.showTooltip(activeSegments);
+					});
+				}
+
+				this.render();
+			},
+			getSegmentsAtEvent : function(e){
+				var segmentsArray = [];
+
+				var location = helpers.getRelativePosition(e);
+
+				helpers.each(this.segments,function(segment){
+					if (segment.inRange(location.x,location.y)) segmentsArray.push(segment);
+				},this);
+				return segmentsArray;
+			},
+			addData : function(segment, atIndex, silent){
+				var index = atIndex || this.segments.length;
+
+				this.segments.splice(index, 0, new this.SegmentArc({
+					fillColor: segment.color,
+					highlightColor: segment.highlight || segment.color,
+					label: segment.label,
+					value: segment.value,
+					outerRadius: (this.options.animateScale) ? 0 : this.scale.calculateCenterOffset(segment.value),
+					circumference: (this.options.animateRotate) ? 0 : this.scale.getCircumference(),
+					startAngle: Math.PI * 1.5
+				}));
+				if (!silent){
+					this.reflow();
+					this.update();
+				}
+			},
+			removeData: function(atIndex){
+				var indexToDelete = (helpers.isNumber(atIndex)) ? atIndex : this.segments.length-1;
+				this.segments.splice(indexToDelete, 1);
+				this.reflow();
+				this.update();
+			},
+			calculateTotal: function(data){
+				this.total = 0;
+				helpers.each(data,function(segment){
+					this.total += segment.value;
+				},this);
+				this.scale.valuesCount = this.segments.length;
+			},
+			updateScaleRange: function(datapoints){
+				var valuesArray = [];
+				helpers.each(datapoints,function(segment){
+					valuesArray.push(segment.value);
+				});
+
+				var scaleSizes = (this.options.scaleOverride) ?
+					{
+						steps: this.options.scaleSteps,
+						stepValue: this.options.scaleStepWidth,
+						min: this.options.scaleStartValue,
+						max: this.options.scaleStartValue + (this.options.scaleSteps * this.options.scaleStepWidth)
+					} :
+					helpers.calculateScaleRange(
+						valuesArray,
+						helpers.min([this.chart.width, this.chart.height])/2,
+						this.options.scaleFontSize,
+						this.options.scaleBeginAtZero,
+						this.options.scaleIntegersOnly
+					);
+
+				helpers.extend(
+					this.scale,
+					scaleSizes,
+					{
+						size: helpers.min([this.chart.width, this.chart.height]),
+						xCenter: this.chart.width/2,
+						yCenter: this.chart.height/2
+					}
+				);
+
+			},
+			update : function(){
+				this.calculateTotal(this.segments);
+
+				helpers.each(this.segments,function(segment){
+					segment.save();
+				});
+				
+				this.reflow();
+				this.render();
+			},
+			reflow : function(){
+				helpers.extend(this.SegmentArc.prototype,{
+					x : this.chart.width/2,
+					y : this.chart.height/2
+				});
+				this.updateScaleRange(this.segments);
+				this.scale.update();
+
+				helpers.extend(this.scale,{
+					xCenter: this.chart.width/2,
+					yCenter: this.chart.height/2
+				});
+
+				helpers.each(this.segments, function(segment){
+					segment.update({
+						outerRadius : this.scale.calculateCenterOffset(segment.value)
+					});
+				}, this);
+
+			},
+			draw : function(ease){
+				var easingDecimal = ease || 1;
+				//Clear & draw the canvas
+				this.clear();
+				helpers.each(this.segments,function(segment, index){
+					segment.transition({
+						circumference : this.scale.getCircumference(),
+						outerRadius : this.scale.calculateCenterOffset(segment.value)
+					},easingDecimal);
+
+					segment.endAngle = segment.startAngle + segment.circumference;
+
+					// If we've removed the first segment we need to set the first one to
+					// start at the top.
+					if (index === 0){
+						segment.startAngle = Math.PI * 1.5;
+					}
+
+					//Check to see if it's the last segment, if not get the next and update the start angle
+					if (index < this.segments.length - 1){
+						this.segments[index+1].startAngle = segment.endAngle;
+					}
+					segment.draw();
+				}, this);
+				this.scale.draw();
+			}
+		});
+
+	}).call(this);
+	(function(){
+		"use strict";
+
+		var root = this,
+			Chart = root.Chart,
+			helpers = Chart.helpers;
+
+
+
+		Chart.Type.extend({
+			name: "Radar",
+			defaults:{
+				//Boolean - Whether to show lines for each scale point
+				scaleShowLine : true,
+
+				//Boolean - Whether we show the angle lines out of the radar
+				angleShowLineOut : true,
+
+				//Boolean - Whether to show labels on the scale
+				scaleShowLabels : false,
+
+				// Boolean - Whether the scale should begin at zero
+				scaleBeginAtZero : true,
+
+				//String - Colour of the angle line
+				angleLineColor : "rgba(0,0,0,.1)",
+
+				//Number - Pixel width of the angle line
+				angleLineWidth : 1,
+
+				//String - Point label font declaration
+				pointLabelFontFamily : "'Arial'",
+
+				//String - Point label font weight
+				pointLabelFontStyle : "normal",
+
+				//Number - Point label font size in pixels
+				pointLabelFontSize : 10,
+
+				//String - Point label font colour
+				pointLabelFontColor : "#666",
+
+				//Boolean - Whether to show a dot for each point
+				pointDot : true,
+
+				//Number - Radius of each point dot in pixels
+				pointDotRadius : 3,
+
+				//Number - Pixel width of point dot stroke
+				pointDotStrokeWidth : 1,
+
+				//Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+				pointHitDetectionRadius : 20,
+
+				//Boolean - Whether to show a stroke for datasets
+				datasetStroke : true,
+
+				//Number - Pixel width of dataset stroke
+				datasetStrokeWidth : 2,
+
+				//Boolean - Whether to fill the dataset with a colour
+				datasetFill : true,
+
+				//String - A legend template
+				legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+
+			},
+
+			initialize: function(data){
+				this.PointClass = Chart.Point.extend({
+					strokeWidth : this.options.pointDotStrokeWidth,
+					radius : this.options.pointDotRadius,
+					display: this.options.pointDot,
+					hitDetectionRadius : this.options.pointHitDetectionRadius,
+					ctx : this.chart.ctx
+				});
+
+				this.datasets = [];
+
+				this.buildScale(data);
+
+				//Set up tooltip events on the chart
+				if (this.options.showTooltips){
+					helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
+						var activePointsCollection = (evt.type !== 'mouseout') ? this.getPointsAtEvent(evt) : [];
+
+						this.eachPoints(function(point){
+							point.restore(['fillColor', 'strokeColor']);
+						});
+						helpers.each(activePointsCollection, function(activePoint){
+							activePoint.fillColor = activePoint.highlightFill;
+							activePoint.strokeColor = activePoint.highlightStroke;
+						});
+
+						this.showTooltip(activePointsCollection);
+					});
+				}
+
+				//Iterate through each of the datasets, and build this into a property of the chart
+				helpers.each(data.datasets,function(dataset){
+
+					var datasetObject = {
+						label: dataset.label || null,
+						fillColor : dataset.fillColor,
+						strokeColor : dataset.strokeColor,
+						pointColor : dataset.pointColor,
+						pointStrokeColor : dataset.pointStrokeColor,
+						points : []
+					};
+
+					this.datasets.push(datasetObject);
+
+					helpers.each(dataset.data,function(dataPoint,index){
+						//Add a new point for each piece of data, passing any required data to draw.
+						var pointPosition;
+						if (!this.scale.animation){
+							pointPosition = this.scale.getPointPosition(index, this.scale.calculateCenterOffset(dataPoint));
+						}
+						datasetObject.points.push(new this.PointClass({
+							value : dataPoint,
+							label : data.labels[index],
+							datasetLabel: dataset.label,
+							x: (this.options.animation) ? this.scale.xCenter : pointPosition.x,
+							y: (this.options.animation) ? this.scale.yCenter : pointPosition.y,
+							strokeColor : dataset.pointStrokeColor,
+							fillColor : dataset.pointColor,
+							highlightFill : dataset.pointHighlightFill || dataset.pointColor,
+							highlightStroke : dataset.pointHighlightStroke || dataset.pointStrokeColor
+						}));
+					},this);
+
+				},this);
+
+				this.render();
+			},
+			eachPoints : function(callback){
+				helpers.each(this.datasets,function(dataset){
+					helpers.each(dataset.points,callback,this);
+				},this);
+			},
+
+			getPointsAtEvent : function(evt){
+				var mousePosition = helpers.getRelativePosition(evt),
+					fromCenter = helpers.getAngleFromPoint({
+						x: this.scale.xCenter,
+						y: this.scale.yCenter
+					}, mousePosition);
+
+				var anglePerIndex = (Math.PI * 2) /this.scale.valuesCount,
+					pointIndex = Math.round((fromCenter.angle - Math.PI * 1.5) / anglePerIndex),
+					activePointsCollection = [];
+
+				// If we're at the top, make the pointIndex 0 to get the first of the array.
+				if (pointIndex >= this.scale.valuesCount || pointIndex < 0){
+					pointIndex = 0;
+				}
+
+				if (fromCenter.distance <= this.scale.drawingArea){
+					helpers.each(this.datasets, function(dataset){
+						activePointsCollection.push(dataset.points[pointIndex]);
+					});
+				}
+
+				return activePointsCollection;
+			},
+
+			buildScale : function(data){
+				this.scale = new Chart.RadialScale({
+					display: this.options.showScale,
+					fontStyle: this.options.scaleFontStyle,
+					fontSize: this.options.scaleFontSize,
+					fontFamily: this.options.scaleFontFamily,
+					fontColor: this.options.scaleFontColor,
+					showLabels: this.options.scaleShowLabels,
+					showLabelBackdrop: this.options.scaleShowLabelBackdrop,
+					backdropColor: this.options.scaleBackdropColor,
+					backdropPaddingY : this.options.scaleBackdropPaddingY,
+					backdropPaddingX: this.options.scaleBackdropPaddingX,
+					lineWidth: (this.options.scaleShowLine) ? this.options.scaleLineWidth : 0,
+					lineColor: this.options.scaleLineColor,
+					angleLineColor : this.options.angleLineColor,
+					angleLineWidth : (this.options.angleShowLineOut) ? this.options.angleLineWidth : 0,
+					// Point labels at the edge of each line
+					pointLabelFontColor : this.options.pointLabelFontColor,
+					pointLabelFontSize : this.options.pointLabelFontSize,
+					pointLabelFontFamily : this.options.pointLabelFontFamily,
+					pointLabelFontStyle : this.options.pointLabelFontStyle,
+					height : this.chart.height,
+					width: this.chart.width,
+					xCenter: this.chart.width/2,
+					yCenter: this.chart.height/2,
+					ctx : this.chart.ctx,
+					templateString: this.options.scaleLabel,
+					labels: data.labels,
+					valuesCount: data.datasets[0].data.length
+				});
+
+				this.scale.setScaleSize();
+				this.updateScaleRange(data.datasets);
+				this.scale.buildYLabels();
+			},
+			updateScaleRange: function(datasets){
+				var valuesArray = (function(){
+					var totalDataArray = [];
+					helpers.each(datasets,function(dataset){
+						if (dataset.data){
+							totalDataArray = totalDataArray.concat(dataset.data);
+						}
+						else {
+							helpers.each(dataset.points, function(point){
+								totalDataArray.push(point.value);
+							});
+						}
+					});
+					return totalDataArray;
+				})();
+
+
+				var scaleSizes = (this.options.scaleOverride) ?
+					{
+						steps: this.options.scaleSteps,
+						stepValue: this.options.scaleStepWidth,
+						min: this.options.scaleStartValue,
+						max: this.options.scaleStartValue + (this.options.scaleSteps * this.options.scaleStepWidth)
+					} :
+					helpers.calculateScaleRange(
+						valuesArray,
+						helpers.min([this.chart.width, this.chart.height])/2,
+						this.options.scaleFontSize,
+						this.options.scaleBeginAtZero,
+						this.options.scaleIntegersOnly
+					);
+
+				helpers.extend(
+					this.scale,
+					scaleSizes
+				);
+
+			},
+			addData : function(valuesArray,label){
+				//Map the values array for each of the datasets
+				this.scale.valuesCount++;
+				helpers.each(valuesArray,function(value,datasetIndex){
+					var pointPosition = this.scale.getPointPosition(this.scale.valuesCount, this.scale.calculateCenterOffset(value));
+					this.datasets[datasetIndex].points.push(new this.PointClass({
+						value : value,
+						label : label,
+						x: pointPosition.x,
+						y: pointPosition.y,
+						strokeColor : this.datasets[datasetIndex].pointStrokeColor,
+						fillColor : this.datasets[datasetIndex].pointColor
+					}));
+				},this);
+
+				this.scale.labels.push(label);
+
+				this.reflow();
+
+				this.update();
+			},
+			removeData : function(){
+				this.scale.valuesCount--;
+				this.scale.labels.shift();
+				helpers.each(this.datasets,function(dataset){
+					dataset.points.shift();
+				},this);
+				this.reflow();
+				this.update();
+			},
+			update : function(){
+				this.eachPoints(function(point){
+					point.save();
+				});
+				this.reflow();
+				this.render();
+			},
+			reflow: function(){
+				helpers.extend(this.scale, {
+					width : this.chart.width,
+					height: this.chart.height,
+					size : helpers.min([this.chart.width, this.chart.height]),
+					xCenter: this.chart.width/2,
+					yCenter: this.chart.height/2
+				});
+				this.updateScaleRange(this.datasets);
+				this.scale.setScaleSize();
+				this.scale.buildYLabels();
+			},
+			draw : function(ease){
+				var easeDecimal = ease || 1,
+					ctx = this.chart.ctx;
+				this.clear();
+				this.scale.draw();
+
+				helpers.each(this.datasets,function(dataset){
+
+					//Transition each point first so that the line and point drawing isn't out of sync
+					helpers.each(dataset.points,function(point,index){
+						if (point.hasValue()){
+							point.transition(this.scale.getPointPosition(index, this.scale.calculateCenterOffset(point.value)), easeDecimal);
+						}
+					},this);
+
+
+
+					//Draw the line between all the points
+					ctx.lineWidth = this.options.datasetStrokeWidth;
+					ctx.strokeStyle = dataset.strokeColor;
+					ctx.beginPath();
+					helpers.each(dataset.points,function(point,index){
+						if (index === 0){
+							ctx.moveTo(point.x,point.y);
+						}
+						else{
+							ctx.lineTo(point.x,point.y);
+						}
+					},this);
+					ctx.closePath();
+					ctx.stroke();
+
+					ctx.fillStyle = dataset.fillColor;
+					ctx.fill();
+
+					//Now draw the points over the line
+					//A little inefficient double looping, but better than the line
+					//lagging behind the point positions
+					helpers.each(dataset.points,function(point){
+						if (point.hasValue()){
+							point.draw();
+						}
+					});
+
+				},this);
+
+			}
+
+		});
+
+
+
+
+
+	}).call(this);
+
+/***/ },
+/* 673 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ },
+/* 674 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 675 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
+
+
+/***/ },
+/* 676 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 677 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 678 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(671);
+
+	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
+
 
 /***/ }
 /******/ ]);

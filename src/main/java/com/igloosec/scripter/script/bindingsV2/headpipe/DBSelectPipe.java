@@ -8,11 +8,16 @@ import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
 import sun.org.mozilla.javascript.internal.NativeObject;
 
+import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
+import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class DBSelectPipe extends PipeHead {
+	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
+	
 	private String driver = null;
 	private String connUrl = null;
 	private String username = null;
@@ -45,6 +50,7 @@ public class DBSelectPipe extends PipeHead {
 				next(valueArr);
 			}
 			complete();
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.QUERY);
 		} finally {
 			if(conn != null) conn.close();
 		}

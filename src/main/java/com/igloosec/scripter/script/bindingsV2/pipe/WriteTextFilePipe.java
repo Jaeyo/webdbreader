@@ -10,11 +10,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.script.bindingsV2.base.Pipe;
 import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class WriteTextFilePipe extends Pipe implements Closeable {
+	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
+	
 	private String filename = null;
 	private String charset = null;
 	private boolean dateFormat;
@@ -49,8 +53,10 @@ public class WriteTextFilePipe extends Pipe implements Closeable {
 				List<Object> list = (List<Object>) data;
 				for(Object item: list)
 					this.output.append(item.toString());
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, list.size());
 			} else {
 				this.output.append(data.toString());
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE);
 			}
 			this.output.flush();
 		} catch (Exception e) {
