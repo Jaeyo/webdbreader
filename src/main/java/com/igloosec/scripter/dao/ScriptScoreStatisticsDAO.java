@@ -16,24 +16,23 @@ public class ScriptScoreStatisticsDAO {
 	public void insertStatistics(String scriptName, String category, Long timestamp, Long count){
 		ds.getJdbcTmpl().update("INSERT INTO script_score_statistics (category, script_name, count_timestamp, count_value) VALUES(?,?,?,?)", 
 				category, scriptName, new Date(timestamp), count);
-	} //insertStatistics
+	}
 	
 	public void deleteUnderTimestamp(Long timestamp){
 		logger.info("timestamp: {}", timestamp);
 		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE count_timestamp < ?", new Date(timestamp));
-	} //deleteUnderTimestamp
+	}
 	
 	public JSONArray getTotal(){
-		String query = "SELECT count_timestamp, category, script_name, count_value "
-				+ "FROM script_score_statistics ";
+		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics";
 		return ds.getJdbcTmpl().queryForJsonArray(query);
-	} //getTotal
+	}
 	
 	public void renameScript(String scriptName, String newScriptName){
 		ds.getJdbcTmpl().update("UPDATE script_score_statistics SET script_name = ? WHERE script_name = ?", newScriptName, scriptName);
-	} //renameScript
+	}
 	
 	public void remove(String scriptName){
 		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE script_name = ?", scriptName);
-	} //remove
-}  //class
+	}
+} 
