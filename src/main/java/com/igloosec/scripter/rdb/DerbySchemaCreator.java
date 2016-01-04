@@ -18,7 +18,7 @@ public class DerbySchemaCreator {
 		checkSequence();
 		checkTables();
 		checkConfig();
-	} //check
+	}
 	
 	private void checkSequence(){
 		final Set<String> existingSequences = new HashSet<String>();
@@ -27,12 +27,12 @@ public class DerbySchemaCreator {
 			@Override
 			public void processRow(ResultSet rs) throws SQLException {
 				existingSequences.add(rs.getString("sequencename"));
-			} //processRow
+			}
 		});
 		
 		if(existingSequences.contains("MAIN_SEQ") == false)
 			ds.getJdbcTmpl().execute("CREATE SEQUENCE main_seq");
-	} //checkSequence
+	}
 	
 	private void checkTables(){
 		Set<String> existingTableNames = Sets.newHashSet();
@@ -56,7 +56,7 @@ public class DerbySchemaCreator {
 		
 		if(existingTableNames.contains("AUTO_START_SCRIPT") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE auto_start_script ( "
-					+ "script_name VARCHAR(100) NOT NULL, "
+					+ "script_name VARCHAR(100) PRIMARY KEY, "
 					+ "regdate TIMESTAMP NOT NULL )");
 		
 		if(existingTableNames.contains("CONFIG") == false)
@@ -75,7 +75,7 @@ public class DerbySchemaCreator {
 					+ "regdate TIMESTAMP NOT NULL, "
 					+ "script_name VARCHAR(100) NOT NULL, "
 					+ "is_startup BOOLEAN NOT NULL )");
-	} //checkTables
+	}
 	
 	private void checkConfig() {
 		Set<String> existingConfigKeys = Sets.newHashSet();
@@ -85,5 +85,5 @@ public class DerbySchemaCreator {
 		
 		if(existingConfigKeys.contains("version.check") == false)
 			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('version.check', 'true')");
-	} //checkConfig
-} // class
+	}
+}

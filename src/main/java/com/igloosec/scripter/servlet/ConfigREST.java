@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
-import com.igloosec.scripter.exception.NotExistsException;
 import com.igloosec.scripter.service.ConfigService;
 import com.sun.jersey.api.uri.UriTemplate;
 
@@ -36,9 +35,6 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getConfig(req, resp, pathParams));
-				resp.getWriter().flush();
-			} else if(new UriTemplate("/AutoStartScript/").match(pathInfo, pathParams)){
-				resp.getWriter().print(getAutoStartScript(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
@@ -61,10 +57,6 @@ public class ConfigREST extends HttpServlet {
 		return new JSONObject().put("success", 1).put("configs", configService.load()).toString();
 	} 
 	
-	private String getAutoStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
-		return new JSONObject().put("success", 1).put("scripts", configService.loadAutoStartScript()).toString();
-	}
-	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
@@ -77,9 +69,6 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postConfig(req, resp, pathParams));
-				resp.getWriter().flush();
-			} else if(new UriTemplate("/AutoStartScript/").match(pathInfo, pathParams)){
-				resp.getWriter().print(postAutoStartScript(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
@@ -118,50 +107,4 @@ public class ConfigREST extends HttpServlet {
 		
 		return new JSONObject().put("success", 1).toString();
 	} 
-	
-	private String postAutoStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotExistsException{
-		String scriptName = req.getParameter("scriptName");
-		
-		configService.addAutoStartScript(scriptName);
-		
-		return new JSONObject().put("success", 1).toString();
-	}
-
-	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		req.setCharacterEncoding("UTF-8");
-		resp.setContentType("application/json; charset=UTF-8");
-		
-		String pathInfo = req.getPathInfo();
-		if(pathInfo == null) pathInfo = "/";
-		Map<String, String> pathParams = new HashMap<String, String>();
-		
-		try{
-			if(new UriTemplate("/AutoStartScript/{scriptName}/").match(pathInfo, pathParams)){
-				resp.getWriter().print(removeAutoStartScript(req, resp, pathParams));
-				resp.getWriter().flush();
-			} else{
-				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
-				resp.getWriter().flush();
-			} 
-		} catch(IllegalArgumentException e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
-			resp.getWriter().flush();
-		} catch(Exception e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg, e);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
-			resp.getWriter().flush();
-		} 
-	}
-	
-	private String removeAutoStartScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
-		String scriptName = pathParams.get("scriptName");
-		
-		configService.removeAutoStartScript(scriptName);
-		
-		return new JSONObject().put("success", 1).toString();
-	}
 } 

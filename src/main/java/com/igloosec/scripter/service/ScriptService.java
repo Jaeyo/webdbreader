@@ -101,7 +101,8 @@ public class ScriptService {
 		for (int i = 0; i < autoStartScripts.length(); i++) {
 			JSONObject autoStartScript = autoStartScripts.getJSONObject(i);
 			String scriptName = autoStartScript.getString("SCRIPT_NAME");
-			startScript(scriptName);
+			String script = load(scriptName).getString("SCRIPT");
+			scriptExecutor.execute(scriptName, script);
 		}
 	}
 	
@@ -109,6 +110,7 @@ public class ScriptService {
 		logger.info("scriptName: {}", scriptName);
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);
+		autoStartScriptDAO.save(scriptName);
 	} 
 	
 	public void stopScript(String scriptName) throws ScriptNotRunningException {

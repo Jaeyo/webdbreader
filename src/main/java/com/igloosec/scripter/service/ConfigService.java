@@ -34,19 +34,4 @@ public class ConfigService {
 	public void save(String configKey, String configValue){
 		configDAO.save(configKey, configValue);
 	} 
-	
-	public JSONArray loadAutoStartScript() {
-		return autoStartScriptDAO.load();
-	}
-	
-	public void addAutoStartScript(String scriptName) throws NotExistsException {
-		if(scriptDAO.isExists(scriptName) == false)
-			throw new NotExistsException(scriptName);
-		
-		autoStartScriptDAO.save(scriptName);
-	}
-	
-	public void removeAutoStartScript(String scriptName) {
-		autoStartScriptDAO.remove(scriptName);
-	}
 }
