@@ -306,12 +306,7 @@ public class DbHandler {
 	
 	private Properties loadDbPropsFromSimpleRepo(String dbName) throws NotExistsException, IOException {
 		String scriptName = ScriptThread.currentThread().getScriptName();
-		String dbPropsStr = simpleRepoService.get(scriptName, "database_" + dbName);
-		if(dbPropsStr == null || dbPropsStr.trim().length() == 0)
-			throw new NotExistsException("dbName: " + dbName);
-		Properties dbProps = new Properties();
-		dbProps.load(new StringReader(dbPropsStr));
-		return dbProps;
+		return simpleRepoService.getVer1DbProps(scriptName, dbName);
 	}
 	
 	public class DbRowIterator {

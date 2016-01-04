@@ -14,10 +14,20 @@ var PromptDialog = require('../comps/dialog/prompt-dialog.jsx');
 
 
 var ScriptPanelItem = React.createClass({
+	intervalId: null,
+
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
 		isRunning: React.PropTypes.bool.isRequired,
 		regdate: React.PropTypes.object.isRequired
+	},
+
+	getInitialState() {
+		return {
+			statistics_query: '...',
+			statistics_update: '...',
+			statistics_fileWrite: '...'
+		};
 	},
 
 	goToInfoPage(evt) {
@@ -82,6 +92,33 @@ var ScriptPanelItem = React.createClass({
 		}.bind(this)).show('delete script: ' + this.props.title);
 	},
 
+	loadStatisticsValues() {
+		server.lastStatistics({
+			scriptName: this.props.title,
+			period: 5*60*1000
+		})
+		.then(function(data) {
+			var state = {};
+			state.statistics_query = data.query === undefined ? 0 : data.query;
+			state.statistics_update = data.update === undefined ? 0 : data.update;
+			state.statistics_fileWrite = data.file_write === undefined ? 0 : data.file_write;
+			this.setState(state);
+		}.bind(this))
+		.catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			clearInterval(this.intervalId);
+		}.bind(this));
+	},
+
+	componentDidMount() {
+		this.loadStatisticsValues();
+		this.intervalId = setInterval(this.loadStatisticsValues, 10*1000);
+	},
+
+	componentWillUnmount() {
+		clearInterval(this.intervalId);
+	},
+
 	render() {
 		var StatisticsValue = (props) => {
 			return (
@@ -144,9 +181,9 @@ var ScriptPanelItem = React.createClass({
 					</div>
 				</div>
 				<div style={{ float: 'right', fontSize: '150%' }}>
-					<StatisticsValue bg="rgb(22, 160, 133)" value="22" />
-					<StatisticsValue bg="rgb(243, 156, 18)" value="24" />
-					<StatisticsValue bg="rgb(41, 128, 185)" value="44" />
+					<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_query} />
+					<StatisticsValue bg="rgb(243, 156, 18)" value={this.state.statistics_update} />
+					<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_fileWrite} />
 				</div>
 				<Clearfix />
 				<PromptDialog ref="promptDialog" />

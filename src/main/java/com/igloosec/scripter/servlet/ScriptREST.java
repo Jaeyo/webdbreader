@@ -86,6 +86,9 @@ public class ScriptREST extends HttpServlet {
 			if(new UriTemplate("/New/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/ImportVer1Script/{title}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(importVer1Script(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else if(new UriTemplate("/Edit/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postEditScript(req, resp, pathParams));
 				resp.getWriter().flush();
@@ -136,6 +139,30 @@ public class ScriptREST extends HttpServlet {
 		scriptService.save(title, script);
 		return new JSONObject().put("success", 1).toString();
 	} //postScript
+	
+	private String importVer1Script(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException, IOException{
+		String title = pathParams.get("title");
+		String script = req.getParameter("script");
+		String dbName = req.getParameter("dbName");
+		String jdbcDriver = req.getParameter("jdbcDriver");
+		String jdbcConnUrl = req.getParameter("jdbcConnUrl");
+		String jdbcUsername = req.getParameter("jdbcUsername");
+		String jdbcPassword = req.getParameter("jdbcPassword");
+		
+		Preconditions.checkArgument(title != null, "title is null");
+		Preconditions.checkArgument(script != null, "script is null");
+		Preconditions.checkArgument(title.trim().length() != 0, "title's length shouldn't be zero");
+		Preconditions.checkArgument(title.contains("&") == false, "'&' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("%") == false, "'%' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("+") == false, "'+' shouldn't be in title");
+		Preconditions.checkArgument(title.contains(";") == false, "';' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("\'") == false, "'(\')' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("\"") == false, "'(\")' shouldn't be in title");
+		Preconditions.checkArgument(title.contains("/") == false, "'/' shouldn't be in title");
+		
+		scriptService.importVer1Script(title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword);
+		return new JSONObject().put("success", 1).toString();
+	}
 	
 	private String postEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		String title = pathParams.get("title");

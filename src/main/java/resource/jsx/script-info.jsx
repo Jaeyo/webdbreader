@@ -1,8 +1,8 @@
 var React = require('react');
 var Glyphicon = require('react-bootstrap').Glyphicon;
-var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
-var CodeTab = require('./script-info/code-tab.jsx');
 var InfoTab = require('./script-info/info-tab.jsx');
+var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
+var TailTab = require('./script-info/tail-tab.jsx');
 var server = require('./utils/server.js');
 var MaterialWrapper = require('./comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
@@ -113,28 +113,28 @@ var ScriptInfoView = React.createClass({
 					subtitle={this.state.regdate}
 					avatar={ <Glyphicon glyph="file" /> } />
 				<CardText>
+					<div style={{ textAlign: 'right' }}>
+						{
+							this.state.isRunning === false  ?
+							(<Button label="start" onClick={this.start} primary={true} />) : 
+							(<Button label="stop" onClick={this.stop} primary={true} />) 
+						}
+						<Button label="rename" onClick={this.rename} />
+						<Button label="delete" onClick={this.delete} />
+					</div>
+					<hr />
 					<Tabs>
 						<Tab label="infomation">
-							<InfoTab title={this.props.title} />
+							<InfoTab title={this.props.title} script={this.state.script} />
 						</Tab>
 						<Tab label="configuration">
 							<ScriptConfigTab title={this.props.title} script={this.state.script} />
 						</Tab>
-						<Tab label="script">
-							<CodeTab title={this.props.title} script={this.state.script} />
+						<Tab label="tail">
+							<TailTab title={this.props.title} />
 						</Tab>
 					</Tabs>
 				</CardText>
-				<hr />
-				<div style={{ textAlign: 'right' }}>
-					{
-						this.state.isRunning === false  ?
-						(<Button label="start" onClick={this.start} primary={true} />) : 
-						(<Button label="stop" onClick={this.stop} primary={true} />) 
-					}
-					<Button label="rename" onClick={this.rename} />
-					<Button label="delete" onClick={this.delete} />
-				</div>
 				<AlertDialog ref="alertDialog" />
 				<PromptDialog ref="promptDialog" />
 				<ConfirmDialog ref="confirmDialog" />

@@ -28,6 +28,12 @@ public class ScriptScoreStatisticsDAO {
 		return ds.getJdbcTmpl().queryForJsonArray(query);
 	}
 	
+	public JSONArray getLastStatistics(String scriptName, int period) {
+		Date targetTimestamp = new Date(System.currentTimeMillis() - period);
+		String query = "SELECT category, SUM(count_value) AS value FROM script_score_statistics WHERE script_name = ? AND count_timestamp > ? GROUP BY category";
+		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName, targetTimestamp);
+	}
+	
 	public void renameScript(String scriptName, String newScriptName){
 		ds.getJdbcTmpl().update("UPDATE script_score_statistics SET script_name = ? WHERE script_name = ?", newScriptName, scriptName);
 	}

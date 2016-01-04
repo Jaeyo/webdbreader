@@ -1,8 +1,10 @@
 var React = require('react');
 var util = require('util');
 var moment = require('moment');
+var uuid = require('uuid');
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var Websocket = require('../comps/websocket.jsx');
+var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var FlatButton = MaterialWrapper.FlatButton;
@@ -17,45 +19,46 @@ var Paper = MaterialWrapper.Paper;
 
 moment.locale('ko');
 
-
 var InfoTab = React.createClass({
+	editor: null,
+	uuid: uuid.v4(),
+
 	PropTypes: {
-		title: React.PropTypes.string.isRequired
+		title: React.PropTypes.string.isRequired,
+		script: React.PropTypes.string.isRequired
 	},
 
-	getInitialState() {
-		return {
-			logs: []
-		};
+
+	componentDidMount() {
+		this.editor = ace.edit(this.uuid);
+		this.editor.setTheme('ace/theme/github');
+		this.editor.getSession().setMode('ace/mode/javascript');
+		this.editor.setKeyboardHandler('ace/keyboard/vim');
+		this.editor.$blockScrolling = Infinity;
+		this.editor.setValue(this.props.script);
 	},
 
-	onLogTailMsg(msg) {
-		msg = JSON.parse(msg);
-		if(msg.type !== 'msg') {
-			console.error('invalid msg: ' + JSON.stringify(msg));
-			return;
-		}
-
-		var logs = [msg].concat(this.state.logs);
-		if(logs.length > 50) logs.splice(logs.length-1, logs.length - 50);
-		this.setState({ logs: logs });
+	componentDidUpdate(prevProps, prevState) {
+		this.editor.setValue(this.props.script);
 	},
 
-	onLogTailClose() {
-		console.log('log tail close');
-	},
-
-	onLogtailOpen() {
-		console.log('log tail open');
-		this.refs.logTailWebsocket.send({ 
-			type: 'start-tail',
-			scriptName: this.props.title
-		});
+	edit() {
+		server.editScript({
+			title: this.props.title,
+			script: this.editor.getValue()
+		})
+		.then(function() {
+			window.location.reload(true);
+		})
+		.catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
 	},
 
 	render() {
 		return (
-			<Paper style={{ padding: '20px' }}>
+			<Paper style={{ padding: '10px' }}>
 				<Card style={{ marginBottom: '10px' }}>
 					<CardHeader
 						title="information"
@@ -66,30 +69,32 @@ var InfoTab = React.createClass({
 				</Card>
 				<Card style={{ marginBottom: '10px' }}>
 					<CardHeader
-						title="log tailing"
+						title="code"
 						avatar={ <Glyphicon glyph="file" /> } />
 					<CardText>
-						<List style={{
-								maxHeight: '400px',
-								overflow: 'auto'
-							}}>
-						{
-							this.state.logs.map(function(log) {
-								return (
-									<ListItem 
-										key={log.timestamp}
-										primaryText={ util.format('[%s] %s', log.level.toUpperCase(), log.msg) }
-										secondaryText={ moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') } />
-								);
-							})
-						}
-						</List>
-						<Websocket 
-							ref="logTailWebsocket"
-							url={ 'ws://' + window.location.host + '/WebSocket/Logger' }
-							onClose={this.onLogTailClose}
-							onOpen={this.onLogtailOpen}
-							onMessage={this.onLogTailMsg} />
+						<div>
+							<div id="editor-wrapper" 
+								style={{
+									position: 'relative',
+									minHeight: '400px' 
+								}}>
+								<div id={this.uuid}
+									style={{
+										position: 'absolute',
+										top: 0,
+										bottom: 0,
+										right: 0,
+										left: 0 }} />
+								}
+							</div>
+								<div style={{ textAlign: 'right', marginTop: '10px' }}>
+									<Button
+										label="수정"
+										primary={true}
+										onClick={this.edit} />
+								</div>
+							<AlertDialog ref="alertDialog" />
+						</div>
 					</CardText>
 				</Card>
 			</Paper>
@@ -97,9 +102,3 @@ var InfoTab = React.createClass({
 	}
 });
 module.exports = InfoTab;
-
-
-
-
-
-							// url={ window.location.origin + '/WebSocket/Logger' } />

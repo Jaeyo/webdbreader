@@ -2,6 +2,7 @@ package com.igloosec.scripter.service;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.script.ScriptException;
@@ -31,6 +32,7 @@ public class ScriptService {
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
 	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
+	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	private AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
@@ -60,7 +62,19 @@ public class ScriptService {
 		} else{
 			scriptDAO.save(scriptName, script);
 		} 
-	} 
+	}
+	
+	public void importVer1Script(String scriptName, String script, String dbName, String jdbcDriver, String jdbcConnUrl, String jdbcUsername, String jdbcPassword) throws IOException {
+		scriptDAO.save(scriptName, String.format("apiV1(function(dateUtil, dbHandler, fileExporter, httpUtil, runtimeUtil, scheduler, simpleRepo, stringUtil) { \n\t%s\n });", script));
+		
+		Properties dbProps = new Properties();
+		dbProps.put("JDBC.Driver", jdbcDriver);
+		dbProps.put("JDBC.ConnectionURL", jdbcConnUrl);
+		dbProps.put("JDBC.Username", jdbcUsername);
+		dbProps.put("JDBC.Password", jdbcPassword);
+		
+		simpleRepoService.setVer1DbProps(scriptName, dbName, dbProps);
+	}
 	
 	public void edit(String scriptName, String script){
 		scriptDAO.edit(scriptName, script);

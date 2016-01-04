@@ -97,6 +97,33 @@ exports.postScript = function(args) {
 	});
 };
 
+//args: title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword
+exports.importVer1Script = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.post(util.format('/REST/Script/ImportVer1Script/%s/', args.title))
+			.type('form')
+			.send({
+				script: args.script,
+				dbName: args.dbName,
+				jdbcDriver: args.jdbcDriver,
+				jdbcConnUrl: args.jdbcConnUrl,
+				jdbcUsername: args.jdbcUsername,
+				jdbcPassword: args.jdbcPassword
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.success);
+					});
+			});
+	});
+};
+
 //args: title, script
 exports.editScript = function(args) {
 	args.title = encodeURI(args.title);
@@ -247,6 +274,28 @@ exports.chartTotal = function() {
 					}).then(function(body) {
 						resolve(body.data);
 					});
+			});
+	});
+};
+
+// args: scriptName, period
+exports.lastStatistics = function(args) {
+	args.scriptName = encodeURI(args.scriptName);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.get(util.format('/REST/Chart/ScriptScoreStatistics/LastStatistics/%s/', args.scriptName))
+			.query({
+				period: args.period
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+						.fail(function(err) {
+							console.error(err);
+							reject(err);
+						}).then(function(body) {
+							resolve(body.data);
+						});
 			});
 	});
 };

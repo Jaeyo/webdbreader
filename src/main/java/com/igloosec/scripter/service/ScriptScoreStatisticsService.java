@@ -1,6 +1,7 @@
 package com.igloosec.scripter.service;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,5 +22,18 @@ public class ScriptScoreStatisticsService {
 	
 	public JSONArray getTotalScriptStatistics(){
 		return scriptScoreStatisticsDAO.getTotal();
+	}
+	
+	public JSONObject getLastStatistics(String scriptName, int period) {
+		JSONObject json = new JSONObject();
+		
+		JSONArray rows = scriptScoreStatisticsDAO.getLastStatistics(scriptName, period);
+		
+		for (int i = 0; i < rows.length(); i++) {
+			JSONObject row = rows.getJSONObject(i);
+			json.put(row.getString("category"), row.getInt("value"));
+		}
+		
+		return json;
 	}
 }

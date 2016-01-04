@@ -1,7 +1,13 @@
 package com.igloosec.scripter.service;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
+
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
+import com.igloosec.scripter.exception.NotExistsException;
 
 public class SimpleRepoService {
 		SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
@@ -24,5 +30,20 @@ public class SimpleRepoService {
 	
 	public void renameScript(String scriptName, String newScriptName) {
 		simpleRepoDAO.renameScript(scriptName, newScriptName);
+	}
+	
+	public void setVer1DbProps(String scriptName, String dbName, Properties dbProps) throws IOException {
+		StringWriter strWriter = new StringWriter();
+		dbProps.store(strWriter, null);
+		simpleRepoDAO.insert(scriptName, "database_" + dbName, strWriter.toString());
+	}
+	
+	public Properties getVer1DbProps(String scriptName, String dbName) throws NotExistsException, IOException {
+		String dbPropsStr = simpleRepoDAO.select(scriptName, "database_" + dbName);
+		if(dbPropsStr == null || dbPropsStr.trim().length() == 0)
+			throw new NotExistsException("dbName: " + dbName);
+		Properties dbProps = new Properties();
+		dbProps.load(new StringReader(dbPropsStr));
+		return dbProps;
 	}
 }

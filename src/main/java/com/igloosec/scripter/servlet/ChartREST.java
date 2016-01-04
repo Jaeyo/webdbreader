@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.service.ScriptScoreStatisticsService;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -35,10 +36,13 @@ public class ChartREST extends HttpServlet {
 			if(new UriTemplate("/ScriptScoreStatistics/Total/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getTotalChartData(req, resp, pathParams));
 				resp.getWriter().flush();
+			} else if(new UriTemplate("/ScriptScoreStatistics/LastStatistics/{scriptName}/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getLastStatistics(req, resp, pathParams));
+				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
-			} //if
+			}
 		} catch(IllegalArgumentException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
@@ -49,11 +53,23 @@ public class ChartREST extends HttpServlet {
 			logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
-		} //catch
-	} //doGet
+		}
+	}
 	
-	private String getTotalChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParmas){
+	private String getTotalChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		JSONArray totalStatistics = scriptScoreStatisticsService.getTotalScriptStatistics();
 		return new JSONObject().put("success", 1).put("data", totalStatistics).toString();
-	} //getCategoryChart
-} //class
+	}
+	
+	private String getLastStatistics(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String scriptName = pathParams.get("scriptName");
+		String periodStr = req.getParameter("period");
+		
+		Preconditions.checkArgument(periodStr != null);
+		
+		int period = Integer.parseInt(periodStr);
+		
+		JSONObject totalStatistics = scriptScoreStatisticsService.getLastStatistics(scriptName, period);
+		return new JSONObject().put("success", 1).put("data", totalStatistics).toString();
+	}
+}
