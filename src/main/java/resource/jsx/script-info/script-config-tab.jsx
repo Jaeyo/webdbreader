@@ -15,95 +15,8 @@ var Db2File = {
 	EtcConfigCard: require('../new-db2file/etc-config-card.jsx')
 };
 
+
 var ScriptConfigTab = React.createClass({
-	PropTypes: {
-		title: React.PropTypes.string.isRequired,
-		script: React.PropTypes.string.isRequired
-	},
-
-	getInitialState() {
-		return {
-			scriptParams: null
-		};
-	},
-
-	componentDidMount() {
-		this.parseScript(this.props.script);
-	},
-
-	componentWillReceiveProps(newProps) {
-		this.parseScript(newProps.script);
-	},
-
-	parseScript(script) {
-		if(script.trim().length === 0) return;
-
-		server.loadScriptParams({ title: this.props.title })
-		.then(function(resp) {
-			if(resp.parsable === 1) {
-				this.setState({ scriptParams: resp.params });
-			} else {
-				console.log(util.format('script %s not parsable', this.props.title), { msg: resp.msg });
-			}
-		}.bind(this)).catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
-			this.refs.alertDialog.show('danger', err);
-		}.bind(this));
-
-		// parseCodeContext(script, function(err, objs) {
-		// 	if(err) {
-		// 		console.error(err);
-		// 		if(typeof err === 'object') err = JSON.stringify(err);
-		// 		this.setState({ scriptObj: {} }, function() {
-		// 			this.refs.alertdialog.show('danger', err);
-		// 		}.bind(this));
-		// 		return;
-		// 	}
-
-		// 	var scriptObj = {};
-		// 	objs.forEach(function(obj) {
-		// 		if(obj.receiver !== undefined) return;
-		// 		if(String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\''))
-		// 			obj.value = obj.value.substring(1, obj.value.length - 1);
-		// 		scriptObj[obj.name] = obj.value;
-		// 	});
-
-		// 	if(scriptObj.type != null)
-		// 		this.setState({ scriptObj: scriptObj });
-		// }.bind(this));
-	},
-
-	render() {
-		try {
-			var parsedView = null;
-
-			if(this.state.scriptParams == null) {
-				parsedView = (<UnknownScriptView />);
-			} else if(this.state.scriptParams.type.indexOf('db2file') > -1) {
-				parsedView = ( <Db2FileScriptView title={this.props.title} scriptParams={this.state.scriptParams} /> );
-			}
-
-			return (
-				<div>
-					{parsedView}
-					<AlertDialog refs="alertDialog" />
-				</div>
-			);
-		} catch(err) {
-			console.error(err.stack);
-		}
-	}
-});
-module.exports = ScriptConfigTab;
-
-
-
-var UnknownScriptView = (props) => {
-	return (<div>script is not parseable</div>);
-};
-
-
-var Db2FileScriptView = React.createClass({
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
 		scriptParams: React.PropTypes.object.isRequired
@@ -302,3 +215,4 @@ var Db2FileScriptView = React.createClass({
 		}
 	}
 });
+module.exports = ScriptConfigTab;

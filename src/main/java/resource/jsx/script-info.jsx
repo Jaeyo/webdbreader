@@ -29,22 +29,56 @@ var ScriptInfoView = React.createClass({
 		return { 
 			regdate: '',
 			script: '',
+			scriptParams: null,
 			isRunning: false
 		};
 	},
 
 	componentDidMount() {
+		this.loadScript(function(arg) {
+			this.setState({
+				script: arg.script.SCRIPT,
+				regdate: arg.script.REGDATE,
+				isRunning: arg.script.IS_RUNNING
+			});
+		}.bind(this));
+
+		this.loadScriptParams(function(arg) {
+			if(arg.parsable === true)
+				this.setState({ scriptParams: arg.scriptParams });
+		}.bind(this));
+	},
+
+	loadScript(callback) {
 		server
 			.loadScript({ title: this.props.title })
 			.then(function(script) {
-				this.setState({ 
-					script: script.SCRIPT,
-					regdate: script.REGDATE,
-					isRunning: script.IS_RUNNING
-				});
-			}.bind(this)).catch(function(err) {
+				callback({ script: script });
+			}).catch(function(err) {
 				console.error(err.stack);
 				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
+			}.bind(this));
+	},
+
+	loadScriptParams(callback) {
+		server
+			.loadScriptParams({ title: this.props.title })
+			.then(function(resp) {
+				if(resp.parsable === 1) {
+					callback({
+						parsable: true,
+						scriptParams: resp.params
+					});
+				} else {
+					callback({
+						parsable: false,
+						msg: resp.msg
+					});
+				}
+			}.bind(this)).catch(function(err) {
+				console.error(err.stack); //DEBUG
+				if(typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 	},
 
@@ -107,6 +141,27 @@ var ScriptInfoView = React.createClass({
 
 	render() {
 		try {
+			var tabs = [];
+			tabs.push(
+				<Tab label="infomation" key="information">
+					<InfoTab title={this.props.title} script={this.state.script} />
+				</Tab>
+			);
+			if(this.state.scriptParams != null) {
+				tabs.push(
+					<Tab label="configuration" key="configuration">
+						<ScriptConfigTab 
+							title={this.props.title} 
+							scriptParams={this.state.scriptParams} />
+					</Tab>
+				);
+			}
+			tabs.push(
+				<Tab label="tail" key="tail">
+					<TailTab title={this.props.title} />
+				</Tab>
+			);
+
 			return (
 				<Card>
 					<CardHeader
@@ -123,18 +178,8 @@ var ScriptInfoView = React.createClass({
 							<Button label="rename" onClick={this.rename} />
 							<Button label="delete" onClick={this.delete} />
 						</div>
+						<Tabs>{tabs}</Tabs>
 						<hr />
-						<Tabs>
-							<Tab label="infomation">
-								<InfoTab title={this.props.title} script={this.state.script} />
-							</Tab>
-							<Tab label="configuration">
-								<ScriptConfigTab title={this.props.title} script={this.state.script} />
-							</Tab>
-							<Tab label="tail">
-								<TailTab title={this.props.title} />
-							</Tab>
-						</Tabs>
 					</CardText>
 					<AlertDialog ref="alertDialog" />
 					<PromptDialog ref="promptDialog" />

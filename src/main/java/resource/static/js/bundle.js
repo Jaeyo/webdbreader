@@ -54,7 +54,7 @@
 	var ApiView = __webpack_require__(413);
 	var ScriptView = __webpack_require__(529);
 	var ScriptInfoView = __webpack_require__(563);
-	var NewDb2FileView = __webpack_require__(668);
+	var NewDb2FileView = __webpack_require__(670);
 	var NewDb2DbView = __webpack_require__(671);
 	var ConfigView = __webpack_require__(673);
 	__webpack_require__(674);
@@ -60516,7 +60516,7 @@
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var InfoTab = __webpack_require__(564);
 	var ScriptConfigTab = __webpack_require__(655);
-	var TailTab = __webpack_require__(667);
+	var TailTab = __webpack_require__(669);
 	var server = __webpack_require__(530);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
@@ -60545,20 +60545,51 @@
 			return {
 				regdate: '',
 				script: '',
+				scriptParams: null,
 				isRunning: false
 			};
 		},
 
 		componentDidMount: function componentDidMount() {
-			server.loadScript({ title: this.props.title }).then((function (script) {
+			this.loadScript((function (arg) {
 				this.setState({
-					script: script.SCRIPT,
-					regdate: script.REGDATE,
-					isRunning: script.IS_RUNNING
+					script: arg.script.SCRIPT,
+					regdate: arg.script.REGDATE,
+					isRunning: arg.script.IS_RUNNING
 				});
-			}).bind(this))['catch']((function (err) {
+			}).bind(this));
+
+			this.loadScriptParams((function (arg) {
+				if (arg.parsable === true) this.setState({ scriptParams: arg.scriptParams });
+			}).bind(this));
+		},
+
+		loadScript: function loadScript(callback) {
+			server.loadScript({ title: this.props.title }).then(function (script) {
+				callback({ script: script });
+			})['catch']((function (err) {
 				console.error(err.stack);
 				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
+			}).bind(this));
+		},
+
+		loadScriptParams: function loadScriptParams(callback) {
+			server.loadScriptParams({ title: this.props.title }).then((function (resp) {
+				if (resp.parsable === 1) {
+					callback({
+						parsable: true,
+						scriptParams: resp.params
+					});
+				} else {
+					callback({
+						parsable: false,
+						msg: resp.msg
+					});
+				}
+			}).bind(this))['catch']((function (err) {
+				console.error(err.stack); //DEBUG
+				if (typeof err === 'object') err = JSON.stringify(err);
+				this.refs.alertDialog.show('danger', err);
 			}).bind(this));
 		},
 
@@ -60621,6 +60652,27 @@
 
 		render: function render() {
 			try {
+				var tabs = [];
+				tabs.push(React.createElement(
+					Tab,
+					{ label: 'infomation', key: 'information' },
+					React.createElement(InfoTab, { title: this.props.title, script: this.state.script })
+				));
+				if (this.state.scriptParams != null) {
+					tabs.push(React.createElement(
+						Tab,
+						{ label: 'configuration', key: 'configuration' },
+						React.createElement(ScriptConfigTab, {
+							title: this.props.title,
+							scriptParams: this.state.scriptParams })
+					));
+				}
+				tabs.push(React.createElement(
+					Tab,
+					{ label: 'tail', key: 'tail' },
+					React.createElement(TailTab, { title: this.props.title })
+				));
+
 				return React.createElement(
 					Card,
 					null,
@@ -60638,26 +60690,12 @@
 							React.createElement(Button, { label: 'rename', onClick: this.rename }),
 							React.createElement(Button, { label: 'delete', onClick: this['delete'] })
 						),
-						React.createElement('hr', null),
 						React.createElement(
 							Tabs,
 							null,
-							React.createElement(
-								Tab,
-								{ label: 'infomation' },
-								React.createElement(InfoTab, { title: this.props.title, script: this.state.script })
-							),
-							React.createElement(
-								Tab,
-								{ label: 'configuration' },
-								React.createElement(ScriptConfigTab, { title: this.props.title, script: this.state.script })
-							),
-							React.createElement(
-								Tab,
-								{ label: 'tail' },
-								React.createElement(TailTab, { title: this.props.title })
-							)
-						)
+							tabs
+						),
+						React.createElement('hr', null)
 					),
 					React.createElement(AlertDialog, { ref: 'alertDialog' }),
 					React.createElement(PromptDialog, { ref: 'promptDialog' }),
@@ -72373,106 +72411,16 @@
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(544);
-	var ScriptDialog = __webpack_require__(669);
+	var ScriptDialog = __webpack_require__(658);
 	var Db2File = {
-		DatabaseConfigCard: __webpack_require__(658),
-		TableColumnConfigCard: __webpack_require__(661),
-		BindingTypeCard: __webpack_require__(664),
-		EtcConfigCard: __webpack_require__(666)
+		DatabaseConfigCard: __webpack_require__(660),
+		TableColumnConfigCard: __webpack_require__(663),
+		BindingTypeCard: __webpack_require__(666),
+		EtcConfigCard: __webpack_require__(668)
 	};
 
 	var ScriptConfigTab = React.createClass({
 		displayName: 'ScriptConfigTab',
-
-		PropTypes: {
-			title: React.PropTypes.string.isRequired,
-			script: React.PropTypes.string.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				scriptParams: null
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.parseScript(this.props.script);
-		},
-
-		componentWillReceiveProps: function componentWillReceiveProps(newProps) {
-			this.parseScript(newProps.script);
-		},
-
-		parseScript: function parseScript(script) {
-			if (script.trim().length === 0) return;
-
-			server.loadScriptParams({ title: this.props.title }).then((function (resp) {
-				if (resp.parsable === 1) {
-					this.setState({ scriptParams: resp.params });
-				} else {
-					console.log(util.format('script %s not parsable', this.props.title), { msg: resp.msg });
-				}
-			}).bind(this))['catch']((function (err) {
-				if (typeof err === 'object') err = JSON.stringify(err);
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
-
-			// parseCodeContext(script, function(err, objs) {
-			// 	if(err) {
-			// 		console.error(err);
-			// 		if(typeof err === 'object') err = JSON.stringify(err);
-			// 		this.setState({ scriptObj: {} }, function() {
-			// 			this.refs.alertdialog.show('danger', err);
-			// 		}.bind(this));
-			// 		return;
-			// 	}
-
-			// 	var scriptObj = {};
-			// 	objs.forEach(function(obj) {
-			// 		if(obj.receiver !== undefined) return;
-			// 		if(String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\''))
-			// 			obj.value = obj.value.substring(1, obj.value.length - 1);
-			// 		scriptObj[obj.name] = obj.value;
-			// 	});
-
-			// 	if(scriptObj.type != null)
-			// 		this.setState({ scriptObj: scriptObj });
-			// }.bind(this));
-		},
-
-		render: function render() {
-			try {
-				var parsedView = null;
-
-				if (this.state.scriptParams == null) {
-					parsedView = React.createElement(UnknownScriptView, null);
-				} else if (this.state.scriptParams.type.indexOf('db2file') > -1) {
-					parsedView = React.createElement(Db2FileScriptView, { title: this.props.title, scriptParams: this.state.scriptParams });
-				}
-
-				return React.createElement(
-					'div',
-					null,
-					parsedView,
-					React.createElement(AlertDialog, { refs: 'alertDialog' })
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = ScriptConfigTab;
-
-	var UnknownScriptView = function UnknownScriptView(props) {
-		return React.createElement(
-			'div',
-			null,
-			'script is not parseable'
-		);
-	};
-
-	var Db2FileScriptView = React.createClass({
-		displayName: 'Db2FileScriptView',
 
 		PropTypes: {
 			title: React.PropTypes.string.isRequired,
@@ -72644,6 +72592,7 @@
 			}
 		}
 	});
+	module.exports = ScriptConfigTab;
 
 /***/ },
 /* 656 */
@@ -72860,6 +72809,170 @@
 	'use strict';
 
 	var React = __webpack_require__(1);
+	var precondition = __webpack_require__(657);
+	var server = __webpack_require__(530);
+	var ScriptMaker = __webpack_require__(659);
+	var MaterialWrapper = __webpack_require__(414);
+	var Dialog = MaterialWrapper.Dialog;
+	var TextField = MaterialWrapper.TextField;
+	var uuid = __webpack_require__(561);
+
+	var ScriptDialog = React.createClass({
+		displayName: 'ScriptDialog',
+
+		uuid: uuid.v4(),
+		editor: null,
+		onActionCallback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				scriptName: '',
+				script: ''
+			};
+		},
+
+		show: function show(scriptName, script, onActionCallback) {
+			this.onActionCallback = onActionCallback;
+
+			this.setState({
+				visible: true,
+				scriptName: scriptName,
+				script: script
+			}, (function () {
+				this.initScriptEditor();
+			}).bind(this));
+		},
+
+		hide: function hide(callback) {
+			this.setState({ visible: false }, callback);
+		},
+
+		initScriptEditor: function initScriptEditor() {
+			if (this.editor != null) this.editor.destroy();
+
+			this.editor = ace.edit('editor-' + this.uuid);
+			this.editor.setTheme('ace/theme/github');
+			this.editor.getSession().setMode('ace/mode/javascript');
+			this.editor.setKeyboardHandler('ace/keyboard/vim');
+			this.editor.$blockScrolling = Infinity;
+			this.editor.setValue(this.state.script);
+		},
+
+		handleAction: function handleAction(name, evt) {
+			evt.stopPropagation();
+
+			if (name === 'ok' || name === 'cancel') {
+				if (this.onActionCallback != null) {
+					this.onActionCallback(name === 'ok', this.state.scriptName, this.editor.getValue());
+				}
+			}
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+
+			var state = {};
+			state[name] = evt.target.value;
+			this.setState(state);
+		},
+
+		render: function render() {
+			try {
+				return React.createElement(
+					Dialog,
+					{
+						title: '스크립트',
+						actions: [{ text: 'ok', onClick: this.handleAction.bind(this, 'ok') }, { text: 'cancel', onClick: this.handleAction.bind(this, 'cancel') }],
+						actionFocus: 'ok',
+						autoDetectWindowHeight: true,
+						autoScrollBodyContent: true,
+						open: this.state.visible },
+					React.createElement(TextField, {
+						floatingLabelText: 'script name',
+						value: this.state.scriptName,
+						fullWidth: true,
+						onChange: this.handleChange.bind(this, 'scriptName') }),
+					React.createElement(
+						'div',
+						{ id: 'editor-wrapper', style: { position: 'relative', height: '250px' } },
+						React.createElement('div', { id: 'editor-' + this.uuid, style: { position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 } })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = ScriptDialog;
+
+/***/ },
+/* 659 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(166);
+
+	//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
+	//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
+	exports.get = function (args) {
+		var script = '';
+		script += [util.format("var type = 'db2file-%s';", args.bindingType), util.format("var period = %s;", args.period), util.format("var dbVendor = '%s';", args.dbVendor), util.format("var dbIp = '%s';", args.dbIp), util.format("var dbPort = '%s';", args.dbPort), util.format("var dbSid = '%s';", args.dbSid), util.format("var jdbcDriver = '%s';", args.jdbcDriver), util.format("var jdbcConnUrl = '%s';", args.jdbcConnUrl), util.format("var jdbcUsername = '%s';", args.jdbcUsername), util.format("var jdbcPassword = '%s';", args.jdbcPassword), util.format("var columns = '%s';", args.columns), util.format("var table = '%s';", args.table), util.format("var bindingType = '%s';", args.bindingType)].join('\n') + '\n';
+
+		if (args.bindingType !== 'simple') {
+			script += [util.format("var bindingColumn = '%s';", args.bindingColumn)].join('\n') + '\n';
+		}
+
+		script += [util.format("var delimiter = '%s';", args.delimiter), util.format("var charset = '%s';", args.charset), util.format("var outputPath = '%s';", args.outputPath), ''].join('\n') + '\n';
+
+		script += ["var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"].join('\n') + '\n';
+
+		script += ["schedule(period).run(function() {"].join('\n') + '\n';
+
+		if (args.bindingType !== 'simple') {
+			script += ["	var maxQuery = format( ", "		'SELECT MAX({bindingColumn}) FROM {table}', ", "		{ bindingColumn: bindingColumn, table: table } ", "	); ", ""].join('\n') + '\n';
+		}
+
+		switch (args.bindingType) {
+			case 'sequence':
+				script += ["	var min = repo('min');", "	if(min == null) min = 0;", "	var max = null;", "	database(jdbc).select(maxQuery).first(function(row) {", "		max = row[0];", "	}).run();", "", "	if(min === max) return;", ""].join('\n') + '\n';break;
+			case 'date':
+				script += ["	var min = repo('min');", "	var max = null;", "	database(jdbc).select(maxQuery).first(function(row) {", "		max = date(row[0]).format('yyyy-MM-dd HH:mm:ss'); ", "	}).run();", "", "	if(min === max) return;", "	if(min == null) {", "		repo('min', max); ", "		return;", "	}", ""].join('\n') + '\n';break;
+		}
+
+		switch (args.bindingType) {
+			case 'simple':
+				script += ["	var mainQuery = format(", "		'SELECT {columns} FROM {table}', ", "		{ columns: columns, table: table } ", "	); "].join('\n') + '\n';break;
+			case 'sequence':
+				script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} WHERE {bindingColumn} > {min} AND {bindingColumn} <= {max}', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
+			case 'date':
+				switch (args.dbVendor) {
+					case 'oracle':
+					case 'db2':
+					case 'tibero':
+					case 'etc':
+						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > TO_DATE(\\'{min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ' + ", "		' AND {bindingColumn} <= TO_DATE(\\'{max}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
+					case 'mysql':
+						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > STR_TO_DATE(\\'{min}\\', \\'%Y-%m-%d %H:%i:%s\\') ' + ", "		' AND {bindingColumn} <= STR_TO_DATE(\\'{max}\\', \\'%Y-%m-%d %H:%i:%s\\') ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
+					case 'mssql':
+						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > \\'{min}\\' ' + ", "		' AND {bindingColumn} <= \\'{max}\\' ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
+				}
+				break;
+		}
+
+		script += ["", "	database(jdbc)", "		.select(mainQuery)", "		.map(function(row) {", "			return row.join(delimiter).split('\\n').join('') + '\\n';", "		}) ", "		.group(100) ", "		.writeTextFile({ ", "			filename: outputFile, ", "			charset: charset, ", "			dateFormat: true, ", "		}).run(); ", "}); "].join('\n') + '\n';
+
+		return script;
+	};
+
+/***/ },
+/* 660 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
 	var jsUtil = __webpack_require__(161);
 	var color = jsUtil.color;
 	var jdbcTmpl = jsUtil.jdbcTmpl;
@@ -72876,8 +72989,8 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
-	var DbAddressDialog = __webpack_require__(660);
+	var PolymerIcon = __webpack_require__(661);
+	var DbAddressDialog = __webpack_require__(662);
 
 	var DatabaseConfigCard = React.createClass({
 		displayName: 'DatabaseConfigCard',
@@ -72978,7 +73091,7 @@
 	module.exports = DatabaseConfigCard;
 
 /***/ },
-/* 659 */
+/* 661 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73053,7 +73166,7 @@
 	module.exports = PolymerIcon;
 
 /***/ },
-/* 660 */
+/* 662 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73072,7 +73185,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 
 	var DbAddressDialog = React.createClass({
 		displayName: 'DbAddressDialog',
@@ -73152,7 +73265,7 @@
 	module.exports = DbAddressDialog;
 
 /***/ },
-/* 661 */
+/* 663 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73174,9 +73287,9 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
-	var TableConfigDialog = __webpack_require__(662);
-	var ColumnConfigDialog = __webpack_require__(663);
+	var PolymerIcon = __webpack_require__(661);
+	var TableConfigDialog = __webpack_require__(664);
+	var ColumnConfigDialog = __webpack_require__(665);
 
 	var TableColumnConfigCard = React.createClass({
 		displayName: 'TableColumnConfigCard',
@@ -73270,7 +73383,7 @@
 	module.exports = TableColumnConfigCard;
 
 /***/ },
-/* 662 */
+/* 664 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73290,7 +73403,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var AlertDialog = __webpack_require__(544);
 
 	var TableConfigDialog = React.createClass({
@@ -73426,7 +73539,7 @@
 	module.exports = TableConfigDialog;
 
 /***/ },
-/* 663 */
+/* 665 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73446,7 +73559,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var AlertDialog = __webpack_require__(544);
 
 	var ColumnConfigDialog = React.createClass({
@@ -73595,7 +73708,7 @@
 	module.exports = ColumnConfigDialog;
 
 /***/ },
-/* 664 */
+/* 666 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73606,7 +73719,7 @@
 	var jsUtil = __webpack_require__(161);
 	var color = jsUtil.color;
 	var server = __webpack_require__(530);
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var TextField = MaterialWrapper.TextField;
@@ -73622,7 +73735,7 @@
 	var RadioButton = MaterialWrapper.RadioButton;
 	var RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
 	var Toggle = MaterialWrapper.Toggle;
-	var BindingColumnConfigDialog = __webpack_require__(665);
+	var BindingColumnConfigDialog = __webpack_require__(667);
 
 	var BindingTypeCard = React.createClass({
 		displayName: 'BindingTypeCard',
@@ -73727,14 +73840,14 @@
 	module.exports = BindingTypeCard;
 
 /***/ },
-/* 665 */
+/* 667 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var server = __webpack_require__(530);
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var AlertDialog = __webpack_require__(544);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
@@ -73883,13 +73996,13 @@
 	module.exports = BindingColumnConfigDialog;
 
 /***/ },
-/* 666 */
+/* 668 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var TextField = MaterialWrapper.TextField;
@@ -74044,7 +74157,7 @@
 	module.exports = EtcConfigCard;
 
 /***/ },
-/* 667 */
+/* 669 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -74149,7 +74262,7 @@
 	module.exports = TailTab;
 
 /***/ },
-/* 668 */
+/* 670 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -74160,14 +74273,14 @@
 	var server = __webpack_require__(530);
 	var precondition = __webpack_require__(657);
 	var AlertDialog = __webpack_require__(544);
-	var DatabaseConfigCard = __webpack_require__(658);
-	var TableColumnConfigCard = __webpack_require__(661);
-	var BindingTypeCard = __webpack_require__(664);
-	var EtcConfigCard = __webpack_require__(666);
-	var ScriptDialog = __webpack_require__(669);
+	var DatabaseConfigCard = __webpack_require__(660);
+	var TableColumnConfigCard = __webpack_require__(663);
+	var BindingTypeCard = __webpack_require__(666);
+	var EtcConfigCard = __webpack_require__(668);
+	var ScriptDialog = __webpack_require__(658);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
-	var scriptMaker = __webpack_require__(670);
+	var scriptMaker = __webpack_require__(659);
 
 	var NewDb2FileView = React.createClass({
 		displayName: 'NewDb2FileView',
@@ -74337,170 +74450,6 @@
 	module.exports = NewDb2FileView;
 
 /***/ },
-/* 669 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var precondition = __webpack_require__(657);
-	var server = __webpack_require__(530);
-	var ScriptMaker = __webpack_require__(670);
-	var MaterialWrapper = __webpack_require__(414);
-	var Dialog = MaterialWrapper.Dialog;
-	var TextField = MaterialWrapper.TextField;
-	var uuid = __webpack_require__(561);
-
-	var ScriptDialog = React.createClass({
-		displayName: 'ScriptDialog',
-
-		uuid: uuid.v4(),
-		editor: null,
-		onActionCallback: null,
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				scriptName: '',
-				script: ''
-			};
-		},
-
-		show: function show(scriptName, script, onActionCallback) {
-			this.onActionCallback = onActionCallback;
-
-			this.setState({
-				visible: true,
-				scriptName: scriptName,
-				script: script
-			}, (function () {
-				this.initScriptEditor();
-			}).bind(this));
-		},
-
-		hide: function hide(callback) {
-			this.setState({ visible: false }, callback);
-		},
-
-		initScriptEditor: function initScriptEditor() {
-			if (this.editor != null) this.editor.destroy();
-
-			this.editor = ace.edit('editor-' + this.uuid);
-			this.editor.setTheme('ace/theme/github');
-			this.editor.getSession().setMode('ace/mode/javascript');
-			this.editor.setKeyboardHandler('ace/keyboard/vim');
-			this.editor.$blockScrolling = Infinity;
-			this.editor.setValue(this.state.script);
-		},
-
-		handleAction: function handleAction(name, evt) {
-			evt.stopPropagation();
-
-			if (name === 'ok' || name === 'cancel') {
-				if (this.onActionCallback != null) {
-					this.onActionCallback(name === 'ok', this.state.scriptName, this.editor.getValue());
-				}
-			}
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-
-			var state = {};
-			state[name] = evt.target.value;
-			this.setState(state);
-		},
-
-		render: function render() {
-			try {
-				return React.createElement(
-					Dialog,
-					{
-						title: '스크립트',
-						actions: [{ text: 'ok', onClick: this.handleAction.bind(this, 'ok') }, { text: 'cancel', onClick: this.handleAction.bind(this, 'cancel') }],
-						actionFocus: 'ok',
-						autoDetectWindowHeight: true,
-						autoScrollBodyContent: true,
-						open: this.state.visible },
-					React.createElement(TextField, {
-						floatingLabelText: 'script name',
-						value: this.state.scriptName,
-						fullWidth: true,
-						onChange: this.handleChange.bind(this, 'scriptName') }),
-					React.createElement(
-						'div',
-						{ id: 'editor-wrapper', style: { position: 'relative', height: '250px' } },
-						React.createElement('div', { id: 'editor-' + this.uuid, style: { position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 } })
-					)
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = ScriptDialog;
-
-/***/ },
-/* 670 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var util = __webpack_require__(166);
-
-	//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword,
-	//		columns, table, bindingType, bindingColumn, delimiter, charset, outputPath
-	exports.get = function (args) {
-		var script = '';
-		script += [util.format("var type = 'db2file-%s';", args.bindingType), util.format("var period = %s;", args.period), util.format("var dbVendor = '%s';", args.dbVendor), util.format("var dbIp = '%s';", args.dbIp), util.format("var dbPort = '%s';", args.dbPort), util.format("var dbSid = '%s';", args.dbSid), util.format("var jdbcDriver = '%s';", args.jdbcDriver), util.format("var jdbcConnUrl = '%s';", args.jdbcConnUrl), util.format("var jdbcUsername = '%s';", args.jdbcUsername), util.format("var jdbcPassword = '%s';", args.jdbcPassword), util.format("var columns = '%s';", args.columns), util.format("var table = '%s';", args.table), util.format("var bindingType = '%s';", args.bindingType)].join('\n') + '\n';
-
-		if (args.bindingType !== 'simple') {
-			script += [util.format("var bindingColumn = '%s';", args.bindingColumn)].join('\n') + '\n';
-		}
-
-		script += [util.format("var delimiter = '%s';", args.delimiter), util.format("var charset = '%s';", args.charset), util.format("var outputPath = '%s';", args.outputPath), ''].join('\n') + '\n';
-
-		script += ["var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };"].join('\n') + '\n';
-
-		script += ["schedule(period).run(function() {"].join('\n') + '\n';
-
-		if (args.bindingType !== 'simple') {
-			script += ["	var maxQuery = format( ", "		'SELECT MAX({bindingColumn}) FROM {table}', ", "		{ bindingColumn: bindingColumn, table: table } ", "	); ", ""].join('\n') + '\n';
-		}
-
-		switch (args.bindingType) {
-			case 'sequence':
-				script += ["	var min = repo('min');", "	if(min == null) min = 0;", "	var max = null;", "	database(jdbc).select(maxQuery).first(function(row) {", "		max = row[0];", "	}).run();", "", "	if(min === max) return;", ""].join('\n') + '\n';break;
-			case 'date':
-				script += ["	var min = repo('min');", "	var max = null;", "	database(jdbc).select(maxQuery).first(function(row) {", "		max = date(row[0]).format('yyyy-MM-dd HH:mm:ss'); ", "	}).run();", "", "	if(min === max) return;", "	if(min == null) {", "		repo('min', max); ", "		return;", "	}", ""].join('\n') + '\n';break;
-		}
-
-		switch (args.bindingType) {
-			case 'simple':
-				script += ["	var mainQuery = format(", "		'SELECT {columns} FROM {table}', ", "		{ columns: columns, table: table } ", "	); "].join('\n') + '\n';break;
-			case 'sequence':
-				script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} WHERE {bindingColumn} > {min} AND {bindingColumn} <= {max}', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
-			case 'date':
-				switch (args.dbVendor) {
-					case 'oracle':
-					case 'db2':
-					case 'tibero':
-					case 'etc':
-						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > TO_DATE(\\'{min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ' + ", "		' AND {bindingColumn} <= TO_DATE(\\'{max}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
-					case 'mysql':
-						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > STR_TO_DATE(\\'{min}\\', \\'%Y-%m-%d %H:%i:%s\\') ' + ", "		' AND {bindingColumn} <= STR_TO_DATE(\\'{max}\\', \\'%Y-%m-%d %H:%i:%s\\') ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
-					case 'mssql':
-						script += ["	var mainQuery = format( ", "		'SELECT {columns} FROM {table} ' +  ", "		' WHERE {bindingColumn} > \\'{min}\\' ' + ", "		' AND {bindingColumn} <= \\'{max}\\' ', ", "		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ", "	); "].join('\n') + '\n';break;
-				}
-				break;
-		}
-
-		script += ["", "	database(jdbc)", "		.select(mainQuery)", "		.map(function(row) {", "			return row.join(delimiter).split('\\n').join('') + '\\n';", "		}) ", "		.group(100) ", "		.writeTextFile({ ", "			filename: outputFile, ", "			charset: charset, ", "			dateFormat: true, ", "		}).run(); ", "}); "].join('\n') + '\n';
-
-		return script;
-	};
-
-/***/ },
 /* 671 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -74509,9 +74458,9 @@
 	var React = __webpack_require__(1);
 	var _ = __webpack_require__(163);
 	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var DatabaseConfigCard = __webpack_require__(658);
+	var DatabaseConfigCard = __webpack_require__(660);
 	var TableColumnsMappingCard = __webpack_require__(672);
-	var BindingTypeCard = __webpack_require__(664);
+	var BindingTypeCard = __webpack_require__(666);
 
 	var NewDb2DbView = React.createClass({
 		displayName: 'NewDb2DbView',
@@ -74687,7 +74636,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var Col = __webpack_require__(169).Col;
 
 	var TableColumnsMappingCard = React.createClass({
@@ -74802,7 +74751,7 @@
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(659);
+	var PolymerIcon = __webpack_require__(661);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var Card = MaterialWrapper.Card;
