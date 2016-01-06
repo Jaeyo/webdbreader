@@ -1,15 +1,18 @@
 var React = require('react');
 var parseCodeContext = require('js-code-context');
 var _ = require('underscore');
+var util = require('util');
+var precondition = require('../utils/precondition.js');
+var server = require('../utils/server.js');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
+var ScriptDialog = require('../comps/dialog/script-dialog.jsx');
 var Db2File = {
 	DatabaseConfigCard: require('../new-db2file/database-config-card.jsx'),
+	TableColumnConfigCard: require('../new-db2file/table-column-config-card.jsx'),
 	BindingTypeCard: require('../new-db2file/binding-type-card.jsx'),
-	EtcConfigCard: require('../new-db2file/etc-config-card.jsx'),
-	ScriptConfirmDialog: require('../new-db2file/script-confirm-dialog.jsx'),
-	ScriptMaker: require('../new-db2file/db2file-script-maker.js')
+	EtcConfigCard: require('../new-db2file/etc-config-card.jsx')
 };
 
 var ScriptConfigTab = React.createClass({
@@ -20,7 +23,7 @@ var ScriptConfigTab = React.createClass({
 
 	getInitialState() {
 		return {
-			scriptObj: {}
+			scriptParams: null
 		};
 	},
 
@@ -34,47 +37,61 @@ var ScriptConfigTab = React.createClass({
 
 	parseScript(script) {
 		if(script.trim().length === 0) return;
-		parseCodeContext(script, function(err, objs) {
-			if(err) {
-				console.error(err);
-				if(typeof err === 'object') err = JSON.stringify(err);
-				this.setState({ scriptObj: {} }, function() {
-					this.refs.alertdialog.show('danger', err);
-				}.bind(this));
-				return;
+
+		server.loadScriptParams({ title: this.props.title })
+		.then(function(resp) {
+			if(resp.parsable === 1) {
+				this.setState({ scriptParams: resp.params });
+			} else {
+				console.log(util.format('script %s not parsable', this.props.title), { msg: resp.msg });
 			}
-
-			var scriptObj = {};
-			objs.forEach(function(obj) {
-				if(obj.receiver !== undefined) return;
-				if(String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\''))
-					obj.value = obj.value.substring(1, obj.value.length - 1);
-				scriptObj[obj.name] = obj.value;
-			});
-
-			if(scriptObj.type != null)
-				this.setState({ scriptObj: scriptObj });
+		}.bind(this)).catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
+
+		// parseCodeContext(script, function(err, objs) {
+		// 	if(err) {
+		// 		console.error(err);
+		// 		if(typeof err === 'object') err = JSON.stringify(err);
+		// 		this.setState({ scriptObj: {} }, function() {
+		// 			this.refs.alertdialog.show('danger', err);
+		// 		}.bind(this));
+		// 		return;
+		// 	}
+
+		// 	var scriptObj = {};
+		// 	objs.forEach(function(obj) {
+		// 		if(obj.receiver !== undefined) return;
+		// 		if(String.startsWith(obj.value, '\'') && String.endsWith(obj.value, '\''))
+		// 			obj.value = obj.value.substring(1, obj.value.length - 1);
+		// 		scriptObj[obj.name] = obj.value;
+		// 	});
+
+		// 	if(scriptObj.type != null)
+		// 		this.setState({ scriptObj: scriptObj });
+		// }.bind(this));
 	},
 
 	render() {
-		var parsedView = null;
+		try {
+			var parsedView = null;
 
-		switch(this.state.scriptObj.type) {
-			case undefined: 
+			if(this.state.scriptParams == null) {
 				parsedView = (<UnknownScriptView />);
-				break;
-			case 'db2file':
-				parsedView = ( <Db2FileScriptView title={this.props.title} scriptObj={this.state.scriptObj} /> );
-				break;
-		}
+			} else if(this.state.scriptParams.type.indexOf('db2file') > -1) {
+				parsedView = ( <Db2FileScriptView title={this.props.title} scriptParams={this.state.scriptParams} /> );
+			}
 
-		return (
-			<div>
-				{parsedView}
-				<AlertDialog refs="alertDialog" />
-			</div>
-		);
+			return (
+				<div>
+					{parsedView}
+					<AlertDialog refs="alertDialog" />
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ScriptConfigTab;
@@ -87,73 +104,201 @@ var UnknownScriptView = (props) => {
 
 
 var Db2FileScriptView = React.createClass({
-	dataAdapter: null,
-
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
-		scriptObj: React.PropTypes.object.isRequired
+		scriptParams: React.PropTypes.object.isRequired
 	},
 
 	getInitialState() {
 		return { 
-			dbVendor: '',
-			dbIp: '',
-			dbPort: '',
-			dbSid: '',
-			jdbcDriver: '',
-			jdbcConnUrl: '',
-			jdbcUsername: '',
-			jdbcPassword: '',
-			table: '',
-			columns: '',
-			bindingType: 'simple',
-			bindingColumn: '',
-			period: '',
-			charset: '',
-			delimiter: '',
-			outputPath: '',
-			scriptConfirmDialogVisible: false 
+			dbVendor: this.props.scriptParams.dbVendor,
+			dbIp: this.props.scriptParams.dbIp,
+			dbPort: this.props.scriptParams.dbPort,
+			dbSid: this.props.scriptParams.dbSid,
+			jdbcDriver: this.props.scriptParams.jdbcDriver,
+			jdbcConnUrl: this.props.scriptParams.jdbcConnUrl,
+			jdbcUsername: this.props.scriptParams.jdbcUsername,
+			jdbcPassword: this.props.scriptParams.jdbcPassword,
+			table: this.props.scriptParams.table,
+			columns: this.props.scriptParams.columns,
+			bindingType: this.props.scriptParams.bindingType,
+			bindingColumn: this.props.scriptParams.bindingColumn,
+			period: this.props.scriptParams.period,
+			charset: this.props.scriptParams.charset,
+			delimiter: this.props.scriptParams.delimiter,
+			outputPath: this.props.scriptParams.outputPath
 		};
 	},
 
-	componentWillMount() {
-		if(this.dataAdapter == null) {
-			this.dataAdapter = newDataAdapter();
-			this.dataAdapter.on('stateChange', function(state) {
-				if(state.columns) state.columns = state.columns.toLowerCase();
-				this.setState(state);
-			}.bind(this));
+	handleStateChange(state) {
+		if(state.columns) state.columns = state.columns.toLowerCase();
 
-			this.dataAdapter.onData(function(key) {
-				if(key === 'title') return this.props.title;
-				return this.state[key];
-			}.bind(this));
+		if(state.dbVendor) {
+			if(state.dbVendor != 'etc') {
+				state.jdbcDriver = jdbcTmpl[state.dbVendor].driver;
+				state.dbPort = jdbcTmpl[state.dbVendor].port;
+				state.jdbcConnUrl = jdbcTmpl[state.dbVendor].connUrl
+											.replace('{ip}', this.state.dbIp)
+											.replace('{port}', state.dbPort)
+											.replace('{database}', this.state.dbSid);
+			}
+		} else if(state.dbIp) {
+			if(this.state.dbVendor != 'etc') {
+				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
+											.replace('{ip}', state.dbIp)
+											.replace('{port}', this.state.dbPort)
+											.replace('{database}', this.state.dbSid);
+			}
+		} else if(state.dbPort) {
+			if(this.state.srcDbVendor != 'etc') {
+				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
+											.replace('{ip}', this.state.dbIp)
+											.replace('{port}', state.dbPort)
+											.replace('{database}', this.state.dbSid);
+			}
+		} else if(state.dbSid) {
+			if(this.state.dbVendor != 'etc') {
+				state.jdbcConnUrl = jdbcTmpl[this.state.dbVendor].connUrl
+											.replace('{ip}', this.state.dbIp)
+											.replace('{port}', this.state.dbPort)
+											.replace('{database}', state.dbSid);
+			}
 		}
-
-		this.setState(this.props.scriptObj);
+		
+		this.setState(state);
 	},
 
-	edit(evt) {
-		this.setState({ scriptConfirmDialogVisible: true });
+	showScriptDialog() {
+		try {
+			precondition
+				.instance(this.state)
+				.stringNotByEmpty([ 'jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword' ], 'jdbc 연결 정보 미입력')
+				.stringNotByEmpty('table', 'table 정보 미입력')
+				.stringNotByEmpty('columns', 'columns정보 미입력')
+				.stringNotByEmpty('bindingType', 'bindingType 정보 미입력')
+				.check(function(data) {
+					if(data.bindingType !== 'simple')
+						return ( data.bindingColumn != null && data.bindingColumn.trim().length !== 0 );
+					return true;
+				})
+				.stringNotByEmpty('period', 'period 정보 미입력')
+				.stringNotByEmpty('charset', 'charset 정보 미입력')
+				.stringNotByEmpty('delimiter', 'delimiter 정보 미입력')
+				.stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+		} catch(errmsg) {
+			this.refs.alertDialog.show('danger', errmsg);
+			return;
+		}
+
+		server.generateDb2FileScript({
+			period: this.state.period,
+			dbVendor: this.state.dbVendor,
+			dbIp: this.state.dbIp,
+			dbPort: this.state.dbPort,
+			dbSid: this.state.dbSid,
+			jdbcDriver: this.state.jdbcDriver,
+			jdbcConnUrl: this.state.jdbcConnUrl,
+			jdbcUsername: this.state.jdbcUsername,
+			jdbcPassword: this.state.jdbcPassword,
+			columns: this.state.columns,
+			table: this.state.table,
+			bindingType: this.state.bindingType,
+			bindingColumn: this.state.bindingColumn,
+			delimiter: this.state.delimiter,
+			charset: this.state.charset,
+			outputPath: this.state.outputPath
+		})
+		.then(function(script) {
+			this.refs.scriptDialog.show('', script, function(result, scriptName, script) {
+				if(result === false) {
+					this.refs.scriptDialog.hide();
+					return;
+				}
+
+				if(scriptName == null || scriptName.trim().length === 0) {
+					this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
+					return;
+				}
+
+				server.postScript({ title: scriptName, script: script })
+					.then(function(success) {
+						this.refs.scriptDialog.hide();
+						this.refs.alertDialog.show('success', 'script registered');
+					}.bind(this))
+					.catch(function(err) {
+						if(typeof err === 'object') err = JSON.stringify(err);
+						this.refs.alertDialog.show('danger', err);
+					}.bind(this));
+			}.bind(this));
+		}.bind(this))
+		.catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
+	},
+
+	componentWillReceiveProps(newProps) {
+		if(newProps.scriptParams != null)
+			this.setState(newProps.scriptParams);
 	},
 
 	render() {
-		return (
-			<div>
-				<Db2File.DatabaseConfigCard dataAdapter={this.dataAdapter} />
-				<Db2File.BindingTypeCard dataAdapter={this.dataAdapter} />
-				<Db2File.EtcConfigCard dataAdapter={this.dataAdapter} />
-				<Button 
-					label="수정"
-					primary={true}
-					onClick={this.edit} />
-				<Db2File.ScriptConfirmDialog 
-					visible={this.state.scriptConfirmDialogVisible}
-					onClose={ function() { this.setState({ scriptConfirmDialogVisible: false }); }.bind(this) }
-					editMode={true}
-					title={this.dataAdapter.data('title')}
-					dataAdapter={this.dataAdapter} />
-			</div>
-		);
+		try {
+			var handleStateChange = { handleStateChange: this.handleStateChange };
+
+			var jdbc = {
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword
+			};
+
+			var dbInfo = {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
+
+			var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
+				title: 'database config',
+				subtitle: 'source database 연결정보를 설정합니다.'
+			});
+
+			var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				columns: this.state.columns
+			});
+
+			var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn
+			});
+
+			var etcConfigCardData = _.extend({},  handleStateChange, {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath
+			});
+
+			return (
+				<div> 
+					<Db2File.DatabaseConfigCard {...databaseConfigCardData} />
+					<Db2File.TableColumnConfigCard {...tableColumnConfigCardData} />
+					<Db2File.BindingTypeCard {...bindingTypeCardData} />
+					<Db2File.EtcConfigCard {...etcConfigCardData} />
+					<Button
+						label="수정"
+						primary={true}
+						onClick={this.showScriptDialog} />
+					<ScriptDialog ref="scriptDialog" />
+					<AlertDialog ref="alertDialog" />
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });

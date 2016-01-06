@@ -112,34 +112,38 @@ var TableConfigDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<Dialog
-				actions={[
-					{ text: 'close', onClick: this.onClose }
-				]}
-				actionFocus="ok"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.state.visible}>
-				<Card>
-					<CardHeader
-						title="table 설정"
-						subtitle="source database의 table 정보를 설정합니다."
-						avatar={ <PolymerIcon icon="config" /> } />
-					<CardText>
-						<TextField
-							floatingLabelText="table"
-							value={this.props.table} 
-							onChange={this.handleChange.bind(this, 'table')}
-							fullWidth={true} />
-						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
-							{ this.renderTableList() }
-						</div>
-					</CardText>
-				</Card>
-				<AlertDialog ref="alertDialog" />
-			</Dialog>
-		);
+		try {
+			return (
+				<Dialog
+					actions={[
+						{ text: 'close', onClick: this.onClose }
+					]}
+					actionFocus="ok"
+					autoDetectWindowHeight={true}
+					autoScrollBodyContent={true}
+					open={this.state.visible}>
+					<Card>
+						<CardHeader
+							title="table 설정"
+							subtitle="source database의 table 정보를 설정합니다."
+							avatar={ <PolymerIcon icon="config" /> } />
+						<CardText>
+							<TextField
+								floatingLabelText="table"
+								value={this.props.table} 
+								onChange={this.handleChange.bind(this, 'table')}
+								fullWidth={true} />
+							<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
+								{ this.renderTableList() }
+							</div>
+						</CardText>
+					</Card>
+					<AlertDialog ref="alertDialog" />
+				</Dialog>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = TableConfigDialog;

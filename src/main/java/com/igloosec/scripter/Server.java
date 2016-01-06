@@ -2,7 +2,7 @@ package com.igloosec.scripter;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -13,6 +13,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.igloosec.scripter.common.Conf;
 import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.dao.AutoStartScriptDAO;
 import com.igloosec.scripter.rdb.DerbySchemaCreator;
 import com.igloosec.scripter.script.ScriptExecutor;
 import com.igloosec.scripter.service.ScriptService;
@@ -58,7 +59,7 @@ public class Server {
 		
 		server.start();
 		server.join();
-	} // main
+	}
 	
 	private static void configureLog4j() {
 		System.setProperty("home.path", Path.getPackagePath().getAbsolutePath());
@@ -67,7 +68,7 @@ public class Server {
 		if(log4jXml.exists() == false) return;
 		
 		DOMConfigurator.configure(log4jXml.getAbsolutePath());
-	} //configureLog4j
+	}
 
 	private static WebAppContext getWebAppContext() throws IOException{
 		WebAppContext context = new WebAppContext();
@@ -80,7 +81,6 @@ public class Server {
 		context.addServlet(ConfigREST.class, "/REST/Config/*");
 		context.addServlet(ChartREST.class, "/REST/Chart/*");
 		context.addServlet(ShutdownREST.class, "/REST/Shutdown/*");
-//		context.addServlet(OperationHistoryREST.class, "/REST/OperationHistory/*");
 		
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
 		context.addServlet(FileOutMsgWebSocketServlet.class, "/WebSocket/FileOutMsg/*");
@@ -101,14 +101,19 @@ public class Server {
 		FileUtils.deleteDirectory(workDir);
 		context.setTempDirectory(workDir);
 		return context;
-	} //getWebAppContext
+	}
 	
 	private static void registerShutdownHook(){
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override
 			public void run() {
-				SingletonInstanceRepo.getInstance(ScriptExecutor.class).stopAllScript();
-			} //run
+				ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
+				Set<String> runningScripts = scriptExecutor.getRunningScripts();
+				
+				AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
+				autoStartScriptDAO.removeAll();
+				autoStartScriptDAO.save(runningScripts);
+			}
 		});
-	} //registerShutdownHook
-} // class
+	}
+}

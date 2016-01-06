@@ -57,48 +57,52 @@ var InfoTab = React.createClass({
 	},
 
 	render() {
-		return (
-			<Paper style={{ padding: '10px' }}>
-				<Card style={{ marginBottom: '10px' }}>
-					<CardHeader
-						title="information"
-						avatar={ <Glyphicon glyph="file" /> } />
-					<CardText>
-						<div>information</div>
-					</CardText>
-				</Card>
-				<Card style={{ marginBottom: '10px' }}>
-					<CardHeader
-						title="code"
-						avatar={ <Glyphicon glyph="file" /> } />
-					<CardText>
-						<div>
-							<div id="editor-wrapper" 
-								style={{
-									position: 'relative',
-									minHeight: '400px' 
-								}}>
-								<div id={this.uuid}
+		try {
+			return (
+				<Paper style={{ padding: '10px' }}>
+					<Card style={{ marginBottom: '10px' }}>
+						<CardHeader
+							title="information"
+							avatar={ <Glyphicon glyph="file" /> } />
+						<CardText>
+							<div>information</div>
+						</CardText>
+					</Card>
+					<Card style={{ marginBottom: '10px' }}>
+						<CardHeader
+							title="code"
+							avatar={ <Glyphicon glyph="file" /> } />
+						<CardText>
+							<div>
+								<div id="editor-wrapper" 
 									style={{
-										position: 'absolute',
-										top: 0,
-										bottom: 0,
-										right: 0,
-										left: 0 }} />
-								}
-							</div>
-								<div style={{ textAlign: 'right', marginTop: '10px' }}>
-									<Button
-										label="수정"
-										primary={true}
-										onClick={this.edit} />
+										position: 'relative',
+										minHeight: '400px' 
+									}}>
+									<div id={this.uuid}
+										style={{
+											position: 'absolute',
+											top: 0,
+											bottom: 0,
+											right: 0,
+											left: 0 }} />
+									}
 								</div>
-							<AlertDialog ref="alertDialog" />
-						</div>
-					</CardText>
-				</Card>
-			</Paper>
-		);
+									<div style={{ textAlign: 'right', marginTop: '10px' }}>
+										<Button
+											label="수정"
+											primary={true}
+											onClick={this.edit} />
+									</div>
+								<AlertDialog ref="alertDialog" />
+							</div>
+						</CardText>
+					</Card>
+				</Paper>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = InfoTab;

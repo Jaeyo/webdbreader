@@ -55,63 +55,67 @@ var BindingTypeCard = React.createClass({
 	},
 
 	render() {
-		var jdbc = {
-			jdbcDriver: this.props.jdbcDriver,
-			jdbcConnUrl: this.props.jdbcConnUrl,
-			jdbcUsername: this.props.jdbcUsername,
-			jdbcPassword: this.props.jdbcPassword
-		};
+		try {
+			var jdbc = {
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword
+			};
 
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title="바인딩 타입 설정"
-					subtitle="바인딩 타입을 설정합니다."
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<RadioButtonGroup 
-						name="bindingType" 
-						defaultSelected="simple"
-						onChange={this.handleChange.bind(this, 'bindingType')}>
-						<RadioButton
-							value="simple"
-							label="simple binding" />
-						<RadioButton
-							value="date"
-							label="date binding" />
-						<RadioButton
-							value="sequence"
-							label="sequence binding" />
-					</RadioButtonGroup>
-					{
-						this.props.bindingType === 'simple' ? null : (
-							<div>
-								<Toggle
-									name="autoload"
-									value="autoload"
-									label="autoload"
-									ref="autoloadToggle"
-									style={{ width: '150px' }}
-									defaultToggled={true} />
-								<TextField
-									value={this.props.bindingColumn}	
-									floatingLabelText="binding column"
-									fullWidth={true}
-									onChange={this.handleChange.bind(this, 'bindingColumn')}
-									onFocus={this.handleFocus.bind(this, 'bindingColumn')} />
-								
-							</div>
-						)
-					}
-				</CardText>
-				<BindingColumnConfigDialog 
-					handleStateChange={this.props.handleStateChange}
-					table={this.props.table}
-					bindingColumn={this.props.bindingColumn}
-					ref="bindingColumnConfigDialog"
-					{...jdbc} />
-			</Card>
-		);
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title="바인딩 타입 설정"
+						subtitle="바인딩 타입을 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<RadioButtonGroup 
+							name="bindingType" 
+							defaultSelected="simple"
+							onChange={this.handleChange.bind(this, 'bindingType')}>
+							<RadioButton
+								value="simple"
+								label="simple binding" />
+							<RadioButton
+								value="date"
+								label="date binding" />
+							<RadioButton
+								value="sequence"
+								label="sequence binding" />
+						</RadioButtonGroup>
+						{
+							this.props.bindingType === 'simple' ? null : (
+								<div>
+									<Toggle
+										name="autoload"
+										value="autoload"
+										label="autoload"
+										ref="autoloadToggle"
+										style={{ width: '150px' }}
+										defaultToggled={true} />
+									<TextField
+										value={this.props.bindingColumn}	
+										floatingLabelText="binding column"
+										fullWidth={true}
+										onChange={this.handleChange.bind(this, 'bindingColumn')}
+										onFocus={this.handleFocus.bind(this, 'bindingColumn')} />
+									
+								</div>
+							)
+						}
+					</CardText>
+					<BindingColumnConfigDialog 
+						handleStateChange={this.props.handleStateChange}
+						table={this.props.table}
+						bindingColumn={this.props.bindingColumn}
+						ref="bindingColumnConfigDialog"
+						{...jdbc} />
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = BindingTypeCard;

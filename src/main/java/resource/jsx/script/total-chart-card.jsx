@@ -50,22 +50,26 @@ var TotalChartCard = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title="chart"
-					subtitle="등록된 스크립트들의 통계를 제공합니다."
-					avatar={ <Glyphicon glyph="signal" /> } />
-				<CardText>
-					{ this.state.chartData == null ? (
-						<p>no data</p>
-					) : (
-						<LineChart data={this.state.chartData} options={this.state.chartOptions} width="600" height="200" />
-					)}
-				</CardText>
-				<AlertDialog refs="alertDialog" />
-			</Card>
-		);
+		try {
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title="chart"
+						subtitle="등록된 스크립트들의 통계를 제공합니다."
+						avatar={ <Glyphicon glyph="signal" /> } />
+					<CardText>
+						{ this.state.chartData == null ? (
+							<p>no data</p>
+						) : (
+							<LineChart data={this.state.chartData} options={this.state.chartOptions} width="600" height="200" />
+						)}
+					</CardText>
+					<AlertDialog refs="alertDialog" />
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = TotalChartCard;

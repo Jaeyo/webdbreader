@@ -42,29 +42,33 @@ var TableColumnsMappingCard = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title="mapping table/columns"
-					subtitle="매핑시킬 테이블과 컬럼들을 설정합니다."
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<Toggle
-						name="autoload"
-						value="autoload"
-						label="autoload"
-						ref="autoloadToggle"
-						style={{ width: '150px' }}
-						defaultToggled={true} />
-					<Col xs={6}>
-						<AddableColumnTextFields isSrc={true} dataAdapter={this.props.dataAdapter} />
-					</Col>
-					<Col xs={6}>
-						<AddableColumnTextFields isDest={true} dataAdapter={this.props.dataAdapter} />
-					</Col>
-				</CardText>
-			</Card>
-		);
+		try {
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title="mapping table/columns"
+						subtitle="매핑시킬 테이블과 컬럼들을 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<Toggle
+							name="autoload"
+							value="autoload"
+							label="autoload"
+							ref="autoloadToggle"
+							style={{ width: '150px' }}
+							defaultToggled={true} />
+						<Col xs={6}>
+							<AddableColumnTextFields isSrc={true} dataAdapter={this.props.dataAdapter} />
+						</Col>
+						<Col xs={6}>
+							<AddableColumnTextFields isDest={true} dataAdapter={this.props.dataAdapter} />
+						</Col>
+					</CardText>
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = TableColumnsMappingCard;

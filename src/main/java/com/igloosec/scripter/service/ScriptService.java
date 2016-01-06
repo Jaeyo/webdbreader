@@ -110,7 +110,6 @@ public class ScriptService {
 		logger.info("scriptName: {}", scriptName);
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);
-		autoStartScriptDAO.save(scriptName);
 	} 
 	
 	public void stopScript(String scriptName) throws ScriptNotRunningException {

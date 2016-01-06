@@ -43,70 +43,74 @@ var DatabaseConfigCard = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title={this.props.title}
-					subtitle={this.props.subtitle}
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<SelectField
-						style={{ float: 'left', marginRight: '10px' }}
-						floatingLabelText="데이터베이스"
-						value={this.props.dbVendor}
-						menuItems={[
-							{ text: 'oracle', payload: 'oracle' },
-							{ text: 'mysql', payload: 'mysql' },
-							{ text: 'mssql', payload: 'mssql' },
-							{ text: 'db2', payload: 'db2' },
-							{ text: 'tibero', payload: 'tibero' },
-							{ text: 'etc', payload: 'etc' }
-						]}
-						onChange={this.handleChange.bind(this, 'dbVendor') } />
-					<Button
-						label="설정"
-						secondary={true}
-						style={{ float: 'left', marginTop: '27px' }}
-						onClick={ function() { this.refs.dbAddressDialog.show(); }.bind(this) } />
-					<DbAddressDialog 
-						ref="dbAddressDialog"
-						handleStateChange={this.props.handleStateChange}
-						dbIp={this.props.dbIp}
-						dbPort={this.props.dbPort}
-						dbSid={this.props.dbSid} />
-					<div style={{ 
-						border: '1px dashed ' + color.lightGray,
-						padding: '10px',
-						margin: '1px 0' }}>
-						<TextField
-							inputStyle={{ color: 'black' }}
-							floatingLabelText="jdbc driver"
-							value={this.props.jdbcDriver}
-							fullWidth={true}
-							onChange={this.handleChange.bind(this, 'jdbcDriver')} />
-						<TextField
-							inputStyle={{ color: 'black' }}
-							floatingLabelText="jdbc connection url"
-							value={this.props.jdbcConnUrl}
-							fullWidth={true}
-							onChange={this.handleChange.bind(this, 'jdbcConnUrl')} />
-						<TextField
-							inputStyle={{ color: 'black' }}
-							floatingLabelText="jdbc username"
-							value={this.props.jdbcUsername}
-							fullWidth={true}
-							onChange={this.handleChange.bind(this, 'jdbcUsername')} />
-						<TextField
-							type="password"
-							inputStyle={{ color: 'black' }}
-							floatingLabelText="jdbc password"
-							value={this.props.jdbcPassword}
-							fullWidth={true}
-							onChange={this.handleChange.bind(this, 'jdbcPassword')} />
-					</div>
-				</CardText>
-			</Card>
-		);
+		try {
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title={this.props.title}
+						subtitle={this.props.subtitle}
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<SelectField
+							style={{ float: 'left', marginRight: '10px' }}
+							floatingLabelText="데이터베이스"
+							value={this.props.dbVendor}
+							menuItems={[
+								{ text: 'oracle', payload: 'oracle' },
+								{ text: 'mysql', payload: 'mysql' },
+								{ text: 'mssql', payload: 'mssql' },
+								{ text: 'db2', payload: 'db2' },
+								{ text: 'tibero', payload: 'tibero' },
+								{ text: 'etc', payload: 'etc' }
+							]}
+							onChange={this.handleChange.bind(this, 'dbVendor') } />
+						<Button
+							label="설정"
+							secondary={true}
+							style={{ float: 'left', marginTop: '27px' }}
+							onClick={ function() { this.refs.dbAddressDialog.show(); }.bind(this) } />
+						<DbAddressDialog 
+							ref="dbAddressDialog"
+							handleStateChange={this.props.handleStateChange}
+							dbIp={this.props.dbIp}
+							dbPort={this.props.dbPort}
+							dbSid={this.props.dbSid} />
+						<div style={{ 
+							border: '1px dashed ' + color.lightGray,
+							padding: '10px',
+							margin: '1px 0' }}>
+							<TextField
+								inputStyle={{ color: 'black' }}
+								floatingLabelText="jdbc driver"
+								value={this.props.jdbcDriver}
+								fullWidth={true}
+								onChange={this.handleChange.bind(this, 'jdbcDriver')} />
+							<TextField
+								inputStyle={{ color: 'black' }}
+								floatingLabelText="jdbc connection url"
+								value={this.props.jdbcConnUrl}
+								fullWidth={true}
+								onChange={this.handleChange.bind(this, 'jdbcConnUrl')} />
+							<TextField
+								inputStyle={{ color: 'black' }}
+								floatingLabelText="jdbc username"
+								value={this.props.jdbcUsername}
+								fullWidth={true}
+								onChange={this.handleChange.bind(this, 'jdbcUsername')} />
+							<TextField
+								type="password"
+								inputStyle={{ color: 'black' }}
+								floatingLabelText="jdbc password"
+								value={this.props.jdbcPassword}
+								fullWidth={true}
+								onChange={this.handleChange.bind(this, 'jdbcPassword')} />
+						</div>
+					</CardText>
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = DatabaseConfigCard;

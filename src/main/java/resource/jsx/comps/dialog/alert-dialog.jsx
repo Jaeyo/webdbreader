@@ -48,22 +48,26 @@ var AlertDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<Dialog
-				actions={[
-					{ text: 'close', onClick: this.hide }
-				]}
-				actionFocus="close"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.state.visible}>
-				<Alert bsStyle={this.state.bsStyle}>
-					<strong>
-						{this.state.msg}
-					</strong>
-				</Alert>
-			</Dialog>
-		);
+		try {
+			return (
+				<Dialog
+					actions={[
+						{ text: 'close', onClick: this.hide }
+					]}
+					actionFocus="close"
+					autoDetectWindowHeight={true}
+					autoScrollBodyContent={true}
+					open={this.state.visible}>
+					<Alert bsStyle={this.state.bsStyle}>
+						<strong>
+							{this.state.msg}
+						</strong>
+					</Alert>
+				</Dialog>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

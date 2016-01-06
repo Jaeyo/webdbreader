@@ -37,7 +37,11 @@ var getMaterialComponent = function(comp) {
 		},
 
 		render() {
-			return React.createElement(comp, this.props, this.props.children);
+			try {
+				return React.createElement(comp, this.props, this.props.children);
+			} catch(err) {
+				console.error(err.stack);
+			}
 		}
 	});
 };

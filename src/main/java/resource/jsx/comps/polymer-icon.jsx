@@ -34,25 +34,29 @@ var PolymerIcon = React.createClass({
 		}
 	},
 	render() {
-		var styles = {
-			fill: 'currentcolor',
-			verticalAlign: 'middle',
-			width: this.props.size,
-			height: this.props.size
-		};
+		try {
+			var styles = {
+				fill: 'currentcolor',
+				verticalAlign: 'middle',
+				width: this.props.size,
+				height: this.props.size
+			};
 
-		return (
-			<svg 
-				viewBox="0 0 24 24" 
-				preserveAspectRatio="xMidYMid meet" 
-				fit 
-				style={this._mergeStyle(
-					styles,
-					this.props.style
-				)}>
-				{this.renderGraphic()}
-			</svg>
-		);
+			return (
+				<svg 
+					viewBox="0 0 24 24" 
+					preserveAspectRatio="xMidYMid meet" 
+					fit 
+					style={this._mergeStyle(
+						styles,
+						this.props.style
+					)}>
+					{this.renderGraphic()}
+				</svg>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

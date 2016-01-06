@@ -95,7 +95,7 @@ var NewDb2FileView = React.createClass({
 			return;
 		}
 
-		var script = scriptMaker.get({
+		server.generateDb2FileScript({
 			period: this.state.period,
 			dbVendor: this.state.dbVendor,
 			dbIp: this.state.dbIp,
@@ -112,85 +112,94 @@ var NewDb2FileView = React.createClass({
 			delimiter: this.state.delimiter,
 			charset: this.state.charset,
 			outputPath: this.state.outputPath
-		});
-
-		this.refs.scriptDialog.show('', script, function(result, scriptName, script) {
-			if(result === false) {
-				this.refs.scriptDialog.hide();
-				return;
-			}
-
-			if(scriptName == null || scriptName.trim().length === 0) {
-				this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
-				return;
-			}
-
-			server.postScript({ title: scriptName, script: script })
-				.then(function(success) {
+		})
+		.then(function(script) {
+			this.refs.scriptDialog.show('', script, function(result, scriptName, script) {
+				if(result === false) {
 					this.refs.scriptDialog.hide();
-					this.refs.alertDialog.show('success', 'script registered');
-				}.bind(this))
-				.catch(function(err) {
-					if(typeof err === 'object') err = JSON.stringify(err);
-					this.refs.alertDialog.show('danger', err);
-				}.bind(this));
+					return;
+				}
+
+				if(scriptName == null || scriptName.trim().length === 0) {
+					this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
+					return;
+				}
+
+				server.postScript({ title: scriptName, script: script })
+					.then(function(success) {
+						this.refs.scriptDialog.hide();
+						this.refs.alertDialog.show('success', 'script registered');
+					}.bind(this))
+					.catch(function(err) {
+						if(typeof err === 'object') err = JSON.stringify(err);
+						this.refs.alertDialog.show('danger', err);
+					}.bind(this));
+			}.bind(this));
+		}.bind(this))
+		.catch(function(err) {
+			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
 
 	render() {
-		var handleStateChange = { handleStateChange: this.handleStateChange };
+		try {
+			var handleStateChange = { handleStateChange: this.handleStateChange };
 
-		var jdbc = {
-			jdbcDriver: this.state.jdbcDriver,
-			jdbcConnUrl: this.state.jdbcConnUrl,
-			jdbcUsername: this.state.jdbcUsername,
-			jdbcPassword: this.state.jdbcPassword
-		};
+			var jdbc = {
+				jdbcDriver: this.state.jdbcDriver,
+				jdbcConnUrl: this.state.jdbcConnUrl,
+				jdbcUsername: this.state.jdbcUsername,
+				jdbcPassword: this.state.jdbcPassword
+			};
 
-		var dbInfo = {
-			dbVendor: this.state.dbVendor,
-			dbIp: this.state.dbIp,
-			dbPort: this.state.dbPort,
-			dbSid: this.state.dbSid
-		};
+			var dbInfo = {
+				dbVendor: this.state.dbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
 
-		var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
-			title: 'database config',
-			subtitle: 'source database 연결정보를 설정합니다.'
-		});
+			var databaseConfigCardData = _.extend({}, jdbc, dbInfo, handleStateChange, {
+				title: 'database config',
+				subtitle: 'source database 연결정보를 설정합니다.'
+			});
 
-		var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
-			table: this.state.table,
-			columns: this.state.columns
-		});
+			var tableColumnConfigCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				columns: this.state.columns
+			});
 
-		var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
-			table: this.state.table,
-			bindingType: this.state.bindingType,
-			bindingColumn: this.state.bindingColumn
-		});
+			var bindingTypeCardData = _.extend({}, jdbc, handleStateChange, {
+				table: this.state.table,
+				bindingType: this.state.bindingType,
+				bindingColumn: this.state.bindingColumn
+			});
 
-		var etcConfigCardData = _.extend({},  handleStateChange, {
-			period: this.state.period,
-			charset: this.state.charset,
-			delimiter: this.state.delimiter,
-			outputPath: this.state.outputPath
-		});
+			var etcConfigCardData = _.extend({},  handleStateChange, {
+				period: this.state.period,
+				charset: this.state.charset,
+				delimiter: this.state.delimiter,
+				outputPath: this.state.outputPath
+			});
 
-		return (
-			<div> 
-				<DatabaseConfigCard {...databaseConfigCardData} />
-				<TableColumnConfigCard {...tableColumnConfigCardData} />
-				<BindingTypeCard {...bindingTypeCardData} />
-				<EtcConfigCard {...etcConfigCardData} />
-				<Button
-					label="생성"
-					primary={true}
-					onClick={this.showScriptDialog} />
-				<ScriptDialog ref="scriptDialog" />
-				<AlertDialog ref="alertDialog" />
-			</div>
-		);
+			return (
+				<div> 
+					<DatabaseConfigCard {...databaseConfigCardData} />
+					<TableColumnConfigCard {...tableColumnConfigCardData} />
+					<BindingTypeCard {...bindingTypeCardData} />
+					<EtcConfigCard {...etcConfigCardData} />
+					<Button
+						label="생성"
+						primary={true}
+						onClick={this.showScriptDialog} />
+					<ScriptDialog ref="scriptDialog" />
+					<AlertDialog ref="alertDialog" />
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

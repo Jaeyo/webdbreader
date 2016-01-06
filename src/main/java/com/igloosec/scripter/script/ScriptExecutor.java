@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.script.Compilable;
+import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -19,6 +21,7 @@ import com.google.common.collect.Sets;
 import com.igloosec.scripter.exception.AlreadyStartedException;
 import com.igloosec.scripter.exception.ScriptNotRunningException;
 import com.igloosec.scripter.exception.VersionException;
+import com.sun.script.javascript.RhinoScriptEngine;
 
 public class ScriptExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptExecutor.class);

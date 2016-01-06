@@ -10,26 +10,28 @@ var SpDbReaderAPI = require('./api/spdbreader-api.jsx');
 
 var ApiView = React.createClass({
 	render() {
-		console.log(Tabs);
-		console.log(Tab);
-		return (
-			<Card>
-				<CardHeader
-					title="API"
-					subtitle="스크립트에 사용되는 API"
-					avatar={ <Glyphicon glyph="book" /> } />
-				<CardText>
-					<Tabs>
-						<Tab label="scripter">
-							<span>TODO</span>
-						</Tab>
-						<Tab label="SpDbReader">
-							<SpDbReaderAPI />
-						</Tab>
-					</Tabs>
-				</CardText>
-			</Card>
-		);
+		try {
+			return (
+				<Card>
+					<CardHeader
+						title="API"
+						subtitle="스크립트에 사용되는 API"
+						avatar={ <Glyphicon glyph="book" /> } />
+					<CardText>
+						<Tabs>
+							<Tab label="scripter">
+								<span>TODO</span>
+							</Tab>
+							<Tab label="SpDbReader">
+								<SpDbReaderAPI />
+							</Tab>
+						</Tabs>
+					</CardText>
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ApiView;

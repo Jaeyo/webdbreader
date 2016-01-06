@@ -49,53 +49,57 @@ var TableColumnConfigCard = React.createClass({
 	},
 
 	render() {
-		var jdbc = {
-			jdbcDriver: this.props.jdbcDriver,
-			jdbcConnUrl: this.props.jdbcConnUrl,
-			jdbcUsername: this.props.jdbcUsername,
-			jdbcPassword: this.props.jdbcPassword
-		};
+		try {
+			var jdbc = {
+				jdbcDriver: this.props.jdbcDriver,
+				jdbcConnUrl: this.props.jdbcConnUrl,
+				jdbcUsername: this.props.jdbcUsername,
+				jdbcPassword: this.props.jdbcPassword
+			};
 
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title="table/column 설정"
-					subtitle="source database의 table/column 정보를 설정합니다."
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<Toggle
-						name="autoload"
-						value="autoload"
-						label="autoload"
-						ref="autoloadToggle"
-						style={{ width: '150px' }}
-						defaultToggled={true} />
-					<TextField
-						value={this.props.table}
-						onChange={this.handleChange.bind(this, 'table')}
-						floatingLabelText="table"
-						fullWidth={true}
-						onFocus={this.handleFocus.bind(this, 'table')} />
-					<TextField
-						value={this.props.columns}
-						onChange={this.handleChange.bind(this, 'columns')}
-						floatingLabelText="columns"
-						fullWidth={true}
-						onFocus={this.handleFocus.bind(this, 'columns')} />
-					<TableConfigDialog
-						ref="tableConfigDialog"
-						handleStateChange={this.props.handleStateChange}
-						table={this.props.table}
-						{...jdbc} />
-					<ColumnConfigDialog
-						ref="columnConfigDialog"
-						handleStateChange={this.props.handleStateChange}
-						table={this.props.table}
-						columns={this.props.columns} 
-						{...jdbc} />
-				</CardText>
-			</Card>
-		);
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title="table/column 설정"
+						subtitle="source database의 table/column 정보를 설정합니다."
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<Toggle
+							name="autoload"
+							value="autoload"
+							label="autoload"
+							ref="autoloadToggle"
+							style={{ width: '150px' }}
+							defaultToggled={true} />
+						<TextField
+							value={this.props.table}
+							onChange={this.handleChange.bind(this, 'table')}
+							floatingLabelText="table"
+							fullWidth={true}
+							onFocus={this.handleFocus.bind(this, 'table')} />
+						<TextField
+							value={this.props.columns}
+							onChange={this.handleChange.bind(this, 'columns')}
+							floatingLabelText="columns"
+							fullWidth={true}
+							onFocus={this.handleFocus.bind(this, 'columns')} />
+						<TableConfigDialog
+							ref="tableConfigDialog"
+							handleStateChange={this.props.handleStateChange}
+							table={this.props.table}
+							{...jdbc} />
+						<ColumnConfigDialog
+							ref="columnConfigDialog"
+							handleStateChange={this.props.handleStateChange}
+							table={this.props.table}
+							columns={this.props.columns} 
+							{...jdbc} />
+					</CardText>
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = TableColumnConfigCard;

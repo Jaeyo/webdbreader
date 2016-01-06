@@ -106,40 +106,44 @@ var ScriptInfoView = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card>
-				<CardHeader
-					title={this.props.title}
-					subtitle={this.state.regdate}
-					avatar={ <Glyphicon glyph="file" /> } />
-				<CardText>
-					<div style={{ textAlign: 'right' }}>
-						{
-							this.state.isRunning === false  ?
-							(<Button label="start" onClick={this.start} primary={true} />) : 
-							(<Button label="stop" onClick={this.stop} primary={true} />) 
-						}
-						<Button label="rename" onClick={this.rename} />
-						<Button label="delete" onClick={this.delete} />
-					</div>
-					<hr />
-					<Tabs>
-						<Tab label="infomation">
-							<InfoTab title={this.props.title} script={this.state.script} />
-						</Tab>
-						<Tab label="configuration">
-							<ScriptConfigTab title={this.props.title} script={this.state.script} />
-						</Tab>
-						<Tab label="tail">
-							<TailTab title={this.props.title} />
-						</Tab>
-					</Tabs>
-				</CardText>
-				<AlertDialog ref="alertDialog" />
-				<PromptDialog ref="promptDialog" />
-				<ConfirmDialog ref="confirmDialog" />
-			</Card>
-		);
+		try {
+			return (
+				<Card>
+					<CardHeader
+						title={this.props.title}
+						subtitle={this.state.regdate}
+						avatar={ <Glyphicon glyph="file" /> } />
+					<CardText>
+						<div style={{ textAlign: 'right' }}>
+							{
+								this.state.isRunning === false  ?
+								(<Button label="start" onClick={this.start} primary={true} />) : 
+								(<Button label="stop" onClick={this.stop} primary={true} />) 
+							}
+							<Button label="rename" onClick={this.rename} />
+							<Button label="delete" onClick={this.delete} />
+						</div>
+						<hr />
+						<Tabs>
+							<Tab label="infomation">
+								<InfoTab title={this.props.title} script={this.state.script} />
+							</Tab>
+							<Tab label="configuration">
+								<ScriptConfigTab title={this.props.title} script={this.state.script} />
+							</Tab>
+							<Tab label="tail">
+								<TailTab title={this.props.title} />
+							</Tab>
+						</Tabs>
+					</CardText>
+					<AlertDialog ref="alertDialog" />
+					<PromptDialog ref="promptDialog" />
+					<ConfirmDialog ref="confirmDialog" />
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ScriptInfoView;

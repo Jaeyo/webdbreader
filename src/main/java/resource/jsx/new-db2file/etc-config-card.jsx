@@ -27,30 +27,36 @@ var EtcConfigCard = React.createClass({
 	},
 
 	componentWillMount() {
-		this.initTimeUnitAndSimplePeriod();
+		try {
+			this.initTimeUnitAndSimplePeriod();
+		} catch(err) {
+			console.error(err.stack);
+		}
 	},
 
 	initTimeUnitAndSimplePeriod() {
-		var period = this.props.period.split(' ').join('');
-		if(String.contains(period, '*24*60*60*1000')) {
+		var period = this.props.period;
+		if(typeof period === 'string') period = eval(period);
+
+		if(period >= (24*60*60*1000) && (period % (24*60*60*1000)) === 0) {
 			this.setState({
 				timeUnit: 'day',
-				simplePeriod: period.replace('*24*60*60*1000', '')
+				simplePeriod: period / (24*60*60*1000)
 			});
-		} else if(String.contains(period, '*60*60*1000')) {
+		} else if(period >= (60*60*1000) && (period % (60*60*1000)) === 0) {
 			this.setState({
 				timeUnit: 'hour',
-				simplePeriod: period.replace('*60*60*1000', '')
+				simplePeriod: period / (60*60*1000)
 			});
-		} else if(String.contains(period, '*60*1000')) {
+		} else if(period >= (60*1000) && (period % (60*1000)) === 0) {
 			this.setState({
 				timeUnit: 'min',
-				simplePeriod: period.replace('*60*1000', '')
+				simplePeriod: period / (60*1000)
 			});
-		} else if(String.contains(period, '*1000')) {
+		} else {
 			this.setState({
 				timeUnit: 'sec',
-				simplePeriod: period.replace('*1000', '')
+				simplePeriod: Math.floor(period / 1000)
 			});
 		}
 	},
@@ -99,48 +105,52 @@ var EtcConfigCard = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card style={{ marginBottom: '10px' }}>
-				<CardHeader
-					title="기타 설정"
-					subtitle="기타 설정"
-					avatar={ <PolymerIcon icon="config" /> } />
-				<CardText>
-					<TextField
-						style={{ width: '100px', float: 'left' }}
-						value={this.state.simplePeriod}
-						floatingLabelText="period"
-						onChange={this.handleChange.bind(this, 'simplePeriod')} />
-					<SelectField
-						style={{ width: '100px', float: 'left' }}
-						floatingLabelText="timeunit"
-						value={this.state.timeUnit}
-						onChange={this.handleChange.bind(this, 'timeUnit')}
-						menuItems={[
-							{ text: '초', payload: 'sec' },
-							{ text: '분', payload: 'min' },
-							{ text: '시간', payload: 'hour' },
-							{ text: '일', payload: 'day' },
-							{ text: '일2', payload: 'day2' }
-						]} />
-					<TextField
-						fullWidth={true}
-						value={this.props.charset}
-						floatingLabelText="charset"
-						onChange={this.handleChange.bind(this, 'charset')} />
-					<TextField
-						fullWidth={true}
-						value={this.props.delimiter}
-						floatingLabelText="delimiter"
-						onChange={this.handleChange.bind(this, 'delimiter')} />
-					<TextField
-						fullWidth={true}
-						value={this.props.outputPath}
-						floatingLabelText="outputPath"
-						onChange={this.handleChange.bind(this, 'outputPath')} />
-				</CardText>
-			</Card>
-		);
+		try {
+			return (
+				<Card style={{ marginBottom: '10px' }}>
+					<CardHeader
+						title="기타 설정"
+						subtitle="기타 설정"
+						avatar={ <PolymerIcon icon="config" /> } />
+					<CardText>
+						<TextField
+							style={{ width: '100px', float: 'left' }}
+							value={this.state.simplePeriod}
+							floatingLabelText="period"
+							onChange={this.handleChange.bind(this, 'simplePeriod')} />
+						<SelectField
+							style={{ width: '100px', float: 'left' }}
+							floatingLabelText="timeunit"
+							value={this.state.timeUnit}
+							onChange={this.handleChange.bind(this, 'timeUnit')}
+							menuItems={[
+								{ text: '초', payload: 'sec' },
+								{ text: '분', payload: 'min' },
+								{ text: '시간', payload: 'hour' },
+								{ text: '일', payload: 'day' },
+								{ text: '일2', payload: 'day2' }
+							]} />
+						<TextField
+							fullWidth={true}
+							value={this.props.charset}
+							floatingLabelText="charset"
+							onChange={this.handleChange.bind(this, 'charset')} />
+						<TextField
+							fullWidth={true}
+							value={this.props.delimiter}
+							floatingLabelText="delimiter"
+							onChange={this.handleChange.bind(this, 'delimiter')} />
+						<TextField
+							fullWidth={true}
+							value={this.props.outputPath}
+							floatingLabelText="outputPath"
+							onChange={this.handleChange.bind(this, 'outputPath')} />
+					</CardText>
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

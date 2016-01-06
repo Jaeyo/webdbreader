@@ -8,19 +8,23 @@ var CardText = MaterialWrapper.CardText;
 
 var ConfigView = React.createClass({
 	render() {
-		return (
-			<div>
-				<Card>
-					<CardHeader
-						title="todo"
-						subtitle="todo"
-						avatar={ <PolymerIcon icon="config" /> } />
-					<CardText>
-						//TODO IMME
-					</CardText>
-				</Card>
-			</div>
-		);
+		try {
+			return (
+				<div>
+					<Card>
+						<CardHeader
+							title="todo"
+							subtitle="todo"
+							avatar={ <PolymerIcon icon="config" /> } />
+						<CardText>
+							//TODO IMME
+						</CardText>
+					</Card>
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

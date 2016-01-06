@@ -61,23 +61,27 @@ var ConfirmDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<div onClick={this.stopPropagation}>
-				<Dialog
-					actions={[
-						{ text: 'ok', onClick: this.ok },
-						{ text: 'cancel', onClick: this.cancel }
-					]}
-					actionFocus="ok"
-					autoDetectWindowHeight={true}
-					autoScrollBodyContent={true}
-					open={this.state.visible}>
-					<strong>
-						{this.state.msg}
-					</strong>
-				</Dialog>
-			</div>
-		);
+		try {
+			return (
+				<div onClick={this.stopPropagation}>
+					<Dialog
+						actions={[
+							{ text: 'ok', onClick: this.ok },
+							{ text: 'cancel', onClick: this.cancel }
+						]}
+						actionFocus="ok"
+						autoDetectWindowHeight={true}
+						autoScrollBodyContent={true}
+						open={this.state.visible}>
+						<strong>
+							{this.state.msg}
+						</strong>
+					</Dialog>
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ConfirmDialog;

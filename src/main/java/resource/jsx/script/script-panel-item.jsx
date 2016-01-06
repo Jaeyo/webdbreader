@@ -120,77 +120,81 @@ var ScriptPanelItem = React.createClass({
 	},
 
 	render() {
-		var StatisticsValue = (props) => {
+		try {
+			var StatisticsValue = (props) => {
+				return (
+					<span style={{ 
+						padding: '10px', 
+						color: 'white', 
+						backgroundColor: props.bg,
+						display: 'inline-block',
+						minWidth: '58px',
+						textAlign: 'center',
+						lineHeight: '1.1',
+						marginRight: '3px'
+					}}>{props.value}</span>
+				);
+			};
+
+			var OnOffLabel = (props) => {
+				return ( 
+					<label style={{ 
+						backgroundColor: props.value === 'on' ? color.blue : color.red,
+						color: 'white',
+						minWidth: '33px',
+						textAlign: 'center',
+						lineHeight: 1.4,
+						borderRadius: '5px',
+						marginRight: '10px'
+					}}>{props.value.toUpperCase()}</label> 
+				);
+			};
+
 			return (
-				<span style={{ 
-					padding: '10px', 
-					color: 'white', 
-					backgroundColor: props.bg,
-					display: 'inline-block',
-					minWidth: '58px',
-					textAlign: 'center',
-					lineHeight: '1.1',
-					marginRight: '3px'
-				}}>{props.value}</span>
-			);
-		};
-
-		var OnOffLabel = (props) => {
-			return ( 
-				<label style={{ 
-					backgroundColor: props.value === 'on' ? color.blue : color.red,
-					color: 'white',
-					minWidth: '33px',
-					textAlign: 'center',
-					lineHeight: 1.4,
-					borderRadius: '5px',
-					marginRight: '10px'
-				}}>{props.value.toUpperCase()}</label> 
-			);
-		};
-
-		return (
-			<ListItem 
-				onClick={this.goToInfoPage}
-				style={{ 
-					borderLeft: '7px solid ' + color.lightBlue,
-					marginBottom: '3px'
-				}}
-				rightIconButton={
-					<IconMenu 
-						iconButtonElement={ <Glyphicon glyph="option-horizontal" /> }
-						style={{ cursor: 'pointer', fontSize: '120%' }}
-						openDirection="top-left">
-						{
-							this.props.isRunning === true ? 
-							( <MenuItem primaryText="stop" onClick={this.stop} /> ) : 
-							( <MenuItem primaryText="start" onClick={this.start} /> )
-						}
-						<MenuItem primaryText="rename" onClick={this.rename} />
-						<MenuItem primaryText="delete" onClick={this.delete} />
-					</IconMenu>
-				}>
-				<div style={{ float: 'left' }}>
-					<h3 style={{ 
-						fontSize: '150%',
-						marginBottom: '10px'
-					}}>{this.props.title}</h3>
-					<div style={{ fontSize: '80%', color: 'gray' }}>
-						<OnOffLabel value={ this.props.isRunning === true ? 'on' : 'off' } />
-						<label>{this.props.regdate}</label>
+				<ListItem 
+					onClick={this.goToInfoPage}
+					style={{ 
+						borderLeft: '7px solid ' + color.lightBlue,
+						marginBottom: '3px'
+					}}
+					rightIconButton={
+						<IconMenu 
+							iconButtonElement={ <Glyphicon glyph="option-horizontal" /> }
+							style={{ cursor: 'pointer', fontSize: '120%' }}
+							openDirection="top-left">
+							{
+								this.props.isRunning === true ? 
+								( <MenuItem primaryText="stop" onClick={this.stop} /> ) : 
+								( <MenuItem primaryText="start" onClick={this.start} /> )
+							}
+							<MenuItem primaryText="rename" onClick={this.rename} />
+							<MenuItem primaryText="delete" onClick={this.delete} />
+						</IconMenu>
+					}>
+					<div style={{ float: 'left' }}>
+						<h3 style={{ 
+							fontSize: '150%',
+							marginBottom: '10px'
+						}}>{this.props.title}</h3>
+						<div style={{ fontSize: '80%', color: 'gray' }}>
+							<OnOffLabel value={ this.props.isRunning === true ? 'on' : 'off' } />
+							<label>{this.props.regdate}</label>
+						</div>
 					</div>
-				</div>
-				<div style={{ float: 'right', fontSize: '150%' }}>
-					<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_query} />
-					<StatisticsValue bg="rgb(243, 156, 18)" value={this.state.statistics_update} />
-					<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_fileWrite} />
-				</div>
-				<Clearfix />
-				<PromptDialog ref="promptDialog" />
-				<AlertDialog ref="alertDialog" />
-				<ConfirmDialog ref="confirmDialog" />
-			</ListItem>
-		);
+					<div style={{ float: 'right', fontSize: '150%' }}>
+						<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_query} />
+						<StatisticsValue bg="rgb(243, 156, 18)" value={this.state.statistics_update} />
+						<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_fileWrite} />
+					</div>
+					<Clearfix />
+					<PromptDialog ref="promptDialog" />
+					<AlertDialog ref="alertDialog" />
+					<ConfirmDialog ref="confirmDialog" />
+				</ListItem>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

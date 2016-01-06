@@ -50,39 +50,43 @@ var DbAddressDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<Dialog
-				title="database address config"
-				actions={[
-					{ text: 'ok', onClick: this.hide }
-				]}
-				actionFocus="ok"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.state.visible}>
-				<TextField
-					style={{ width: '170px', marginRight: '3px' }}
-					inputStyle={{ textAlign: 'center' }}
-					floatingLabelText="database ip"
-					value={this.props.dbIp}
-					onChange={this.handleChange.bind(this, 'dbIp')}
-					onKeyUp={this.handleKeyUp} />
-				<TextField
-					style={{ width: '60px', marginRight: '3px' }}
-					inputStyle={{ textAlign: 'center' }}
-					floatingLabelText="port"
-					value={this.props.dbPort}
-					onChange={this.handleChange.bind(this, 'dbPort')}
-					onKeyUp={this.handleKeyUp} />
-				<TextField
-					style={{ width: '120px', marginRight: '3px' }}
-					inputStyle={{ textAlign: 'center' }}
-					floatingLabelText="sid"
-					value={this.props.dbSid}
-					onChange={this.handleChange.bind(this, 'dbSid')}
-					onKeyUp={this.handleKeyUp} />
-			</Dialog>
-		);
+		try {
+			return (
+				<Dialog
+					title="database address config"
+					actions={[
+						{ text: 'ok', onClick: this.hide }
+					]}
+					actionFocus="ok"
+					autoDetectWindowHeight={true}
+					autoScrollBodyContent={true}
+					open={this.state.visible}>
+					<TextField
+						style={{ width: '170px', marginRight: '3px' }}
+						inputStyle={{ textAlign: 'center' }}
+						floatingLabelText="database ip"
+						value={this.props.dbIp}
+						onChange={this.handleChange.bind(this, 'dbIp')}
+						onKeyUp={this.handleKeyUp} />
+					<TextField
+						style={{ width: '60px', marginRight: '3px' }}
+						inputStyle={{ textAlign: 'center' }}
+						floatingLabelText="port"
+						value={this.props.dbPort}
+						onChange={this.handleChange.bind(this, 'dbPort')}
+						onKeyUp={this.handleKeyUp} />
+					<TextField
+						style={{ width: '120px', marginRight: '3px' }}
+						inputStyle={{ textAlign: 'center' }}
+						floatingLabelText="sid"
+						value={this.props.dbSid}
+						onChange={this.handleChange.bind(this, 'dbSid')}
+						onKeyUp={this.handleKeyUp} />
+				</Dialog>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = DbAddressDialog;

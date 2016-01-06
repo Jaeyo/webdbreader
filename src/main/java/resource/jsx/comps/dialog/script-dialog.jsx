@@ -67,27 +67,31 @@ var ScriptDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<Dialog
-				title="스크립트"
-				actions={[
-					{ text: 'ok', onClick: this.handleAction.bind(this, 'ok') },
-					{ text: 'cancel', onClick: this.handleAction.bind(this, 'cancel') }
-				]}
-				actionFocus="ok"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.state.visible}>
-				<TextField
-					floatingLabelText="script name"
-					value={this.state.scriptName}
-					fullWidth={true}
-					onChange={this.handleChange.bind(this, 'scriptName')} />
-				<div id="editor-wrapper" style={{ position: 'relative', height: '250px' }}>
-					<div id={ 'editor-' + this.uuid } style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 }} />
-				</div>
-			</Dialog>
-		);
+		try {
+			return (
+				<Dialog
+					title="스크립트"
+					actions={[
+						{ text: 'ok', onClick: this.handleAction.bind(this, 'ok') },
+						{ text: 'cancel', onClick: this.handleAction.bind(this, 'cancel') }
+					]}
+					actionFocus="ok"
+					autoDetectWindowHeight={true}
+					autoScrollBodyContent={true}
+					open={this.state.visible}>
+					<TextField
+						floatingLabelText="script name"
+						value={this.state.scriptName}
+						fullWidth={true}
+						onChange={this.handleChange.bind(this, 'scriptName')} />
+					<div id="editor-wrapper" style={{ position: 'relative', height: '250px' }}>
+						<div id={ 'editor-' + this.uuid } style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 }} />
+					</div>
+				</Dialog>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ScriptDialog;

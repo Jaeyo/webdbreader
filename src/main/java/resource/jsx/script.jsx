@@ -36,49 +36,57 @@ var ScriptsPanel = React.createClass({
 	},
 
 	render() {
-		return (
-			<Card style={{ marginBottom: '10px', overflow: 'inherit' }}>
-				<CardHeader
-					title="scripts"
-					subtitle="등록된 스크립트들을 제어합니다."
-					avatar={ <Glyphicon glyph="console" /> } />
-				<CardText>
-					<List>
-					{
-						this.state.scripts.length === 0 ? 
-						( <ListItem primaryText="no data" /> ) : 
-						this.state.scripts.map(function(script) {
-							return (
-								<ScriptPanelItem 
-									key={script.SCRIPT_NAME}
-									title={script.SCRIPT_NAME} 
-									isRunning={script.IS_RUNNING} 
-									regdate={script.REGDATE} />
-							);
-						})
-					}
-					</List>
-					<div style={{ padding: '10px', textAlign: 'right' }}>
-						<Button 
-							label="new script" 
-							primary={true} 
-							onClick={this.showNewScriptDialog} />
-					</div>
-				</CardText>
-				<NewScriptDialog ref="newScriptDialog" />
-			</Card>
-		);
+		try {
+			return (
+				<Card style={{ marginBottom: '10px', overflow: 'inherit' }}>
+					<CardHeader
+						title="scripts"
+						subtitle="등록된 스크립트들을 제어합니다."
+						avatar={ <Glyphicon glyph="console" /> } />
+					<CardText>
+						<List>
+						{
+							this.state.scripts.length === 0 ? 
+							( <ListItem primaryText="no data" /> ) : 
+							this.state.scripts.map(function(script) {
+								return (
+									<ScriptPanelItem 
+										key={script.SCRIPT_NAME}
+										title={script.SCRIPT_NAME} 
+										isRunning={script.IS_RUNNING} 
+										regdate={script.REGDATE} />
+								);
+							})
+						}
+						</List>
+						<div style={{ padding: '10px', textAlign: 'right' }}>
+							<Button 
+								label="new script" 
+								primary={true} 
+								onClick={this.showNewScriptDialog} />
+						</div>
+					</CardText>
+					<NewScriptDialog ref="newScriptDialog" />
+				</Card>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 
 var ScriptView = React.createClass({
 	render() {
-		return (
-			<div>	
-				<TotalChartCard />
-				<ScriptsPanel/>
-			</div>	
-		);
+		try {
+			return (
+				<div>	
+					<TotalChartCard />
+					<ScriptsPanel/>
+				</div>	
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ScriptView;

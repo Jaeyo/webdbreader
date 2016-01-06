@@ -53,38 +53,42 @@ var TailTab = React.createClass({
 	},
 
 	render() {
-		return (
-			<Paper style={{ padding: '10px' }}>
-				<Card style={{ marginBottom: '10px' }}>
-					<CardHeader
-						title="log tailing"
-						avatar={ <Glyphicon glyph="file" /> } />
-					<CardText>
-						<List style={{
-								maxHeight: '400px',
-								overflow: 'auto'
-							}}>
-						{
-							this.state.logs.map(function(log) {
-								return (
-									<ListItem 
-										key={log.timestamp}
-										primaryText={ util.format('[%s] %s', log.level.toUpperCase(), log.msg) }
-										secondaryText={ moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') } />
-								);
-							})
-						}
-						</List>
-						<Websocket 
-							ref="logTailWebsocket"
-							url={ 'ws://' + window.location.host + '/WebSocket/Logger' }
-							onClose={this.onLogTailClose}
-							onOpen={this.onLogtailOpen}
-							onMessage={this.onLogTailMsg} />
-					</CardText>
-				</Card>
-			</Paper>
-		);
+		try {
+			return (
+				<Paper style={{ padding: '10px' }}>
+					<Card style={{ marginBottom: '10px' }}>
+						<CardHeader
+							title="log tailing"
+							avatar={ <Glyphicon glyph="file" /> } />
+						<CardText>
+							<List style={{
+									maxHeight: '400px',
+									overflow: 'auto'
+								}}>
+							{
+								this.state.logs.map(function(log) {
+									return (
+										<ListItem 
+											key={log.timestamp}
+											primaryText={ util.format('[%s] %s', log.level.toUpperCase(), log.msg) }
+											secondaryText={ moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') } />
+									);
+								})
+							}
+							</List>
+							<Websocket 
+								ref="logTailWebsocket"
+								url={ 'ws://' + window.location.host + '/WebSocket/Logger' }
+								onClose={this.onLogTailClose}
+								onOpen={this.onLogtailOpen}
+								onMessage={this.onLogTailMsg} />
+						</CardText>
+					</Card>
+				</Paper>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = TailTab;

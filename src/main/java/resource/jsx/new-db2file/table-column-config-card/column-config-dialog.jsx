@@ -124,34 +124,38 @@ var ColumnConfigDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<Dialog
-				actions={[
-					{ text: 'close', onClick: this.onClose }
-				]}
-				actionFocus="close"
-				autoDetectWindowHeight={true}
-				autoScrollBodyContent={true}
-				open={this.state.visible}>
-				<Card>
-					<CardHeader
-						title="column 설정"
-						subtitle="사용할 column 정보를 설정합니다."
-						avatar={ <PolymerIcon icon="config" /> } />
-					<CardText>
-						<TextField
-							floatingLabelText="columns"
-							value={this.props.columns} 
-							onChange={this.handleChange.bind(this, 'columns')}
-							fullWidth={true} />
-						<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
-							{ this.renderColumnList() }
-						</div>
-					</CardText>
-				</Card>
-				<AlertDialog ref="alertDialog" />
-			</Dialog>
-		);
+		try {
+			return (
+				<Dialog
+					actions={[
+						{ text: 'close', onClick: this.onClose }
+					]}
+					actionFocus="close"
+					autoDetectWindowHeight={true}
+					autoScrollBodyContent={true}
+					open={this.state.visible}>
+					<Card>
+						<CardHeader
+							title="column 설정"
+							subtitle="사용할 column 정보를 설정합니다."
+							avatar={ <PolymerIcon icon="config" /> } />
+						<CardText>
+							<TextField
+								floatingLabelText="columns"
+								value={this.props.columns} 
+								onChange={this.handleChange.bind(this, 'columns')}
+								fullWidth={true} />
+							<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
+								{ this.renderColumnList() }
+							</div>
+						</CardText>
+					</Card>
+					<AlertDialog ref="alertDialog" />
+				</Dialog>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = ColumnConfigDialog;

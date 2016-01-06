@@ -97,6 +97,43 @@ exports.postScript = function(args) {
 	});
 };
 
+//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, 
+// 			jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn,
+//			delimiter, charset, outputPath
+exports.generateDb2FileScript = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Script/Generate/Db2File/')
+			.query({
+				period: args.period,
+				dbVendor: args.dbVendor,
+				dbIp: args.dbIp,
+				dbPort: args.dbPort,
+				dbSid: args.dbSid,
+				jdbcDriver: args.jdbcDriver,
+				jdbcConnUrl: args.jdbcConnUrl,
+				jdbcUsername: args.jdbcUsername,
+				jdbcPassword: args.jdbcPassword,
+				columns: args.columns,
+				table: args.table,
+				bindingType: args.bindingType,
+				bindingColumn: args.bindingColumn,
+				delimiter: args.delimiter,
+				charset: args.charset,
+				outputPath: args.outputPath
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.script);
+					});
+			});
+	});
+};
+
 //args: title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword
 exports.importVer1Script = function(args) {
 	args.title = encodeURI(args.title);
@@ -177,6 +214,35 @@ exports.loadScript = function(args) {
 						reject(err);
 					}).then(function(body) {
 						resolve(body.script);
+					});
+			});
+	});
+};
+
+//args: title
+exports.loadScriptParams = function(args) {
+	args.title = encodeURI(args.title);
+
+	return new Promise(function(resolve, reject) {
+		request
+			.get(util.format('/REST/Script/LoadParams/%s/', args.title))
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						if(body.parsable === 1) {
+							resolve({
+								parsable: 1,
+								params: body.params
+							});
+						} else {
+							resolve({
+								parsable: 0,
+								msg: body.msg
+							});
+						}
 					});
 			});
 	});

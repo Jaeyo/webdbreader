@@ -10,11 +10,15 @@ var Paper = MaterialWrapper.Paper;
 
 var SpDbReaderAPI = React.createClass({
 	render() {
-		return (
-			<Paper style={{ padding: '10px' }}>
-				<API_DateUtil_format />
-			</Paper>
-		);
+		try {
+			return (
+				<Paper style={{ padding: '10px' }}>
+					<API_DateUtil_format />
+				</Paper>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = SpDbReaderAPI;

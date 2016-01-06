@@ -71,27 +71,31 @@ var PromptDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<div onClick={this.stopPropagation}>
-				<Dialog
-					actions={[
-						{ text: 'ok', onClick: this.ok },
-						{ text: 'cancel', onClick: this.cancel }
-					]}
-					actionFocus="ok"
-					autoDetectWindowHeight={true}
-					autoScrollBodyContent={true}
-					open={this.state.visible}>
-					<strong>
-						{this.state.msg}
-					</strong>
-					<TextField
-						value={this.state.answer}
-						fullWidth={true}
-						onChange={this.handleChange.bind(this, 'answer')} />
-				</Dialog>
-			</div>
-		);
+		try {
+			return (
+				<div onClick={this.stopPropagation}>
+					<Dialog
+						actions={[
+							{ text: 'ok', onClick: this.ok },
+							{ text: 'cancel', onClick: this.cancel }
+						]}
+						actionFocus="ok"
+						autoDetectWindowHeight={true}
+						autoScrollBodyContent={true}
+						open={this.state.visible}>
+						<strong>
+							{this.state.msg}
+						</strong>
+						<TextField
+							value={this.state.answer}
+							fullWidth={true}
+							onChange={this.handleChange.bind(this, 'answer')} />
+					</Dialog>
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 

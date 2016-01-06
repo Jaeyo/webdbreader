@@ -45,38 +45,42 @@ var NewScriptDialog = React.createClass({
 	},
 
 	render() {
-		return (
-			<div>
-				<Dialog
-					title="new script"
-					actions={[
-						{ text: 'close', onClick: this.hide }
-					]}
-					actionFocus="close"
-					open={this.state.visible}
-					onRequestClose={this.hide}
-					autoDetectWindowHeight={true}
-					autoScrollBodyContent={true}>
-					<FlatButton 
-						label=">> database to file"
-						style={{ width: '100%', textAlign: 'left' }}
-						onClick={this.goDb2File} />
-					<FlatButton 
-						label=">> database to database"
-						style={{ width: '100%', textAlign: 'left' }}
-						onClick={this.goDb2Db} />
-					<FlatButton 
-						label=">> import version 1 script"
-						style={{ width: '100%', textAlign: 'left' }}
-						onClick={this.goImportVer1Script} />
-					<FlatButton 
-						label=">> new script"
-						style={{ width: '100%', textAlign: 'left' }}
-						onClick={this.goNewScript} />
-				</Dialog>
-				<ImportVer1ScriptDialog ref="importVer1scriptDialog" />
-			</div>
-		);
+		try {
+			return (
+				<div>
+					<Dialog
+						title="new script"
+						actions={[
+							{ text: 'close', onClick: this.hide }
+						]}
+						actionFocus="close"
+						open={this.state.visible}
+						onRequestClose={this.hide}
+						autoDetectWindowHeight={true}
+						autoScrollBodyContent={true}>
+						<FlatButton 
+							label=">> database to file"
+							style={{ width: '100%', textAlign: 'left' }}
+							onClick={this.goDb2File} />
+						<FlatButton 
+							label=">> database to database"
+							style={{ width: '100%', textAlign: 'left' }}
+							onClick={this.goDb2Db} />
+						<FlatButton 
+							label=">> import version 1 script"
+							style={{ width: '100%', textAlign: 'left' }}
+							onClick={this.goImportVer1Script} />
+						<FlatButton 
+							label=">> new script"
+							style={{ width: '100%', textAlign: 'left' }}
+							onClick={this.goNewScript} />
+					</Dialog>
+					<ImportVer1ScriptDialog ref="importVer1scriptDialog" />
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = NewScriptDialog;

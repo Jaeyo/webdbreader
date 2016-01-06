@@ -125,54 +125,58 @@ var NewDb2DbView = React.createClass({
 	},
 
 	render() {
-		var srcJdbc = {
-			jdbcDriver: this.state.srcJdbcDriver,
-			jdbcConnUrl: this.state.srcJdbcConnUrl,
-			jdbcUsername: this.state.srcJdbcUsername,
-			jdbcPassword: this.state.srcJdbcPassword
-		};
+		try {
+			var srcJdbc = {
+				jdbcDriver: this.state.srcJdbcDriver,
+				jdbcConnUrl: this.state.srcJdbcConnUrl,
+				jdbcUsername: this.state.srcJdbcUsername,
+				jdbcPassword: this.state.srcJdbcPassword
+			};
 
-		var destJdbc = {
-			jdbcDriver: this.state.destJdbcDriver,
-			jdbcConnUrl: this.state.destJdbcConnUrl,
-			jdbcUsername: this.state.destJdbcUsername,
-			jdbcPassword: this.state.destJdbcPassword
-		};
+			var destJdbc = {
+				jdbcDriver: this.state.destJdbcDriver,
+				jdbcConnUrl: this.state.destJdbcConnUrl,
+				jdbcUsername: this.state.destJdbcUsername,
+				jdbcPassword: this.state.destJdbcPassword
+			};
 
-		var srcDbInfo = {
-			dbVendor: this.state.srcDbVendor,
-			dbIp: this.state.dbIp,
-			dbPort: this.state.dbPort,
-			dbSid: this.state.dbSid
-		};
+			var srcDbInfo = {
+				dbVendor: this.state.srcDbVendor,
+				dbIp: this.state.dbIp,
+				dbPort: this.state.dbPort,
+				dbSid: this.state.dbSid
+			};
 
-		var destDbInfo = {
-			dbVendor: this.state.destDbVendor,
-			dbIp: this.state.destDbIp,
-			dbPort: this.state.destDbPort,
-			dbSid: this.state.destDbSid
-		};
+			var destDbInfo = {
+				dbVendor: this.state.destDbVendor,
+				dbIp: this.state.destDbIp,
+				dbPort: this.state.destDbPort,
+				dbSid: this.state.destDbSid
+			};
 
-		var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
-			title: "source database 설정",
-			subtitle: "source database의 연결정보를 설정합니다.",
-			handleStateChange: this.handleSrcDbStateChange
-		});
+			var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
+				title: "source database 설정",
+				subtitle: "source database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleSrcDbStateChange
+			});
 
-		var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
-			title: "destination database 설정",
-			subtitle: "destination database의 연결정보를 설정합니다.",
-			handleStateChange: this.handleDestDbStateChange
-		});
+			var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
+				title: "destination database 설정",
+				subtitle: "destination database의 연결정보를 설정합니다.",
+				handleStateChange: this.handleDestDbStateChange
+			});
 
 
-		return (
-			<div>
-				<DatabaseConfigCard {...srcDatabaseConfigCardData} />
-				<DatabaseConfigCard {...destDatabaseConfigCardData} />
-				<TableColumnsMappingCard dataAdapter={this.dataAdapter} />
-			</div>
-		);
+			return (
+				<div>
+					<DatabaseConfigCard {...srcDatabaseConfigCardData} />
+					<DatabaseConfigCard {...destDatabaseConfigCardData} />
+					<TableColumnsMappingCard dataAdapter={this.dataAdapter} />
+				</div>
+			);
+		} catch(err) {
+			console.error(err.stack);
+		}
 	}
 });
 module.exports = NewDb2DbView;
