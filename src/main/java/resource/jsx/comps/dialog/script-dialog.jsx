@@ -16,17 +16,23 @@ var ScriptDialog = React.createClass({
 		return { 
 			visible: false,
 			scriptName: '',
-			script: ''
+			script: '',
+			isScriptNameEditable: true
 		};
 	},
 
-	show(scriptName, script, onActionCallback) {
-		this.onActionCallback = onActionCallback;
+	//args: scriptName, script, options, onActionCallback
+	//options: isScriptNameEditable
+	show(args) {
+		if(args.onActionCallback != null) this.onActionCallback = args.onActionCallback;
+		if(args.options == null) args.options = {};
+		if(args.options.isScriptNameEditable == null) args.options.isScriptNameEditable = this.state.isScriptNameEditable;
 
 		this.setState({ 
 			visible: true, 
-			scriptName: scriptName,
-			script: script 
+			scriptName: args.scriptName,
+			script: args.script,
+			isScriptNameEditable: args.options.isScriptNameEditable
 		}, function() {
 			this.initScriptEditor();
 		}.bind(this));
@@ -83,6 +89,7 @@ var ScriptDialog = React.createClass({
 						floatingLabelText="script name"
 						value={this.state.scriptName}
 						fullWidth={true}
+						disabled={this.state.isScriptNameEditable === false}
 						onChange={this.handleChange.bind(this, 'scriptName')} />
 					<div id="editor-wrapper" style={{ position: 'relative', height: '250px' }}>
 						<div id={ 'editor-' + this.uuid } style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 }} />

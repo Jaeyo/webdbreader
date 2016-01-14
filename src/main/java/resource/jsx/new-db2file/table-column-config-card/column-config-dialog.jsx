@@ -72,9 +72,7 @@ var ColumnConfigDialog = React.createClass({
 				loadedColumns: columns
 			});
 		}.bind(this)).catch(function(err) {
-			console.error(err.stack);
 			this.setState({ isColumnsLoaded: false });
-			if(typeof err !== 'string') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},

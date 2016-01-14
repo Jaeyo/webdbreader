@@ -6,6 +6,7 @@ var precondition = require('../utils/precondition.js');
 var server = require('../utils/server.js');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
+var jdbcTmpl = require('../utils/util.js').jdbcTmpl;
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
 var ScriptDialog = require('../comps/dialog/script-dialog.jsx');
 var Db2File = {
@@ -122,30 +123,35 @@ var ScriptConfigTab = React.createClass({
 			outputPath: this.state.outputPath
 		})
 		.then(function(script) {
-			this.refs.scriptDialog.show('', script, function(result, scriptName, script) {
-				if(result === false) {
-					this.refs.scriptDialog.hide();
-					return;
-				}
-
-				if(scriptName == null || scriptName.trim().length === 0) {
-					this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
-					return;
-				}
-
-				server.postScript({ title: scriptName, script: script })
-					.then(function(success) {
+			this.refs.scriptDialog.show({
+				scriptName: this.props.title,
+				script: script,
+				options: {
+					isScriptNameEditable: false
+				},
+				onActionCallback: function(result, scriptName, script) {
+					if(result === false) {
 						this.refs.scriptDialog.hide();
-						this.refs.alertDialog.show('success', 'script registered');
-					}.bind(this))
-					.catch(function(err) {
-						if(typeof err === 'object') err = JSON.stringify(err);
-						this.refs.alertDialog.show('danger', err);
-					}.bind(this));
-			}.bind(this));
+						return;
+					}
+
+					if(scriptName == null || scriptName.trim().length === 0) {
+						this.refs.alertDialog.show('danger', '스크립트 이름 미입력');
+						return;
+					}
+
+					server.editScript({ title: scriptName, script: script })
+						.then(function(success) {
+							this.refs.scriptDialog.hide();
+							this.refs.alertDialog.show('success', 'script registered');
+						}.bind(this))
+						.catch(function(err) {
+							this.refs.alertDialog.show('danger', err);
+						}.bind(this));
+				}.bind(this)
+			});
 		}.bind(this))
 		.catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},

@@ -55,7 +55,6 @@ var ScriptInfoView = React.createClass({
 			.then(function(script) {
 				callback({ script: script });
 			}).catch(function(err) {
-				console.error(err.stack);
 				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
 			}.bind(this));
 	},
@@ -76,8 +75,6 @@ var ScriptInfoView = React.createClass({
 					});
 				}
 			}.bind(this)).catch(function(err) {
-				console.error(err.stack); //DEBUG
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 	},
@@ -90,7 +87,6 @@ var ScriptInfoView = React.createClass({
 		}).then(function() {
 			window.location.reload(true);
 		}).catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
@@ -103,7 +99,6 @@ var ScriptInfoView = React.createClass({
 		}).then(function() {
 			window.location.reload(true);
 		}).catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
@@ -118,7 +113,6 @@ var ScriptInfoView = React.createClass({
 			}).then(function() {
 				window.location.href = '/Script/Info?title=' + encodeURI(newTitle);
 			}).catch(function(err) {
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 		}.bind(this)).show('rename to', this.props.title);
@@ -133,7 +127,6 @@ var ScriptInfoView = React.createClass({
 			}).then(function() {
 				window.location.href = '/';
 			}).catch(function(err) {
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
 			});
 		}.bind(this)).show('delete script: ' + this.props.title);

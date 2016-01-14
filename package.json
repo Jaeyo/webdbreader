@@ -35,7 +35,7 @@
     "precond": "^0.2.3",
     "promise": "^7.0.4",
     "query-string": "^3.0.0",
-    "react": "^0.14.2",
+    "react": "^0.14.5",
     "react-addons-css-transition-group": "^0.14.2",
     "react-bootstrap": "^0.28.1",
     "react-chartjs": "^0.6.0",

@@ -43,7 +43,6 @@ var ScriptPanelItem = React.createClass({
 		}).then(function() {
 			window.location.reload(true);
 		}).catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
@@ -56,7 +55,6 @@ var ScriptPanelItem = React.createClass({
 		}).then(function() {
 			window.location.reload(true);
 		}).catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
@@ -71,7 +69,6 @@ var ScriptPanelItem = React.createClass({
 			}).then(function() {
 				window.location.reload(true);
 			}).catch(function(err) {
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 		}.bind(this)).show('rename to', this.props.title);
@@ -86,9 +83,8 @@ var ScriptPanelItem = React.createClass({
 			}).then(function() {
 				window.location.reload(true);
 			}).catch(function(err) {
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
-			});
+			}.bind(this));
 		}.bind(this)).show('delete script: ' + this.props.title);
 	},
 
@@ -105,7 +101,7 @@ var ScriptPanelItem = React.createClass({
 			this.setState(state);
 		}.bind(this))
 		.catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
+			this.refs.alertDialog.show('danger', err);
 			clearInterval(this.intervalId);
 		}.bind(this));
 	},

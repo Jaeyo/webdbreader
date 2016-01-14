@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.dao.ScriptDAO;
 import com.igloosec.scripter.exception.AlreadyExistsException;
 import com.igloosec.scripter.exception.AlreadyStartedException;
 import com.igloosec.scripter.exception.NotFoundException;
@@ -32,6 +33,7 @@ import com.sun.jersey.api.uri.UriTemplate;
 public class ScriptREST extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptREST.class);
 	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
+	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -45,6 +47,8 @@ public class ScriptREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/Info/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
+			} else if(new UriTemplate("/Titles/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getTitles(req, resp, pathParams));
 			} else if(new UriTemplate("/Generate/Db2File/").match(pathInfo, pathParams)){
 				resp.getWriter().print(generateDb2File(req, resp, pathParams));
 			} else if(new UriTemplate("/Load/{title}/").match(pathInfo, pathParams)){
@@ -141,6 +145,11 @@ public class ScriptREST extends HttpServlet {
 	private String getScriptInfo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		JSONArray scripts = scriptService.getScriptInfo();
 		return new JSONObject().put("success", 1).put("scriptInfos", scripts).toString();
+	}
+	
+	private String getTitles(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		JSONArray titles = scriptDAO.selectTitles();
+		return new JSONObject().put("success", 1).put("titles", titles).toString();
 	}
 
 	@Override

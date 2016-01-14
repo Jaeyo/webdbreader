@@ -82,5 +82,13 @@ module.exports = {
 	Tabs: getMaterialComponent(require('material-ui/lib/tabs/tabs')),
 	Tab: require('material-ui/lib/tabs/tab'),
 
-	Paper: require('material-ui/lib/paper')
+	Paper: require('material-ui/lib/paper'),
+
+	Table: require('material-ui/lib/table/table'),
+	TableBody: require('material-ui/lib/table/table-body'),
+	TableFooter: require('material-ui/lib/table/table-footer'),
+	TableHeader: require('material-ui/lib/table/table-header'),
+	TableHeaderColumn : require('material-ui/lib/table/table-header-column'),
+	TableRow: require('material-ui/lib/table/table-row'),
+	TableRowColumn: require('material-ui/lib/table/table-row-column')
 };

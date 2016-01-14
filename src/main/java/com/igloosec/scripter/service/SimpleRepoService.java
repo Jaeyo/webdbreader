@@ -5,6 +5,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
+import org.json.JSONObject;
+
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.NotExistsException;

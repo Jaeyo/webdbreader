@@ -44,7 +44,6 @@ var TotalChartCard = React.createClass({
 			this.setState({ chartData: convertChartData(data) });
 		}.bind(this))
 		.catch(function(err) {
-			if(typeof err ==='object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},

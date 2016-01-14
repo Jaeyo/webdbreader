@@ -20,6 +20,11 @@ public class ScriptDAO {
 		return ds.getJdbcTmpl().queryForJsonArray("SELECT script_name, regdate FROM script ORDER BY script_name");
 	}
 	
+	public JSONArray selectTitles() {
+		logger.info("");
+		return ds.getJdbcTmpl().queryForJsonArray("SELECT script_name FROM script ORDER BY regdate");
+	}
+	
 	public void save(String scriptName, String script){
 		logger.info("scriptName: {}", scriptName);
 		ds.getJdbcTmpl().update("INSERT INTO script (script_name, script, regdate) "

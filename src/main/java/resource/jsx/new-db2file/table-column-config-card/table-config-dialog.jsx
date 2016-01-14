@@ -70,9 +70,7 @@ var TableConfigDialog = React.createClass({
 				loadedTables: tables
 			});
 		}.bind(this)).catch(function(err) {
-			console.error(err.stack);
 			this.setState({ isTablesLoaded: true });
-			if(typeof err !== 'string') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},

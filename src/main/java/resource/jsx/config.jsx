@@ -5,21 +5,16 @@ var Button = MaterialWrapper.Button;
 var Card = MaterialWrapper.Card;
 var CardHeader = MaterialWrapper.CardHeader;
 var CardText = MaterialWrapper.CardText;
+var SimpleRepoCard = require('./config/simple-repo-card.jsx');
 
 var ConfigView = React.createClass({
 	render() {
 		try {
 			return (
 				<div>
-					<Card>
-						<CardHeader
-							title="todo"
-							subtitle="todo"
-							avatar={ <PolymerIcon icon="config" /> } />
-						<CardText>
-							//TODO IMME
-						</CardText>
-					</Card>
+					<div style={{ marginBottom: '10px' }}>
+						<SimpleRepoCard />
+					</div>
 				</div>
 			);
 		} catch(err) {

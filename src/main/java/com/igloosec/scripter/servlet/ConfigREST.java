@@ -16,12 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.service.ConfigService;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ConfigREST extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigREST.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
+	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -35,11 +37,12 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getConfig(req, resp, pathParams));
-				resp.getWriter().flush();
+			} else if(new UriTemplate("/SimpleRepo/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getSimpleRepo(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
-				resp.getWriter().flush();
 			} 
+			resp.getWriter().flush();
 		} catch(IllegalArgumentException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
@@ -57,6 +60,21 @@ public class ConfigREST extends HttpServlet {
 		return new JSONObject().put("success", 1).put("configs", configService.load()).toString();
 	} 
 	
+	private String getSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		String scriptName = req.getParameter("scriptName");
+		String key = req.getParameter("key");
+		
+		if(scriptName != null && key != null) {
+			String value = simpleRepoDAO.select(scriptName, key);
+			return new JSONObject().put("success", 1).put("value", value).toString();
+		} else if(scriptName == null && key == null) {
+			JSONArray simpleRepoData = simpleRepoDAO.selectAll();
+			return new JSONObject().put("success", 1).put("data", simpleRepoData).toString();
+		} else {
+			throw new IllegalArgumentException(String.format("scriptName: %s, key: %s", scriptName, key));
+		}
+	}
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
@@ -69,11 +87,16 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postConfig(req, resp, pathParams));
-				resp.getWriter().flush();
+			} else if(new UriTemplate("/AddSimpleRepo/").match(pathInfo, pathParams)){
+				resp.getWriter().print(addSimpleRepo(req, resp, pathParams));
+			} else if(new UriTemplate("/UpdateSimpleRepo/").match(pathInfo, pathParams)){
+				resp.getWriter().print(updateSimpleRepo(req, resp, pathParams));
+			} else if(new UriTemplate("/RemoveSimpleRepo/").match(pathInfo, pathParams)){
+				resp.getWriter().print(removeSimpleRepo(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
-				resp.getWriter().flush();
 			} 
+			resp.getWriter().flush();
 		} catch(IllegalArgumentException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
@@ -106,5 +129,48 @@ public class ConfigREST extends HttpServlet {
 		} 
 		
 		return new JSONObject().put("success", 1).toString();
-	} 
+	}
+	
+	private String addSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String scriptName = req.getParameter("scriptName");
+		String key = req.getParameter("key");
+		String value = req.getParameter("value");
+		
+		Preconditions.checkArgument(scriptName != null, "scriptName is null");
+		Preconditions.checkArgument(key != null, "key is null");
+		Preconditions.checkArgument(value != null, "value is null");
+		
+		simpleRepoDAO.insert(scriptName, key, value);
+		
+		return new JSONObject().put("success", 1).toString();
+	}
+	
+	private String updateSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String scriptName = req.getParameter("scriptName");
+		String key = req.getParameter("key");
+		
+		String newKey = req.getParameter("newKey");
+		String newValue = req.getParameter("newValue");
+		
+		Preconditions.checkArgument(scriptName != null, "scriptName is null");
+		Preconditions.checkArgument(key != null, "key is null");
+		Preconditions.checkArgument(newKey != null, "newKey is null");
+		Preconditions.checkArgument(newValue != null, "newValue is null");
+		
+		simpleRepoDAO.update(scriptName, key, newKey, newValue);
+		
+		return new JSONObject().put("success", 1).toString();
+	}
+	
+	private String removeSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String scriptName = req.getParameter("scriptName");
+		String key = req.getParameter("key");
+		
+		Preconditions.checkArgument(scriptName != null);
+		Preconditions.checkArgument(key != null);	
+		
+		simpleRepoDAO.delete(scriptName);
+		
+		return new JSONObject().put("success", 1).toString();
+	}
 } 

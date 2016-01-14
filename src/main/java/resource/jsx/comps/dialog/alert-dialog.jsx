@@ -29,6 +29,11 @@ var AlertDialog = React.createClass({
 	},
 
 	show(bsStyle, msg) {
+		if(bsStyle === 'danger' && msg instanceof Error) console.error(msg.stack);
+		
+		if(msg instanceof Error) msg = msg.stack;
+		else if(typeof msg === 'object') msg = JSON.stringify(msg);
+
 		this.setState({
 			visible: true,
 			bsStyle: bsStyle,
@@ -40,7 +45,6 @@ var AlertDialog = React.createClass({
 	}, 
 
 	hide() {
-		console.log('hide'); //DEBUG
 		this.setState({ visible: false }, function() {
 			if(this.onHideCallback != null) this.onHideCallback();
 			this.onHideCallback = null;

@@ -24,9 +24,7 @@ var ScriptsPanel = React.createClass({
 			.then(function(scripts) {
 				this.setState({ scripts: scripts });
 			}.bind(this)).catch(function(err) {
-				console.error(err);
 				console.error(err.stack);
-				//TODO IMME
 			});
 	},
 

@@ -80,7 +80,6 @@ var ImportVer1ScriptDialog = React.createClass({
 					.onHide(this.hide)
 					.show('success', 'script saved');
 			}.bind(this)).catch(function(err) {
-				if(typeof err === 'object') err = JSON.stringify(err);
 				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 		}

@@ -248,6 +248,22 @@ exports.loadScriptParams = function(args) {
 	});
 };
 
+exports.loadScriptTitles = function() {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Script/Titles/')
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.titles);
+					});
+			});
+	});
+};
+
 //args: title, newTitle
 exports.renameScript = function(args) {
 	args.title = encodeURI(args.title);
@@ -362,6 +378,109 @@ exports.lastStatistics = function(args) {
 						}).then(function(body) {
 							resolve(body.data);
 						});
+			});
+	});
+};
+
+exports.getSimpleRepoAll = function() {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Config/SimpleRepo/')
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.data);
+					});
+			});
+	});
+};
+
+// args: scriptName, key
+exports.getSimpleRepo = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Config/SimpleRepo/')
+			.query({
+				scriptName: args.scriptName,
+				key: args.key
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.value);
+					});
+			});
+	});
+};
+
+//args: scriptName, key, value
+exports.addSimpleRepo = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.post('/REST/Config/AddSimpleRepo/')
+			.type('form')
+			.send({
+				scriptName: args.scriptName,
+				key: args.key,
+				value: args.value
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(true);
+					});
+			});
+	});
+};
+
+//args: scriptName, key, newKey, newValue
+exports.updateSimpleRepo = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.post('/REST/Config/UpdateSimpleRepo/')
+			.type('form')
+			.send({
+				scriptName: args.scriptName,
+				key: args.key,
+				newKey: args.newKey,
+				newValue: args.newValue
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(true);
+					});
+			});
+	});
+};
+
+//args: scriptName, key
+exports.removeSimpleRepo = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.post('/REST/Config/RemoveSimpleRepo/')
+			.type('form')
+			.send({
+				scriptName: args.scriptName,
+				key: args.key
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(true);
+					});
 			});
 	});
 };

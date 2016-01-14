@@ -11,24 +11,26 @@ import com.igloosec.scripter.exception.ScriptNotParsableException;
 
 public class ScriptParamsParser {
 	private ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-				
+	
 	public JSONObject parseParams(String scriptName, String script) throws ScriptException, ScriptNotParsableException {
 		String type = null;
 		
 		for(String line: script.split("\n")) {
 			if(type == null) {
 				type = parseType(line);
-			} else if(type.startsWith("db2file")) {
+				continue;
+			}
+			
+			if(type.startsWith("db2file")) {
 				evalDb2FileLine(line);
 			} else {
 				throw new ScriptNotParsableException(String.format("%s, unknown type: %s", scriptName, type));
 			}
 		}
+	
+		if(type == null) throw new ScriptNotParsableException("type or params is null");
 		
 		JSONObject params = parseDb2FileVariable();
-	
-		if(type == null || params == null) 
-			throw new ScriptNotParsableException("type or params is null");
 		
 		return params;
 	}
@@ -77,7 +79,7 @@ public class ScriptParamsParser {
 		variables.put("columns", scriptEngine.get("columns"));
 		variables.put("bindingType", scriptEngine.get("bindingType"));
 		variables.put("bindingColumn", scriptEngine.get("bindingColumn"));
-		variables.put("period", scriptEngine.get("period"));
+		variables.put("period", makeReadablePeriod(Math.round((double) scriptEngine.get("period"))));
 		variables.put("charset", scriptEngine.get("charset"));
 		variables.put("delimiter", scriptEngine.get("delimiter"));
 		variables.put("outputPath", scriptEngine.get("outputPath"));
@@ -105,5 +107,21 @@ public class ScriptParamsParser {
 		}
 		
 		return variables;
+	}
+	
+	public static String makeReadablePeriod(long period) {
+		long day = 24 * 60 * 60 * 1000;
+		long hour = 60 * 60 * 1000;
+		long min = 60 * 1000;
+		long sec = 1000;
+		
+		if(period >= day && period % day == 0)
+			return (period / day) + " * 24 * 60 * 60 * 1000";
+		else if(period >= hour && period % hour == 0)
+			return (period / hour) + " * 60 * 60 * 1000";
+		else if(period >= min && period % min == 0)
+			return (period / min) + " * 60 * 1000";
+		else 
+			return (period / sec) + " * 1000";
 	}
 }

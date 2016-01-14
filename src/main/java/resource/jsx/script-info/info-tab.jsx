@@ -51,7 +51,6 @@ var InfoTab = React.createClass({
 			window.location.reload(true);
 		})
 		.catch(function(err) {
-			if(typeof err === 'object') err = JSON.stringify(err);
 			this.refs.alertDialog.show('danger', err);
 		}.bind(this));
 	},
@@ -60,14 +59,6 @@ var InfoTab = React.createClass({
 		try {
 			return (
 				<Paper style={{ padding: '10px' }}>
-					<Card style={{ marginBottom: '10px' }}>
-						<CardHeader
-							title="information"
-							avatar={ <Glyphicon glyph="file" /> } />
-						<CardText>
-							<div>information</div>
-						</CardText>
-					</Card>
 					<Card style={{ marginBottom: '10px' }}>
 						<CardHeader
 							title="code"
