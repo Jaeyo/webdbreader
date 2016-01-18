@@ -36,13 +36,14 @@ public class ScriptLogger {
 	public void error(String msg) {
 		logger.error(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
-		notiService.sendErrorLogNoti(this.scriptName, msg);
+		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
 	} 
 	
 	public void error(String msg, Throwable e) {
 		logger.error(msg, e);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", ExceptionUtils.getStackTrace(e));
-		notiService.sendErrorLogNoti(this.scriptName, msg);
+		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
+		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), ExceptionUtils.getStackTrace(e));
 	} 
 } 

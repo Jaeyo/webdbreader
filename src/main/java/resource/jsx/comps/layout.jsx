@@ -3,6 +3,7 @@ var util = require('util');
 var _ = require('underscore');
 var color = require('../utils/util.js').color;
 var Glyphicon = require('react-bootstrap').Glyphicon;
+var RealtimeNoti = require('./realtime-noti.jsx');
 
 var PAGE_WIDTH = '1024px';
 var NAV_WIDTH = '100px';
@@ -39,6 +40,7 @@ var Layout = React.createClass({
 					<Nav active={this.props.active} />
 					<Container>{this.props.children}</Container>
 				</div>
+				<RealtimeNoti />
 			</div>	
 		);
 	}

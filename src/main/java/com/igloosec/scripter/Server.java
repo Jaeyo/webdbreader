@@ -25,6 +25,7 @@ import com.igloosec.scripter.servlet.FileOutMsgWebSocketServlet;
 import com.igloosec.scripter.servlet.Index;
 import com.igloosec.scripter.servlet.LoggerWebSocketServlet;
 import com.igloosec.scripter.servlet.MetaREST;
+import com.igloosec.scripter.servlet.NotiWebSocketServlet;
 import com.igloosec.scripter.servlet.ScriptREST;
 import com.igloosec.scripter.servlet.ShutdownREST;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
@@ -112,6 +113,7 @@ public class Server {
 		
 		context.addServlet(LoggerWebSocketServlet.class, "/WebSocket/Logger/*");
 		context.addServlet(FileOutMsgWebSocketServlet.class, "/WebSocket/FileOutMsg/*");
+		context.addServlet(NotiWebSocketServlet.class, "/WebSocket/Noti/*");
 		
 		context.addServlet(Index.class, "");
 		context.addServlet(Index.class, "/Script/*");

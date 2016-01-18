@@ -67,7 +67,6 @@ var TailTab = React.createClass({
 	initFileOutMsgEventSource() {
 		this.fileOutMsgWebSocket = new WebSocket(util.format('ws://%s/WebSocket/FileOutMsg/%s/', location.host, this.props.title));
 		this.fileOutMsgWebSocket.onmessage = function(msg) {
-			console.log('cp1, ', { msg: msg }); //DEBUG
 			msg = JSON.parse(msg.data);
 
 			if(msg.type !== 'fileOutMsg') {

@@ -3,7 +3,6 @@ var util = require('util');
 var moment = require('moment');
 var uuid = require('uuid');
 var Glyphicon = require('react-bootstrap').Glyphicon;
-var Websocket = require('../comps/websocket.jsx');
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
 var MaterialWrapper = require('../comps/material-wrapper.jsx');
 var Button = MaterialWrapper.Button;
@@ -28,7 +27,6 @@ var InfoTab = React.createClass({
 		title: React.PropTypes.string.isRequired,
 		script: React.PropTypes.string.isRequired
 	},
-
 
 	componentDidMount() {
 		this.editor = ace.edit(this.uuid);

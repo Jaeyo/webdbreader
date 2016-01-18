@@ -1,30 +1,26 @@
 package com.igloosec.scripter.service;
 
-import java.util.List;
+import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.igloosec.scripter.servlet.NotiWebSocket;
+import com.google.common.collect.Sets;
 
 public class NotiService {
-	private List<NotiWebSocket> notiWebSockets = Lists.newArrayList();
+	private Set<ErrLogListener> errLogListeners = Sets.newHashSet();
 	
-	public void addNotiWebSocket(NotiWebSocket notiWebSocket) {
-		notiWebSockets.add(notiWebSocket);
+	public void addErrLogListener(ErrLogListener listener) {
+		errLogListeners.add(listener);
 	}
 	
-	public void removeNotiWebSocket(NotiWebSocket notiWebSocket) {
-		notiWebSockets.remove(notiWebSocket);
+	public void removeErrLogListener(ErrLogListener listener) {
+		errLogListeners.remove(listener);
 	}
 	
-	public void sendErrorLogNoti(String scriptName, String msg) {
-		for(NotiWebSocket notiWebSocket: notiWebSockets) {
-//			notiWebSocket.sendErrorLogNotiMsg(scriptName, msg);
-		}
+	public void dispatchErrLog(String scriptName, long timestamp, String msg) {
+		for(ErrLogListener listener: errLogListeners)
+			listener.listen(scriptName, timestamp, msg);
 	}
 	
-	public void sendScriptEndNoti(String scriptName) {
-		for(NotiWebSocket notiWebSocket: notiWebSockets) {
-//			notiWebSocket.sendScriptEndNotiMsg(scriptName);
-		}
+	public interface ErrLogListener {
+		public void listen(String scriptName, long timestamp, String msg);
 	}
 }
