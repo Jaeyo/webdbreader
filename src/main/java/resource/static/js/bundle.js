@@ -57,7 +57,7 @@
 	var NewDb2FileView = __webpack_require__(677);
 	var NewDb2DbView = __webpack_require__(678);
 	var ConfigView = __webpack_require__(680);
-	__webpack_require__(682);
+	__webpack_require__(683);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -62578,6 +62578,7 @@
 	var IconMenu = MaterialWrapper.IconMenu;
 	var MenuItem = MaterialWrapper.MenuItem;
 	var Paper = MaterialWrapper.Paper;
+	var server = __webpack_require__(537);
 
 	moment.locale('ko');
 
@@ -76002,7 +76003,6 @@
 	var util = __webpack_require__(166);
 	var moment = __webpack_require__(572);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
-	var Websocket = __webpack_require__(660);
 	var MaterialWrapper = __webpack_require__(414);
 	var Button = MaterialWrapper.Button;
 	var FlatButton = MaterialWrapper.FlatButton;
@@ -76020,38 +76020,71 @@
 	var TailTab = React.createClass({
 		displayName: 'TailTab',
 
+		loggerWebSocket: null,
+		fileOutMsgWebSocket: null,
+
 		PropTypes: {
 			title: React.PropTypes.string.isRequired
 		},
 
 		getInitialState: function getInitialState() {
 			return {
-				logs: []
+				logs: [],
+				fileOutMsgs: []
 			};
 		},
 
-		onLogTailMsg: function onLogTailMsg(msg) {
-			msg = JSON.parse(msg);
-			if (msg.type !== 'msg') {
-				console.error('invalid msg: ' + JSON.stringify(msg));
-				return;
+		componentDidMount: function componentDidMount() {
+			try {
+				if (!window.WebSocket) {
+					console.error('websocket not supported by this browser');
+					return;
+				}
+
+				this.initLoggerWebSocket();
+				this.initFileOutMsgEventSource();
+			} catch (err) {
+				console.error(err.stack);
 			}
-
-			var logs = [msg].concat(this.state.logs);
-			if (logs.length > 50) logs.splice(logs.length - 1, logs.length - 50);
-			this.setState({ logs: logs });
 		},
 
-		onLogTailClose: function onLogTailClose() {
-			console.log('log tail close');
+		initLoggerWebSocket: function initLoggerWebSocket() {
+			this.loggerWebSocket = new WebSocket(util.format('ws://%s/WebSocket/Logger/%s/', location.host, this.props.title));
+			this.loggerWebSocket.onmessage = (function (msg) {
+				msg = JSON.parse(msg.data);
+
+				if (msg.type !== 'log') {
+					console.error(msg);
+					return;
+				}
+
+				var logs = [msg].concat(this.state.logs);
+				if (logs.length > 50) logs.splice(logs.length - 1, logs.length - 50);
+				this.setState({ logs: logs });
+			}).bind(this);
+			this.loggerWebSocket.onerror = function (evt) {
+				console.error('on error', { evt: evt });
+			};
 		},
 
-		onLogtailOpen: function onLogtailOpen() {
-			console.log('log tail open');
-			this.refs.logTailWebsocket.send({
-				type: 'start-tail',
-				scriptName: this.props.title
-			});
+		initFileOutMsgEventSource: function initFileOutMsgEventSource() {
+			this.fileOutMsgWebSocket = new WebSocket(util.format('ws://%s/WebSocket/FileOutMsg/%s/', location.host, this.props.title));
+			this.fileOutMsgWebSocket.onmessage = (function (msg) {
+				console.log('cp1, ', { msg: msg }); //DEBUG
+				msg = JSON.parse(msg.data);
+
+				if (msg.type !== 'fileOutMsg') {
+					console.error(msg);
+					return;
+				}
+
+				var fileOutMsgs = [msg].concat(this.state.fileOutMsgs);
+				if (fileOutMsgs.length > 50) logs.splice(fileOutMsgs.length - 1, fileOutMsgs.length - 50);
+				this.setState({ fileOutMsgs: fileOutMsgs });
+			}).bind(this);
+			this.fileOutMsgWebSocket.onerror = function (evt) {
+				console.error('on error', { evt: evt });
+			};
 		},
 
 		render: function render() {
@@ -76068,25 +76101,19 @@
 						React.createElement(
 							CardText,
 							null,
-							React.createElement(
-								List,
-								{ style: {
-										maxHeight: '400px',
-										overflow: 'auto'
-									} },
-								this.state.logs.map(function (log) {
-									return React.createElement(ListItem, {
-										key: log.timestamp,
-										primaryText: util.format('[%s] %s', log.level.toUpperCase(), log.msg),
-										secondaryText: moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') });
-								})
-							),
-							React.createElement(Websocket, {
-								ref: 'logTailWebsocket',
-								url: 'ws://' + window.location.host + '/WebSocket/Logger',
-								onClose: this.onLogTailClose,
-								onOpen: this.onLogtailOpen,
-								onMessage: this.onLogTailMsg })
+							React.createElement(LogList, { logs: this.state.logs })
+						)
+					),
+					React.createElement(
+						Card,
+						{ style: { marginBottom: '10px' } },
+						React.createElement(CardHeader, {
+							title: 'file tailing',
+							avatar: React.createElement(Glyphicon, { glyph: 'file' }) }),
+						React.createElement(
+							CardText,
+							null,
+							React.createElement(FileOutMsgList, { fileOutMsgs: this.state.fileOutMsgs })
 						)
 					)
 				);
@@ -76096,6 +76123,40 @@
 		}
 	});
 	module.exports = TailTab;
+
+	//props: logs
+	var LogList = function LogList(props) {
+		return React.createElement(
+			List,
+			{ style: {
+					maxHeight: '400px',
+					overflow: 'auto'
+				} },
+			props.logs.map(function (log) {
+				return React.createElement(ListItem, {
+					key: 'log-' + log.timestamp,
+					primaryText: util.format('[%s] %s', log.level.toUpperCase(), log.msg),
+					secondaryText: moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') });
+			})
+		);
+	};
+
+	//props: fileOutMsgs
+	var FileOutMsgList = function FileOutMsgList(props) {
+		return React.createElement(
+			List,
+			{ style: {
+					maxHeight: '400px',
+					overflow: 'auto'
+				} },
+			props.fileOutMsgs.map(function (fileOutMsg) {
+				return React.createElement(ListItem, {
+					key: 'fileOutMsg-' + fileOutMsg.timestamp,
+					primaryText: util.format('[%s] %s', fileOutMsg.filename, fileOutMsg.msg),
+					secondaryText: moment(fileOutMsg.timestamp).format('YYYY.MM.DD HH:mm:ss') });
+			})
+		);
+	};
 
 /***/ },
 /* 677 */
@@ -76635,7 +76696,7 @@
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var Table = __webpack_require__(169).Table;
-	var SimpleRepoDialog = __webpack_require__(686);
+	var SimpleRepoDialog = __webpack_require__(682);
 	var AlertDialog = __webpack_require__(551);
 	var ConfirmDialog = __webpack_require__(564);
 	var server = __webpack_require__(537);
@@ -76863,13 +76924,117 @@
 /* 682 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var MaterialWrapper = __webpack_require__(414);
+	var Dialog = MaterialWrapper.Dialog;
+	var TextField = MaterialWrapper.TextField;
+	var Button = MaterialWrapper.Button;
+	var server = __webpack_require__(537);
+
+	var SimpleRepoDialog = React.createClass({
+		displayName: 'SimpleRepoDialog',
+
+		//args: action, scriptName, key, value, hide(func)
+		callback: null,
+
+		getInitialState: function getInitialState() {
+			return {
+				visible: false,
+				scriptName: null,
+				key: null,
+				value: null,
+				btns: []
+			};
+		},
+
+		//args: scriptName, key, value, btns(array of 'add', 'update', 'delete', 'cancel'), callback(func)
+		show: function show(args) {
+			this.callback = args.callback;
+			this.setState({
+				visible: true,
+				scriptName: args.scriptName,
+				key: args.key,
+				value: args.value,
+				btns: args.btns
+			});
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+			this.callback = null;
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+			var state = {};
+			state[name] = evt.target.value;
+			this.setState(state);
+		},
+
+		render: function render() {
+			var actions = null;
+			if (this.state.btns != null) {
+				actions = this.state.btns.map((function (btn) {
+					return {
+						text: btn,
+						onClick: (function () {
+							this.callback({
+								action: btn,
+								scriptName: this.state.scriptName,
+								key: this.state.key,
+								value: this.state.value,
+								hide: this.hide
+							});
+						}).bind(this)
+					};
+				}).bind(this));
+			}
+
+			try {
+				return React.createElement(
+					Dialog,
+					{
+						actions: actions,
+						actionFocus: 'close',
+						autoDetectWindowHeight: true,
+						autoScrollBodyContent: true,
+						open: this.state.visible },
+					React.createElement(TextField, {
+						floatingLabelText: 'script name',
+						fullWidth: true,
+						value: this.state.scriptName,
+						onChange: this.handleChange.bind(this, 'scriptName') }),
+					React.createElement(TextField, {
+						floatingLabelText: 'key',
+						fullWidth: true,
+						value: this.state.key,
+						onChange: this.handleChange.bind(this, 'key') }),
+					React.createElement(TextField, {
+						floatingLabelText: 'value',
+						fullWidth: true,
+						value: this.state.value,
+						onChange: this.handleChange.bind(this, 'value') })
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = SimpleRepoDialog;
+
+/***/ },
+/* 683 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(683);
+	var content = __webpack_require__(684);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(685)(content, {});
+	var update = __webpack_require__(686)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -76886,10 +77051,10 @@
 	}
 
 /***/ },
-/* 683 */
+/* 684 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(684)();
+	exports = module.exports = __webpack_require__(685)();
 	// imports
 
 
@@ -76900,7 +77065,7 @@
 
 
 /***/ },
-/* 684 */
+/* 685 */
 /***/ function(module, exports) {
 
 	/*
@@ -76956,7 +77121,7 @@
 
 
 /***/ },
-/* 685 */
+/* 686 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -77179,110 +77344,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 686 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var MaterialWrapper = __webpack_require__(414);
-	var Dialog = MaterialWrapper.Dialog;
-	var TextField = MaterialWrapper.TextField;
-	var Button = MaterialWrapper.Button;
-	var server = __webpack_require__(537);
-
-	var SimpleRepoDialog = React.createClass({
-		displayName: 'SimpleRepoDialog',
-
-		//args: action, scriptName, key, value, hide(func)
-		callback: null,
-
-		getInitialState: function getInitialState() {
-			return {
-				visible: false,
-				scriptName: null,
-				key: null,
-				value: null,
-				btns: []
-			};
-		},
-
-		//args: scriptName, key, value, btns(array of 'add', 'update', 'delete', 'cancel'), callback(func)
-		show: function show(args) {
-			this.callback = args.callback;
-			this.setState({
-				visible: true,
-				scriptName: args.scriptName,
-				key: args.key,
-				value: args.value,
-				btns: args.btns
-			});
-		},
-
-		hide: function hide() {
-			this.setState({ visible: false });
-			this.callback = null;
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-			var state = {};
-			state[name] = evt.target.value;
-			this.setState(state);
-		},
-
-		render: function render() {
-			var actions = null;
-			if (this.state.btns != null) {
-				actions = this.state.btns.map((function (btn) {
-					return {
-						text: btn,
-						onClick: (function () {
-							this.callback({
-								action: btn,
-								scriptName: this.state.scriptName,
-								key: this.state.key,
-								value: this.state.value,
-								hide: this.hide
-							});
-						}).bind(this)
-					};
-				}).bind(this));
-			}
-
-			try {
-				return React.createElement(
-					Dialog,
-					{
-						actions: actions,
-						actionFocus: 'close',
-						autoDetectWindowHeight: true,
-						autoScrollBodyContent: true,
-						open: this.state.visible },
-					React.createElement(TextField, {
-						floatingLabelText: 'script name',
-						fullWidth: true,
-						value: this.state.scriptName,
-						onChange: this.handleChange.bind(this, 'scriptName') }),
-					React.createElement(TextField, {
-						floatingLabelText: 'key',
-						fullWidth: true,
-						value: this.state.key,
-						onChange: this.handleChange.bind(this, 'key') }),
-					React.createElement(TextField, {
-						floatingLabelText: 'value',
-						fullWidth: true,
-						value: this.state.value,
-						onChange: this.handleChange.bind(this, 'value') })
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = SimpleRepoDialog;
 
 /***/ }
 /******/ ]);

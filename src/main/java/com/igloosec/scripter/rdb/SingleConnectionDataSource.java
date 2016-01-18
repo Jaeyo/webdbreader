@@ -3,8 +3,6 @@ package com.igloosec.scripter.rdb;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -13,7 +11,7 @@ public class SingleConnectionDataSource implements DataSource{
 	
 	public SingleConnectionDataSource(Connection conn) {
 		this.conn = conn;
-	} //INIT
+	}
 	
 	@Override
 	public Connection getConnection() throws SQLException {
@@ -54,9 +52,4 @@ public class SingleConnectionDataSource implements DataSource{
 	public boolean isWrapperFor(Class<?> iface) throws SQLException {
 		return false;
 	}
-
-	@Override
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-		return null;
-	}
-} //class
+}

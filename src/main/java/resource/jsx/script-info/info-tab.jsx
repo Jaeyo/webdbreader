@@ -16,6 +16,7 @@ var ListItem = MaterialWrapper.ListItem;
 var IconMenu = MaterialWrapper.IconMenu;
 var MenuItem = MaterialWrapper.MenuItem;
 var Paper = MaterialWrapper.Paper;
+var server = require('../utils/server.js');
 
 moment.locale('ko');
 

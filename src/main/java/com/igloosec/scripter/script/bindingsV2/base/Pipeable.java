@@ -79,9 +79,9 @@ public class Pipeable {
 	
 	public WriteTextFilePipe writeTextFile(NativeObject args) {
 		try {
-			String filename = (String) args.get("filename");
-			String charset = (String) args.get("charset");
-			boolean dateFormat = (boolean) args.get("dateFormat");
+			String filename = (String) args.get("filename", args);
+			String charset = (String) args.get("charset", args);
+			Boolean dateFormat = (Boolean) args.get("dateFormat", args);
 
 			WriteTextFilePipe nextPipe = new WriteTextFilePipe(this.pipeHead, filename, charset, dateFormat);
 			setNextPipe(nextPipe);
@@ -95,10 +95,10 @@ public class Pipeable {
 	
 	public DBUpdatePipe dbUpdate(NativeObject args) {
 		try {
-			String driver = (String) args.get("driver");
-			String connUrl = (String) args.get("connUrl");
-			String username = (String) args.get("username");
-			String password = (String) args.get("password");
+			String driver = (String) args.get("driver", args);
+			String connUrl = (String) args.get("connUrl", args);
+			String username = (String) args.get("username", args);
+			String password = (String) args.get("password", args);
 
 			DBUpdatePipe nextPipe = new DBUpdatePipe(this.pipeHead, driver, connUrl, username, password);
 			setNextPipe(nextPipe);

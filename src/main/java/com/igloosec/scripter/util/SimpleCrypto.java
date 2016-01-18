@@ -23,9 +23,17 @@ public class SimpleCrypto {
 			byte[] rawKey = getRawKey(privateKey.getBytes());
 			byte[] result = encrypt(rawKey, cleartext.getBytes());
 			return toHex(result);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
+		} catch (NoSuchAlgorithmException e) {
 			throw new CryptoException(cleartext, e);
-		} //catch
+		} catch (InvalidKeyException e) {
+			throw new CryptoException(cleartext, e);
+		} catch (NoSuchPaddingException e) {
+			throw new CryptoException(cleartext, e);
+		} catch (IllegalBlockSizeException e) {
+			throw new CryptoException(cleartext, e);
+		} catch (BadPaddingException e) {
+			throw new CryptoException(cleartext, e);
+		}
 	}
 
 	public static String decrypt(String encrypted) throws CryptoException {
@@ -34,9 +42,17 @@ public class SimpleCrypto {
 			byte[] enc = toByte(encrypted);
 			byte[] result = decrypt(rawKey, enc);
 			return new String(result);
-		} catch(NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e){
+		} catch (NoSuchAlgorithmException e) {
 			throw new CryptoException(encrypted, e);
-		} //catch
+		} catch (InvalidKeyException e) {
+			throw new CryptoException(encrypted, e);
+		} catch (NoSuchPaddingException e) {
+			throw new CryptoException(encrypted, e);
+		} catch (IllegalBlockSizeException e) {
+			throw new CryptoException(encrypted, e);
+		} catch (BadPaddingException e) {
+			throw new CryptoException(encrypted, e);
+		}
 	}
 
 	private static byte[] getRawKey(byte[] seed) throws NoSuchAlgorithmException {
@@ -94,4 +110,4 @@ public class SimpleCrypto {
 	private static void appendHex(StringBuffer sb, byte b) {
 		sb.append(HEX.charAt((b >> 4) & 0x0f)).append(HEX.charAt(b & 0x0f));
 	}
-} //class
+}

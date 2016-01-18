@@ -16,10 +16,12 @@ public class SingletonInstanceRepo {
 			if(instance == null){
 				instance = clazz.newInstance();
 				instances.put(clazz, instance);
-			} //if
-		} catch (InstantiationException | IllegalAccessException e) {
+			}
+		} catch (InstantiationException e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
-		} //catch
+		} catch (IllegalAccessException e) {
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 		return (T) instance;
-	} // getInstance
-} // class
+	}
+}

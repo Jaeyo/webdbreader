@@ -13,13 +13,13 @@ public class FileOutMsgService {
 		tailingListeners.remove(scriptName, listener);
 	}
 	
-	public void dispatchMsg(String scriptName, long timestamp, String msg) {
+	public void dispatchMsg(String scriptName, String filename, long timestamp, String msg) {
 		for(FileOutListener listener: tailingListeners.get(scriptName)) {
-			listener.listen(timestamp, msg);
+			listener.listen(filename, timestamp, msg);
 		}
 	}
 	
 	public interface FileOutListener {
-		public void listen(long timestamp, String msg);
+		public void listen(String filename, long timestamp, String msg);
 	} 
 }

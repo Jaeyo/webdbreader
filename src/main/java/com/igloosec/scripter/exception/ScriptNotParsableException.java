@@ -5,10 +5,6 @@ public class ScriptNotParsableException extends Exception {
 		super();
 	}
 
-	public ScriptNotParsableException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-
 	public ScriptNotParsableException(String message, Throwable cause) {
 		super(message, cause);
 	}

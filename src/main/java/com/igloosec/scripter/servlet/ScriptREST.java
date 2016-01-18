@@ -58,7 +58,7 @@ public class ScriptREST extends HttpServlet {
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			}
-				resp.getWriter().flush();
+			resp.getWriter().flush();
 		} catch(IllegalArgumentException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
@@ -180,11 +180,6 @@ public class ScriptREST extends HttpServlet {
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			}
-			resp.getWriter().flush();
-		} catch(IllegalArgumentException | VersionException e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());

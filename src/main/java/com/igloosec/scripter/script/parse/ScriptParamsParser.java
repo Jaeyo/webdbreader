@@ -79,7 +79,7 @@ public class ScriptParamsParser {
 		variables.put("columns", scriptEngine.get("columns"));
 		variables.put("bindingType", scriptEngine.get("bindingType"));
 		variables.put("bindingColumn", scriptEngine.get("bindingColumn"));
-		variables.put("period", makeReadablePeriod(Math.round((double) scriptEngine.get("period"))));
+		variables.put("period", makeReadablePeriod(Math.round((Double) scriptEngine.get("period"))));
 		variables.put("charset", scriptEngine.get("charset"));
 		variables.put("delimiter", scriptEngine.get("delimiter"));
 		variables.put("outputPath", scriptEngine.get("outputPath"));

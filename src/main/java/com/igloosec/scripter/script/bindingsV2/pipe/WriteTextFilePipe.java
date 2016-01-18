@@ -14,10 +14,12 @@ import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.script.bindingsV2.base.Pipe;
 import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.service.FileOutMsgService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class WriteTextFilePipe extends Pipe implements Closeable {
 	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
+	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 	
 	private String filename = null;
 	private String charset = null;
@@ -25,6 +27,8 @@ public class WriteTextFilePipe extends Pipe implements Closeable {
 	
 	private File file = null;
 	private PrintWriter output = null;
+	
+	private String scriptName = ScriptThread.currentThread().getScriptName();
 	
 	public WriteTextFilePipe(PipeHead pipeHead, String filename, String charset, boolean dateFormat) {
 		super(pipeHead);
@@ -51,11 +55,14 @@ public class WriteTextFilePipe extends Pipe implements Closeable {
 		try {
 			if(data instanceof List) {
 				List<Object> list = (List<Object>) data;
-				for(Object item: list)
+				for(Object item: list) {
 					this.output.append(item.toString());
+					fileOutMsgService.dispatchMsg(this.scriptName, this.filename, System.currentTimeMillis(), item.toString());
+				}
 				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, list.size());
 			} else {
 				this.output.append(data.toString());
+				fileOutMsgService.dispatchMsg(this.scriptName, this.filename, System.currentTimeMillis(), data.toString());
 				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE);
 			}
 			this.output.flush();

@@ -18,13 +18,13 @@ public class NotiService {
 	
 	public void sendErrorLogNoti(String scriptName, String msg) {
 		for(NotiWebSocket notiWebSocket: notiWebSockets) {
-			notiWebSocket.sendErrorLogNotiMsg(scriptName, msg);
+//			notiWebSocket.sendErrorLogNotiMsg(scriptName, msg);
 		}
 	}
 	
 	public void sendScriptEndNoti(String scriptName) {
 		for(NotiWebSocket notiWebSocket: notiWebSockets) {
-			notiWebSocket.sendScriptEndNotiMsg(scriptName);
+//			notiWebSocket.sendScriptEndNotiMsg(scriptName);
 		}
 	}
 }

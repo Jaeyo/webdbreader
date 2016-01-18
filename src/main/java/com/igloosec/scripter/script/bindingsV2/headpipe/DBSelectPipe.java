@@ -25,11 +25,11 @@ public class DBSelectPipe extends PipeHead {
 	private String query = null;
 	
 	public DBSelectPipe(NativeObject args) {
-		this.driver = (String) args.get("driver");
-		this.connUrl = (String) args.get("connUrl");
-		this.username = (String) args.get("username");
-		this.password = (String) args.get("password");
-		this.query = (String) args.get("query");
+		this.driver = (String) args.get("driver", args);
+		this.connUrl = (String) args.get("connUrl", args);
+		this.username = (String) args.get("username", args);
+		this.password = (String) args.get("password", args);
+		this.query = (String) args.get("query", args);
 	}
 	
 	@Override
