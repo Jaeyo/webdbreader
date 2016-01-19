@@ -42,6 +42,7 @@ public class DBSelectPipe extends PipeHead {
 			SqlRowSet result = jdbcTmpl.queryForRowSet(this.query);
 	
 			while(result.next()) {
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
 				SqlRowSetMetaData metadata = result.getMetaData();
 				int colCount = metadata.getColumnCount();
 				Object[] valueArr = new Object[colCount];
@@ -50,7 +51,6 @@ public class DBSelectPipe extends PipeHead {
 				next(valueArr);
 			}
 			complete();
-			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.QUERY);
 		} finally {
 			if(conn != null) conn.close();
 		}

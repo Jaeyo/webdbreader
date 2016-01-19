@@ -59,11 +59,11 @@ public class WriteTextFilePipe extends Pipe implements Closeable {
 					this.output.append(item.toString());
 					fileOutMsgService.dispatchMsg(this.scriptName, this.filename, System.currentTimeMillis(), item.toString());
 				}
-				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE, list.size());
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT, list.size());
 			} else {
 				this.output.append(data.toString());
 				fileOutMsgService.dispatchMsg(this.scriptName, this.filename, System.currentTimeMillis(), data.toString());
-				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.FILE_WRITE);
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
 			}
 			this.output.flush();
 		} catch (Exception e) {

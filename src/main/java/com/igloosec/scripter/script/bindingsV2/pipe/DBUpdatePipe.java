@@ -7,7 +7,6 @@ import java.util.List;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
-import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.script.bindingsV2.base.Pipe;
 import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
@@ -40,10 +39,10 @@ public class DBUpdatePipe extends Pipe {
 				List<Object> list = (List<Object>) data;
 				String[] queries = list.toArray(new String[list.size()]);
 				jdbcTmpl.batchUpdate(queries);
-				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE, queries.length);
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT, queries.length);
 			} else {
 				jdbcTmpl.update(data.toString());
-				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.UPDATE);
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
 			}
 		} finally {
 			if(conn != null) conn.close();

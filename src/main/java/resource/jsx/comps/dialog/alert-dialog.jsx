@@ -44,7 +44,9 @@ var AlertDialog = React.createClass({
 		});
 	}, 
 
-	hide() {
+	hide(evt) {
+		evt.stopPropagation();
+		
 		this.setState({ visible: false }, function() {
 			if(this.onHideCallback != null) this.onHideCallback();
 			this.onHideCallback = null;

@@ -46,6 +46,8 @@ var TailTab = React.createClass({
 	},
 
 	initLoggerWebSocket() {
+		var self = this;
+
 		this.loggerWebSocket = new WebSocket(util.format('ws://%s/WebSocket/Logger/%s/', location.host, this.props.title));
 		this.loggerWebSocket.onmessage = function(msg) {
 			msg = JSON.parse(msg.data);
@@ -55,16 +57,36 @@ var TailTab = React.createClass({
 				return;
 			}
 
-			var logs = [msg].concat(this.state.logs);
+			var logs = [msg].concat(self.state.logs);
 			if(logs.length > 50) logs.splice(logs.length-1, logs.length - 50);
-			this.setState({ logs: logs });
-		}.bind(this);
+			self.setState({ logs: logs });
+		};
 		this.loggerWebSocket.onerror = function(evt) {
 			console.error('on error', { evt: evt });
 		};
 	},
 
 	initFileOutMsgEventSource() {
+		var self = this;
+
+		var tempFileOutMsgs = [];
+		var popTempFileOutMsgsFn = function() {
+			if(tempFileOutMsgs.length === 0) {
+				setTimeout(popTempFileOutMsgsFn, 1000);
+				return;
+			}
+
+			var fileOutMsgs = tempFileOutMsgs.concat(self.state.fileOutMsgs);
+			tempFileOutMsgs = [];
+			if(fileOutMsgs.length > 50) fileOutMsgs.splice(fileOutMsgs.length-1, fileOutMsgs.length - 50);
+			console.log('before setState', { fileOutMsgs: fileOutMsgs }); //DEBUG
+			self.setState({ fileOutMsgs: fileOutMsgs }, function() {
+				console.log('after setState'); //DEBUG
+				setTimeout(popTempFileOutMsgsFn, 1000);
+			});
+		};
+		setTimeout(popTempFileOutMsgsFn, 1000);
+
 		this.fileOutMsgWebSocket = new WebSocket(util.format('ws://%s/WebSocket/FileOutMsg/%s/', location.host, this.props.title));
 		this.fileOutMsgWebSocket.onmessage = function(msg) {
 			msg = JSON.parse(msg.data);
@@ -74,10 +96,11 @@ var TailTab = React.createClass({
 				return;
 			}
 
-			var fileOutMsgs = [msg].concat(this.state.fileOutMsgs);
-			if(fileOutMsgs.length > 50) logs.splice(fileOutMsgs.length-1, fileOutMsgs.length - 50);
-			this.setState({ fileOutMsgs: fileOutMsgs });
-		}.bind(this);
+			tempFileOutMsgs.push(msg);
+			// var fileOutMsgs = [msg].concat(self.state.fileOutMsgs);
+			// if(fileOutMsgs.length > 50) fileOutMsgs.splice(fileOutMsgs.length-1, fileOutMsgs.length - 50);
+			// self.setState({ fileOutMsgs: fileOutMsgs });
+		};
 		this.fileOutMsgWebSocket.onerror = function(evt) {
 			console.error('on error', { evt: evt });
 		};
@@ -121,10 +144,14 @@ var LogList = (props) => {
 			overflow: 'auto'
 		}}>
 		{
-			props.logs.map(function(log) {
+			props.logs.map(function(log, index) {
+				console.log({
+					log: log,
+					timestamp: log.timestamp
+				}); //DEBUG
 				return (
 					<ListItem 
-						key={'log-' + log.timestamp}
+						key={'log-' + log.uuid}
 						primaryText={ util.format('[%s] %s', log.level.toUpperCase(), log.msg) }
 						secondaryText={ moment(log.timestamp).format('YYYY.MM.DD HH:mm:ss') } />
 				);
@@ -145,7 +172,7 @@ var FileOutMsgList = (props) => {
 			props.fileOutMsgs.map(function(fileOutMsg) {
 				return (
 					<ListItem
-						key={'fileOutMsg-' + fileOutMsg.timestamp}
+						key={'fileOutMsg-' + fileOutMsg.uuid}
 						primaryText={ util.format('[%s] %s', fileOutMsg.filename, fileOutMsg.msg) }
 						secondaryText={ moment(fileOutMsg.timestamp).format('YYYY.MM.DD HH:mm:ss') } />
 				);

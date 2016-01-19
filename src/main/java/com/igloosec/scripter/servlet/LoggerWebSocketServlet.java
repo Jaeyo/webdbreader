@@ -60,10 +60,11 @@ public class LoggerWebSocketServlet extends WebSocketServlet {
 			this.conn = _conn;
 			this.listener = new LoggerListener() {
 				@Override
-				public void listen(long timestamp, String logLevel, String msg) {
+				public void listen(String uuid, long timestamp, String logLevel, String msg) {
 					try {
 						JSONObject msgJson = new JSONObject();
 						msgJson.put("type", "log");
+						msgJson.put("uuid", uuid);
 						msgJson.put("timestamp", timestamp);
 						msgJson.put("level", logLevel);
 						msgJson.put("msg", msg);

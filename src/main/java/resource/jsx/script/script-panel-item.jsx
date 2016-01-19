@@ -24,9 +24,9 @@ var ScriptPanelItem = React.createClass({
 
 	getInitialState() {
 		return {
-			statistics_query: '...',
-			statistics_update: '...',
-			statistics_fileWrite: '...'
+			statistics_input: '...',
+			statistics_output: '...',
+			statistics_errorLog: '...'
 		};
 	},
 
@@ -95,9 +95,9 @@ var ScriptPanelItem = React.createClass({
 		})
 		.then(function(data) {
 			var state = {};
-			state.statistics_query = data.query === undefined ? 0 : data.query;
-			state.statistics_update = data.update === undefined ? 0 : data.update;
-			state.statistics_fileWrite = data.file_write === undefined ? 0 : data.file_write;
+			state.statistics_input = data.input === undefined ? 0 : data.input;
+			state.statistics_output = data.output === undefined ? 0 : data.output;
+			state.statistics_errorLog = data.errorLog === undefined ? 0 : data.errorLog;
 			this.setState(state);
 		}.bind(this))
 		.catch(function(err) {
@@ -178,9 +178,9 @@ var ScriptPanelItem = React.createClass({
 						</div>
 					</div>
 					<div style={{ float: 'right', fontSize: '150%' }}>
-						<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_query} />
-						<StatisticsValue bg="rgb(243, 156, 18)" value={this.state.statistics_update} />
-						<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_fileWrite} />
+						<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_input} />
+						<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_output} />
+						<StatisticsValue bg="rgb(186, 41, 56)" value={this.state.statistics_errorLog} />
 					</div>
 					<Clearfix />
 					<PromptDialog ref="promptDialog" />

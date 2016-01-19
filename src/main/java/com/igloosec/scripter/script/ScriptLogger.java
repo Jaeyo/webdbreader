@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.service.LoggerService;
 import com.igloosec.scripter.service.NotiService;
+import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class ScriptLogger {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptLogger.class);
+	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private NotiService notiService = SingletonInstanceRepo.getInstance(NotiService.class);
 	private LoggerService loggerService = SingletonInstanceRepo.getInstance(LoggerService.class);
 	private String scriptName;
@@ -37,6 +39,7 @@ public class ScriptLogger {
 		logger.error(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
 		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
+		scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
 	} 
 	
 	public void error(String msg, Throwable e) {
@@ -45,5 +48,6 @@ public class ScriptLogger {
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", ExceptionUtils.getStackTrace(e));
 		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
 		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), ExceptionUtils.getStackTrace(e));
+		scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
 	} 
 } 

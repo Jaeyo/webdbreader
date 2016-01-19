@@ -31,7 +31,7 @@ public class ScriptScoreStatisticsService {
 		
 		for (int i = 0; i < rows.length(); i++) {
 			JSONObject row = rows.getJSONObject(i);
-			json.put(row.getString("category"), row.getInt("value"));
+			json.put(row.getString("CATEGORY"), row.getInt("VALUE"));
 		}
 		
 		return json;

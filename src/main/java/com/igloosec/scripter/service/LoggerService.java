@@ -1,5 +1,7 @@
 package com.igloosec.scripter.service;
 
+import java.util.UUID;
+
 import com.google.common.collect.HashMultimap;
 
 public class LoggerService {
@@ -14,12 +16,13 @@ public class LoggerService {
 	}
 	
 	public void dispatchMsg(String scriptName, long timestamp, String logLevel, String msg) {
+		String uuid = UUID.randomUUID().toString();
 		for(LoggerListener listener: tailingListeners.get(scriptName)) {
-			listener.listen(timestamp, logLevel, msg);
+			listener.listen(uuid, timestamp, logLevel, msg);
 		}
 	}
 	
 	public interface LoggerListener {
-		public void listen(long timestamp, String logLevel, String msg);
+		public void listen(String uuid, long timestamp, String logLevel, String msg);
 	} 
 } 

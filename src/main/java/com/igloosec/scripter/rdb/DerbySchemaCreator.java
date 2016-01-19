@@ -9,7 +9,9 @@ import org.json.JSONArray;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.google.common.collect.Sets;
+import com.igloosec.scripter.Version;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.dao.VersionDAO;
 
 public class DerbySchemaCreator {
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
@@ -18,6 +20,15 @@ public class DerbySchemaCreator {
 		checkSequence();
 		checkTables();
 		checkConfig();
+		checkVersion();
+	}
+	
+	private void checkVersion() {
+		String lastVersion = new VersionDAO().getLastVersion();
+		String currentVersion = Version.getCurrentVersion();
+		
+		if(lastVersion == null || Version.isANewerThanB(currentVersion, lastVersion))
+			new VersionDAO().insertVersion(currentVersion);
 	}
 	
 	private void checkSequence(){
@@ -75,6 +86,11 @@ public class DerbySchemaCreator {
 					+ "regdate TIMESTAMP NOT NULL, "
 					+ "script_name VARCHAR(100) NOT NULL, "
 					+ "is_startup BOOLEAN NOT NULL )");
+		
+		if(existingTableNames.contains("VERSION") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE version ( "
+					+ "version VARCHAR(30) NOT NULL, "
+					+ "regdate TIMESTAMP NOT NULL ) ");
 	}
 	
 	private void checkConfig() {

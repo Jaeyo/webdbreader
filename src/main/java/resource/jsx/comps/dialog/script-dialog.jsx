@@ -23,6 +23,7 @@ var ScriptDialog = React.createClass({
 
 	//args: scriptName, script, options, onActionCallback
 	//options: isScriptNameEditable
+	//onActionCallback arguments: result, scriptName, script
 	show(args) {
 		if(args.onActionCallback != null) this.onActionCallback = args.onActionCallback;
 		if(args.options == null) args.options = {};

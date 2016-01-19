@@ -1,6 +1,7 @@
 package com.igloosec.scripter.service;
 
 import java.util.Set;
+import java.util.UUID;
 
 import com.google.common.collect.Sets;
 
@@ -16,11 +17,12 @@ public class NotiService {
 	}
 	
 	public void dispatchErrLog(String scriptName, long timestamp, String msg) {
+		String uuid = UUID.randomUUID().toString();
 		for(ErrLogListener listener: errLogListeners)
-			listener.listen(scriptName, timestamp, msg);
+			listener.listen(uuid, scriptName, timestamp, msg);
 	}
 	
 	public interface ErrLogListener {
-		public void listen(String scriptName, long timestamp, String msg);
+		public void listen(String uuid, String scriptName, long timestamp, String msg);
 	}
 }

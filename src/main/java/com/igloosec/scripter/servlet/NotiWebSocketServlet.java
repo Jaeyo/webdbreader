@@ -50,10 +50,11 @@ public class NotiWebSocketServlet extends WebSocketServlet {
 			this.conn = _conn;
 			this.listener = new ErrLogListener() {
 				@Override
-				public void listen(String scriptName, long timestamp, String msg) {
+				public void listen(String uuid, String scriptName, long timestamp, String msg) {
 					try {
 						JSONObject msgJson = new JSONObject();
 						msgJson.put("type", "errLog");
+						msgJson.put("uuid", uuid);
 						msgJson.put("scriptName", scriptName);
 						msgJson.put("timestamp", timestamp);
 						msgJson.put("msg", msg);

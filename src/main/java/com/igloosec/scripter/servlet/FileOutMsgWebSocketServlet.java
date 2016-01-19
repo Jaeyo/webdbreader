@@ -60,10 +60,11 @@ public class FileOutMsgWebSocketServlet extends WebSocketServlet {
 			this.conn = _conn;
 			this.listener = new FileOutListener() {
 				@Override
-				public void listen(String filename, long timestamp, String msg) {
+				public void listen(String uuid, String filename, long timestamp, String msg) {
 					try {
 						JSONObject msgJson = new JSONObject();
 						msgJson.put("type", "fileOutMsg");
+						msgJson.put("uuid", uuid);
 						msgJson.put("filename", filename);
 						msgJson.put("timestamp", timestamp);
 						msgJson.put("msg", msg);

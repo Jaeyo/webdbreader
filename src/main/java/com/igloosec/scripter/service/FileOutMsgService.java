@@ -1,5 +1,7 @@
 package com.igloosec.scripter.service;
 
+import java.util.UUID;
+
 import com.google.common.collect.HashMultimap;
 
 public class FileOutMsgService {
@@ -14,12 +16,13 @@ public class FileOutMsgService {
 	}
 	
 	public void dispatchMsg(String scriptName, String filename, long timestamp, String msg) {
+		String uuid = UUID.randomUUID().toString();
 		for(FileOutListener listener: tailingListeners.get(scriptName)) {
-			listener.listen(filename, timestamp, msg);
+			listener.listen(uuid, filename, timestamp, msg);
 		}
 	}
 	
 	public interface FileOutListener {
-		public void listen(String filename, long timestamp, String msg);
+		public void listen(String uuid, String filename, long timestamp, String msg);
 	} 
 }

@@ -18,9 +18,9 @@ import com.igloosec.scripter.service.ScriptScoreStatisticsService;
 
 public class ScriptScoreStatistics {
 	//category
-	public static final String QUERY = "query";
-	public static final String UPDATE = "update";
-	public static final String FILE_WRITE = "file_write";
+	public static final String INPUT = "input";
+	public static final String OUTPUT = "output";
+	public static final String ERROR_LOG = "errorLog";
 	
 	private ScriptScoreStatisticsService scriptScoreStatisticsService = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsService.class);
 	
@@ -40,25 +40,25 @@ public class ScriptScoreStatistics {
 								oldCount.getString("category"), 
 								oldCount.getLong("timestamp"), 
 								oldCount.getLong("count"));
-					} //for i
-				} //sync
+					}
+				}
 				
 				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (6 * 60 * 60 * 1000));
-			} //run
+			}
 		}, 60 * 1000, 60 * 1000);
-	} //INIT
+	}
 
 	public void incrementCount(String category){
 		incrementCount(category, 1);
-	} //incrementCount
+	}
 	
 	public void incrementCount(String category, Integer count){
 		String scriptName = ScriptThread.currentThread().getScriptName();
 		
 		synchronized (ScriptScoreStatistics.class) {
 			counters.incrementCount(category, scriptName, System.currentTimeMillis(), count);
-		} //sync
-	} //incrementCount
+		}
+	}
 	
 	
 	class ScriptScore4Category {
@@ -69,9 +69,9 @@ public class ScriptScoreStatistics {
 			if(counter == null){
 				counter = new ScriptScore4Script();
 				counters.put(category, counter);
-			} //if
+			}
 			counter.incrementCount(script, timestamp, count);
-		} //incrementCount
+		}
 		
 		JSONArray removeOldCounts(Long adjustTime){
 			JSONArray oldCounts = new JSONArray();
@@ -82,11 +82,11 @@ public class ScriptScoreStatistics {
 					JSONObject countObj = (JSONObject) oldCount.remove(0);
 					countObj.put("category", category);
 					oldCounts.put(countObj);
-				} //while
-			} //for counterEntry
+				}
+			}
 			return oldCounts;
-		} //removeOldCounts
-	} //class
+		}
+	}
 	
 	class ScriptScore4Script {
 		private Map<String, ScriptScore4Timestamp> counters = Maps.newHashMap();
@@ -96,9 +96,9 @@ public class ScriptScoreStatistics {
 			if(counter == null){
 				counter = new ScriptScore4Timestamp();
 				counters.put(script, counter);
-			} //if
+			}
 			counter.incrementCount(timestamp, count);
-		} //incrementCount
+		}
 		
 		JSONArray removeOldCounts(Long adjustTime){
 			JSONArray oldCounts = new JSONArray();
@@ -109,11 +109,11 @@ public class ScriptScoreStatistics {
 					JSONObject countObj = (JSONObject) oldCount.remove(0);
 					countObj.put("script", scriptName);
 					oldCounts.put(countObj);
-				} //while
-			} //for counterEntry
+				}
+			}
 			return oldCounts;
-		} //removeOldCounts
-	} //class
+		}
+	}
 	
 	class ScriptScore4Timestamp {
 		private Map<Long, AtomicLong> counters = Maps.newHashMap();
@@ -124,9 +124,9 @@ public class ScriptScoreStatistics {
 			if(counter == null) {
 				counter = new AtomicLong(1L);
 				counters.put(timestamp, counter);
-			} //if
+			}
 			counter.addAndGet(count);
-		} //incrementCount
+		}
 		
 		JSONArray removeOldCounts(Long adjustTime){
 			JSONArray oldCounts = new JSONArray();
@@ -136,14 +136,14 @@ public class ScriptScoreStatistics {
 			for(Long timestamp : counters.keySet()){
 				if(timestamp < standardTime)
 					oldTimestamps.add(timestamp);
-			} //for timestamp
+			}
 			
 			for(Long oldTimestamp : oldTimestamps) {
 				Long count = counters.remove(oldTimestamp).get();
 				oldCounts.put(new JSONObject().put("timestamp", oldTimestamp).put("count", count));
-			} //for oldTimestamp
+			}
 			
 			return oldCounts;
-		} //removeOldCounts
-	} //class
-} //class
+		}
+	}
+}

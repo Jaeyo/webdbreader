@@ -3,13 +3,15 @@ package com.igloosec.scripter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.igloosec.scripter.util.Util;
+
 public class Version {
 	private static String currentVersion;
 	private static List<History> histories=new ArrayList<History>();
 	
 	public static void main(String[] args) {
 		System.out.println(String.format("WebDbReader (%s)", currentVersion));
-	} //main
+	}
 	
 	static{
 		currentVersion="2.0.0";
@@ -85,11 +87,38 @@ public class Version {
 		version="0.91";
 		historyNote="1. FileReader 추가 (2015. 1. 15)\n";
 		histories.add(new History(version, historyNote));
-	} //static
+	}
 	
 	public static String getCurrentVersion(){
 		return currentVersion;
-	} //getCurrentVersion
+	}
+	
+	public static boolean isANewerThanB(String verA, String verB) {
+		String[] minorVersionsA = verA.split("\\.");
+		String[] minorVersionsB = verB.split("\\.");
+		int count = Math.min(minorVersionsA.length, minorVersionsB.length);
+		for (int i = 0; i < count; i++) {
+			int minorVerA = Integer.parseInt(Util.extractNumber(minorVersionsA[i]));
+			int minorVerB = Integer.parseInt(Util.extractNumber(minorVersionsB[i]));
+			
+			if(minorVerA > minorVerB) return true;
+			else if(minorVerA < minorVerB) return false;
+			
+			String letterVerA = Util.removeNumber(minorVersionsA[i]);
+			String letterVerB = Util.removeNumber(minorVersionsB[i]);
+			if(letterVerA != null && letterVerB == null) return true;
+			else if(letterVerA == null && letterVerB != null) return false;
+			else if(letterVerA == null && letterVerB == null) continue;
+			else if(letterVerA != null && letterVerB != null) {
+				if(letterVerA.hashCode() > letterVerB.hashCode()) return true;
+				else if(letterVerA.hashCode() < letterVerB.hashCode()) return false;
+			}
+		}
+		
+		if(minorVersionsA.length > count) return true;
+		else if(minorVersionsB.length > count) return false;
+		return false;
+	}
 	
 	private static class History {
 		private String version;
@@ -98,7 +127,7 @@ public class Version {
 		public History(String version, String historyNote) {
 			this.version = version;
 			this.historyNote = historyNote;
-		} // INIT
+		}
 
 		public String getVersion() {
 			return version;
@@ -115,5 +144,5 @@ public class Version {
 		public void setHistoryNote(String historyNote) {
 			this.historyNote = historyNote;
 		}
-	} // class
-} // class
+	}
+}

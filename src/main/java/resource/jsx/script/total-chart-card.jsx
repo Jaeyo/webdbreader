@@ -18,7 +18,7 @@ var TotalChartCard = React.createClass({
 		return {
 			chartData: null,
 			chartOptions: {
-    				scaleShowGridLines : true, ///Boolean - Whether grid lines are shown across the chart
+    		scaleShowGridLines : true, ///Boolean - Whether grid lines are shown across the chart
 				scaleGridLineColor : "rgba(0,0,0,.05)", //String - Colour of the grid lines
 				scaleGridLineWidth : 1, //Number - Width of the grid lines
 				scaleShowHorizontalLines: true, //Boolean - Whether to show horizontal lines (except X axis)
