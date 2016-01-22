@@ -11,112 +11,14 @@ var CardHeader = MaterialWrapper.CardHeader;
 var CardText = MaterialWrapper.CardText;
 var List = MaterialWrapper.List;
 var ListItem = MaterialWrapper.ListItem;
-var LineChart = require('react-chartjs').Line;
+var LineChart = require('react-d3').LineChart;
+var BarChart = require('react-d3').BarChart;
 
-// var TotalChartCard = React.createClass({
-// 	getInitialState() {
-// 		return {
-// 			chartData: null,
-// 			chartOptions: {
-//     		scaleShowGridLines : true, ///Boolean - Whether grid lines are shown across the chart
-// 				scaleGridLineColor : "rgba(0,0,0,.05)", //String - Colour of the grid lines
-// 				scaleGridLineWidth : 1, //Number - Width of the grid lines
-// 				scaleShowHorizontalLines: true, //Boolean - Whether to show horizontal lines (except X axis)
-// 				scaleShowVerticalLines: true, //Boolean - Whether to show vertical lines (except Y axis)
-// 				bezierCurve : true, //Boolean - Whether the line is curved between points
-// 				bezierCurveTension : 0.4, //Number - Tension of the bezier curve between points
-// 				pointDot : true, //Boolean - Whether to show a dot for each point
-// 				pointDotRadius : 4, //Number - Radius of each point dot in pixels
-// 				pointDotStrokeWidth : 1, //Number - Pixel width of point dot stroke
-// 				pointHitDetectionRadius : 20, //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-// 				datasetStroke : true, //Boolean - Whether to show a stroke for datasets
-// 				datasetStrokeWidth : 2, //Number - Pixel width of dataset stroke
-// 				datasetFill : true, //Boolean - Whether to fill the dataset with a colour
-// 				legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>" //String - A legend template
-// 			}
-// 		};
-// 	},
-
-// 	componentDidMount() {
-// 		server.chartTotal()
-// 		.then(function(data) {
-// 			if(data.length === 0) return;
-// 			this.setState({ chartData: convertChartData(data) });
-// 		}.bind(this))
-// 		.catch(function(err) {
-// 			this.refs.alertDialog.show('danger', err);
-// 		}.bind(this));
-// 	},
-
-// 	render() {
-// 		try {
-// 			return (
-// 				<Card style={{ marginBottom: '10px' }}>
-// 					<CardHeader
-// 						title="chart"
-// 						subtitle="등록된 스크립트들의 통계를 제공합니다."
-// 						avatar={ <Glyphicon glyph="signal" /> } />
-// 					<CardText>
-// 						{ this.state.chartData == null ? (
-// 							<p>no data</p>
-// 						) : (
-// 							<LineChart data={this.state.chartData} options={this.state.chartOptions} width="600" height="200" />
-// 						)}
-// 					</CardText>
-// 					<AlertDialog refs="alertDialog" />
-// 				</Card>
-// 			);
-// 		} catch(err) {
-// 			console.error(err.stack);
-// 		}
-// 	}
-// });
-// module.exports = TotalChartCard;
-
-
-// var convertChartData = function(rows) {
-// 	var datas = rows.map(function(row) {
-// 		return {
-// 			timestamp: row.COUNT_TIMESTAMP,
-// 			label: util.format('%s (%s)', row.SCRIPT_NAME, row.CATEGORY),
-// 			value: row.COUNT_VALUE
-// 		};
-// 	});
-
-// 	var timestamps = _.uniq(datas.map(function(data) { 
-// 		return data.timestamp; 
-// 	}), true);
-
-// 	var initialArray = timestamps.map(function() { return 0; });
-// 	var labels = datas.map(function(data) {
-// 		return data.label;
-// 	});
-
-// 	var dataset = {};
-// 	labels.forEach(function(label) {
-// 		dataset[label] = initialArray.slice();
-// 	});
-
-// 	datas.forEach(function(data) {
-// 		var index = timestamps.indexOf(data.timestamp);
-// 		dataset[data.label][index] = data.value;
-// 	});
-
-// 	return {
-// 		labels: timestamps,
-// 		datasets: _.mapObject(dataset, function(val, key) {
-// 			return { label: key, data: val };
-// 		})
-// 	};
-// };
-
-
-
-
+var Chart = require('react-google-charts').Chart;
 
 var TotalChartCard = React.createClass({
 	getInitialState() {
-		lineDatas: {}
+		return { totalChartData: null };
 	},
 
 	loadTotalChartData(callback) {
@@ -134,13 +36,105 @@ var TotalChartCard = React.createClass({
 		// rows: [{ COUNT_TIMESTAMP, CATEGORY, SCRIPT_NAME, COUNT_VALUE }]
 		this.loadTotalChartData(function(rows) {
 			if(rows.length === 0) return;
-			var datas = //TODO IMME 
+			self.setState({ totalChartData: rows });
 		});
+	},
+
+	renderCharts() {
+		try {
+			var self = this;
+
+			if(self.state.totalChartData == null) {
+				return (<p>no data</p>);
+			} else {
+				var categories = _.uniq(self.state.totalChartData.map(function(row) { return row.CATEGORY; }));
+				var scriptNames = _.uniq(self.state.totalChartData.map(function(row) { return row.SCRIPT_NAME; }));
+				var groupByTimestamp = _.groupBy(self.state.totalChartData, function(row){ return row.timestamp; });
+
+				return categories.map(function(category) {
+					var chartProps = {
+						options: { 
+							title: category,
+							hAxis: { title: 'time' },
+							vAxis: { title: 'count' },
+							curveType: 'function'
+						},
+						columns: [],
+						rows: []
+					};
+					chartProps.columns.push({ label: 'time', type: 'datetime' });
+					scriptNames.forEach(function(scriptName) { 
+						chartProps.columns.push({ label: scriptName, type: 'number' });
+					});
+					chartProps.rows = groupByTimestamp
+					//TODO IMME
+
+
+	
+
+// options={{ title: 'air pagggggg', hAxis: { title: 'Year' }, vAxis: { title: 'count' }, curveType: 'function' }}
+// 							columns={[
+// 								{ label: 'time', type: 'number' },
+// 								{ label: 'series1', type: 'number' },
+// 								{ label: 'series2', type: 'number' }
+// 							]}
+// 							rows={[
+// 								[1949, 11, 22],
+// 								[1950, 12, null],
+// 								[1953, 22, 10],
+// 								[1955, 99, 80]
+// 							]}
+
+
+				});
+
+
+				return categories.map(function(category) {
+					var lineData = [];
+					scriptNames.forEach(function(scriptName) {
+						var values = self.state.totalChartData
+							.filter(function(row) { return row.CATEGORY === category && row.SCRIPT_NAME === scriptName; })
+							.map(function(row) {
+								return {
+									x: row.COUNT_TIMESTAMP,
+									y: row.COUNT_VALUE
+								};
+							});
+						lineData.push({
+							name: scriptName,
+							values: values
+						});
+					});
+
+					return (
+						<LineChart
+							key={'chart-' + category}
+							legend={true}
+							data={lineData}
+							height={400}
+							viewBoxObject={{
+								x: 0, y: 0, width: 500, height: 400
+							}}
+							title={category}
+							yAxisLabel="count"
+							xAxisLabel="time"
+							gridHorizontal={true} />
+					);
+				});
+			}
+		} catch(err) {
+			console.error(err.stack);
+		}
 	},
 
 	render() {
 		try {
 			var self = this;
+
+			console.log('cp5'); //DEBUG
+			// var charts = self.renderCharts();
+			// console.log({ charts: charts }); //DEBUG
+
 			return (
 				<Card style={{ marginBottom: '10px' }}>
 					<CardHeader
@@ -148,24 +142,23 @@ var TotalChartCard = React.createClass({
 						subtitle="등록된 스크립트들의 통계를 제공합니다."
 						avatar={ <Glyphicon glyph="signal" /> } />
 					<CardText>
-					{
-						Object.keys(self.state.lineDatas).length === 0 ? (
-							<p>no data</p>
-						) : (
-							Object.keys(self.state.lineDatas).map(function(scriptName) {
-								var lineData = self.state.lineDatas[scriptName];
-								//TODO IMME
-							})
-						)
-					}
-
-
-
-						{ this.state.chartData == null ? (
-							<p>no data</p>
-						) : (
-							<LineChart data={this.state.chartData} options={this.state.chartOptions} width="600" height="200" />
-						)}
+						<Chart
+							chartType="LineChart"
+							options={{ title: 'air pagggggg', hAxis: { title: 'Year' }, vAxis: { title: 'count' }, curveType: 'function' }}
+							columns={[
+								{ label: 'time', type: 'number' },
+								{ label: 'series1', type: 'number' },
+								{ label: 'series2', type: 'number' }
+							]}
+							rows={[
+								[1949, 11, 22],
+								[1950, 12, null],
+								[1953, 22, 10],
+								[1955, 99, 80]
+							]}
+							div_id="blablablablal"
+							width={'100%'}
+							height={'300px'} />
 					</CardText>
 					<AlertDialog refs="alertDialog" />
 				</Card>
