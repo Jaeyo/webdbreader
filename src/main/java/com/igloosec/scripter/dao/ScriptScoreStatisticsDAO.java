@@ -30,7 +30,7 @@ public class ScriptScoreStatisticsDAO {
 	
 	public JSONArray getLastStatistics(String scriptName, int period) {
 		Date targetTimestamp = new Date(System.currentTimeMillis() - period);
-		String query = "SELECT category, SUM(count_value) AS value FROM script_score_statistics WHERE script_name = ? AND count_timestamp > ? GROUP BY category";
+		String query = "SELECT category, SUM(count_value) AS sum_value FROM script_score_statistics WHERE script_name = ? AND count_timestamp > ? GROUP BY category";
 		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName, targetTimestamp);
 	}
 	

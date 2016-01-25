@@ -1,20 +1,21 @@
 package com.igloosec.scripter.statistics;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.dao.ScriptScoreStatisticsDAO;
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.service.ScriptScoreStatisticsService;
 
 public class ScriptScoreStatistics {
 	//category
@@ -22,128 +23,155 @@ public class ScriptScoreStatistics {
 	public static final String OUTPUT = "output";
 	public static final String ERROR_LOG = "errorLog";
 	
-	private ScriptScoreStatisticsService scriptScoreStatisticsService = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsService.class);
-	
-	private ScriptScore4Category counters = new ScriptScore4Category();
+	private TreeMap<Long, ScriptScoreStatisticsCounter> counters = Maps.newTreeMap();
 	private Timer timer = new Timer();
 	
+	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
+	
 	public ScriptScoreStatistics() {
-		timer.schedule(new TimerTask() {
+		long delay = (60*1000) - (System.currentTimeMillis() % (60*1000));
+		
+		this.timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				synchronized (ScriptScoreStatistics.class) {
-					JSONArray oldCounts = counters.removeOldCounts((long) (60 * 1000));
-					for (int i = 0; i < oldCounts.length(); i++) {
-						JSONObject oldCount = oldCounts.getJSONObject(i);
-						scriptScoreStatisticsService.insertStatistics(
-								oldCount.getString("script"), 
-								oldCount.getString("category"), 
-								oldCount.getLong("timestamp"), 
-								oldCount.getLong("count"));
+				synchronized (counters) {
+					Set<Long> oldTimestamps = Sets.newTreeSet();
+					long currentTimestamp = currentTimestamp();
+					
+					Iterator<Long> iter = counters.keySet().iterator();
+					while(iter.hasNext()) {
+						Long timestampKey = iter.next();
+						if(currentTimestamp < timestampKey) 
+							oldTimestamps.add(timestampKey);
 					}
+					
+					for(Long oldTimestamp: oldTimestamps) {
+						Set<CounterValues> values = counters.remove(oldTimestamp).getValues();
+						for(CounterValues value: values)
+							scriptScoreStatisticsDAO.insertStatistics(
+									value.getScriptName(), value.getCategory(), value.getTimestamp(), value.getCount());
+					}
+					
+					scriptScoreStatisticsDAO.deleteUnderTimestamp(currentTimestamp - (6 * 60 * 60 * 1000));
 				}
-				
-				scriptScoreStatisticsService.deleteUnderTimestamp(System.currentTimeMillis() - (6 * 60 * 60 * 1000));
 			}
-		}, 60 * 1000, 60 * 1000);
+		}, delay, 60 * 1000);
 	}
-
-	public void incrementCount(String category){
+	
+	public void incrementCount(String category) {
 		incrementCount(category, 1);
 	}
 	
-	public void incrementCount(String category, Integer count){
+	public void incrementCount(String category, long count) {
 		String scriptName = ScriptThread.currentThread().getScriptName();
-		
-		synchronized (ScriptScoreStatistics.class) {
-			counters.incrementCount(category, scriptName, System.currentTimeMillis(), count);
+		incrementCount(scriptName, category, count);
+	}
+	
+	public void incrementCount(String scriptName, String category, long count) {
+		incrementCount(currentTimestamp(), scriptName, category, count);
+	}
+	
+	public void incrementCount(long timestamp, String scriptName, String category, long count) {
+		ScriptScoreStatisticsCounter counter = this.counters.get(timestamp);
+		if(counter == null) {
+			counter = new ScriptScoreStatisticsCounter(timestamp);
+			this.counters.put(timestamp, counter);
 		}
+		counter.incrementCount(scriptName, category, count);
+	}
+	
+	public Set<CounterValues> getCurrentCounterValues() {
+		ScriptScoreStatisticsCounter counter = this.counters.get(currentTimestamp());
+		if(counter == null) return null;
+		return counter.getValues();
+	}
+	
+	public Set<CounterValues> getCurrentCounterValues(String scriptName) {
+		ScriptScoreStatisticsCounter counter = this.counters.get(currentTimestamp());
+		if(counter == null) return null;
+		return counter.getValues(scriptName);
+	}
+	
+	private static long currentTimestamp() {
+		long timestamp = System.currentTimeMillis();
+		timestamp = timestamp - (timestamp % (60*1000));
+		return timestamp;
 	}
 	
 	
-	class ScriptScore4Category {
-		private Map<String, ScriptScore4Script> counters = Maps.newHashMap();
+	class ScriptScoreStatisticsCounter {
+		private long timestamp;
 		
-		void incrementCount(String category, String script, Long timestamp, Integer count){
-			ScriptScore4Script counter = counters.get(category);
-			if(counter == null){
-				counter = new ScriptScore4Script();
-				counters.put(category, counter);
+		//key: scriptName(string), category(string), value: count(AtomicLong)
+		private MultiKeyMap counter = new MultiKeyMap();
+
+		public ScriptScoreStatisticsCounter(long timestamp) {
+			this.timestamp = timestamp;
+		}
+
+		public void incrementCount(String scriptName, String category, long count) {
+			AtomicLong atomicCount = (AtomicLong) this.counter.get(scriptName, category);
+			if(atomicCount == null) {
+				atomicCount = new AtomicLong(0L);
+				this.counter.put(scriptName, category, atomicCount);
 			}
-			counter.incrementCount(script, timestamp, count);
+			atomicCount.addAndGet(count);
 		}
 		
-		JSONArray removeOldCounts(Long adjustTime){
-			JSONArray oldCounts = new JSONArray();
-			for(Entry<String, ScriptScore4Script> counterEntry : counters.entrySet()){
-				String category = counterEntry.getKey();
-				JSONArray oldCount = counterEntry.getValue().removeOldCounts(adjustTime);
-				while(oldCount.length() != 0){
-					JSONObject countObj = (JSONObject) oldCount.remove(0);
-					countObj.put("category", category);
-					oldCounts.put(countObj);
-				}
+		public Set<CounterValues> getValues() {
+			Set<CounterValues> results = Sets.newHashSet();
+			MapIterator iter = this.counter.mapIterator();
+			while(iter.hasNext()) {
+				iter.next();
+				MultiKey key = (MultiKey) iter.getKey();
+				String scriptName = (String) key.getKey(0);
+				String category = (String) key.getKey(1);
+				AtomicLong value = (AtomicLong) iter.getValue();
+				results.add(new CounterValues(timestamp, scriptName, category, value.get()));
 			}
-			return oldCounts;
-		}
-	}
-	
-	class ScriptScore4Script {
-		private Map<String, ScriptScore4Timestamp> counters = Maps.newHashMap();
-		
-		void incrementCount(String script, Long timestamp, Integer count){
-			ScriptScore4Timestamp counter = counters.get(script);
-			if(counter == null){
-				counter = new ScriptScore4Timestamp();
-				counters.put(script, counter);
-			}
-			counter.incrementCount(timestamp, count);
+			return results;
 		}
 		
-		JSONArray removeOldCounts(Long adjustTime){
-			JSONArray oldCounts = new JSONArray();
-			for(Entry<String, ScriptScore4Timestamp> counterEntry : counters.entrySet()){
-				String scriptName = counterEntry.getKey();
-				JSONArray oldCount = counterEntry.getValue().removeOldCounts(adjustTime);
-				while(oldCount.length() != 0){
-					JSONObject countObj = (JSONObject) oldCount.remove(0);
-					countObj.put("script", scriptName);
-					oldCounts.put(countObj);
-				}
+		public Set<CounterValues> getValues(String _scriptName) {
+			Set<CounterValues> results = Sets.newHashSet();
+			MapIterator iter = this.counter.mapIterator();
+			while(iter.hasNext()) {
+				iter.next();
+				MultiKey key = (MultiKey) iter.getKey();
+				String scriptName = (String) key.getKey(0);
+				String category = (String) key.getKey(1);
+				AtomicLong value = (AtomicLong) iter.getValue();
+				if(scriptName.equals(_scriptName))
+					results.add(new CounterValues(timestamp, scriptName, category, value.get()));
 			}
-			return oldCounts;
+			return results;
 		}
 	}
 	
-	class ScriptScore4Timestamp {
-		private Map<Long, AtomicLong> counters = Maps.newHashMap();
+	public class CounterValues {
+		private long timestamp;
+		private String scriptName;
+		private String category;
+		private long count;
 		
-		void incrementCount(Long timestamp, Integer count){
-			timestamp = timestamp - (timestamp % (60*1000) );
-			AtomicLong counter = counters.get(timestamp);
-			if(counter == null) {
-				counter = new AtomicLong(1L);
-				counters.put(timestamp, counter);
-			}
-			counter.addAndGet(count);
+		public CounterValues(long timestamp, String scriptName, String category, long count) {
+			this.timestamp = timestamp;
+			this.scriptName = scriptName;
+			this.category = category;
+			this.count = count;
 		}
 		
-		JSONArray removeOldCounts(Long adjustTime){
-			JSONArray oldCounts = new JSONArray();
-			
-			Long standardTime = System.currentTimeMillis() - adjustTime;
-			Set<Long> oldTimestamps = Sets.newHashSet();
-			for(Long timestamp : counters.keySet()){
-				if(timestamp < standardTime)
-					oldTimestamps.add(timestamp);
-			}
-			
-			for(Long oldTimestamp : oldTimestamps) {
-				Long count = counters.remove(oldTimestamp).get();
-				oldCounts.put(new JSONObject().put("timestamp", oldTimestamp).put("count", count));
-			}
-			
-			return oldCounts;
+		public long getTimestamp() {
+			return timestamp;
+		}
+		public String getScriptName() {
+			return scriptName;
+		}
+		public String getCategory() {
+			return category;
+		}
+		public long getCount() {
+			return count;
 		}
 	}
 }

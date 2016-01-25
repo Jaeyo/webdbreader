@@ -101,7 +101,7 @@ var ScriptPanelItem = React.createClass({
 			this.setState(state);
 		}.bind(this))
 		.catch(function(err) {
-			this.refs.alertDialog.show('danger', err);
+			console.error(err);
 			clearInterval(this.intervalId);
 		}.bind(this));
 	},

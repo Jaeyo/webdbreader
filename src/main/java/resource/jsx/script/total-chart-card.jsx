@@ -1,6 +1,7 @@
 var React = require('react');
 var util = require('util');
 var _ = require('underscore');
+var uuid = require('uuid');
 var server = require('../utils/server.js');
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
@@ -11,12 +12,12 @@ var CardHeader = MaterialWrapper.CardHeader;
 var CardText = MaterialWrapper.CardText;
 var List = MaterialWrapper.List;
 var ListItem = MaterialWrapper.ListItem;
-var LineChart = require('react-d3').LineChart;
-var BarChart = require('react-d3').BarChart;
-
 var Chart = require('react-google-charts').Chart;
 
 var TotalChartCard = React.createClass({
+	intervalId: null,
+	uuid: uuid.v4(),
+
 	getInitialState() {
 		return { totalChartData: null };
 	},
@@ -25,19 +26,24 @@ var TotalChartCard = React.createClass({
 		var self = this;
 
 		server.chartTotal()
-		.then(callback)
+		.then(function(rows) {
+			// rows: [{ COUNT_TIMESTAMP, CATEGORY, SCRIPT_NAME, COUNT_VALUE }]
+			if(rows.length === 0) return;
+			self.setState({ totalChartData: rows });
+		})
 		.catch(function(err) {
 			self.refs.alertDialog.show('danger', err);
+			clearInterval(this.intervalId);
 		});
 	},
 
 	componentDidMount() {
-		var self = this;
-		// rows: [{ COUNT_TIMESTAMP, CATEGORY, SCRIPT_NAME, COUNT_VALUE }]
-		this.loadTotalChartData(function(rows) {
-			if(rows.length === 0) return;
-			self.setState({ totalChartData: rows });
-		});
+		this.loadTotalChartData();
+		this.intervalId = setInterval(this.loadTotalChartData, 10*1000);
+	},
+
+	componentWillUnmount() {
+		clearInterval(this.intervalId);
 	},
 
 	renderCharts() {
@@ -47,78 +53,69 @@ var TotalChartCard = React.createClass({
 			if(self.state.totalChartData == null) {
 				return (<p>no data</p>);
 			} else {
-				var categories = _.uniq(self.state.totalChartData.map(function(row) { return row.CATEGORY; }));
-				var scriptNames = _.uniq(self.state.totalChartData.map(function(row) { return row.SCRIPT_NAME; }));
-				var groupByTimestamp = _.groupBy(self.state.totalChartData, function(row){ return row.timestamp; });
+				var categories = _.uniq(self.state.totalChartData.map(function(row) { 
+					return row.CATEGORY; 
+				})).sort(function(a, b) {
+					var getScore = function(what) {
+						switch(what) {
+							case 'input': return 1;
+							case 'output': return 2;
+							case 'errorLog': return 3;
+							default: return 99;
+						}
+					}
+					var aScore = getScore(a);
+					var bScore = getScore(b);
+					return aScore > bScore;
+				});
 
+				var scriptNames = _.uniq(self.state.totalChartData.map(function(row) { return row.SCRIPT_NAME; }));
+				var groupByTimestamp = _.groupBy(self.state.totalChartData, function(row){ return row.COUNT_TIMESTAMP; });
+
+				//category별로 차트 생성
 				return categories.map(function(category) {
 					var chartProps = {
 						options: { 
 							title: category,
-							hAxis: { title: 'time' },
-							vAxis: { title: 'count' },
-							curveType: 'function'
+							hAxis: { 
+								title: 'time',
+								minValue: new Date(Date.now() - (6 * 60 * 60 * 1000)),
+								maxValue: new Date()
+							},
+							vAxis: { 
+								title: 'count'
+							},
 						},
 						columns: [],
 						rows: []
 					};
+							// curveType: 'function'
 					chartProps.columns.push({ label: 'time', type: 'datetime' });
 					scriptNames.forEach(function(scriptName) { 
 						chartProps.columns.push({ label: scriptName, type: 'number' });
 					});
-					chartProps.rows = groupByTimestamp
-					//TODO IMME
-
-
-	
-
-// options={{ title: 'air pagggggg', hAxis: { title: 'Year' }, vAxis: { title: 'count' }, curveType: 'function' }}
-// 							columns={[
-// 								{ label: 'time', type: 'number' },
-// 								{ label: 'series1', type: 'number' },
-// 								{ label: 'series2', type: 'number' }
-// 							]}
-// 							rows={[
-// 								[1949, 11, 22],
-// 								[1950, 12, null],
-// 								[1953, 22, 10],
-// 								[1955, 99, 80]
-// 							]}
-
-
-				});
-
-
-				return categories.map(function(category) {
-					var lineData = [];
-					scriptNames.forEach(function(scriptName) {
-						var values = self.state.totalChartData
-							.filter(function(row) { return row.CATEGORY === category && row.SCRIPT_NAME === scriptName; })
-							.map(function(row) {
-								return {
-									x: row.COUNT_TIMESTAMP,
-									y: row.COUNT_VALUE
-								};
+					chartProps.rows = _.values(groupByTimestamp).map(function(rows) {
+						var valueArr = [];
+						valueArr.push(new Date(rows[0].COUNT_TIMESTAMP));
+						scriptNames.forEach(function(scriptName) {
+							var value = null;
+							rows.forEach(function(row) {
+								if(row.SCRIPT_NAME === scriptName && row.CATEGORY === category) value = row.COUNT_VALUE;
 							});
-						lineData.push({
-							name: scriptName,
-							values: values
+							if(value == null) value = 0;
+							valueArr.push(value);
 						});
+						return valueArr;
 					});
 
 					return (
-						<LineChart
-							key={'chart-' + category}
-							legend={true}
-							data={lineData}
-							height={400}
-							viewBoxObject={{
-								x: 0, y: 0, width: 500, height: 400
-							}}
-							title={category}
-							yAxisLabel="count"
-							xAxisLabel="time"
-							gridHorizontal={true} />
+						<Chart
+							chartType="LineChart"
+							{...chartProps}
+							graph_id={util.format('totalchart-%s-%s', category, self.uuid)}
+							key={util.format('totalchart-%s-%s', category, self.uuid)}
+							width="100%"
+							height="400px" />
 					);
 				});
 			}
@@ -131,10 +128,6 @@ var TotalChartCard = React.createClass({
 		try {
 			var self = this;
 
-			console.log('cp5'); //DEBUG
-			// var charts = self.renderCharts();
-			// console.log({ charts: charts }); //DEBUG
-
 			return (
 				<Card style={{ marginBottom: '10px' }}>
 					<CardHeader
@@ -142,23 +135,7 @@ var TotalChartCard = React.createClass({
 						subtitle="등록된 스크립트들의 통계를 제공합니다."
 						avatar={ <Glyphicon glyph="signal" /> } />
 					<CardText>
-						<Chart
-							chartType="LineChart"
-							options={{ title: 'air pagggggg', hAxis: { title: 'Year' }, vAxis: { title: 'count' }, curveType: 'function' }}
-							columns={[
-								{ label: 'time', type: 'number' },
-								{ label: 'series1', type: 'number' },
-								{ label: 'series2', type: 'number' }
-							]}
-							rows={[
-								[1949, 11, 22],
-								[1950, 12, null],
-								[1953, 22, 10],
-								[1955, 99, 80]
-							]}
-							div_id="blablablablal"
-							width={'100%'}
-							height={'300px'} />
+						{this.renderCharts()}
 					</CardText>
 					<AlertDialog refs="alertDialog" />
 				</Card>

@@ -71,8 +71,25 @@ var SimpleRepoCard = React.createClass({
 	},
 
 	//args: scriptName, key, value
+	addSimpleRepo(args) {
+		server.addSimpleRepo({
+			scriptName: args.scriptName,
+			key: args.key,
+			value: args.value
+		}).then(function() {
+			this.refs.alertDialog.show('success', '저장되었습니다.');
+			this.loadSimpleRepo(function(data) {
+				this.setState({ simpleRepoData: data });
+			}.bind(this));
+		}.bind(this)).catch(function(err) {
+			this.refs.alertDialog.show('danger', err);
+		}.bind(this));
+	},
+
+	//args: scriptName, key, value
 	onRowClick(args) {
-		this.refs.simpleRepoDialog.show({
+		var self = this;
+		self.refs.simpleRepoDialog.show({
 			scriptName: args.scriptName,
 			key: args.key,
 			value: args.value,
@@ -81,7 +98,7 @@ var SimpleRepoCard = React.createClass({
 				switch(cbArgs.action) {
 					case 'update':
 						cbArgs.hide();
-						this.updateSimpleRepo({
+						self.updateSimpleRepo({
 							scriptName: cbArgs.scriptName,
 							key: args.key,
 							newKey: cbArgs.key,
@@ -90,25 +107,27 @@ var SimpleRepoCard = React.createClass({
 						break;
 					case 'delete':
 						cbArgs.hide();
-						this.refs.confirmDialog
+						self.refs.confirmDialog
 							.onOk(function() {
-								this.removeSimpleRepo({
+								self.removeSimpleRepo({
 									scriptName: cbArgs.scriptName,
 									key: cbArgs.key
 								});
-							}.bind(this)).show('삭제하시겠습니까?');
+							}).show('삭제하시겠습니까?');
 						break;
 					case 'cancel':
 						cbArgs.hide();
 						break;
 				}
-			}.bind(this)
+			}
 		});
 	},
 
 	onAddBtnClick(evt) {
 		evt.stopPropagation();
-		this.refs.simpleRepoDialog.show({
+		var self = this;
+
+		self.refs.simpleRepoDialog.show({
 			scriptName: '',
 			key: '',
 			value: '',
@@ -117,21 +136,17 @@ var SimpleRepoCard = React.createClass({
 				switch(cbArgs.action) {
 					case 'add':
 						cbArgs.hide();
-						server.addSimpleRepo({
+						self.addSimpleRepo({
 							scriptName: cbArgs.scriptName,
 							key: cbArgs.key,
 							value: cbArgs.value
-						}).then(function() {
-							this.refs.alertDialog.show('success', '저장되었습니다.');
-						}.bind(this)).catch(function(err) {
-							this.refs.alertDialog.show('danger', err);
-						}.bind(this));
+						});
 						break;
 					case 'cancel':
 						cbArgs.hide();
 						break;
 				}
-			}.bind(this)
+			}
 		});
 	},
 
