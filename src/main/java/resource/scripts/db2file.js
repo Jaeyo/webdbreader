@@ -19,6 +19,8 @@ var jdbc = {
 	password: jdbcPassword
 };
 
+//old pipe api
+/*
 schedule(period).run(function() {
 	var mainQuery = format(
 		'SELECT {columns}  FROM {table}', 
@@ -37,8 +39,24 @@ schedule(period).run(function() {
 			dateFormat: true
 		}).run();
 });
+*/
+
+//new fancy api
+var repeat = newRepeat({ period: 1000 });
+var db = newDatabase(jdbc);
+var file = newFile({ filename: outputFile, charset: charset, dateFormat: true });
+
+repeat.run(function() {
+	var queryResult = db.query('select ? from ?', columns, table);
+	queryResult.eachRow(function(row) {
+		var line = row.join(delimiter).removeLineFeed();
+		file.appendLine(line);
+	});
+});
 
 
+//old pipe api
+/*
 //sequence
 schedule(period).run(function() {
 	var maxQuery = format(
@@ -74,8 +92,31 @@ schedule(period).run(function() {
 
 	repo('min', max);
 });
+*/
 
 
+//new fancy api
+var repeat = newRepeat({ period: 1000 });
+var db = newDatabase(jdbc);
+var file = newFile({ filename: outputFile, charset: charset, dateFormat: true });
+var repo = newRepo();
+
+repeat.run(function() {
+	var min = repo.get('min', { ifNull: 0 });
+	var max = db.query('select max(?) from ?', bindingColumn, table).get({ row: 0, col: 0 });
+
+	if(max == null) return;
+
+	var queryResult = db.query('select ? from ? where ? > ? and ? <= ?', columns, table, bindingColumn, min, bindingColumn, max);
+	queryResult.eachRow(function(row) {
+		var line = row.join(delimiter).removeLineFeed();
+		file.appendLine(line);
+	});
+});
+
+
+//old pipe api
+/*
 //date
 schedule(period).run(function() {
 	var maxQuery = format(
@@ -115,4 +156,31 @@ schedule(period).run(function() {
 		}).run();
 
 	repo('min', max);
+});
+*/
+
+//new fancy api
+var repeat = newRepeat({ period: 1000 });
+var db = newDatabase(jdbc);
+var file = newFile({ filename: outputFile, charset: charset, dateFormat: true });
+var repo = newRepo();
+
+repeat.run(function() {
+	var min = repo.get('min', { ifNull: '2015-11-11 11:11:11' });
+	var max = db.query("select to_char(max(?), 'yyyy-mm-dd hh24:mi:ss') from ?", bindingColumn, table).get({ row: 0, col: 0 });
+
+	if(max == null) return;
+
+	// var queryResult = db.query('select ? from ? where ? > ? and ? <= ?', columns, table, bindingColumn, min, bindingColumn, max);
+	db.query('select ? from ? ' +
+			'where ? > to_date(\'?\', \'YYYY-MM-DD HH24:MI:SS\')' + 
+			'and ? <= to_date(\'?\', \'YYYY-MM-DD HH24:MI:SS\')',
+			columns, table, bindingColumn, min, bindingColumn, max)
+		.eachRow(function(row) {
+
+		});
+	queryResult.eachRow(function(row) {
+		var line = row.join(delimiter).removeLineFeed();
+		file.appendLine(line);
+	});
 });

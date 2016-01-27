@@ -1,9 +1,9 @@
-package com.igloosec.scripter.script.bindingsV2.pipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.pipe;
 
 import java.util.List;
 
-import com.igloosec.scripter.script.bindingsV2.base.Pipe;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.Pipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 
 public class PrintPipe extends Pipe {
 

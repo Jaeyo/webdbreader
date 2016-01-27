@@ -1,12 +1,12 @@
-package com.igloosec.scripter.script.bindingsV2.pipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.pipe;
 
 import sun.org.mozilla.javascript.internal.Context;
 import sun.org.mozilla.javascript.internal.Function;
 import sun.org.mozilla.javascript.internal.Scriptable;
 import sun.org.mozilla.javascript.internal.ScriptableObject;
 
-import com.igloosec.scripter.script.bindingsV2.base.Pipe;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.Pipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 
 public class FirstPipe extends Pipe {
 	private Function callback;

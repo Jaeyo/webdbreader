@@ -1,4 +1,4 @@
-package com.igloosec.scripter.script.bindingsV2.headpipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.headpipe;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -9,7 +9,7 @@ import sun.org.mozilla.javascript.internal.Scriptable;
 import sun.org.mozilla.javascript.internal.ScriptableObject;
 
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 
 public class SchedulePipeHead extends PipeHead {
 	private long period;

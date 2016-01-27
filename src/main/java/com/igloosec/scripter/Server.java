@@ -9,11 +9,13 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.igloosec.scripter.common.Conf;
 import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.AutoStartScriptDAO;
+import com.igloosec.scripter.rdb.DerbyDataSource;
 import com.igloosec.scripter.rdb.DerbySchemaCreator;
 import com.igloosec.scripter.script.ScriptExecutor;
 import com.igloosec.scripter.service.ScriptService;

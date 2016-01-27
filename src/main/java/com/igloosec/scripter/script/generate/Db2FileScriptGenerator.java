@@ -1,5 +1,8 @@
 package com.igloosec.scripter.script.generate;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Db2FileScriptGenerator extends ScriptGenerator {
 	
 	public String generate(String period, String dbVendor, String dbIp, String dbPort, 
@@ -28,100 +31,86 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		script.appendLine("var delimiter = '%s';", delimiter)
 			.appendLine("var charset = '%s';", charset)
 			.appendLine("var outputPath = '%s';", outputPath)
+			.appendLine()
 			.appendLine();
 		
-		script.appendLine("var jdbc = { driver: jdbcDriver, connUrl: jdbcConnUrl, username: jdbcUsername, password: jdbcPassword };")
+		script.appendLine("var jdbc = { ")
+			.appendLine("	driver: jdbcDriver,")
+			.appendLine("	connUrl: jdbcConnUrl,")
+			.appendLine("	username: jdbcUsername,")
+			.appendLine("	password: jdbcPassword")
+			.appendLine("	};")
 			.appendLine();
 		
-		script.appendLine("schedule(period).run(function() {");
+		script.appendLine("var repeat = newRepeat({ period: period });")
+			.appendLine("var db = newDatabase(jdbc);")
+			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mm.log', charset: charset });")
+			.appendLine();
 		
-		if(bindingType.equals("simple") == false) {
-			script.appendLine("	var maxQuery = format( ")
-				.appendLine("		'SELECT MAX({bindingColumn}) FROM {table}', ")
-				.appendLine("		{ bindingColumn: bindingColumn, table: table } ")
-				.appendLine("	); ")
-				.appendLine();
-		}
+		script.appendLine("repeat.run(function() { ");
 		
 		if(bindingType.equals("sequence")) {
-			script.appendLine("	var min = repo('min');")
-				.appendLine("	if(min == null) min = 0;")
-				.appendLine("	var max = null;")
-				.appendLine("	database(jdbc).select(maxQuery).first(function(row) {")
-				.appendLine("		max = row[0];")
-				.appendLine("	}).run();")
-				.appendLine("")
-				.appendLine("	if(min === max) return;")
+			script.appendLine("	var min = repo.get('min', { isNull: 0 });")
+				.appendLine("	var max = db.query('SELECT MAX(?) FROM ?', bindingColumn, table).get({ row: 0, col: 0 });")
+				.appendLine("	if(max == null) return;")
 				.appendLine();
 		} else if(bindingType.equals("date")) {
-				script.appendLine("	var min = repo('min');")
-					.appendLine("	var max = null;")
-					.appendLine("	database(jdbc).select(maxQuery).first(function(row) {")
-					.appendLine("		max = date(row[0]).format('yyyy-MM-dd HH:mm:ss'); ")
-					.appendLine("	}).run();")
-					.appendLine()
-					.appendLine("	if(min === max) return;")
-					.appendLine("	if(min == null) {")
-					.appendLine("		repo('min', max); ")
-					.appendLine("		return;")
-					.appendLine("	}")
-					.appendLine();
+			script.appendLine("	var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+				.appendLine("	var max = db.query('SELECT MAX(?) FROM ?', bindingColumn, table).get({ row: 0, col: 0 });")
+				.appendLine("	if(max == null) return;")
+				.appendLine("	else max = dateFormat(max, '$yyyy-$mm-$dd $hh:$mi:$ss');")
+				.appendLine();
 		}
 		
 		if(bindingType.equals("simple")) {
-			script.appendLine("	var mainQuery = format(")
-				.appendLine("		'SELECT {columns} FROM {table}', ")
-				.appendLine("		{ columns: columns, table: table } ")
-				.appendLine("	); ")
-				.appendLine();
+			script.appendLine("	db.query('SELECT ? FROM ?', columns, table).eachRow(function(row) {")
+				.appendLine("		var line = row.join(delimiter).split('\\n').join('');")
+				.appendLine("		file.appendLine(line);")
+				.appendLine("	});");
 		} else if(bindingType.equals("sequence")) {
-			script.appendLine("	var mainQuery = format( ")
-				.appendLine("		'SELECT {columns} FROM {table} WHERE {bindingColumn} > {min} AND {bindingColumn} <= {max}', ")
-				.appendLine("		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ")
-				.appendLine("	); ")
+			script.appendLine("	db.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', columns, table, bindingColumn, min, bindingColumn, max)")
+				.appendLine("		.eachRow(function(row) {")
+				.appendLine("			var line = row.join(delimiter).split('\\n').join('');")
+				.appendLine("			file.appendLine(line);")
+				.appendLine("		});")
 				.appendLine();
 		} else if(bindingType.equals("date")) {
 			if(dbVendor.equals("oracle") || dbVendor.equals("db2") || dbVendor.equals("tibero") || dbVendor.equals("etc")) {
-				script.appendLine("	var mainQuery = format( ")
-					.appendLine("		'SELECT {columns} FROM {table} ' +  ")
-					.appendLine("		' WHERE {bindingColumn} > TO_DATE(\\'{min}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ' + ")
-					.appendLine("		' AND {bindingColumn} <= TO_DATE(\\'{max}\\', \\'YYYY-MM-DD HH24:MI:SS\\') ', ")
-					.appendLine("		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ")
-					.appendLine("	);")
+				script.appendLine("	db.query('SELECT ? FROM ? ' + ")
+					.appendLine("			'WHERE ? > TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\')' + ")
+					.appendLine("			'AND ? <= TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\')',")
+					.appendLine("		columns, table, bindingColumn, min, bindingColumn, max)")
+					.appendLine("		.eachRow(function(row) {")
+					.appendLine("			var line = row.join(delimiter).split('\\n').join('');")
+					.appendLine("			file.appendLine(line);")
+					.appendLine("		});")
 					.appendLine();
 			} else if(dbVendor.equals("mysql")) {
-				script.appendLine("	var mainQuery = format( ")
-					.appendLine("		'SELECT {columns} FROM {table} ' +  ")
-					.appendLine("		' WHERE {bindingColumn} > STR_TO_DATE(\\'{min}\\', \\'%Y-%m-%d %H:%i:%s\\') ' + ")
-					.appendLine("		' AND {bindingColumn} <= STR_TO_DATE(\\'{max}\\', \\'%Y-%m-%d %H:%i:%s\\') ', ")
-					.appendLine("		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ")
-					.appendLine("	); ")
+				script.appendLine("	db.query('SELECT ? FROM ? ' + ")
+					.appendLine("			'WHERE ? > STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\')' + ")
+					.appendLine("			'AND ? <= STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\')',")
+					.appendLine("		columns, table, bindingColumn, min, bindingColumn, max)")
+					.appendLine("		.eachRow(function(row) {")
+					.appendLine("			var line = row.join(delimiter).split('\\n').join('');")
+					.appendLine("			file.appendLine(line);")
+					.appendLine("		});")
 					.appendLine();
 			} else if(dbVendor.equals("mssql")) {
-				script.appendLine("	var mainQuery = format( ")
-					.appendLine("		'SELECT {columns} FROM {table} ' +  ")
-					.appendLine("		' WHERE {bindingColumn} > STR_TO_DATE(\\'{min}\\', \\'%Y-%m-%d %H:%i:%s\\') ' + ")
-					.appendLine("		' AND {bindingColumn} <= STR_TO_DATE(\\'{max}\\', \\'%Y-%m-%d %H:%i:%s\\') ', ")
-					.appendLine("		{ columns: columns, table: table, bindingColumn: bindingColumn, min: min, max: max } ")
-					.appendLine("	); ")
+				script.appendLine("	db.query('SELECT ? FROM ? ' + ")
+					.appendLine("			'WHERE ? > \\'?\\'' + ")
+					.appendLine("			'AND ? <= \\'?\\'',")
+					.appendLine("		columns, table, bindingColumn, min, bindingColumn, max)")
+					.appendLine("		.eachRow(function(row) {")
+					.appendLine("			var line = row.join(delimiter).split('\\n').join('');")
+					.appendLine("			file.appendLine(line);")
+					.appendLine("		});")
 					.appendLine();
 			}
 		}
 		
-		script
-			.appendLine("	database(jdbc)")
-			.appendLine("		.select(mainQuery)")
-			.appendLine("		.map(function(row) {")
-			.appendLine("			return row.join(delimiter).split('\\n').join('') + '\\n';")
-			.appendLine("		}) ")
-			.appendLine("		.group(100) ")
-			.appendLine("		.writeTextFile({ ")
-			.appendLine("			filename: outputFile, ")
-			.appendLine("			charset: charset, ")
-			.appendLine("			dateFormat: true, ")
-			.appendLine("		}).run(); ")
-			.appendLine();
-
+		if(bindingType.equals("simple") == false)
+			script.appendLine("	repo.set('min', max);");
+		
 		script.appendLine("});");
 		
 		return script.toString();

@@ -1,4 +1,4 @@
-package com.igloosec.scripter.script.bindingsV2;
+package com.igloosec.scripter.script.bindings_pipe_OLD;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.script.ScriptThread;

@@ -12,7 +12,7 @@ import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.NotExistsException;
 
 public class SimpleRepoService {
-		SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
+	SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	
 	public void set(String scriptName, String key, String value) {
 		if(simpleRepoDAO.isExists(scriptName, key)) {

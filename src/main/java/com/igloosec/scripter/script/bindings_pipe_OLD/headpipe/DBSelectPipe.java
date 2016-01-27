@@ -1,4 +1,4 @@
-package com.igloosec.scripter.script.bindingsV2.headpipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.headpipe;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +12,7 @@ import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class DBSelectPipe extends PipeHead {

@@ -1,4 +1,4 @@
-package com.igloosec.scripter.script.bindingsV2.pipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.pipe;
 
 import java.io.Closeable;
 import java.io.File;
@@ -12,8 +12,8 @@ import java.util.List;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.script.bindingsV2.base.Pipe;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.Pipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 import com.igloosec.scripter.service.FileOutMsgService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 

@@ -1,16 +1,16 @@
-package com.igloosec.scripter.script.bindingsV2.base;
+package com.igloosec.scripter.script.bindings_pipe_OLD.base;
 
 import sun.org.mozilla.javascript.internal.Function;
 import sun.org.mozilla.javascript.internal.NativeObject;
 
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.script.bindingsV2.pipe.DBUpdatePipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.FirstPipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.GroupPipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.LogPipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.MapPipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.PrintPipe;
-import com.igloosec.scripter.script.bindingsV2.pipe.WriteTextFilePipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.DBUpdatePipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.FirstPipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.GroupPipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.LogPipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.MapPipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.PrintPipe;
+import com.igloosec.scripter.script.bindings_pipe_OLD.pipe.WriteTextFilePipe;
 
 public class Pipeable {
 	private Pipe nextPipe;

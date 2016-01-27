@@ -1,20 +1,23 @@
-package com.igloosec.scripter.script.bindingsV2.headpipe;
+package com.igloosec.scripter.script.bindings_pipe_OLD.headpipe;
+
+import java.util.UUID;
 
 import com.igloosec.scripter.script.ScriptThread;
-import com.igloosec.scripter.script.bindingsV2.base.PipeHead;
+import com.igloosec.scripter.script.bindings_pipe_OLD.base.PipeHead;
 
-public class DataPipeHead extends PipeHead {
-	private Object data;
-	
-	public DataPipeHead(Object data) {
-		this.data = data;
+public class DummyPipeHead extends PipeHead {
+	private int count;
+
+	public DummyPipeHead(int count) {
+		this.count = count;
 	}
-	
+
 	@Override
 	public void run() {
 		try {
-			next(this.data);
-		} catch(Exception e) {
+			for (int i = 0; i < this.count; i++)
+				next(UUID.randomUUID().toString());
+		} catch (Exception e) {
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			ScriptThread.currentThread().getLogger().error(errmsg, e);
 			exception(e);

@@ -1,4 +1,4 @@
-package com.igloosec.scripter.script.bindingsV2.base;
+package com.igloosec.scripter.script.bindings_pipe_OLD.base;
 
 public abstract class PipeHead extends Pipeable {
 	public PipeHead() {
