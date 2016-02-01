@@ -5,17 +5,14 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.igloosec.scripter.common.Conf;
 import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.AutoStartScriptDAO;
-import com.igloosec.scripter.rdb.DerbyDataSource;
 import com.igloosec.scripter.rdb.DerbySchemaCreator;
 import com.igloosec.scripter.script.ScriptExecutor;
 import com.igloosec.scripter.service.ScriptService;
@@ -31,10 +28,12 @@ import com.igloosec.scripter.servlet.NotiWebSocketServlet;
 import com.igloosec.scripter.servlet.ScriptREST;
 import com.igloosec.scripter.servlet.ShutdownREST;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
+import com.igloosec.scripter.util.Log4jConfig;
 
 public class Server {
 	public static void main(String[] args) throws Exception {
-		configureLog4j();
+		Log4jConfig.initLog4j();
+		
 		registerShutdownHook();
 		
 		//jetty debug log to stdout
@@ -64,43 +63,6 @@ public class Server {
 		server.join();
 	}
 	
-//	public static void jetty_version9_main(String[] args) throws Exception {
-//		configureLog4j();
-//		registerShutdownHook();
-//		
-//		new DerbySchemaCreator().check();
-//		
-//		SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScript();
-//		
-//		SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
-//		
-//		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
-//
-//		org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(threadPool);
-//		server.setStopAtShutdown(true);
-//		server.setStopTimeout(5000);
-//
-//		ServerConnector connector = new ServerConnector(server);
-//		connector.setPort(Conf.getAs(Conf.PORT, 8098));
-//		connector.setIdleTimeout(30000);
-//		server.setConnectors(new ServerConnector[] { connector });
-//
-//		WebAppContext context = getWebAppContext();
-//		server.setHandler(context);
-//		
-//		server.start();
-//		server.join();
-//	}
-	
-	private static void configureLog4j() {
-		System.setProperty("home.path", Path.getPackagePath().getAbsolutePath());
-		
-		File log4jXml = new File(Path.getPackagePath(), "conf/log4j.xml");
-		if(log4jXml.exists() == false) return;
-		
-		DOMConfigurator.configure(log4jXml.getAbsolutePath());
-	}
-
 	private static WebAppContext getWebAppContext() throws IOException{
 		WebAppContext context = new WebAppContext();
 		context.setClassLoader(Thread.currentThread().getContextClassLoader());

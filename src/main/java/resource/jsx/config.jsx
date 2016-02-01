@@ -6,6 +6,7 @@ var Card = MaterialWrapper.Card;
 var CardHeader = MaterialWrapper.CardHeader;
 var CardText = MaterialWrapper.CardText;
 var SimpleRepoCard = require('./config/simple-repo-card.jsx');
+var Log4jConfigCard = require('./config/log4j-config-card.jsx');
 
 var ConfigView = React.createClass({
 	render() {
@@ -14,6 +15,9 @@ var ConfigView = React.createClass({
 				<div>
 					<div style={{ marginBottom: '10px' }}>
 						<SimpleRepoCard />
+					</div>
+					<div style={{ marginBottom: '10px' }}>
+						<Log4jConfigCard />
 					</div>
 				</div>
 			);

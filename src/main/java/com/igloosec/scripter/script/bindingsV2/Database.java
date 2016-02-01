@@ -3,15 +3,15 @@ package com.igloosec.scripter.script.bindingsV2;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-
+import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
 import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
-import com.mysql.jdbc.PreparedStatement;
+import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class Database {
+	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	
 	private String driver;
@@ -58,6 +58,7 @@ public class Database {
 			
 			query = convertQuestionMark2RealValue(query, args);
 			jdbcTmpl.update(query);
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
 		} catch(Exception e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}

@@ -9,6 +9,7 @@ var ScriptInfoView = require('./script-info.jsx');
 var NewDb2FileView = require('./new-db2file.jsx');
 var NewDb2DbView = require('./new-db2db.jsx');
 var ConfigView = require('./config.jsx');
+var NewCustom = require('./new-custom.jsx');
 require('./reset.css');
 
 jsUtil.initPrototypeFunctions();
@@ -42,6 +43,12 @@ function getDOM() {
 			return (
 				<Layout active="script">
 					<NewDb2DbView />
+				</Layout>
+			);
+		} else if(pathname == '/Script/NewCustom') {
+			return (
+				<Layout active="script">
+					<NewCustom />
 				</Layout>
 			);
 		} else if(pathname == '/Config') {

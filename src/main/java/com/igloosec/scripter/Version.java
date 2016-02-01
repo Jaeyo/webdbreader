@@ -10,7 +10,7 @@ public class Version {
 	private static List<History> histories=new ArrayList<History>();
 	
 	public static void main(String[] args) {
-		System.out.println(String.format("WebDbReader (%s)", currentVersion));
+		System.out.println(String.format("scripter (%s)", currentVersion));
 	}
 	
 	static{

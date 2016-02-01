@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
+import com.igloosec.scripter.exception.UnknownThresholdException;
 import com.igloosec.scripter.service.ConfigService;
+import com.igloosec.scripter.util.Log4jConfig;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ConfigREST extends HttpServlet {
@@ -39,6 +41,8 @@ public class ConfigREST extends HttpServlet {
 				resp.getWriter().print(getConfig(req, resp, pathParams));
 			} else if(new UriTemplate("/SimpleRepo/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getSimpleRepo(req, resp, pathParams));
+			} else if(new UriTemplate("/log4j/threshold").match(pathInfo, pathParams)){
+				resp.getWriter().print(getLog4jThreshold(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			} 
@@ -75,6 +79,11 @@ public class ConfigREST extends HttpServlet {
 		}
 	}
 	
+	private String getLog4jThreshold(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		return new JSONObject().put("success", 1).put("threshold", Log4jConfig.getThreshold()).toString();
+		
+	}
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
@@ -93,6 +102,8 @@ public class ConfigREST extends HttpServlet {
 				resp.getWriter().print(updateSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/RemoveSimpleRepo/").match(pathInfo, pathParams)){
 				resp.getWriter().print(removeSimpleRepo(req, resp, pathParams));
+			} else if(new UriTemplate("/update/log4j/threshold").match(pathInfo, pathParams)){
+				resp.getWriter().print(updateLog4jThreshold(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			} 
@@ -166,10 +177,20 @@ public class ConfigREST extends HttpServlet {
 		String scriptName = req.getParameter("scriptName");
 		String key = req.getParameter("key");
 		
-		Preconditions.checkArgument(scriptName != null);
-		Preconditions.checkArgument(key != null);	
+		Preconditions.checkArgument(scriptName != null, "scriptName is null");
+		Preconditions.checkArgument(key != null, "key is null");
 		
 		simpleRepoDAO.delete(scriptName);
+		
+		return new JSONObject().put("success", 1).toString();
+	}
+	
+	private String updateLog4jThreshold(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws UnknownThresholdException{
+		String threshold = req.getParameter("threshold");
+		
+		Preconditions.checkArgument(threshold != null, "threshold is null");
+		
+		Log4jConfig.setThreshold(threshold);
 		
 		return new JSONObject().put("success", 1).toString();
 	}

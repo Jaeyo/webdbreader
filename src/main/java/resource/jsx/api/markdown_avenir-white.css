@@ -9,16 +9,15 @@
 #markdown h1, #markdown h2, #markdown h3, #markdown h4, #markdown h5, #markdown h6 {
 	font-weight: bold;
 	margin-top: 20px;
+	color: #415571;
 }
 
 #markdown h1 {
-	color: #000000;
 	font-size: 28pt;
 }
 
 #markdown h2 {
 	border-bottom: 1px solid #CCCCCC;
-	color: #000000;
 	font-size: 24px;
 }
 
@@ -53,7 +52,7 @@
 }
 
 #markdown p, #markdown blockquote, #markdown ul, #markdown ol, #markdown dl, #markdown li, #markdown table, #markdown pre {
-	margin: 10px 0;
+	margin: 3px 0;
 }
 
 #markdown a, #markdown a:visited {
@@ -83,7 +82,7 @@
 	font-family: Monaco;
 	font-size: 10pt;
 	border-radius: 3px;
-	background-color: #F8F8F8;
+	background-color: #eaeaea;
 	color: inherit;
 }
 

@@ -3,8 +3,6 @@ SpDbReader는 scripter의 이전 버전으로 scripter에서는 SpDbReader에서
 ## 바인딩 객체
 사용자 스크립트 상에서 사용할 수 있도록 SpDbReader 에서 제공하는 객체들이다. config 기능을 사용하지 않고 직접 사용자 스크립트를 생성/수정하는 경우 아래의 바인딩 객체 및 예제 코드를 참고하여 작성하도록 한다.
 
-----
-
 ### DateUtil
 #### String format(long date, String format)
 * long 형으로 주어진 시간(date)을 포맷(format)에 맞춰서 출력한다. long 형의 시간 값은 DateUtil.parse(), DateUtil.currentTimeMillis()를 통해 구할 수 있다.

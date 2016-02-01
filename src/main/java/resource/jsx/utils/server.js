@@ -484,3 +484,40 @@ exports.removeSimpleRepo = function(args) {
 			});
 	});
 };
+
+//args: threshold
+exports.updateLog4jThreshold = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.post('/REST/Config/update/log4j/threshold')
+			.type('form')
+			.send({
+				threshold: args.threshold
+			}).end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(true);
+					});
+			});
+	});
+};
+
+
+exports.loadLog4jThreshold = function() {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Config/log4j/threshold')
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.threshold);
+					});
+			});
+	});
+};

@@ -22,17 +22,19 @@ set CLASSPATH=%CURRENT_PATH%scripter.jar;%CURRENT_PATH%\lib\*
 
 set MAIN_CLASS=
 if "%1" == "start" (
-	set MAIN_CLASS=BOOTSTRAP_MAIN_CLASS
+	set MAIN_CLASS=%BOOTSTRAP_MAIN_CLASS%
 ) else if "%1" == "shutdown" (
-	set MAIN_CLASS=SHUTDOWN_MAIN_CLASS
+	set MAIN_CLASS=%SHUTDOWN_MAIN_CLASS%
 ) else if "%1" == "version" (
-	set MAIN_CLASS=VERSION_MAIN_CLASS
+	set MAIN_CLASS=%VERSION_MAIN_CLASS%
 ) else (
 	echo usage: 
-	echo \tstart server             : sh scripter.sh start
-	echo \tshutdown server   : sh scripter.sh shutdown
-	echo \tversion                      : sh scripter.sh version
-	exit 0
+	echo ---------------------------------------
+	echo start server    : scripter.bat start
+	echo shutdown server : scripter.bat shutdown
+	echo version         : scripter.bat version
+	echo ---------------------------------------
+	goto :eof
 )
 
 "%JAVA_EXE%" ^

@@ -22,17 +22,22 @@ VERSION_MAIN_CLASS=com.igloosec.scripter.Version
 CLASSPATH=$CURRENT_PATH/scripter.jar:$CURRENT_PATH/lib/*
 
 MAIN_CLASS=
-if [ "$1" = "start" ] then
-	MAIN_CLASS=BOOTSTRAP_MAIN_CLASS
-elif [ "$1" = "shutdown" ] then
-	MAIN_CLASS=SHUTDOWN_MAIN_CLASS
-elif [ "$1" = "version" ] then
-	MAIN_CLASS=VERSION_MAIN_CLASS
+if [ "$1" = "start" ] 
+then
+	MAIN_CLASS=$BOOTSTRAP_MAIN_CLASS
+elif [ "$1" = "shutdown" ] 
+then
+	MAIN_CLASS=$SHUTDOWN_MAIN_CLASS
+elif [ "$1" = "version" ] 
+then
+	MAIN_CLASS=$VERSION_MAIN_CLASS
 else
 	echo "usage: "
-	echo "\tstart server             : sh scripter.sh start"
-	echo "\tshutdown server   : sh scripter.sh shutdown"
-	echo "\tversion                      : sh scripter.sh version"
+	echo "-------------------------------------------"
+	echo "start server    : sh scripter.sh start"
+	echo "shutdown server : sh scripter.sh shutdown"
+	echo "version         : sh scripter.sh version"
+	echo "-------------------------------------------"
 	exit 0
 fi
 

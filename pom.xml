@@ -12,7 +12,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<!--  jetty.version>9.1.2.v20140210</jetty.version -->
+		<!-- jetty.version>9.1.2.v20140210</jetty.version -->
 		<jetty.version>8.1.18.v20150929</jetty.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<jdk.version>1.6</jdk.version>
@@ -48,6 +48,7 @@
 		</dependency>
 
 		<!-- jade4j -->
+		<!-- TODO: DELETE -->
 		<dependency>
 			<groupId>de.neuland-bfi</groupId>
 			<artifactId>jade4j</artifactId>
@@ -144,6 +145,13 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
+		</dependency>
+
+		<!-- junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
 		</dependency>
 
 	</dependencies>

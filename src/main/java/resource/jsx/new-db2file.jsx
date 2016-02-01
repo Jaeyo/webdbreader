@@ -95,6 +95,10 @@ var NewDb2FileView = React.createClass({
 			return;
 		}
 
+		var outputPath = this.state.outputPath;
+		if(String.endsWith(outputPath, '/') === false && String.endsWith(outputPath, '\\') === false)
+			outputPath += '/';
+
 		server.generateDb2FileScript({
 			period: this.state.period,
 			dbVendor: this.state.dbVendor,
@@ -111,7 +115,7 @@ var NewDb2FileView = React.createClass({
 			bindingColumn: this.state.bindingColumn,
 			delimiter: this.state.delimiter,
 			charset: this.state.charset,
-			outputPath: this.state.outputPath
+			outputPath: outputPath
 		})
 		.then(function(script) {
 			this.refs.scriptDialog.show({

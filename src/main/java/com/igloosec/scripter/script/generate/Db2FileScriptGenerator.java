@@ -66,7 +66,8 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 			script.appendLine("	db.query('SELECT ? FROM ?', columns, table).eachRow(function(row) {")
 				.appendLine("		var line = row.join(delimiter).split('\\n').join('');")
 				.appendLine("		file.appendLine(line);")
-				.appendLine("	});");
+				.appendLine("	});")
+				.appendLine();
 		} else if(bindingType.equals("sequence")) {
 			script.appendLine("	db.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', columns, table, bindingColumn, min, bindingColumn, max)")
 				.appendLine("		.eachRow(function(row) {")
