@@ -79,9 +79,7 @@ var TailTab = React.createClass({
 			var fileOutMsgs = tempFileOutMsgs.concat(self.state.fileOutMsgs);
 			tempFileOutMsgs = [];
 			if(fileOutMsgs.length > 50) fileOutMsgs.splice(fileOutMsgs.length-1, fileOutMsgs.length - 50);
-			console.log('before setState', { fileOutMsgs: fileOutMsgs }); //DEBUG
 			self.setState({ fileOutMsgs: fileOutMsgs }, function() {
-				console.log('after setState'); //DEBUG
 				setTimeout(popTempFileOutMsgsFn, 1000);
 			});
 		};
@@ -145,10 +143,6 @@ var LogList = (props) => {
 		}}>
 		{
 			props.logs.map(function(log, index) {
-				console.log({
-					log: log,
-					timestamp: log.timestamp
-				}); //DEBUG
 				return (
 					<ListItem 
 						key={'log-' + log.uuid}

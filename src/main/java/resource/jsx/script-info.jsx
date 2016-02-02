@@ -55,7 +55,7 @@ var ScriptInfoView = React.createClass({
 			.then(function(script) {
 				callback({ script: script });
 			}).catch(function(err) {
-				this.refs.alertDialog.show('danger', '스크립트 정보를 불러올 수 없습니다.');
+				this.refs.alertDialog.show('danger', err);
 			}.bind(this));
 	},
 

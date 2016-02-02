@@ -3,14 +3,11 @@ package com.igloosec.scripter.dao;
 import java.util.Date;
 
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.DerbyDataSource;
 
 public class VersionDAO {
-	private static final Logger logger = LoggerFactory.getLogger(VersionDAO.class);
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public String getLastVersion() {

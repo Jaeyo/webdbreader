@@ -22,31 +22,53 @@ public class QueryResult {
 	}
 	
 	public Object get(NativeObject args) {
-		int row = (Integer) args.get("row", args);
-		Object col = args.get("col", args);
-		
-		boolean isRowExists = sqlRowSet.absolute(row);
-		if(isRowExists == false) {
-			logger.error("no row: " + row);
-			return null;
-		}
-		
-		if(col instanceof String) {
-			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
-			return sqlRowSet.getObject((String) col);
-		} else if(col instanceof Integer) {
-			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
-			return sqlRowSet.getObject((Integer) col);
-		} else {
-			logger.error("invalid col type: " + col.getClass().toString());
+		try {
+			int row = 0;
+
+			Object rowObj = args.get("row", args);
+			if(rowObj instanceof Double) {
+				row = ((Double) rowObj).intValue();
+			} else if(rowObj instanceof String) {
+				row = Integer.parseInt((String) rowObj);
+			} else {
+				row = (Integer) rowObj;
+			}
+
+			Object col = args.get("col", args);
+
+			boolean isRowExists = sqlRowSet.absolute(row);
+			if(isRowExists == false) {
+				logger.error(String.format("scriptName: %s, no row: %s", ScriptThread.currentScriptName(), row));
+				return null;
+			}
+
+			if(col instanceof String) {
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
+				return sqlRowSet.getObject((String) col);
+			} else if(col instanceof Double) {
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
+				return sqlRowSet.getObject(((Double) col).intValue());
+			} else if(col instanceof Integer) {
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
+				return sqlRowSet.getObject((Integer) col);
+			} else {
+				logger.error(String.format("scriptName: %s, invalid col type: %s", ScriptThread.currentScriptName(), col.getClass().toString()));
+				return null;
+			}
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
 			return null;
 		}
 	}
-	
+
 	public void eachRow(Function callback) {
-		while(sqlRowSet.next() == true) {
-			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
-			Util.invokeFunction(callback, new Object[]{ new QueryResultRow(this.sqlRowSet) });
+		try {
+			while(sqlRowSet.next() == true) {
+				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
+				Util.invokeFunction(callback, new Object[]{ new QueryResultRow(this.sqlRowSet) });
+			}
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	
@@ -58,29 +80,41 @@ public class QueryResult {
 		}
 		
 		public String join(String delimiter) {
-			SqlRowSetMetaData meta = this.sqlRowSet.getMetaData();
-			int colCount = meta.getColumnCount();
-			StringBuilder line = new StringBuilder();
-			
-			if(colCount == 0) return "";
-			
-			for (int i = 1; i <= colCount; i++) {
-				line.append(this.sqlRowSet.getString(i));
-				if(i != colCount) line.append(delimiter);
+			try {
+				SqlRowSetMetaData meta = this.sqlRowSet.getMetaData();
+				int colCount = meta.getColumnCount();
+				StringBuilder line = new StringBuilder();
+
+				if(colCount == 0) return "";
+
+				for (int i = 1; i <= colCount; i++) {
+					line.append(this.sqlRowSet.getString(i));
+					if(i != colCount) line.append(delimiter);
+				}
+
+				return line.toString();
+			} catch(Exception e) {
+				logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+				return null;
 			}
-			
-			return line.toString();
 		}
 		
 		public Object get(NativeObject args) {
-			Object col = args.get("col", args);
-			
-			if(col instanceof String) {
-				return sqlRowSet.getObject((String) col);
-			} else if(col instanceof Integer) {
-				return sqlRowSet.getObject((Integer) col);
-			} else {
-				logger.error("invalid col type: " + col.getClass().toString());
+			try {
+				Object col = args.get("col", args);
+
+				if(col instanceof String) {
+					return sqlRowSet.getObject((String) col);
+				} else if(col instanceof Double) {
+					return sqlRowSet.getObject(((Double) col).intValue());
+				} else if(col instanceof Integer) {
+					return sqlRowSet.getObject((Integer) col);
+				} else {
+					logger.error(String.format("scriptName: %s, invalid col type: %s", ScriptThread.currentScriptName(), col.getClass().toString()));
+					return null;
+				}
+			} catch(Exception e) {
+				logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
 				return null;
 			}
 		}

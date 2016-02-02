@@ -16,6 +16,7 @@ public class SingletonInstanceRepo {
 			if(instance == null){
 				instance = clazz.newInstance();
 				instances.put(clazz, instance);
+				logger.debug("singleton instance generated: {}", clazz.toString());
 			}
 		} catch (InstantiationException e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);

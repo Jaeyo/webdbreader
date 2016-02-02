@@ -35,14 +35,14 @@ public class ChartREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/ScriptScoreStatistics/Total/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getTotalChartData(req, resp, pathParams));
-				resp.getWriter().flush();
+			} else if(new UriTemplate("/ScriptScoreStatistics/script/").match(pathInfo, pathParams)){
+				resp.getWriter().print(getScriptChartData(req, resp, pathParams));
 			} else if(new UriTemplate("/ScriptScoreStatistics/LastStatistics/{scriptName}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getLastStatistics(req, resp, pathParams));
-				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
-				resp.getWriter().flush();
 			}
+			resp.getWriter().flush();
 		} catch(IllegalArgumentException e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			logger.error(errmsg);
@@ -59,6 +59,15 @@ public class ChartREST extends HttpServlet {
 	private String getTotalChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		JSONArray totalStatistics = scriptScoreStatisticsService.getTotalScriptStatistics();
 		return new JSONObject().put("success", 1).put("data", totalStatistics).toString();
+	}
+	
+	private String getScriptChartData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String scriptName = req.getParameter("scriptName");
+		
+		Preconditions.checkArgument(scriptName != null, "scriptName is null");
+		
+		JSONArray scriptStatistics = scriptScoreStatisticsService.getScriptStatistics(scriptName);
+		return new JSONObject().put("success", 1).put("data", scriptStatistics).toString();
 	}
 	
 	private String getLastStatistics(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){

@@ -3,12 +3,22 @@ package com.igloosec.scripter.script.generate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Db2FileScriptGenerator extends ScriptGenerator {
+	private static final Logger logger = LoggerFactory.getLogger(Db2FileScriptGenerator.class);
 	
 	public String generate(String period, String dbVendor, String dbIp, String dbPort, 
 			String dbSid, String jdbcDriver, String jdbcConnUrl, String jdbcUsername, 
 			String jdbcPassword, String columns, String table, String bindingType, 
 			String bindingColumn, String delimiter, String charset, String outputPath) {
+		logger.debug("period: {}, dbVendor: {}, dbIp: {}, dbPort: {}, dbSid: {}, jdbcDriver: {}, " + 
+			"jdbdConnUrl: {}, jdbcUsername: {}, jdbcPassword: {}, columns: {}, table: {}, bindingType: {}, " +
+			"bindingColumn: {}, delimiter: {}, charset: {}, outputPath: {}", period, dbVendor, dbIp, dbPort,
+			dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn,
+			delimiter, charset, outputPath);
+		
 		ScriptBuilder script = new ScriptBuilder();
 		
 		script.appendLine(super.getTypeVarExp(this.getClass(), bindingType))
@@ -44,7 +54,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		
 		script.appendLine("var repeat = newRepeat({ period: period });")
 			.appendLine("var db = newDatabase(jdbc);")
-			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mm.log', charset: charset });")
+			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mi.log', charset: charset });")
 			.appendLine("var repo = newRepo();")
 			.appendLine("var logger = newLogger();")
 			.appendLine();
@@ -53,13 +63,13 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		script.appendLine("	try {");
 		
 		if(bindingType.equals("sequence")) {
-			script.appendLine("		var min = repo.get('min', { isNull: 0 });")
-				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 0, col: 0 });")
+			script.appendLine("		var min = repo.get('min', { isNull: '0' });")
+				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine();
 		} else if(bindingType.equals("date")) {
 			script.appendLine("		var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
-				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 0, col: 0 });")
+				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine("		else max = dateFormat(max, '$yyyy-$mm-$dd $hh:$mi:$ss');")
 				.appendLine();
@@ -117,6 +127,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		
 		script.appendLine("	} catch(err) {");
 		script.appendLine("		logger.error(err);");
+		script.appendLine("		logger.error(err.rhinoException);");
 		script.appendLine("	} ");
 		script.appendLine("});");
 		

@@ -137,7 +137,7 @@ var TotalChartCard = React.createClass({
 					<CardText>
 						{this.renderCharts()}
 					</CardText>
-					<AlertDialog refs="alertDialog" />
+					<AlertDialog ref="alertDialog" />
 				</Card>
 			);
 		} catch(err) {

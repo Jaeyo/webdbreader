@@ -8,12 +8,14 @@ import java.util.Date;
 import javax.xml.ws.WebServiceException;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
+import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.service.FileOutMsgService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 import com.sun.xml.internal.ws.Closeable;
 
 public class File implements Closeable {
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 			
@@ -22,17 +24,25 @@ public class File implements Closeable {
 	private SwitchedFile switchedFile;
 	
 	public File(String filename, String charset) throws IOException {
-		this.filename = filename;
-		this.charset = charset;
-		this.switchedFile = new SwitchedFile(filename, charset);
-		
-		ScriptThread.currentThread().newCloseable(this);
+		try {
+			this.filename = filename;
+			this.charset = charset;
+			this.switchedFile = new SwitchedFile(filename, charset);
+
+			ScriptThread.currentThread().newCloseable(this);
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	}
 	
 	public void append(String line) throws IOException {
-		this.switchedFile.append(line);
-		fileOutMsgService.dispatchMsg(ScriptThread.currentThread().getScriptName(), switchedFile.getCurrentFilename(), System.currentTimeMillis(), line);
-		scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
+		try {
+			this.switchedFile.append(line);
+			fileOutMsgService.dispatchMsg(ScriptThread.currentThread().getScriptName(), switchedFile.getCurrentFilename(), System.currentTimeMillis(), line);
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: $s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	}
 	
 	public void appendLine(String line) throws IOException {
@@ -41,18 +51,24 @@ public class File implements Closeable {
 	
 	@Override
 	public void close() throws WebServiceException {
-		this.switchedFile.close();
+		try {
+			this.switchedFile.close();
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	}
 
 	class SwitchedFile implements Closeable{
+		private ScriptLogger logger = ScriptThread.currentLogger();
 		private String originalFilename;
 		private String charset;
 		private String currentFilename;
 		private PrintWriter output;
-		private Formatter formatter;
+		private Formatter formatter = new Formatter();
 		
 		public SwitchedFile(String filename, String charset) throws IOException {
 			this.originalFilename = filename;
+			this.charset = charset;
 			switching();
 		}
 		
@@ -66,7 +82,9 @@ public class File implements Closeable {
 				this.output.close();
 			
 			this.currentFilename = formatter.format(originalFilename, new Date());
-			java.io.File file = new java.io.File(this.currentFilename, this.charset);
+			logger.info(String.format("scriptName: %s, file will be switched into: %s", ScriptThread.currentScriptName(), this.currentFilename));
+			java.io.File file = new java.io.File(this.currentFilename);
+			logger.debug(String.format("scriptName: %s, create file: %s", ScriptThread.currentScriptName(), this.currentFilename));
 			file.createNewFile();
 			this.output = new PrintWriter(file, this.charset);
 		}

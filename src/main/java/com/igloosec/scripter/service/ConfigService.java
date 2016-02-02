@@ -6,15 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
-import com.igloosec.scripter.dao.AutoStartScriptDAO;
 import com.igloosec.scripter.dao.ConfigDAO;
 import com.igloosec.scripter.dao.ScriptDAO;
-import com.igloosec.scripter.exception.NotExistsException;
 
 public class ConfigService {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
 	private ConfigDAO configDAO = SingletonInstanceRepo.getInstance(ConfigDAO.class);
-	private AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	
 	public JSONObject load(){

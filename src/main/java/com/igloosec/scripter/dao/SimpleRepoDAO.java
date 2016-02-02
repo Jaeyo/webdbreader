@@ -1,15 +1,12 @@
 package com.igloosec.scripter.dao;
 
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.DerbyDataSource;
 
 public class SimpleRepoDAO {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleRepoDAO.class);
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public void insert(String scriptName, String key, String value) {

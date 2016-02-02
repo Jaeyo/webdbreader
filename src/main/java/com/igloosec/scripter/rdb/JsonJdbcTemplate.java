@@ -15,25 +15,25 @@ public class JsonJdbcTemplate extends JdbcTemplate{
 
 	public JsonJdbcTemplate() {
 		super();
-	} //INIT
+	}
 
 	public JsonJdbcTemplate(DataSource dataSource, boolean lazyInit) {
 		super(dataSource, lazyInit);
-	} //INIT
+	}
 
 	public JsonJdbcTemplate(DataSource dataSource) {
 		super(dataSource);
-	} //INIT
+	}
 	
-	public JSONArray queryForJsonArray(String sql){
+	public JSONArray queryForJsonArray(String sql) {
 		return convertListMap2JsonArray(queryForList(sql));
-	} //queryForJsonArray
+	}
 	
-	public JSONArray queryForJsonArray(String sql, Object... args){
+	public JSONArray queryForJsonArray(String sql, Object... args) {
 		return convertListMap2JsonArray(queryForList(sql, args));
-	} //queryForJsonArray
+	}
 	
-	private JSONArray convertListMap2JsonArray(List<Map<String, Object>> rows){
+	private JSONArray convertListMap2JsonArray(List<Map<String, Object>> rows) {
 		JSONArray jsonArr = new JSONArray();
 		for(Map<String, Object> row : rows){
 			JSONObject rowJson = new JSONObject();
@@ -43,9 +43,9 @@ public class JsonJdbcTemplate extends JdbcTemplate{
 				String key = next.getKey();
 				Object value = next.getValue();
 				rowJson.put(key, value);
-			} //while
+			}
 			jsonArr.put(rowJson);
-		} //for row
+		}
 		return jsonArr;
-	} //convertListMap2JsonArray
-} //class
+	}
+}

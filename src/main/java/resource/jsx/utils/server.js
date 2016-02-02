@@ -360,6 +360,26 @@ exports.chartTotal = function() {
 	});
 };
 
+//args: scriptName
+exports.chartScript = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Chart/ScriptScoreStatistics/script/')
+			.query({
+				scriptName: args.scriptName
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.data);
+					});
+			});
+	});
+};
+
 // args: scriptName, period
 exports.lastStatistics = function(args) {
 	args.scriptName = encodeURI(args.scriptName);

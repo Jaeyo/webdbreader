@@ -3,14 +3,11 @@ package com.igloosec.scripter.dao;
 import java.util.Date;
 
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.DerbyDataSource;
 
 public class ScriptScoreStatisticsDAO {
-	private static final Logger logger = LoggerFactory.getLogger(ScriptScoreStatisticsDAO.class);
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public void insertStatistics(String scriptName, String category, Long timestamp, Long count){
@@ -19,13 +16,17 @@ public class ScriptScoreStatisticsDAO {
 	}
 	
 	public void deleteUnderTimestamp(Long timestamp){
-		logger.info("timestamp: {}", timestamp);
 		ds.getJdbcTmpl().update("DELETE FROM script_score_statistics WHERE count_timestamp < ?", new Date(timestamp));
 	}
 	
 	public JSONArray getTotal(){
 		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics";
 		return ds.getJdbcTmpl().queryForJsonArray(query);
+	}
+	
+	public JSONArray getStatistics(String scriptName) {
+		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics WHERE script_name = ?";
+		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName);
 	}
 	
 	public JSONArray getLastStatistics(String scriptName, int period) {

@@ -93,5 +93,9 @@ public abstract class ScriptThread extends Thread {
 		return currentThread().getLogger();
 	}
 	
+	public static String currentScriptName() {
+		return currentThread().getScriptName();
+	}
+	
 	public abstract void runScript() throws Exception;
 }

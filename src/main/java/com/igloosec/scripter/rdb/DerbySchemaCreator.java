@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.google.common.collect.Sets;
@@ -14,6 +16,8 @@ import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.VersionDAO;
 
 public class DerbySchemaCreator {
+	private static final Logger logger = LoggerFactory.getLogger(DerbySchemaCreator.class);
+	  
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
 	public void check(){
@@ -23,17 +27,10 @@ public class DerbySchemaCreator {
 		checkVersion();
 	}
 	
-	private void checkVersion() {
-		String lastVersion = new VersionDAO().getLastVersion();
-		String currentVersion = Version.getCurrentVersion();
-		
-		if(lastVersion == null || Version.isANewerThanB(currentVersion, lastVersion))
-			new VersionDAO().insertVersion(currentVersion);
-	}
-	
 	private void checkSequence(){
-		final Set<String> existingSequences = new HashSet<String>();
+		logger.info("check sequence...");
 		
+		final Set<String> existingSequences = new HashSet<String>();
 		ds.getJdbcTmpl().query("SELECT sequencename FROM sys.syssequences", new RowCallbackHandler() {
 			@Override
 			public void processRow(ResultSet rs) throws SQLException {
@@ -45,7 +42,21 @@ public class DerbySchemaCreator {
 			ds.getJdbcTmpl().execute("CREATE SEQUENCE main_seq");
 	}
 	
+	private void checkVersion() {
+		logger.info("check version...");
+		
+		String lastVersion = new VersionDAO().getLastVersion();
+		String currentVersion = Version.getCurrentVersion();
+		
+		if(lastVersion == null || Version.isANewerThanB(currentVersion, lastVersion)) {
+			new VersionDAO().insertVersion(currentVersion);
+			logger.info("old version({}) replaced with new version({})", lastVersion, currentVersion);
+		}
+	}
+	
 	private void checkTables(){
+		logger.info("check tables...");
+		
 		Set<String> existingTableNames = Sets.newHashSet();
 
 		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("SELECT tablename FROM sys.systables WHERE tabletype='T'");
@@ -94,6 +105,8 @@ public class DerbySchemaCreator {
 	}
 	
 	private void checkConfig() {
+		logger.info("check config...");
+		
 		Set<String> existingConfigKeys = Sets.newHashSet();
 		JSONArray result = ds.getJdbcTmpl().queryForJsonArray("SELECT config_key FROM config");
 		for (int i = 0; i < result.length(); i++)

@@ -19,19 +19,24 @@ public class Repeat {
 	}
 	
 	public void run(final Function callback) {
-		if(this.timer == null) timer = ScriptThread.currentThread().newTimer();
-		final String scriptName = ScriptThread.currentThread().getScriptName();
-		
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					Thread.currentThread().setName(scriptName);
-					Util.invokeFunction(callback, null);
-				} catch(Exception e) {
-					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		try {
+			if(this.timer == null) timer = ScriptThread.currentThread().newTimer();
+			final String scriptName = ScriptThread.currentThread().getScriptName();
+
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						Thread.currentThread().setName(scriptName);
+						logger.info(String.format("scriptName: %s, repeat started", ScriptThread.currentScriptName()));
+						Util.invokeFunction(callback, null);
+					} catch(Exception e) {
+						logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+					}
 				}
-			}
-		}, 0, this.period);
+			}, 0, this.period);
+		} catch(Exception e) {
+			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	}
 }

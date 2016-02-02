@@ -17,16 +17,16 @@ public class DerbyDataSource {
 		if(derbyPath == null){
 			derbyPath = new File(System.getProperty("java.io.tmpdir"), "derby").getAbsolutePath();
 			logger.warn("derby.path is null, set to {}", derbyPath);
-		} //if
+		}
 		
 		this.ds = new EmbeddedConnectionPoolDataSource();
 		this.ds.setDatabaseName(derbyPath);
 		this.ds.setCreateDatabase("create");
 		this.ds.setUser("");
 		this.ds.setPassword("");
-	} //INIT
+	}
 	
 	public JsonJdbcTemplate getJdbcTmpl(){
 		return new JsonJdbcTemplate(this.ds);
-	} //getJdbcTmpl
-} //class
+	}
+}

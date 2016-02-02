@@ -29,6 +29,22 @@ public class ScriptScoreStatisticsService {
 		return total;
 	}
 	
+	public JSONArray getScriptStatistics(String scriptName) {
+		JSONArray statistics = scriptScoreStatisticsDAO.getStatistics(scriptName);
+		
+		JSONArray currentCountValues = getCurrentCountValuesAsJson();
+		if(currentCountValues != null) {
+			for (int i = 0; i < currentCountValues.length(); i++) {
+				JSONObject countValue = currentCountValues.getJSONObject(i);
+				if(countValue.getString("SCRIPT_NAME").equals(scriptName)) {
+					statistics.put(countValue);
+				}
+			}
+		}
+		
+		return statistics;
+	}
+	
 	public JSONObject getLastStatistics(String scriptName, int period) {
 		JSONObject json = new JSONObject();
 		

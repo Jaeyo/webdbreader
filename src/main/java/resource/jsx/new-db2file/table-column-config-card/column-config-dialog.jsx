@@ -1,20 +1,24 @@
-var React = require('react');
-var server = require('../../utils/server.js');
-var MaterialWrapper = require('../../comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var TextField = MaterialWrapper.TextField;
-var SelectField = MaterialWrapper.SelectField;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var CircularProgress = MaterialWrapper.CircularProgress;
-var List = MaterialWrapper.List;
-var ListItem = MaterialWrapper.ListItem;
-var ListDivider = MaterialWrapper.ListDivider;
-var Dialog = MaterialWrapper.Dialog;
-var Toggle = MaterialWrapper.Toggle;
-var PolymerIcon = require('../../comps/polymer-icon.jsx');
-var AlertDialog = require('../../comps/dialog/alert-dialog.jsx');
+"use strict";
+
+import React from 'react';
+import server from '../../utils/server.js';
+import MaterialWrapper from '../../comps/material-wrapper.jsx';
+import PolymerIcon from '../../comps/polymer-icon.jsx';
+import AlertDialog from '../../comps/dialog/alert-dialog.jsx';
+var {
+	Button,
+	FlatButton,
+	TextField,
+	Card,
+	CardHeader,
+	CardText,
+	CircularProgress,
+	List,
+	ListItem,
+	ListDivider,
+	Dialog,
+	Toggle
+} = MaterialWrapper;
 
 
 var ColumnConfigDialog = React.createClass({
@@ -38,9 +42,15 @@ var ColumnConfigDialog = React.createClass({
 	},
 
 	show() {
-		this.setState({ visible: true }, function() {
-			this.loadColumns();
-		}.bind(this));
+		var { alertDialog } = this.refs;
+
+		this.setState({ visible: true }, () => {
+			try {
+				this.loadColumns();
+			} catch(err) {
+				alertDialog.show('danger', err);
+			}
+		});
 	},
 
 	hide() {
@@ -48,60 +58,92 @@ var ColumnConfigDialog = React.createClass({
 	},
 
 	handleChange(name, evt) {
+		var { props } = this;
 		evt.stopPropagation();
 
 		switch(name) {
 		case 'column': 
-			this.props.handleStateChange({ columns: evt.target.value });
+			props.handleStateChange({ columns: evt.target.value });
 			break;
 		}
 	},
 
 	loadColumns() {
+		var { props } = this;
+		var { alertDialog } = this.refs;
+
 		server.loadColumns({
 			jdbc: {
-				driver: this.props.jdbcDriver,
-				connUrl: this.props.jdbcConnUrl,
-				username: this.props.jdbcUsername,
-				password: this.props.jdbcPassword
+				driver: props.jdbcDriver,
+				connUrl: props.jdbcConnUrl,
+				username: props.jdbcUsername,
+				password: props.jdbcPassword
 			},
-			table: this.props.table
-		}).then(function(columns) {
+			table: props.table
+		}).then((columns) => {
 			this.setState({
 				isColumnsLoaded: true,
 				loadedColumns: columns
 			});
-		}.bind(this)).catch(function(err) {
+		}).catch((err) => {
 			this.setState({ isColumnsLoaded: false });
-			this.refs.alertDialog.show('danger', err);
-		}.bind(this));
+			alertDialog.show('danger', err);
+		});
+	},
+
+	onClose(evt) {
+		evt.stopPropagation();
+		this.hide();
+	},
+
+	onSelectAllBtnClick(evt) {
+		var { alertDialog } = this.refs;
+		var { props, state } = this;
+
+		try {
+			evt.stopPropagation();
+
+			var allColumns = state.loadedColumns.map((col) => {
+				return col.columnName.toLowerCase();
+			}).join(',');
+
+			if(props.columns.toLowerCase() === allColumns) {
+				props.handleStateChange({ columns: '' });
+			} else {
+				props.handleStateChange({ columns: allColumns });
+			}
+		} catch(err) {
+			alertDialog.show('danger', err);
+		}
 	},
 
 	renderColumnList() {
-		if(this.state.isColumnsLoaded === false) 
+		var { props, state } = this;
+
+		if(state.isColumnsLoaded === false) 
 			return (<CircularProgress mode="indeterminate" size={0.5} />);
 
 		var selectedColumnsArr = 
-			this.props.columns.split(',')
-				.map(function(s) { return s.trim(); })
-				.filter(function(s){ if(s === '') return false; return true; });
+			props.columns.split(',')
+				.map((s) => { return s.trim(); })
+				.filter((s) => { if(s === '') return false; return true; });
 
 		return (
 			<List>
 			{
-				this.state.loadedColumns.map(function(column) {
+				state.loadedColumns.map((column) => {
 					var columnName = column.columnName.toLowerCase();
 					var columnType = column.columnType;
 
-					var onClick = function(evt) {
+					var onClick = (evt) => {
 						evt.stopPropagation();
 						if(Array.contains(selectedColumnsArr, columnName)) {
 							selectedColumnsArr.remove(columnName);
 						} else {
 							selectedColumnsArr.push(columnName);
 						}
-						this.props.handleStateChange({ columns: selectedColumnsArr.join(',') })
-					}.bind(this);
+						props.handleStateChange({ columns: selectedColumnsArr.join(',') })
+					};
 
 					return (
 						<ListItem
@@ -114,11 +156,6 @@ var ColumnConfigDialog = React.createClass({
 			}
 			</List>
 		);
-	},
-
-	onClose(evt) {
-		evt.stopPropagation();
-		this.hide();
 	},
 
 	render() {
@@ -145,6 +182,11 @@ var ColumnConfigDialog = React.createClass({
 								fullWidth={true} />
 							<div style={{ width: '100%', height: '300px', overflow: 'auto' }}>
 								{ this.renderColumnList() }
+							</div>
+							<div style={{ textAlign: 'right' }}>
+								<FlatButton
+									label="select all"
+									onClick={this.onSelectAllBtnClick} />
 							</div>
 						</CardText>
 					</Card>

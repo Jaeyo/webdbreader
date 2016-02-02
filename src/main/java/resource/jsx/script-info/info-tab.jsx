@@ -1,21 +1,25 @@
-var React = require('react');
-var util = require('util');
-var moment = require('moment');
-var uuid = require('uuid');
-var Glyphicon = require('react-bootstrap').Glyphicon;
-var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
-var MaterialWrapper = require('../comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var FlatButton = MaterialWrapper.FlatButton;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var List = MaterialWrapper.List;
-var ListItem = MaterialWrapper.ListItem;
-var IconMenu = MaterialWrapper.IconMenu;
-var MenuItem = MaterialWrapper.MenuItem;
-var Paper = MaterialWrapper.Paper;
-var server = require('../utils/server.js');
+'use strict';
+
+import React from 'react';
+import util from 'util';
+import moment from 'moment';
+import uuid from 'uuid';
+import { Glyphicon } from 'react-bootstrap';
+import AlertDialog from '../comps/dialog/alert-dialog.jsx';
+import server from '../utils/server.js';
+import ScriptChartCard from './info-tab/script-chart-card.jsx';
+import {
+	Button,
+	FlatButton,
+	Card,
+	CardHeader,
+	CardText,
+	List,
+	ListItem,
+	IconMenu,
+	MenuItem,
+	Paper
+} from '../comps/material-wrapper.jsx';
 
 moment.locale('ko');
 
@@ -42,22 +46,26 @@ var InfoTab = React.createClass({
 	},
 
 	edit() {
-		server.editScript({
-			title: this.props.title,
-			script: this.editor.getValue()
-		})
-		.then(function() {
-			window.location.reload(true);
-		})
-		.catch(function(err) {
-			this.refs.alertDialog.show('danger', err);
-		}.bind(this));
+		var { props, editor, refs } = this;
+
+		server
+			.editScript({
+				title: props.title,
+				script: editor.getValue()
+			}).then(() => {
+				window.location.reload(true);
+			}).catch((err) => {
+				refs.alertDialog.show('danger', err);
+			});
 	},
 
 	render() {
+		var { props } = this;
+
 		try {
 			return (
 				<Paper style={{ padding: '10px' }}>
+					<ScriptChartCard scriptName={props.title} />
 					<Card style={{ marginBottom: '10px' }}>
 						<CardHeader
 							title="code"
@@ -78,12 +86,12 @@ var InfoTab = React.createClass({
 											left: 0 }} />
 									}
 								</div>
-									<div style={{ textAlign: 'right', marginTop: '10px' }}>
-										<Button
-											label="수정"
-											primary={true}
-											onClick={this.edit} />
-									</div>
+								<div style={{ textAlign: 'right', marginTop: '10px' }}>
+									<Button
+										label="수정"
+										primary={true}
+										onClick={this.edit} />
+								</div>
 								<AlertDialog ref="alertDialog" />
 							</div>
 						</CardText>
