@@ -49,7 +49,7 @@ public class Database {
 		update(query, null);
 	}
 	
-	public void update(String query, String... args) {
+	public void update(String query, Object... args) {
 		Connection conn = null;
 		try {
 			Class.forName(this.driver);
@@ -64,7 +64,7 @@ public class Database {
 		}
 	}
 	
-	private static String convertQuestionMark2RealValue(String query, String... args) {
+	private static String convertQuestionMark2RealValue(String query, Object... args) {
 		if(args == null) return query;
 		
 		query = query.replaceAll("\\?", "%s");

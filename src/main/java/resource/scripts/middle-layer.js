@@ -7,13 +7,13 @@ var newRepeat = function(args) {
 };
 
 var newDatabase = function(jdbc) {
-	if(args == null) throw new Error('illegal argument');
-	else if(args.driver == null) throw new Error('missing argument: driver');
-	else if(args.connUrl == null) throw new Error('missing argument: connUrl');
-	else if(args.username == null) throw new Error('missing argument: username');
-	else if(args.password == null) throw new Error('missing argument: password');
+	if(jdbc== null) throw new Error('illegal argument');
+	else if(jdbc.driver == null) throw new Error('missing argument: driver');
+	else if(jdbc.connUrl == null) throw new Error('missing argument: connUrl');
+	else if(jdbc.username == null) throw new Error('missing argument: username');
+	else if(jdbc.password == null) throw new Error('missing argument: password');
 
-	return Database(args.driver, args.connUrl, args.username, args.password);
+	return Database(jdbc.driver, jdbc.connUrl, jdbc.username, jdbc.password);
 };
 
 var newFile = function(args) {

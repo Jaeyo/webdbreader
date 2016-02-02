@@ -382,6 +382,22 @@ exports.lastStatistics = function(args) {
 	});
 };
 
+exports.getHomePath = function() {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Config/homepath')
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.homepath);
+					});
+			});
+	});
+};
+
 exports.getSimpleRepoAll = function() {
 	return new Promise(function(resolve, reject) {
 		request

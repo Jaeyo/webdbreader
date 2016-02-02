@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.UnknownThresholdException;
@@ -43,6 +44,8 @@ public class ConfigREST extends HttpServlet {
 				resp.getWriter().print(getSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/log4j/threshold").match(pathInfo, pathParams)){
 				resp.getWriter().print(getLog4jThreshold(req, resp, pathParams));
+			} else if(new UriTemplate("/homepath").match(pathInfo, pathParams)){
+				resp.getWriter().print(getHomePath(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			} 
@@ -81,7 +84,10 @@ public class ConfigREST extends HttpServlet {
 	
 	private String getLog4jThreshold(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
 		return new JSONObject().put("success", 1).put("threshold", Log4jConfig.getThreshold()).toString();
-		
+	}
+	
+	private String getHomePath(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		return new JSONObject().put("success", 1).put("homepath", Path.getPackagePath().getAbsolutePath()).toString();
 	}
 	
 	@Override

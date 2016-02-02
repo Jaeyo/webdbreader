@@ -35,6 +35,23 @@ var NewDb2FileView = React.createClass({
 		};
 	},
 
+	componentDidMount() {
+		var self = this;
+		this.loadInitialOutputPath(function(homepath) {
+			self.setState({ outputPath: homepath });
+		});
+	},
+
+	loadInitialOutputPath(callback) {
+		var self = this;
+		server
+			.getHomePath()
+			.then(callback)
+			.catch(function(err) {
+				self.refs.alertDialog.show('danger', err);
+			});
+	},
+
 	handleStateChange(state) {
 		if(state.columns) state.columns = state.columns.toLowerCase();
 

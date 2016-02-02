@@ -57,8 +57,8 @@
 	var NewDb2FileView = __webpack_require__(749);
 	var NewDb2DbView = __webpack_require__(750);
 	var ConfigView = __webpack_require__(752);
-	var NewCustom = __webpack_require__(755);
-	__webpack_require__(758);
+	var NewCustom = __webpack_require__(756);
+	__webpack_require__(759);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -67184,6 +67184,19 @@
 		});
 	};
 
+	exports.getHomePath = function () {
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Config/homepath').end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.homepath);
+				});
+			});
+		});
+	};
+
 	exports.getSimpleRepoAll = function () {
 		return new Promise(function (resolve, reject) {
 			request.get('/REST/Config/SimpleRepo/').end(function (err, resp) {
@@ -87114,6 +87127,20 @@
 			};
 		},
 
+		componentDidMount: function componentDidMount() {
+			var self = this;
+			this.loadInitialOutputPath(function (homepath) {
+				self.setState({ outputPath: homepath });
+			});
+		},
+
+		loadInitialOutputPath: function loadInitialOutputPath(callback) {
+			var self = this;
+			server.getHomePath().then(callback)['catch'](function (err) {
+				self.refs.alertDialog.show('danger', err);
+			});
+		},
+
 		handleStateChange: function handleStateChange(state) {
 			if (state.columns) state.columns = state.columns.toLowerCase();
 
@@ -87573,7 +87600,7 @@
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var SimpleRepoCard = __webpack_require__(753);
-	var Log4jConfigCard = __webpack_require__(760);
+	var Log4jConfigCard = __webpack_require__(755);
 
 	var ConfigView = React.createClass({
 		displayName: 'ConfigView',
@@ -87968,13 +87995,119 @@
 	var React = __webpack_require__(1);
 	var PolymerIcon = __webpack_require__(740);
 	var MaterialWrapper = __webpack_require__(422);
+	var Button = MaterialWrapper.Button;
+	var Card = MaterialWrapper.Card;
+	var CardHeader = MaterialWrapper.CardHeader;
+	var CardText = MaterialWrapper.CardText;
+	var TextField = MaterialWrapper.TextField;
+	var Table = __webpack_require__(169).Table;
+	var SimpleRepoDialog = __webpack_require__(754);
+	var AlertDialog = __webpack_require__(628);
+	var ConfirmDialog = __webpack_require__(640);
+	var server = __webpack_require__(612);
+
+	var Log4jConfigCard = React.createClass({
+		displayName: 'Log4jConfigCard',
+
+		getInitialState: function getInitialState() {
+			return {
+				threshold: null
+			};
+		},
+
+		componentDidMount: function componentDidMount() {
+			var self = this;
+			try {
+				this.loadLog4jThreshold(function (threshold) {
+					self.setState({ threshold: threshold });
+				});
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		loadLog4jThreshold: function loadLog4jThreshold(callback) {
+			var self = this;
+			server.loadLog4jThreshold().then(function (threshold) {
+				callback(threshold);
+			})['catch'](function (err) {
+				self.refs.alertDialog.show('danger', err);
+			});
+		},
+
+		//args: threshold
+		updateLog4jThreshold: function updateLog4jThreshold(args) {
+			var self = this;
+			server.updateLog4jThreshold({ threshold: args.threshold }).then(function () {
+				self.refs.alertDialog.show('success', '변경되었습니다.');
+				self.loadLog4jThreshold(function (threshold) {
+					self.setState({ threshold: threshold });
+				});
+			})['catch'](function (err) {
+				self.refs.alertDialog.show('danger', err);
+			});
+		},
+
+		handleChange: function handleChange(name, evt) {
+			evt.stopPropagation();
+			this.setState({ threshold: evt.target.value });
+		},
+
+		onUpdateBtnClick: function onUpdateBtnClick(evt) {
+			evt.stopPropagation();
+			this.updateLog4jThreshold({ threshold: this.state.threshold });
+		},
+
+		render: function render() {
+			try {
+				return React.createElement(
+					Card,
+					null,
+					React.createElement(CardHeader, {
+						title: 'log4j configuration',
+						subtitle: '로그 관련 설정을 합니다.',
+						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
+					React.createElement(
+						CardText,
+						null,
+						React.createElement(TextField, {
+							floatingLabelText: 'Threshold',
+							value: this.state.threshold,
+							onChange: this.handleChange.bind(this, 'threshold'),
+							fullWidth: true }),
+						React.createElement(
+							'div',
+							{ style: { textAlign: 'right' } },
+							React.createElement(Button, { label: 'update', onClick: this.onUpdateBtnClick })
+						),
+						React.createElement(ConfirmDialog, { ref: 'confirmDialog' }),
+						React.createElement(AlertDialog, { ref: 'alertDialog' }),
+						React.createElement(SimpleRepoDialog, { ref: 'simpleRepoDialog' })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = Log4jConfigCard;
+
+/***/ },
+/* 756 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var PolymerIcon = __webpack_require__(740);
+	var MaterialWrapper = __webpack_require__(422);
 	var Card = MaterialWrapper.Card;
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var Paper = MaterialWrapper.Paper;
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(628);
-	var AddScriptBlockDialog = __webpack_require__(756);
+	var AddScriptBlockDialog = __webpack_require__(757);
 
 	//scriptBlock type: databaseSourceScriptBlock
 	var NewCustom = React.createClass({
@@ -88040,7 +88173,7 @@
 	};
 
 /***/ },
-/* 756 */
+/* 757 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88051,7 +88184,7 @@
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Dialog = MaterialWrapper.Dialog;
 	var Paper = MaterialWrapper.Paper;
-	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(757);
+	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(758);
 
 	var AddScriptBlockDialog = React.createClass({
 		displayName: 'AddScriptBlockDialog',
@@ -88158,7 +88291,7 @@
 	};
 
 /***/ },
-/* 757 */
+/* 758 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88281,13 +88414,13 @@
 	module.exports = AddDatabaseSourceScriptBlockDialog;
 
 /***/ },
-/* 758 */
+/* 759 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(759);
+	var content = __webpack_require__(760);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(610)(content, {});
@@ -88307,7 +88440,7 @@
 	}
 
 /***/ },
-/* 759 */
+/* 760 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(609)();
@@ -88319,112 +88452,6 @@
 
 	// exports
 
-
-/***/ },
-/* 760 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
-	var MaterialWrapper = __webpack_require__(422);
-	var Button = MaterialWrapper.Button;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var TextField = MaterialWrapper.TextField;
-	var Table = __webpack_require__(169).Table;
-	var SimpleRepoDialog = __webpack_require__(754);
-	var AlertDialog = __webpack_require__(628);
-	var ConfirmDialog = __webpack_require__(640);
-	var server = __webpack_require__(612);
-
-	var Log4jConfigCard = React.createClass({
-		displayName: 'Log4jConfigCard',
-
-		getInitialState: function getInitialState() {
-			return {
-				threshold: null
-			};
-		},
-
-		componentDidMount: function componentDidMount() {
-			var self = this;
-			try {
-				this.loadLog4jThreshold(function (threshold) {
-					self.setState({ threshold: threshold });
-				});
-			} catch (err) {
-				console.error(err.stack);
-			}
-		},
-
-		loadLog4jThreshold: function loadLog4jThreshold(callback) {
-			var self = this;
-			server.loadLog4jThreshold().then(function (threshold) {
-				callback(threshold);
-			})['catch'](function (err) {
-				self.refs.alertDialog.show('danger', err);
-			});
-		},
-
-		//args: threshold
-		updateLog4jThreshold: function updateLog4jThreshold(args) {
-			var self = this;
-			server.updateLog4jThreshold({ threshold: args.threshold }).then(function () {
-				self.refs.alertDialog.show('success', '변경되었습니다.');
-				self.loadLog4jThreshold(function (threshold) {
-					self.setState({ threshold: threshold });
-				});
-			})['catch'](function (err) {
-				self.refs.alertDialog.show('danger', err);
-			});
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-			this.setState({ threshold: evt.target.value });
-		},
-
-		onUpdateBtnClick: function onUpdateBtnClick(evt) {
-			evt.stopPropagation();
-			this.updateLog4jThreshold({ threshold: this.state.threshold });
-		},
-
-		render: function render() {
-			try {
-				return React.createElement(
-					Card,
-					null,
-					React.createElement(CardHeader, {
-						title: 'log4j configuration',
-						subtitle: '로그 관련 설정을 합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(TextField, {
-							floatingLabelText: 'Threshold',
-							value: this.state.threshold,
-							onChange: this.handleChange.bind(this, 'threshold'),
-							fullWidth: true }),
-						React.createElement(
-							'div',
-							{ style: { textAlign: 'right' } },
-							React.createElement(Button, { label: 'update', onClick: this.onUpdateBtnClick })
-						),
-						React.createElement(ConfirmDialog, { ref: 'confirmDialog' }),
-						React.createElement(AlertDialog, { ref: 'alertDialog' }),
-						React.createElement(SimpleRepoDialog, { ref: 'simpleRepoDialog' })
-					)
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = Log4jConfigCard;
 
 /***/ }
 /******/ ]);
