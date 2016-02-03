@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -41,7 +43,7 @@ public class ScriptScoreStatistics {
 					Iterator<Long> iter = counters.keySet().iterator();
 					while(iter.hasNext()) {
 						Long timestampKey = iter.next();
-						if(currentTimestamp < timestampKey) 
+						if(timestampKey < currentTimestamp) 
 							oldTimestamps.add(timestampKey);
 					}
 					

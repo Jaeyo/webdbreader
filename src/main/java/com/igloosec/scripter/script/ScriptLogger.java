@@ -21,21 +21,25 @@ public class ScriptLogger {
 	}
 	
 	public void info(String msg) {
+		msg = String.format("[%s] %s", scriptName, msg);
 		logger.info(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "info", msg);
 	} 
 	
 	public void debug(String msg) {
+		msg = String.format("[%s] %s", scriptName, msg);
 		logger.debug(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "debug", msg);
 	} 
 	
 	public void warn(String msg) {
+		msg = String.format("[%s] %s", scriptName, msg);
 		logger.warn(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "warn", msg);
 	} 
 	
 	public void error(String msg) {
+		msg = String.format("[%s] %s", scriptName, msg);
 		logger.error(msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
 		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
@@ -43,6 +47,7 @@ public class ScriptLogger {
 	} 
 	
 	public void error(String msg, Throwable e) {
+		msg = String.format("[%s] %s", scriptName, msg);
 		logger.error(msg, e);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
 		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", ExceptionUtils.getStackTrace(e));

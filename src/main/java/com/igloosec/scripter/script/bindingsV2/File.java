@@ -31,7 +31,7 @@ public class File implements Closeable {
 
 			ScriptThread.currentThread().newCloseable(this);
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	
@@ -41,7 +41,7 @@ public class File implements Closeable {
 			fileOutMsgService.dispatchMsg(ScriptThread.currentThread().getScriptName(), switchedFile.getCurrentFilename(), System.currentTimeMillis(), line);
 			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: $s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: $s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	
@@ -54,7 +54,7 @@ public class File implements Closeable {
 		try {
 			this.switchedFile.close();
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 
@@ -82,9 +82,9 @@ public class File implements Closeable {
 				this.output.close();
 			
 			this.currentFilename = formatter.format(originalFilename, new Date());
-			logger.info(String.format("scriptName: %s, file will be switched into: %s", ScriptThread.currentScriptName(), this.currentFilename));
+			logger.info(String.format("file will be switched into: %s", this.currentFilename));
 			java.io.File file = new java.io.File(this.currentFilename);
-			logger.debug(String.format("scriptName: %s, create file: %s", ScriptThread.currentScriptName(), this.currentFilename));
+			logger.debug(String.format("create file: %s", this.currentFilename));
 			file.createNewFile();
 			this.output = new PrintWriter(file, this.charset);
 		}

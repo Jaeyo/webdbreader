@@ -28,7 +28,7 @@ public class Repeat {
 				public void run() {
 					try {
 						Thread.currentThread().setName(scriptName);
-						logger.info(String.format("scriptName: %s, repeat started", ScriptThread.currentScriptName()));
+						logger.info("repeat started");
 						Util.invokeFunction(callback, null);
 					} catch(Exception e) {
 						logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
@@ -36,7 +36,7 @@ public class Repeat {
 				}
 			}, 0, this.period);
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 }

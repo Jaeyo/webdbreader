@@ -15,7 +15,7 @@ public class Repo {
 		try {
 			simpleRepoDAO.insert(ScriptThread.currentThread().getScriptName(), key, value+"");
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	
@@ -23,7 +23,7 @@ public class Repo {
 		try {
 			return simpleRepoDAO.select(ScriptThread.currentThread().getScriptName(), key);
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			return null;
 		}
 	}
@@ -37,7 +37,7 @@ public class Repo {
 		}
 		else return value;
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			return null;
 		}
 	}

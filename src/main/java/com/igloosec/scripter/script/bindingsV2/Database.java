@@ -31,7 +31,7 @@ public class Database {
 	}
 	
 	public QueryResult query(String query, String... args) {
-		logger.info(String.format("scriptName: %s, query: %s, args: %s", ScriptThread.currentScriptName(), query, args));
+		logger.info(String.format("query: %s, args: %s", query, args));
 		
 		Connection conn = null;
 		try {
@@ -42,7 +42,7 @@ public class Database {
 			query = convertQuestionMark2RealValue(query, args);
 			return new QueryResult(jdbcTmpl.queryForRowSet(query));
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			return null;
 		}
 	}
@@ -52,7 +52,7 @@ public class Database {
 	}
 	
 	public void update(String query, Object... args) {
-		logger.info(String.format("scriptName: %s, query: %s, args: %s", ScriptThread.currentScriptName(), query, args));
+		logger.info(String.format("query: %s, args: %s", query, args));
 		
 		Connection conn = null;
 		try {
@@ -64,7 +64,7 @@ public class Database {
 			jdbcTmpl.update(query);
 			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT);
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	

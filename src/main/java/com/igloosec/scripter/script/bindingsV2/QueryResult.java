@@ -38,7 +38,7 @@ public class QueryResult {
 
 			boolean isRowExists = sqlRowSet.absolute(row);
 			if(isRowExists == false) {
-				logger.error(String.format("scriptName: %s, no row: %s", ScriptThread.currentScriptName(), row));
+				logger.error(String.format("no row: %s", row));
 				return null;
 			}
 
@@ -52,11 +52,11 @@ public class QueryResult {
 				scriptScoreStatistics.incrementCount(ScriptScoreStatistics.INPUT);
 				return sqlRowSet.getObject((Integer) col);
 			} else {
-				logger.error(String.format("scriptName: %s, invalid col type: %s", ScriptThread.currentScriptName(), col.getClass().toString()));
+				logger.error(String.format("invalid col type: %s", col.getClass().toString()));
 				return null;
 			}
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 			return null;
 		}
 	}
@@ -68,7 +68,7 @@ public class QueryResult {
 				Util.invokeFunction(callback, new Object[]{ new QueryResultRow(this.sqlRowSet) });
 			}
 		} catch(Exception e) {
-			logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		}
 	}
 	
@@ -94,7 +94,7 @@ public class QueryResult {
 
 				return line.toString();
 			} catch(Exception e) {
-				logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				return null;
 			}
 		}
@@ -110,11 +110,11 @@ public class QueryResult {
 				} else if(col instanceof Integer) {
 					return sqlRowSet.getObject((Integer) col);
 				} else {
-					logger.error(String.format("scriptName: %s, invalid col type: %s", ScriptThread.currentScriptName(), col.getClass().toString()));
+					logger.error(String.format("invalid col type: %s", col.getClass().toString()));
 					return null;
 				}
 			} catch(Exception e) {
-				logger.error(String.format("scriptName: %s, %s, errmsg: %s", ScriptThread.currentScriptName(), e.getClass().getSimpleName(), e.getMessage()), e);
+				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 				return null;
 			}
 		}

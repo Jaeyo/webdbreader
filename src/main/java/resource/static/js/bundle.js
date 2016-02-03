@@ -54,11 +54,11 @@
 	var ApiView = __webpack_require__(421);
 	var ScriptView = __webpack_require__(611);
 	var ScriptInfoView = __webpack_require__(647);
-	var NewDb2FileView = __webpack_require__(749);
-	var NewDb2DbView = __webpack_require__(750);
-	var ConfigView = __webpack_require__(752);
-	var NewCustom = __webpack_require__(756);
-	__webpack_require__(759);
+	var NewDb2FileView = __webpack_require__(750);
+	var NewDb2DbView = __webpack_require__(751);
+	var ConfigView = __webpack_require__(753);
+	var NewCustom = __webpack_require__(758);
+	__webpack_require__(761);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -67326,6 +67326,21 @@
 		});
 	};
 
+	exports.embedDbQuery = function (args) {
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/EmbedDb/query').query({
+				query: args.query
+			}).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.result);
+				});
+			});
+		});
+	};
+
 /***/ },
 /* 613 */
 /***/ function(module, exports, __webpack_require__) {
@@ -73587,8 +73602,8 @@
 	var React = __webpack_require__(1);
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var InfoTab = __webpack_require__(648);
-	var ScriptConfigTab = __webpack_require__(737);
-	var TailTab = __webpack_require__(748);
+	var ScriptConfigTab = __webpack_require__(738);
+	var TailTab = __webpack_require__(749);
 	var server = __webpack_require__(612);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
@@ -73807,7 +73822,7 @@
 
 	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
 
-	var _infoTabScriptChartCardJsx = __webpack_require__(761);
+	var _infoTabScriptChartCardJsx = __webpack_require__(737);
 
 	var _infoTabScriptChartCardJsx2 = _interopRequireDefault(_infoTabScriptChartCardJsx);
 
@@ -85376,8 +85391,172 @@
 
 	'use strict';
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _compsDialogAlertDialogJsx = __webpack_require__(628);
+
+	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
+
+	var _reactBootstrap = __webpack_require__(169);
+
+	var _reactGoogleCharts = __webpack_require__(629);
+
+	var _utilsServerJs = __webpack_require__(612);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var _util = __webpack_require__(166);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _uuid = __webpack_require__(626);
+
+	var _uuid2 = _interopRequireDefault(_uuid);
+
+	var _underscore = __webpack_require__(163);
+
+	var _underscore2 = _interopRequireDefault(_underscore);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var ScriptChartCard = _react2['default'].createClass({
+		displayName: 'ScriptChartCard',
+
+		intervalId: null,
+		uuid: _uuid2['default'].v4(),
+
+		PropTypes: {
+			scriptName: _react2['default'].PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return { chartData: null };
+		},
+
+		componentDidMount: function componentDidMount() {
+			this.loadChartData();
+			this.intervalId = setInterval(this.loadChartData, 10 * 1000);
+		},
+
+		componentWillUnmount: function componentWillUnmount() {
+			clearInterval(this.intervalId);
+		},
+
+		loadChartData: function loadChartData() {
+			var _this = this;
+
+			var props = this.props;
+			var refs = this.refs;
+
+			_utilsServerJs2['default'].chartScript({ scriptName: props.scriptName }).then(function (rows) {
+				//rows: [{ COUNT_TIMESTAMP, CATEGORY, SCRIPT_NAME, COUNT_VALUE }]
+				if (rows.length === 0) return;
+				_this.setState({ chartData: rows });
+			})['catch'](function (err) {
+				refs.alertDialog.show('danger', err);
+				clearInterval(_this.intervalId);
+			});
+		},
+
+		renderChart: function renderChart() {
+			var props = this.props;
+			var state = this.state;
+
+			if (state.chartData == null) return _react2['default'].createElement(
+				'p',
+				null,
+				'no data'
+			);
+
+			var categories = _underscore2['default'].uniq(state.chartData.map(function (row) {
+				return row.CATEGORY;
+			}));
+			var groupByTimestamp = _underscore2['default'].groupBy(state.chartData, function (row) {
+				return row.COUNT_TIMESTAMP;
+			});
+
+			var chartProps = {
+				options: {
+					title: props.scriptName,
+					hAxis: {
+						title: 'time',
+						minValue: new Date(Date.now() - 6 * 60 * 60 * 1000),
+						maxValue: new Date()
+					},
+					vAxis: {
+						title: 'count'
+					}
+				},
+				columns: [],
+				rows: []
+			};
+
+			chartProps.columns.push({ label: 'time', type: 'datetime' });
+			categories.forEach(function (category) {
+				chartProps.columns.push({ label: category, type: 'number' });
+			});
+			chartProps.rows = _underscore2['default'].values(groupByTimestamp).map(function (rows) {
+				var valueArr = [];
+				valueArr.push(new Date(rows[0].COUNT_TIMESTAMP));
+				categories.forEach(function (category) {
+					var value = null;
+					rows.forEach(function (row) {
+						if (row.SCRIPT_NAME === props.scriptName && row.CATEGORY === category) value = row.COUNT_VALUE;
+					});
+					if (value == null) value = 0;
+					valueArr.push(value);
+				});
+				return valueArr;
+			});
+
+			console.log('chartProps', chartProps);
+
+			return _react2['default'].createElement(_reactGoogleCharts.Chart, _extends({
+				chartType: 'LineChart'
+			}, chartProps, {
+				graph_id: _util2['default'].format('script-chart-%s-%s', props.scriptName, this.uuid),
+				key: _util2['default'].format('script-chart-%s-%s', props.scriptName, this.uuid),
+				width: '100%',
+				height: '400px' }));
+		},
+
+		render: function render() {
+			try {
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Card,
+					{ style: { marginBottom: '10px' } },
+					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
+						title: 'chart',
+						subtitle: '스크립트의 통계를 제공합니다.',
+						avatar: _react2['default'].createElement(_reactBootstrap.Glyphicon, { glyph: 'signal' }) }),
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.CardText,
+						null,
+						this.renderChart(),
+						_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = ScriptChartCard;
+
+/***/ },
+/* 738 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1);
-	var parseCodeContext = __webpack_require__(738);
+	var parseCodeContext = __webpack_require__(739);
 	var _ = __webpack_require__(163);
 	var util = __webpack_require__(166);
 	var precondition = __webpack_require__(645);
@@ -85388,10 +85567,10 @@
 	var AlertDialog = __webpack_require__(628);
 	var ScriptDialog = __webpack_require__(644);
 	var Db2File = {
-		DatabaseConfigCard: __webpack_require__(739),
-		TableColumnConfigCard: __webpack_require__(742),
-		BindingTypeCard: __webpack_require__(745),
-		EtcConfigCard: __webpack_require__(747)
+		DatabaseConfigCard: __webpack_require__(740),
+		TableColumnConfigCard: __webpack_require__(743),
+		BindingTypeCard: __webpack_require__(746),
+		EtcConfigCard: __webpack_require__(748)
 	};
 
 	var ScriptConfigTab = React.createClass({
@@ -85575,7 +85754,7 @@
 	module.exports = ScriptConfigTab;
 
 /***/ },
-/* 738 */
+/* 739 */
 /***/ function(module, exports) {
 
 	/*!
@@ -85746,7 +85925,7 @@
 
 
 /***/ },
-/* 739 */
+/* 740 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -85768,8 +85947,8 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(740);
-	var DbAddressDialog = __webpack_require__(741);
+	var PolymerIcon = __webpack_require__(741);
+	var DbAddressDialog = __webpack_require__(742);
 
 	var DatabaseConfigCard = React.createClass({
 		displayName: 'DatabaseConfigCard',
@@ -85870,7 +86049,7 @@
 	module.exports = DatabaseConfigCard;
 
 /***/ },
-/* 740 */
+/* 741 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -85945,7 +86124,7 @@
 	module.exports = PolymerIcon;
 
 /***/ },
-/* 741 */
+/* 742 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -85964,7 +86143,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 
 	var DbAddressDialog = React.createClass({
 		displayName: 'DbAddressDialog',
@@ -86044,7 +86223,7 @@
 	module.exports = DbAddressDialog;
 
 /***/ },
-/* 742 */
+/* 743 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -86066,9 +86245,9 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(740);
-	var TableConfigDialog = __webpack_require__(743);
-	var ColumnConfigDialog = __webpack_require__(744);
+	var PolymerIcon = __webpack_require__(741);
+	var TableConfigDialog = __webpack_require__(744);
+	var ColumnConfigDialog = __webpack_require__(745);
 
 	var TableColumnConfigCard = React.createClass({
 		displayName: 'TableColumnConfigCard',
@@ -86162,7 +86341,7 @@
 	module.exports = TableColumnConfigCard;
 
 /***/ },
-/* 743 */
+/* 744 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -86182,7 +86361,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var AlertDialog = __webpack_require__(628);
 
 	var TableConfigDialog = React.createClass({
@@ -86316,7 +86495,7 @@
 	module.exports = TableConfigDialog;
 
 /***/ },
-/* 744 */
+/* 745 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -86335,7 +86514,7 @@
 
 	var _compsMaterialWrapperJsx2 = _interopRequireDefault(_compsMaterialWrapperJsx);
 
-	var _compsPolymerIconJsx = __webpack_require__(740);
+	var _compsPolymerIconJsx = __webpack_require__(741);
 
 	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
 
@@ -86547,7 +86726,7 @@
 	module.exports = ColumnConfigDialog;
 
 /***/ },
-/* 745 */
+/* 746 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -86558,7 +86737,7 @@
 	var jsUtil = __webpack_require__(161);
 	var color = jsUtil.color;
 	var server = __webpack_require__(612);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
 	var TextField = MaterialWrapper.TextField;
@@ -86574,7 +86753,7 @@
 	var RadioButton = MaterialWrapper.RadioButton;
 	var RadioButtonGroup = MaterialWrapper.RadioButtonGroup;
 	var Toggle = MaterialWrapper.Toggle;
-	var BindingColumnConfigDialog = __webpack_require__(746);
+	var BindingColumnConfigDialog = __webpack_require__(747);
 
 	var BindingTypeCard = React.createClass({
 		displayName: 'BindingTypeCard',
@@ -86679,14 +86858,14 @@
 	module.exports = BindingTypeCard;
 
 /***/ },
-/* 746 */
+/* 747 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var server = __webpack_require__(612);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var AlertDialog = __webpack_require__(628);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
@@ -86833,13 +87012,13 @@
 	module.exports = BindingColumnConfigDialog;
 
 /***/ },
-/* 747 */
+/* 748 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
 	var TextField = MaterialWrapper.TextField;
@@ -86994,7 +87173,7 @@
 	module.exports = EtcConfigCard;
 
 /***/ },
-/* 748 */
+/* 749 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87179,7 +87358,7 @@
 	};
 
 /***/ },
-/* 749 */
+/* 750 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87190,10 +87369,10 @@
 	var server = __webpack_require__(612);
 	var precondition = __webpack_require__(645);
 	var AlertDialog = __webpack_require__(628);
-	var DatabaseConfigCard = __webpack_require__(739);
-	var TableColumnConfigCard = __webpack_require__(742);
-	var BindingTypeCard = __webpack_require__(745);
-	var EtcConfigCard = __webpack_require__(747);
+	var DatabaseConfigCard = __webpack_require__(740);
+	var TableColumnConfigCard = __webpack_require__(743);
+	var BindingTypeCard = __webpack_require__(746);
+	var EtcConfigCard = __webpack_require__(748);
 	var ScriptDialog = __webpack_require__(644);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
@@ -87388,7 +87567,7 @@
 	module.exports = NewDb2FileView;
 
 /***/ },
-/* 750 */
+/* 751 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87396,9 +87575,9 @@
 	var React = __webpack_require__(1);
 	var _ = __webpack_require__(163);
 	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var DatabaseConfigCard = __webpack_require__(739);
-	var TableColumnsMappingCard = __webpack_require__(751);
-	var BindingTypeCard = __webpack_require__(745);
+	var DatabaseConfigCard = __webpack_require__(740);
+	var TableColumnsMappingCard = __webpack_require__(752);
+	var BindingTypeCard = __webpack_require__(746);
 
 	var NewDb2DbView = React.createClass({
 		displayName: 'NewDb2DbView',
@@ -87554,7 +87733,7 @@
 	module.exports = NewDb2DbView;
 
 /***/ },
-/* 751 */
+/* 752 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87574,7 +87753,7 @@
 	var ListDivider = MaterialWrapper.ListDivider;
 	var Dialog = MaterialWrapper.Dialog;
 	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var Col = __webpack_require__(169).Col;
 
 	var TableColumnsMappingCard = React.createClass({
@@ -87683,38 +87862,57 @@
 	});
 
 /***/ },
-/* 752 */
+/* 753 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
-	var MaterialWrapper = __webpack_require__(422);
-	var Button = MaterialWrapper.Button;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var SimpleRepoCard = __webpack_require__(753);
-	var Log4jConfigCard = __webpack_require__(755);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var ConfigView = React.createClass({
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _configSimpleRepoCardJsx = __webpack_require__(754);
+
+	var _configSimpleRepoCardJsx2 = _interopRequireDefault(_configSimpleRepoCardJsx);
+
+	var _configLog4jConfigCardJsx = __webpack_require__(756);
+
+	var _configLog4jConfigCardJsx2 = _interopRequireDefault(_configLog4jConfigCardJsx);
+
+	var _configEmbedDbQueryCardJsx = __webpack_require__(757);
+
+	var _configEmbedDbQueryCardJsx2 = _interopRequireDefault(_configEmbedDbQueryCardJsx);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var ConfigView = _react2['default'].createClass({
 		displayName: 'ConfigView',
 
 		render: function render() {
 			try {
-				return React.createElement(
+				return _react2['default'].createElement(
 					'div',
 					null,
-					React.createElement(
+					_react2['default'].createElement(
 						'div',
 						{ style: { marginBottom: '10px' } },
-						React.createElement(SimpleRepoCard, null)
+						_react2['default'].createElement(_configSimpleRepoCardJsx2['default'], null)
 					),
-					React.createElement(
+					_react2['default'].createElement(
 						'div',
 						{ style: { marginBottom: '10px' } },
-						React.createElement(Log4jConfigCard, null)
+						_react2['default'].createElement(_configLog4jConfigCardJsx2['default'], null)
+					),
+					_react2['default'].createElement(
+						'div',
+						{ style: { marginBottom: '10px' } },
+						_react2['default'].createElement(_configEmbedDbQueryCardJsx2['default'], null)
 					)
 				);
 			} catch (err) {
@@ -87726,20 +87924,20 @@
 	module.exports = ConfigView;
 
 /***/ },
-/* 753 */
+/* 754 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
 	var Card = MaterialWrapper.Card;
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var Table = __webpack_require__(169).Table;
-	var SimpleRepoDialog = __webpack_require__(754);
+	var SimpleRepoDialog = __webpack_require__(755);
 	var AlertDialog = __webpack_require__(628);
 	var ConfirmDialog = __webpack_require__(640);
 	var server = __webpack_require__(612);
@@ -87979,7 +88177,7 @@
 	};
 
 /***/ },
-/* 754 */
+/* 755 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88083,13 +88281,13 @@
 	module.exports = SimpleRepoDialog;
 
 /***/ },
-/* 755 */
+/* 756 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var MaterialWrapper = __webpack_require__(422);
 	var Button = MaterialWrapper.Button;
 	var Card = MaterialWrapper.Card;
@@ -88097,7 +88295,7 @@
 	var CardText = MaterialWrapper.CardText;
 	var TextField = MaterialWrapper.TextField;
 	var Table = __webpack_require__(169).Table;
-	var SimpleRepoDialog = __webpack_require__(754);
+	var SimpleRepoDialog = __webpack_require__(755);
 	var AlertDialog = __webpack_require__(628);
 	var ConfirmDialog = __webpack_require__(640);
 	var server = __webpack_require__(612);
@@ -88189,13 +88387,119 @@
 	module.exports = Log4jConfigCard;
 
 /***/ },
-/* 756 */
+/* 757 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _compsDialogAlertDialogJsx = __webpack_require__(628);
+
+	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
+
+	var _utilsServerJs = __webpack_require__(612);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var EmbedDbQueryCard = _react2['default'].createClass({
+		displayName: 'EmbedDbQueryCard',
+
+		getInitialState: function getInitialState() {
+			return {
+				query: ''
+			};
+		},
+
+		handleChange: function handleChange(name, evt) {
+			try {
+				evt.stopPropagation();
+				var state = {};
+				state[name] = evt.target.value;
+				this.setState(state);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		onRunQueryBtnClick: function onRunQueryBtnClick(evt) {
+			var state = this.state;
+			var refs = this.refs;
+
+			try {
+				if (state.query == null || state.query.length === 0) {
+					refs.alertDialog.show('danger', 'query is null');
+					return;
+				}
+
+				evt.stopPropagation();
+				_utilsServerJs2['default'].embedDbQuery({
+					query: state.query
+				}).then(function (rows) {
+					var result = JSON.stringify(rows);
+					refs.alertDialog.show('success', result);
+				})['catch'](function (err) {
+					refs.alertDialog.show('danger', err);
+				});
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		render: function render() {
+			var state = this.state;
+
+			try {
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Card,
+					null,
+					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
+						title: 'embed db',
+						subtitle: 'embed db에서 sql을 실행할 수 있는 인터페이스를 제공합니다.',
+						avatar: _react2['default'].createElement(_compsPolymerIconJsx2['default'], { icon: 'config' }) }),
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.CardText,
+						null,
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
+							fullWidth: true,
+							floatingLabelText: 'query',
+							value: state.query,
+							onChange: this.handleChange.bind(this, 'query') }),
+						_react2['default'].createElement(
+							'div',
+							{ style: { textAlign: 'right' } },
+							_react2['default'].createElement(_compsMaterialWrapperJsx.Button, {
+								label: 'run query',
+								onClick: this.onRunQueryBtnClick })
+						),
+						_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = EmbedDbQueryCard;
+
+/***/ },
+/* 758 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(740);
+	var PolymerIcon = __webpack_require__(741);
 	var MaterialWrapper = __webpack_require__(422);
 	var Card = MaterialWrapper.Card;
 	var CardHeader = MaterialWrapper.CardHeader;
@@ -88203,7 +88507,7 @@
 	var Paper = MaterialWrapper.Paper;
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(628);
-	var AddScriptBlockDialog = __webpack_require__(757);
+	var AddScriptBlockDialog = __webpack_require__(759);
 
 	//scriptBlock type: databaseSourceScriptBlock
 	var NewCustom = React.createClass({
@@ -88269,7 +88573,7 @@
 	};
 
 /***/ },
-/* 757 */
+/* 759 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88280,7 +88584,7 @@
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Dialog = MaterialWrapper.Dialog;
 	var Paper = MaterialWrapper.Paper;
-	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(758);
+	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(760);
 
 	var AddScriptBlockDialog = React.createClass({
 		displayName: 'AddScriptBlockDialog',
@@ -88387,7 +88691,7 @@
 	};
 
 /***/ },
-/* 758 */
+/* 760 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88510,13 +88814,13 @@
 	module.exports = AddDatabaseSourceScriptBlockDialog;
 
 /***/ },
-/* 759 */
+/* 761 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(760);
+	var content = __webpack_require__(762);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(610)(content, {});
@@ -88536,7 +88840,7 @@
 	}
 
 /***/ },
-/* 760 */
+/* 762 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(609)();
@@ -88548,170 +88852,6 @@
 
 	// exports
 
-
-/***/ },
-/* 761 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _compsDialogAlertDialogJsx = __webpack_require__(628);
-
-	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
-
-	var _reactBootstrap = __webpack_require__(169);
-
-	var _reactGoogleCharts = __webpack_require__(629);
-
-	var _utilsServerJs = __webpack_require__(612);
-
-	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
-
-	var _util = __webpack_require__(166);
-
-	var _util2 = _interopRequireDefault(_util);
-
-	var _uuid = __webpack_require__(626);
-
-	var _uuid2 = _interopRequireDefault(_uuid);
-
-	var _underscore = __webpack_require__(163);
-
-	var _underscore2 = _interopRequireDefault(_underscore);
-
-	var _compsMaterialWrapperJsx = __webpack_require__(422);
-
-	var ScriptChartCard = _react2['default'].createClass({
-		displayName: 'ScriptChartCard',
-
-		intervalId: null,
-		uuid: _uuid2['default'].v4(),
-
-		PropTypes: {
-			scriptName: _react2['default'].PropTypes.string.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return { chartData: null };
-		},
-
-		componentDidMount: function componentDidMount() {
-			this.loadChartData();
-			this.intervalId = setInterval(this.loadChartData, 10 * 1000);
-		},
-
-		componentWillUnmount: function componentWillUnmount() {
-			clearInterval(this.intervalId);
-		},
-
-		loadChartData: function loadChartData() {
-			var _this = this;
-
-			var props = this.props;
-			var refs = this.refs;
-
-			_utilsServerJs2['default'].chartScript({ scriptName: props.scriptName }).then(function (rows) {
-				//rows: [{ COUNT_TIMESTAMP, CATEGORY, SCRIPT_NAME, COUNT_VALUE }]
-				if (rows.length === 0) return;
-				_this.setState({ chartData: rows });
-			})['catch'](function (err) {
-				refs.alertDialog.show('danger', err);
-				clearInterval(_this.intervalId);
-			});
-		},
-
-		renderChart: function renderChart() {
-			var props = this.props;
-			var state = this.state;
-
-			if (state.chartData == null) return _react2['default'].createElement(
-				'p',
-				null,
-				'no data'
-			);
-
-			var categories = _underscore2['default'].uniq(state.chartData.map(function (row) {
-				return row.CATEGORY;
-			}));
-			var groupByTimestamp = _underscore2['default'].groupBy(state.chartData, function (row) {
-				return row.COUNT_TIMESTAMP;
-			});
-
-			var chartProps = {
-				options: {
-					title: props.scriptName,
-					hAxis: {
-						title: 'time',
-						minValue: new Date(Date.now() - 6 * 60 * 60 * 1000),
-						maxValue: new Date()
-					},
-					vAxis: {
-						title: 'count'
-					}
-				},
-				columns: [],
-				rows: []
-			};
-
-			chartProps.columns.push({ label: 'time', type: 'datetime' });
-			categories.forEach(function (category) {
-				chartProps.columns.push({ label: category, type: 'number' });
-			});
-			chartProps.rows = _underscore2['default'].values(groupByTimestamp).map(function (rows) {
-				var valueArr = [];
-				valueArr.push(new Date(rows[0].COUNT_TIMESTAMP));
-				categories.forEach(function (category) {
-					var value = null;
-					rows.forEach(function (row) {
-						if (row.SCRIPT_NAME === props.scriptName && row.CATEGORY === category) value = row.COUNT_VALUE;
-					});
-					if (value == null) value = 0;
-					valueArr.push(value);
-				});
-				return valueArr;
-			});
-
-			console.log('chartProps', chartProps);
-
-			return _react2['default'].createElement(_reactGoogleCharts.Chart, _extends({
-				chartType: 'LineChart'
-			}, chartProps, {
-				graph_id: _util2['default'].format('script-chart-%s-%s', props.scriptName, this.uuid),
-				key: _util2['default'].format('script-chart-%s-%s', props.scriptName, this.uuid),
-				width: '100%',
-				height: '400px' }));
-		},
-
-		render: function render() {
-			try {
-				return _react2['default'].createElement(
-					_compsMaterialWrapperJsx.Card,
-					{ style: { marginBottom: '10px' } },
-					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
-						title: 'chart',
-						subtitle: '스크립트의 통계를 제공합니다.',
-						avatar: _react2['default'].createElement(_reactBootstrap.Glyphicon, { glyph: 'signal' }) }),
-					_react2['default'].createElement(
-						_compsMaterialWrapperJsx.CardText,
-						null,
-						this.renderChart(),
-						_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
-					)
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = ScriptChartCard;
 
 /***/ }
 /******/ ]);

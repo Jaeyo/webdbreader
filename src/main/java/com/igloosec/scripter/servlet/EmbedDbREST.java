@@ -33,7 +33,7 @@ public class EmbedDbREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 
 		try{
-			if(new UriTemplate("/Query/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/query").match(pathInfo, pathParams)){
 				resp.getWriter().print(query(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{

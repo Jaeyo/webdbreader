@@ -1,12 +1,16 @@
-var React = require('react');
-var PolymerIcon = require('./comps/polymer-icon.jsx');
-var MaterialWrapper = require('./comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var SimpleRepoCard = require('./config/simple-repo-card.jsx');
-var Log4jConfigCard = require('./config/log4j-config-card.jsx');
+'use strict';
+
+import React from 'react';
+import PolymerIcon from './comps/polymer-icon.jsx';
+import SimpleRepoCard from './config/simple-repo-card.jsx';
+import Log4jConfigCard from './config/log4j-config-card.jsx';
+import EmbedDbQueryCard from './config/embed-db-query-card.jsx';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardText
+} from './comps/material-wrapper.jsx';
 
 var ConfigView = React.createClass({
 	render() {
@@ -18,6 +22,9 @@ var ConfigView = React.createClass({
 					</div>
 					<div style={{ marginBottom: '10px' }}>
 						<Log4jConfigCard />
+					</div>
+					<div style={{ marginBottom: '10px' }}>
+						<EmbedDbQueryCard />
 					</div>
 				</div>
 			);
