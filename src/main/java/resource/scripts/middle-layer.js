@@ -7,7 +7,7 @@ var newRepeat = function(args) {
 };
 
 var newDatabase = function(jdbc) {
-	if(jdbc== null) throw new Error('illegal argument');
+	if(jdbc == null) throw new Error('illegal argument');
 	else if(jdbc.driver == null) throw new Error('missing argument: driver');
 	else if(jdbc.connUrl == null) throw new Error('missing argument: connUrl');
 	else if(jdbc.username == null) throw new Error('missing argument: username');
@@ -38,6 +38,17 @@ var newLogger = function() {
 
 var newRepo = function() {
 	return new Repo();
+};
+
+var newCrypto = function() {
+	return {
+		encrypt: function(cleartext) {
+			return com.igloosec.scripter.util.SimpleCrypto.encrypt(cleartext);
+		}, 
+		decrypt: function(encrypted) {
+			return com.igloosec.scripter.util.SimpleCrypto.decrypt(encrypted);
+		}
+	};
 };
 
 var dateFormat = function(timestamp, format) {

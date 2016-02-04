@@ -38,7 +38,7 @@ var NewDb2FileView = React.createClass({
 	componentDidMount() {
 		var self = this;
 		this.loadInitialOutputPath(function(homepath) {
-			self.setState({ outputPath: homepath.replace('\\', '\\\\') });
+			self.setState({ outputPath: homepath.split('\\').join('\\\\') });
 		});
 	},
 

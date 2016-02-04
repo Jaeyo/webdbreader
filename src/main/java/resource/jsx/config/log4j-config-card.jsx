@@ -1,22 +1,23 @@
-var React = require('react');
-var PolymerIcon = require('../comps/polymer-icon.jsx');
-var MaterialWrapper = require('../comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var TextField = MaterialWrapper.TextField;
-var Table = require('react-bootstrap').Table;
-var SimpleRepoDialog = require('./simple-repo-card/simple-repo-dialog.jsx');
-var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
-var ConfirmDialog = require('../comps/dialog/confirm-dialog.jsx');
-var server = require('../utils/server.js');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PolymerIcon from '../comps/polymer-icon.jsx';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardText,
+	TextField
+} from '../comps/material-wrapper.jsx';
+import { Table } from 'react-bootstrap';
+import SimpleRepoDialog from './simple-repo-card/simple-repo-dialog.jsx';
+import AlertDialog from '../comps/dialog/alert-dialog.jsx';
+import ConfirmDialog from '../comps/dialog/confirm-dialog.jsx';
+import server from '../utils/server.js';
+import _ from 'underscore';
 
 var Log4jConfigCard = React.createClass({
 	getInitialState() {
-		return {
-			threshold: null
-		};
+		return { threshold: null };
 	},
 
 	componentDidMount() {

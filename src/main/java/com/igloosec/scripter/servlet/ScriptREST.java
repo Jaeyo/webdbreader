@@ -21,6 +21,7 @@ import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.ScriptDAO;
 import com.igloosec.scripter.exception.AlreadyExistsException;
 import com.igloosec.scripter.exception.AlreadyStartedException;
+import com.igloosec.scripter.exception.CryptoException;
 import com.igloosec.scripter.exception.NotFoundException;
 import com.igloosec.scripter.exception.ScriptNotParsableException;
 import com.igloosec.scripter.exception.ScriptNotRunningException;
@@ -77,7 +78,7 @@ public class ScriptREST extends HttpServlet {
 		return new JSONObject().put("success", 1).put("script", script).toString();
 	}
 	
-	private String loadScriptParams(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, ScriptException, ScriptNotParsableException {
+	private String loadScriptParams(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, ScriptException, ScriptNotParsableException, JSONException, CryptoException {
 		JSONObject scriptJSON = scriptService.load(pathParams.get("title"));
 		String scriptName = scriptJSON.getString("SCRIPT_NAME");
 		String script = scriptJSON.getString("SCRIPT");
@@ -98,7 +99,7 @@ public class ScriptREST extends HttpServlet {
 		}
 	}
 	
-	private String generateDb2File(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException, IOException{
+	private String generateDb2File(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException, IOException, CryptoException {
 		String period = req.getParameter("period");
 		String dbVendor = req.getParameter("dbVendor");
 		String dbIp = req.getParameter("dbIp");

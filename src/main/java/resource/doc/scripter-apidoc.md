@@ -63,6 +63,15 @@ repo.set('key', 'value');
 repo.get('key'); // => 'value'
 ```
 
+### newCrypto()
+* 암복호화 기능을 제공하는 Crypto 바인딩 객체를 생성한다.
+* example
+```javascriptq
+var crypto = newCrypto();
+var encrypted = crypto.encrypt('test plain string'); // => encrypted string
+var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
+```
+
 ### dateFormat(timestamp, format)
 * unix timestamp 포맷의 값을 날짜 포맷에 맞춰 변환한다.
 * arguments:
@@ -215,6 +224,29 @@ newFile({
     filename: '/data/output/$yyyy$mm$dd$hh$mi.log',
     charset: 'UTF-8'
 }).appendLine('line');
+```
+
+### Crypto
+#### encrypt(plaintext)
+* 전달된 평문 문자열을 암호화한다.
+* arguments:
+    - plaintext: 암호화활 평문 문자열
+* example
+```javascript
+var crypto = newCrypto();
+var encrypted = crypto.encrypt('test plain string'); // => encrypted string
+var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
+```
+
+#### encrypt(encryptedtext)
+* 전달된 평문 문자열을 암호화한다.
+* arguments:
+    - encryptedtext: 복호화할 암호화 문자열
+* example
+```javascript
+var crypto = newCrypto();
+var encrypted = crypto.encrypt('test plain string'); // => encrypted string
+var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
 ```
 
 ### Logger

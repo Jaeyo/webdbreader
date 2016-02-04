@@ -6,13 +6,16 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.igloosec.scripter.exception.CryptoException;
+import com.igloosec.scripter.util.SimpleCrypto;
+
 public class Db2FileScriptGenerator extends ScriptGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(Db2FileScriptGenerator.class);
 	
 	public String generate(String period, String dbVendor, String dbIp, String dbPort, 
 			String dbSid, String jdbcDriver, String jdbcConnUrl, String jdbcUsername, 
 			String jdbcPassword, String columns, String table, String bindingType, 
-			String bindingColumn, String delimiter, String charset, String outputPath) {
+			String bindingColumn, String delimiter, String charset, String outputPath) throws CryptoException {
 		logger.debug("period: {}, dbVendor: {}, dbIp: {}, dbPort: {}, dbSid: {}, jdbcDriver: {}, " + 
 			"jdbdConnUrl: {}, jdbcUsername: {}, jdbcPassword: {}, columns: {}, table: {}, bindingType: {}, " +
 			"bindingColumn: {}, delimiter: {}, charset: {}, outputPath: {}", period, dbVendor, dbIp, dbPort,
@@ -29,8 +32,8 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 			.appendLine("var dbSid = '%s';", dbSid)
 			.appendLine("var jdbcDriver = '%s';", jdbcDriver)
 			.appendLine("var jdbcConnUrl = '%s';", jdbcConnUrl)
-			.appendLine("var jdbcUsername = '%s';", jdbcUsername)
-			.appendLine("var jdbcPassword = '%s';", jdbcPassword)
+			.appendLine("var jdbcUsername = '%s';", SimpleCrypto.encrypt(jdbcUsername))
+			.appendLine("var jdbcPassword = '%s';", SimpleCrypto.encrypt(jdbcPassword))
 			.appendLine("var columns = '%s';", columns)
 			.appendLine("var table = '%s';", table)
 			.appendLine("var bindingType = '%s';", bindingType);
@@ -41,22 +44,24 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		script.appendLine("var delimiter = '%s';", delimiter)
 			.appendLine("var charset = '%s';", charset)
 			.appendLine("var outputPath = '%s';", outputPath)
-			.appendLine()
+			.appendLine();
+		
+		
+		script.appendLine("var repeat = newRepeat({ period: period });")
+			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mi.log', charset: charset });")
+			.appendLine("var repo = newRepo();")
+			.appendLine("var logger = newLogger();")
+			.appendLine("var crypto = newCrypto();")
 			.appendLine();
 		
 		script.appendLine("var jdbc = { ")
 			.appendLine("	driver: jdbcDriver,")
 			.appendLine("	connUrl: jdbcConnUrl,")
-			.appendLine("	username: jdbcUsername,")
-			.appendLine("	password: jdbcPassword")
-			.appendLine("	};")
-			.appendLine();
+			.appendLine("	username: crypto.decrypt(jdbcUsername),")
+			.appendLine("	password: crypto.decrypt(jdbcPassword)")
+			.appendLine("};");
 		
-		script.appendLine("var repeat = newRepeat({ period: period });")
-			.appendLine("var db = newDatabase(jdbc);")
-			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mi.log', charset: charset });")
-			.appendLine("var repo = newRepo();")
-			.appendLine("var logger = newLogger();")
+		script.appendLine("var db = newDatabase(jdbc);")
 			.appendLine();
 		
 		script.appendLine("repeat.run(function() { ");

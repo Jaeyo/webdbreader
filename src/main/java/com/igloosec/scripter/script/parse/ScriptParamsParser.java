@@ -4,15 +4,18 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.base.Preconditions;
+import com.igloosec.scripter.exception.CryptoException;
 import com.igloosec.scripter.exception.ScriptNotParsableException;
+import com.igloosec.scripter.util.SimpleCrypto;
 
 public class ScriptParamsParser {
 	private ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
 	
-	public JSONObject parseParams(String scriptName, String script) throws ScriptException, ScriptNotParsableException {
+	public JSONObject parseParams(String scriptName, String script) throws ScriptException, ScriptNotParsableException, JSONException, CryptoException {
 		String type = null;
 		
 		for(String line: script.split("\n")) {
@@ -64,7 +67,7 @@ public class ScriptParamsParser {
 		}
 	}
 	
-	private JSONObject parseDb2FileVariable() throws ScriptNotParsableException {
+	private JSONObject parseDb2FileVariable() throws ScriptNotParsableException, JSONException, CryptoException {
 		JSONObject variables = new JSONObject();
 		variables.put("type", scriptEngine.get("type"));
 		variables.put("dbVendor", scriptEngine.get("dbVendor"));
@@ -105,6 +108,9 @@ public class ScriptParamsParser {
 		} catch(IllegalArgumentException e) {
 			throw new ScriptNotParsableException(e.getMessage());
 		}
+		
+		variables.put("jdbcUsername", SimpleCrypto.decrypt(variables.getString("jdbcUsername")));
+		variables.put("jdbcPassword", SimpleCrypto.decrypt(variables.getString("jdbcPassword")));
 		
 		return variables;
 	}
