@@ -57,8 +57,8 @@
 	var NewDb2FileView = __webpack_require__(750);
 	var NewDb2DbView = __webpack_require__(751);
 	var ConfigView = __webpack_require__(753);
-	var NewCustom = __webpack_require__(759);
-	__webpack_require__(762);
+	var NewCustom = __webpack_require__(758);
+	__webpack_require__(761);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -66436,7 +66436,7 @@
 /* 606 */
 /***/ function(module, exports) {
 
-	module.exports = "scripter에서 제공하는 API는 '전역함수'와 '바인딩 객체' 들로 구성된다. 예를 들어 데이터베이스 접근, 파일 입/출력 등은 Database, File 등의 바인딩 객체를 통해서 가능하며 해당 바인딩 객체들은 각각 알맞은 전역함수를 통해 생성할 수 있다.\r\n\r\n## 전역 함수\r\n### newRepeat(args)\r\n* 일정 시간마다 특정 작업이 구동되도록 등록할 수 있는 Repeat 바인딩 객체를 생성한다.\r\n* arguments\r\n    - args: \r\n        + period: 실행 주기\r\n* example\r\n```javascript\r\nnewRepeat({ period: 5 * 60 * 1000 }).run(function() {\r\n    logger.info('this is log');\r\n});\r\n// => 5분에 한번씩 로그를 출력한다.\r\n```\r\n\r\n### newDatabase(jdbc)\r\n* database에 연결하여 쿼리를 실행할 수 있는 Database 바인딩 객체를 생성한다.\r\n* arguments: \r\n    - jdbc:\r\n        + driver: database driver\r\n        + connUrl: database connection url\r\n        + username: database username\r\n        + password: database password\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM test_table');\r\n```\r\n\r\n### newFile(args)\r\n* file에 연결하여 file 출력 실행할 수 있는 File 바인딩 객체를 생성한다.\r\n* arguments:\r\n    - args:\r\n        + filename: 경로를 포함한 파일 이름,\r\n        + charset: 캐릭터 셋(default: UTF-8)\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('test');\r\n```\r\n\r\n### newLogger()\r\n* 로그 출력을 할 수 있는 Logger 바인딩 객체를 생성한다.\r\n* example\r\n```javascript\r\nvar logger = newLogger();\r\nlogger.info('test log');\r\n```\r\n\r\n### newRepo()\r\n* 간단한 key/value 저장소에 접근할 수 있는 Repo 바인딩 객체를 생성한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', 'value');\r\nrepo.get('key'); // => 'value'\r\n```\r\n\r\n### newCrypto()\r\n* 암복호화 기능을 제공하는 Crypto 바인딩 객체를 생성한다.\r\n* example\r\n```javascriptq\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n### dateFormat(timestamp, format)\r\n* unix timestamp 포맷의 값을 날짜 포맷에 맞춰 변환한다.\r\n* arguments:\r\n    - timestamp: unix timestamp 형식의 타임스탬프\r\n    - format: 날짜 포맷\r\n* example\r\n```javascript\r\ndateFormat(1453954857204, '$yyyy-$mm-$dd $hh:$mi:$ss');\r\n```\r\n\r\n----\r\n\r\n## 바인딩 객체\r\n### Repeat\r\n#### run(callback)\r\n* 일정 시간마다 callback 함수를 실행한다.\r\n* arguments:\r\n    - callback: 일정 시간마다 실행할 함수\r\n* example\r\n```javascript\r\nnewRepeat({ period: 5 * 60 * 1000 }).run(function() {\r\n    logger.info('this is log');\r\n});\r\n```\r\n\r\n### Database\r\n#### query(sql)\r\n* 연결된 데이터베이스로 SELECT 쿼리를 실행한 뒤에 반환된 값에 접근할 수 있는 QueryResult 바인딩 객체를 반환한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM test_table');\r\n```\r\n\r\n#### query(sql, args)\r\n* 연결된 데이터베이스로 SELECT 쿼리를 실행한 뒤에 반환된 값에 접근할 수 있는 QueryResult 바인딩 객체를 반환한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n    - args: 쿼리 파라미터\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM ?', 'test_table');\r\n```\r\n\r\n#### update(sql)\r\n* 연결된 데이터베이스로 INSERT/UPDATE/DELETE 및 DDL 쿼리를 실행한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('insert into test_table(v1, v2) values(\\'value1\\')');\r\n```\r\n\r\n#### update(sql, args)\r\n* 연결된 데이터베이스로 INSERT/UPDATE/DELETE 및 DDL 쿼리를 실행한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n    - args: 쿼리 파라미터\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('insert into test_table(v1, v2) values(\\'?\\')', 'value1');\r\n```\r\n\r\n### QueryResult\r\n#### get(args)\r\n* 쿼리를 실행한 결과에서 특정 행/열의 데이터를 반환한다.\r\n* arguments:\r\n    - args: \r\n        + row: 행 번호\r\n        + col: 열 번호 / 컬럼 라벨\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nvar col1 = queryResult.get({\r\n    row: 0, col: 0\r\n});\r\nvar col2 = queryResult.get({\r\n    row: 0, col: 'col2'\r\n});\r\n```\r\n\r\n#### eachRow(callback)\r\n* 쿼리를 실행한 결과의 각 행에 대해서 callback 함수를 실행한다.\r\n* arguments:\r\n    - callback: 실행할 함수\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nqueryResult.eachRow(function(row) {\r\n    var line = row.join(',');\r\n    logger.info(line);\r\n    var col1 = row.get({ col: 0 });\r\n    var col2 = row.get({ col: 'col2' });\r\n});\r\n```\r\n\r\n### File\r\n#### append(line)\r\n* 연결된 파일에 line을 출력한다. \r\n* arguments:\r\n    - line: 파일에 출력할 line\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('line');\r\n```\r\n\r\n#### appendLine(line)\r\n* 연결된 파일에 line과 라인피드 문자를 출력한다. \r\n* arguments:\r\n    - line: 파일에 출력할 line\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('line');\r\n```\r\n\r\n### Crypto\r\n#### encrypt(plaintext)\r\n* 전달된 평문 문자열을 암호화한다.\r\n* arguments:\r\n    - plaintext: 암호화활 평문 문자열\r\n* example\r\n```javascript\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n#### encrypt(encryptedtext)\r\n* 전달된 평문 문자열을 암호화한다.\r\n* arguments:\r\n    - encryptedtext: 복호화할 암호화 문자열\r\n* example\r\n```javascript\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n### Logger\r\n#### info(msg)\r\n* INFO 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.info('this is info log');\r\n```\r\n\r\n#### debug(msg)\r\n* DEBUG 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.debug('this is debug log');\r\n```\r\n\r\n#### warn(msg)\r\n* WARN 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.warn('this is warn log');\r\n```\r\n\r\n#### error(msg)\r\n* ERROR 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.error('this is error log');\r\n```\r\n\r\n### Repo\r\n#### set(key, value)\r\n* key/value 저장소에 데이터를 저장한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', 'value');\r\n```\r\n\r\n#### get(key)\r\n* key/value 저장소에 저장되어 있는 데이터를 반환한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key');\r\n```\r\n\r\n#### get(key, opts)\r\n* key/value 저장소에 저장되어 있는 데이터를 반환한다.\r\n* arguments:\r\n    - opts:\r\n        + isNull: key/value 저장소에 해당 key에 대한 데이터가 없을 경우 반환할 defualt 데이터\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', { isNull: 'defaultValue' });\r\n```"
+	module.exports = "scripter에서 제공하는 API는 '전역함수'와 '바인딩 객체' 들로 구성된다. 예를 들어 데이터베이스 접근, 파일 입/출력 등은 Database, File 등의 바인딩 객체를 통해서 가능하며 해당 바인딩 객체들은 각각 알맞은 전역함수를 통해 생성할 수 있다.\r\n\r\n## 전역 함수\r\n### newRepeat(args)\r\n* 일정 시간마다 특정 작업이 구동되도록 등록할 수 있는 Repeat 바인딩 객체를 생성한다.\r\n* arguments\r\n    - args: \r\n        + period: 실행 주기\r\n* example\r\n```javascript\r\nnewRepeat({ period: 5 * 60 * 1000 }).run(function() {\r\n    logger.info('this is log');\r\n});\r\n// => 5분에 한번씩 로그를 출력한다.\r\n```\r\n\r\n### newDatabase(jdbc)\r\n* database에 연결하여 쿼리를 실행할 수 있는 Database 바인딩 객체를 생성한다.\r\n* arguments: \r\n    - jdbc:\r\n        + driver: database driver\r\n        + connUrl: database connection url\r\n        + username: database username\r\n        + password: database password\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM test_table');\r\n```\r\n\r\n### newFile(args)\r\n* file에 연결하여 file 출력 실행할 수 있는 File 바인딩 객체를 생성한다.\r\n* arguments:\r\n    - args:\r\n        + filename: 경로를 포함한 파일 이름,\r\n        + charset: 캐릭터 셋(default: UTF-8)\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('test');\r\n```\r\n\r\n### newLogger()\r\n* 로그 출력을 할 수 있는 Logger 바인딩 객체를 생성한다.\r\n* example\r\n```javascript\r\nvar logger = newLogger();\r\nlogger.info('test log');\r\n```\r\n\r\n### newRepo()\r\n* 간단한 key/value 저장소에 접근할 수 있는 Repo 바인딩 객체를 생성한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', 'value');\r\nrepo.get('key'); // => 'value'\r\n```\r\n\r\n### newCrypto()\r\n* 암복호화 기능을 제공하는 Crypto 바인딩 객체를 생성한다.\r\n* example\r\n```javascriptq\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n### dateFormat(timestamp, format)\r\n* unix timestamp 포맷의 값을 날짜 포맷에 맞춰 변환한다.\r\n* arguments:\r\n    - timestamp: unix timestamp 형식의 타임스탬프\r\n    - format: 날짜 포맷\r\n* example\r\n```javascript\r\ndateFormat(1453954857204, '$yyyy-$mm-$dd $hh:$mi:$ss');\r\n```\r\n\r\n----\r\n\r\n## 바인딩 객체\r\n### Repeat\r\n#### run(callback)\r\n* 일정 시간마다 callback 함수를 실행한다.\r\n* arguments:\r\n    - callback: 일정 시간마다 실행할 함수\r\n* example\r\n```javascript\r\nnewRepeat({ period: 5 * 60 * 1000 }).run(function() {\r\n    logger.info('this is log');\r\n});\r\n```\r\n\r\n### Database\r\n#### query(sql)\r\n* 연결된 데이터베이스로 SELECT 쿼리를 실행한 뒤에 반환된 값에 접근할 수 있는 QueryResult 바인딩 객체를 반환한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM test_table');\r\n```\r\n\r\n#### query(sql, args)\r\n* 연결된 데이터베이스로 SELECT 쿼리를 실행한 뒤에 반환된 값에 접근할 수 있는 QueryResult 바인딩 객체를 반환한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n    - args: 쿼리 파라미터\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('SELECT * FROM ?', 'test_table');\r\n```\r\n\r\n#### update(sql)\r\n* 연결된 데이터베이스로 INSERT/UPDATE/DELETE 및 DDL 쿼리를 실행한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('insert into test_table(v1, v2) values(\\'value1\\')');\r\n```\r\n\r\n#### update(sql, args)\r\n* 연결된 데이터베이스로 INSERT/UPDATE/DELETE 및 DDL 쿼리를 실행한다.\r\n* arguments:\r\n    - sql: 실행할 쿼리\r\n    - args: 쿼리 파라미터\r\n* example\r\n```javascript\r\nnewDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n}).query('insert into test_table(v1, v2) values(\\'?\\')', 'value1');\r\n```\r\n\r\n### QueryResult\r\n#### get(args)\r\n* 쿼리를 실행한 결과에서 특정 행/열의 데이터를 반환한다.\r\n* arguments:\r\n    - args: \r\n        + row: 행 번호\r\n        + col: 열 번호 / 컬럼 라벨\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nvar col1 = queryResult.get({\r\n    row: 0, col: 0\r\n});\r\nvar col2 = queryResult.get({\r\n    row: 0, col: 'col2'\r\n});\r\n```\r\n\r\n#### eachRow(callback)\r\n* 쿼리를 실행한 결과의 각 행에 대해서 callback 함수를 실행한다.\r\n* arguments:\r\n    - callback: 실행할 함수\r\n* callback 함수의 argument로 제공되는 row 변수는 QueryResultRow 바인딩 객체로 제공된다.\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nqueryResult.eachRow(function(row) {\r\n    var line = row.join(',');\r\n    logger.info(line);\r\n    var col1 = row.get({ col: 0 });\r\n    var col2 = row.get({ col: 'col2' });\r\n});\r\n```\r\n\r\n### QueryResultRow\r\n#### join(delimiter)\r\n* 반환된 컬럼들의 데이터들을 하나의 라인으로 병합한다.\r\n* arguments:\r\n    - delimiter: 구분자\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nqueryResult.eachRow(function(row) {\r\n    var line = row.join(',');\r\n    logger.info(line);\r\n    var col1 = row.get({ col: 0 });\r\n    var col2 = row.get({ col: 'col2' });\r\n});\r\n```\r\n\r\n#### get(args)\r\n* 반환된 컬럼들 중 하나의 컬럼을 반환한다.\r\n* arguments: \r\n    - args:\r\n        + col: 특정 컬럼을 가리키는 index 혹은 column 명\r\n* example\r\n```javascript\r\nvar db = newDatabase({\r\n    driver: 'com.mysql.jdbc.Driver',\r\n    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',\r\n    username: 'admin',\r\n    password: 'admin'\r\n});\r\nvar queryResult = db.query('SELECT col1, col2 FROM test_table');\r\nqueryResult.eachRow(function(row) {\r\n    var line = row.join(',');\r\n    logger.info(line);\r\n    var col1 = row.get({ col: 0 });\r\n    var col2 = row.get({ col: 'col2' });\r\n});\r\n```\r\n\r\n#### eachColumn(callback)\r\n* 반환된 컬럼들을 대상으로 callback을 반복적으로 실행한다.\r\n* arguments: \r\n    - callback: 실행할 callback 함수\r\n* example\r\n```javascript\r\nvar queryResult = srcDb.query('SELECT col1, col2 FROM test_table');\r\nqueryResult.eachRow(function(row) {\r\n    var values = [];\r\n    row.eachColumn(function(column) {\r\n        values.push(column);\r\n    });\r\n    destDb.update('INSERT INTO test_table (col1, col2) VALUES ( ? )',\r\n    [ values.join(',') ]);\r\n});\r\n```\r\n\r\n### File\r\n#### append(line)\r\n* 연결된 파일에 line을 출력한다. \r\n* arguments:\r\n    - line: 파일에 출력할 line\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('line');\r\n```\r\n\r\n#### appendLine(line)\r\n* 연결된 파일에 line과 라인피드 문자를 출력한다. \r\n* arguments:\r\n    - line: 파일에 출력할 line\r\n* example\r\n```javascript\r\nnewFile({\r\n    filename: '/data/output/$yyyy$mm$dd$hh$mi.log',\r\n    charset: 'UTF-8'\r\n}).appendLine('line');\r\n```\r\n\r\n### Crypto\r\n#### encrypt(plaintext)\r\n* 전달된 평문 문자열을 암호화한다.\r\n* arguments:\r\n    - plaintext: 암호화활 평문 문자열\r\n* example\r\n```javascript\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n#### encrypt(encryptedtext)\r\n* 전달된 평문 문자열을 암호화한다.\r\n* arguments:\r\n    - encryptedtext: 복호화할 암호화 문자열\r\n* example\r\n```javascript\r\nvar crypto = newCrypto();\r\nvar encrypted = crypto.encrypt('test plain string'); // => encrypted string\r\nvar decrypted = crypto.decrypt(encrypted); // => 'test plain string'\r\n```\r\n\r\n### Logger\r\n#### info(msg)\r\n* INFO 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.info('this is info log');\r\n```\r\n\r\n#### debug(msg)\r\n* DEBUG 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.debug('this is debug log');\r\n```\r\n\r\n#### warn(msg)\r\n* WARN 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.warn('this is warn log');\r\n```\r\n\r\n#### error(msg)\r\n* ERROR 로그를 남긴다.\r\n* example\r\n```javascript\r\nlogger.error('this is error log');\r\n```\r\n\r\n### Repo\r\n#### set(key, value)\r\n* key/value 저장소에 데이터를 저장한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', 'value');\r\n```\r\n\r\n#### get(key)\r\n* key/value 저장소에 저장되어 있는 데이터를 반환한다.\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key');\r\n```\r\n\r\n#### get(key, opts)\r\n* key/value 저장소에 저장되어 있는 데이터를 반환한다.\r\n* arguments:\r\n    - opts:\r\n        + isNull: key/value 저장소에 해당 key에 대한 데이터가 없을 경우 반환할 defualt 데이터\r\n* example\r\n```javascript\r\nvar repo = newRepo();\r\nrepo.set('key', { isNull: 'defaultValue' });\r\n```"
 
 /***/ },
 /* 607 */
@@ -66949,7 +66949,7 @@
 	//			delimiter, charset, outputPath
 	exports.generateDb2FileScript = function (args) {
 		return new Promise(function (resolve, reject) {
-			request.get('/REST/Script/Generate/Db2File/').query({
+			request.get('/REST/Script/generate/db2file').query({
 				period: args.period,
 				dbVendor: args.dbVendor,
 				dbIp: args.dbIp,
@@ -66966,6 +66966,47 @@
 				delimiter: args.delimiter,
 				charset: args.charset,
 				outputPath: args.outputPath
+			}).end(function (err, resp) {
+				checkResponse(err, resp).fail(function (err) {
+					console.error(err);
+					reject(err);
+				}).then(function (body) {
+					resolve(body.script);
+				});
+			});
+		});
+	};
+
+	//args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
+	// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
+	// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
+	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
+	exports.generateDb2FileScript = function (args) {
+		return new Promise(function (resolve, reject) {
+			request.get('/REST/Script/generate/db2db').query({
+				srcDbVendor: args.srcDbVendor,
+				srcDbIp: args.srcDbIp,
+				srcDbPort: args.srcDbPort,
+				srcDbSid: args.srcDbSid,
+				srcJdbcDriver: args.srcJdbcDriver,
+				srcJdbcConnUrl: args.srcJdbcConnUrl,
+				srcJdbcUsername: args.srcJdbcUsername,
+				srcJdbcPassword: args.srcJdbcPassword,
+				srcTable: args.srcTable,
+				srcColumns: args.srcColumns,
+				destDbVendor: args.destDbVendor,
+				destDbIp: args.destDbIp,
+				destDbPort: args.destDbPort,
+				destDbSid: args.destDbSid,
+				destJdbcDriver: args.destJdbcDriver,
+				destJdbcConnUrl: args.destJdbcConnUrl,
+				destJdbcUsername: args.destJdbcUsername,
+				destJdbcPassword: args.destJdbcPassword,
+				destTable: args.destTable,
+				destColumns: args.destColumns,
+				bindingType: args.bindingType,
+				srcBindingColumn: args.srcBindingColumn,
+				period: args.period
 			}).end(function (err, resp) {
 				checkResponse(err, resp).fail(function (err) {
 					console.error(err);
@@ -87576,7 +87617,6 @@
 	var _ = __webpack_require__(163);
 	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
 	var DatabaseConfigCard = __webpack_require__(740);
-	var TableColumnsMappingCard = __webpack_require__(752);
 	var BindingTypeCard = __webpack_require__(746);
 
 	var NewDb2DbView = React.createClass({
@@ -87678,32 +87718,34 @@
 
 		render: function render() {
 			try {
+				var state = this.state;
+
 				var srcJdbc = {
-					jdbcDriver: this.state.srcJdbcDriver,
-					jdbcConnUrl: this.state.srcJdbcConnUrl,
-					jdbcUsername: this.state.srcJdbcUsername,
-					jdbcPassword: this.state.srcJdbcPassword
+					jdbcDriver: state.srcJdbcDriver,
+					jdbcConnUrl: state.srcJdbcConnUrl,
+					jdbcUsername: state.srcJdbcUsername,
+					jdbcPassword: state.srcJdbcPassword
 				};
 
 				var destJdbc = {
-					jdbcDriver: this.state.destJdbcDriver,
-					jdbcConnUrl: this.state.destJdbcConnUrl,
-					jdbcUsername: this.state.destJdbcUsername,
-					jdbcPassword: this.state.destJdbcPassword
+					jdbcDriver: state.destJdbcDriver,
+					jdbcConnUrl: state.destJdbcConnUrl,
+					jdbcUsername: state.destJdbcUsername,
+					jdbcPassword: state.destJdbcPassword
 				};
 
 				var srcDbInfo = {
-					dbVendor: this.state.srcDbVendor,
-					dbIp: this.state.dbIp,
-					dbPort: this.state.dbPort,
-					dbSid: this.state.dbSid
+					dbVendor: state.srcDbVendor,
+					dbIp: state.dbIp,
+					dbPort: state.dbPort,
+					dbSid: state.dbSid
 				};
 
 				var destDbInfo = {
-					dbVendor: this.state.destDbVendor,
-					dbIp: this.state.destDbIp,
-					dbPort: this.state.destDbPort,
-					dbSid: this.state.destDbSid
+					dbVendor: state.destDbVendor,
+					dbIp: state.destDbIp,
+					dbPort: state.destDbPort,
+					dbSid: state.destDbSid
 				};
 
 				var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
@@ -87718,12 +87760,20 @@
 					handleStateChange: this.handleDestDbStateChange
 				});
 
+				var tableColumnsMappingCardData = _.extend({}, srcJdbc, destJdbc, {
+					srcTable: state.srcTable,
+					destTable: state.destTable,
+					srcColumns: state.srcColumns,
+					destColumns: state.destColumns,
+					handleStateChange: this.handleStateChange
+				});
+
 				return React.createElement(
 					'div',
 					null,
 					React.createElement(DatabaseConfigCard, srcDatabaseConfigCardData),
 					React.createElement(DatabaseConfigCard, destDatabaseConfigCardData),
-					React.createElement(TableColumnsMappingCard, { dataAdapter: this.dataAdapter })
+					React.createElement(TableColumnsMappingCard, tableColumnsMappingCardData)
 				);
 			} catch (err) {
 				console.error(err.stack);
@@ -87733,135 +87783,7 @@
 	module.exports = NewDb2DbView;
 
 /***/ },
-/* 752 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var MaterialWrapper = __webpack_require__(422);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(741);
-	var Col = __webpack_require__(169).Col;
-
-	var TableColumnsMappingCard = React.createClass({
-		displayName: 'TableColumnsMappingCard',
-
-		PropTypes: {
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		getInitialState: function getInitialState() {
-			return {
-				columnCount: 1,
-				srcColumn0: '',
-				destColumn0: ''
-			};
-		},
-
-		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
-			switch (name) {
-				case 'srcTable':
-				case 'destTable':
-					var state = {};
-					state[name] = evt.target.value;
-					this.props.dataAdapter.emit('stateChange', state);
-					break;
-			}
-		},
-
-		render: function render() {
-			try {
-				return React.createElement(
-					Card,
-					{ style: { marginBottom: '10px' } },
-					React.createElement(CardHeader, {
-						title: 'mapping table/columns',
-						subtitle: '매핑시킬 테이블과 컬럼들을 설정합니다.',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
-						null,
-						React.createElement(Toggle, {
-							name: 'autoload',
-							value: 'autoload',
-							label: 'autoload',
-							ref: 'autoloadToggle',
-							style: { width: '150px' },
-							defaultToggled: true }),
-						React.createElement(
-							Col,
-							{ xs: 6 },
-							React.createElement(AddableColumnTextFields, { isSrc: true, dataAdapter: this.props.dataAdapter })
-						),
-						React.createElement(
-							Col,
-							{ xs: 6 },
-							React.createElement(AddableColumnTextFields, { isDest: true, dataAdapter: this.props.dataAdapter })
-						)
-					)
-				);
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = TableColumnsMappingCard;
-
-	var AddableColumnTextFields = React.createClass({
-		displayName: 'AddableColumnTextFields',
-
-		PropTypes: {
-			isSrc: React.PropTypes.bool,
-			isDest: React.PropTypes.bool,
-			dataAdapter: React.PropTypes.object.isRequired
-		},
-
-		handleChange: function handleChange(index, evt) {
-			evt.stopPropagation();
-
-			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
-			var columns = this.props.dataAdapter.data(columnKind);
-			var splitedColumns = columns.split(',');
-			splitedColumns[index] = evt.target.value;
-
-			var state = {};
-			state[columnKind] = splitedColumns.join(',');
-			this.props.dataAdapter.emit(columnKind, state);
-		},
-
-		render: function render() {
-			var columnKind = this.props.isSrc === true ? 'srcColumns' : 'destColumns';
-			var columns = this.props.dataAdapter.data(columnKind);
-
-			return React.createElement(
-				'div',
-				null,
-				columns.split(',').map((function (column, index) {
-					return React.createElement(TextField, {
-						floatingLabelText: 'column',
-						value: column,
-						fullWidth: true,
-						onChange: this.handleChange.bind(this, index) });
-				}).bind(this))
-			);
-		}
-	});
-
-/***/ },
+/* 752 */,
 /* 753 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -87885,7 +87807,7 @@
 
 	var _configLog4jConfigCardJsx2 = _interopRequireDefault(_configLog4jConfigCardJsx);
 
-	var _configEmbedDbQueryCardJsx = __webpack_require__(758);
+	var _configEmbedDbQueryCardJsx = __webpack_require__(757);
 
 	var _configEmbedDbQueryCardJsx2 = _interopRequireDefault(_configEmbedDbQueryCardJsx);
 
@@ -88409,8 +88331,7 @@
 	module.exports = Log4jConfigCard;
 
 /***/ },
-/* 757 */,
-/* 758 */
+/* 757 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88516,7 +88437,7 @@
 	module.exports = EmbedDbQueryCard;
 
 /***/ },
-/* 759 */
+/* 758 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88530,7 +88451,7 @@
 	var Paper = MaterialWrapper.Paper;
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(628);
-	var AddScriptBlockDialog = __webpack_require__(760);
+	var AddScriptBlockDialog = __webpack_require__(759);
 
 	//scriptBlock type: databaseSourceScriptBlock
 	var NewCustom = React.createClass({
@@ -88596,7 +88517,7 @@
 	};
 
 /***/ },
-/* 760 */
+/* 759 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88607,7 +88528,7 @@
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Dialog = MaterialWrapper.Dialog;
 	var Paper = MaterialWrapper.Paper;
-	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(761);
+	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(760);
 
 	var AddScriptBlockDialog = React.createClass({
 		displayName: 'AddScriptBlockDialog',
@@ -88714,7 +88635,7 @@
 	};
 
 /***/ },
-/* 761 */
+/* 760 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88837,13 +88758,13 @@
 	module.exports = AddDatabaseSourceScriptBlockDialog;
 
 /***/ },
-/* 762 */
+/* 761 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(763);
+	var content = __webpack_require__(762);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(610)(content, {});
@@ -88863,7 +88784,7 @@
 	}
 
 /***/ },
-/* 763 */
+/* 762 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(609)();

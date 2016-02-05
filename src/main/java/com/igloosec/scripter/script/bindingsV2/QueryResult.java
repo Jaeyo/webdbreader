@@ -118,5 +118,16 @@ public class QueryResult {
 				return null;
 			}
 		}
+
+		public void eachColumn(Function callback) {
+			try {
+				int colCount = sqlRowSet.getMetaData().getColumnCount();
+				for (int i = 1; i <= colCount; i++) {
+					Util.invokeFunction(callback, new Object[]{ sqlRowSet.getObject(i) });
+				}
+			} catch(Exception e) {
+				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			}
+		}
 	}
 }

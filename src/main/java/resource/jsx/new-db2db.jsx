@@ -2,7 +2,6 @@ var React = require('react');
 var _ = require('underscore');
 var jdbcTmpl = require('./utils/util.js').jdbcTmpl;
 var DatabaseConfigCard = require('./new-db2file/database-config-card.jsx');
-var TableColumnsMappingCard = require('./new-db2db/table-columns-mapping-card.jsx');
 var BindingTypeCard = require('./new-db2file/binding-type-card.jsx');
 
 var NewDb2DbView = React.createClass({
@@ -126,32 +125,34 @@ var NewDb2DbView = React.createClass({
 
 	render() {
 		try {
+			var { state } = this;
+
 			var srcJdbc = {
-				jdbcDriver: this.state.srcJdbcDriver,
-				jdbcConnUrl: this.state.srcJdbcConnUrl,
-				jdbcUsername: this.state.srcJdbcUsername,
-				jdbcPassword: this.state.srcJdbcPassword
+				jdbcDriver: state.srcJdbcDriver,
+				jdbcConnUrl: state.srcJdbcConnUrl,
+				jdbcUsername: state.srcJdbcUsername,
+				jdbcPassword: state.srcJdbcPassword
 			};
 
 			var destJdbc = {
-				jdbcDriver: this.state.destJdbcDriver,
-				jdbcConnUrl: this.state.destJdbcConnUrl,
-				jdbcUsername: this.state.destJdbcUsername,
-				jdbcPassword: this.state.destJdbcPassword
+				jdbcDriver: state.destJdbcDriver,
+				jdbcConnUrl: state.destJdbcConnUrl,
+				jdbcUsername: state.destJdbcUsername,
+				jdbcPassword: state.destJdbcPassword
 			};
 
 			var srcDbInfo = {
-				dbVendor: this.state.srcDbVendor,
-				dbIp: this.state.dbIp,
-				dbPort: this.state.dbPort,
-				dbSid: this.state.dbSid
+				dbVendor: state.srcDbVendor,
+				dbIp: state.dbIp,
+				dbPort: state.dbPort,
+				dbSid: state.dbSid
 			};
 
 			var destDbInfo = {
-				dbVendor: this.state.destDbVendor,
-				dbIp: this.state.destDbIp,
-				dbPort: this.state.destDbPort,
-				dbSid: this.state.destDbSid
+				dbVendor: state.destDbVendor,
+				dbIp: state.destDbIp,
+				dbPort: state.destDbPort,
+				dbSid: state.destDbSid
 			};
 
 			var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
@@ -166,12 +167,19 @@ var NewDb2DbView = React.createClass({
 				handleStateChange: this.handleDestDbStateChange
 			});
 
+			var tableColumnsMappingCardData = _.extend({}, srcJdbc, destJdbc, {
+				srcTable: state.srcTable,
+				destTable: state.destTable,
+				srcColumns: state.srcColumns,
+				destColumns: state.destColumns,
+				handleStateChange: this.handleStateChange			
+			});
 
 			return (
 				<div>
 					<DatabaseConfigCard {...srcDatabaseConfigCardData} />
 					<DatabaseConfigCard {...destDatabaseConfigCardData} />
-					<TableColumnsMappingCard dataAdapter={this.dataAdapter} />
+					<TableColumnsMappingCard {...tableColumnsMappingCardData} />
 				</div>
 			);
 		} catch(err) {

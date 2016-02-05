@@ -103,7 +103,7 @@ exports.postScript = function(args) {
 exports.generateDb2FileScript = function(args) {
 	return new Promise(function(resolve, reject) {
 		request
-			.get('/REST/Script/Generate/Db2File/')
+			.get('/REST/Script/generate/db2file')
 			.query({
 				period: args.period,
 				dbVendor: args.dbVendor,
@@ -121,6 +121,51 @@ exports.generateDb2FileScript = function(args) {
 				delimiter: args.delimiter,
 				charset: args.charset,
 				outputPath: args.outputPath
+			})
+			.end(function(err, resp) {
+				checkResponse(err, resp)
+					.fail(function(err) {
+						console.error(err);
+						reject(err);
+					}).then(function(body) {
+						resolve(body.script);
+					});
+			});
+	});
+};
+
+//args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
+// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
+// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
+// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
+exports.generateDb2FileScript = function(args) {
+	return new Promise(function(resolve, reject) {
+		request
+			.get('/REST/Script/generate/db2db')
+			.query({
+				srcDbVendor: args.srcDbVendor,
+				srcDbIp: args.srcDbIp,
+				srcDbPort: args.srcDbPort,
+				srcDbSid: args.srcDbSid,
+				srcJdbcDriver: args.srcJdbcDriver,
+				srcJdbcConnUrl: args.srcJdbcConnUrl,
+				srcJdbcUsername: args.srcJdbcUsername,
+				srcJdbcPassword: args.srcJdbcPassword,
+				srcTable: args.srcTable,
+				srcColumns: args.srcColumns,
+				destDbVendor: args.destDbVendor,
+				destDbIp: args.destDbIp,
+				destDbPort: args.destDbPort,
+				destDbSid: args.destDbSid,
+				destJdbcDriver: args.destJdbcDriver,
+				destJdbcConnUrl: args.destJdbcConnUrl,
+				destJdbcUsername: args.destJdbcUsername,
+				destJdbcPassword: args.destJdbcPassword,
+				destTable: args.destTable,
+				destColumns: args.destColumns,
+				bindingType: args.bindingType,
+				srcBindingColumn: args.srcBindingColumn,
+				period: args.period
 			})
 			.end(function(err, resp) {
 				checkResponse(err, resp)

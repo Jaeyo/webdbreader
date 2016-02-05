@@ -184,6 +184,7 @@ var col2 = queryResult.get({
 * 쿼리를 실행한 결과의 각 행에 대해서 callback 함수를 실행한다.
 * arguments:
     - callback: 실행할 함수
+* callback 함수의 argument로 제공되는 row 변수는 QueryResultRow 바인딩 객체로 제공된다.
 * example
 ```javascript
 var db = newDatabase({
@@ -198,6 +199,67 @@ queryResult.eachRow(function(row) {
     logger.info(line);
     var col1 = row.get({ col: 0 });
     var col2 = row.get({ col: 'col2' });
+});
+```
+
+### QueryResultRow
+#### join(delimiter)
+* 반환된 컬럼들의 데이터들을 하나의 라인으로 병합한다.
+* arguments:
+    - delimiter: 구분자
+* example
+```javascript
+var db = newDatabase({
+    driver: 'com.mysql.jdbc.Driver',
+    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',
+    username: 'admin',
+    password: 'admin'
+});
+var queryResult = db.query('SELECT col1, col2 FROM test_table');
+queryResult.eachRow(function(row) {
+    var line = row.join(',');
+    logger.info(line);
+    var col1 = row.get({ col: 0 });
+    var col2 = row.get({ col: 'col2' });
+});
+```
+
+#### get(args)
+* 반환된 컬럼들 중 하나의 컬럼을 반환한다.
+* arguments: 
+    - args:
+        + col: 특정 컬럼을 가리키는 index 혹은 column 명
+* example
+```javascript
+var db = newDatabase({
+    driver: 'com.mysql.jdbc.Driver',
+    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',
+    username: 'admin',
+    password: 'admin'
+});
+var queryResult = db.query('SELECT col1, col2 FROM test_table');
+queryResult.eachRow(function(row) {
+    var line = row.join(',');
+    logger.info(line);
+    var col1 = row.get({ col: 0 });
+    var col2 = row.get({ col: 'col2' });
+});
+```
+
+#### eachColumn(callback)
+* 반환된 컬럼들을 대상으로 callback을 반복적으로 실행한다.
+* arguments: 
+    - callback: 실행할 callback 함수
+* example
+```javascript
+var queryResult = srcDb.query('SELECT col1, col2 FROM test_table');
+queryResult.eachRow(function(row) {
+    var values = [];
+    row.eachColumn(function(column) {
+        values.push(column);
+    });
+    destDb.update('INSERT INTO test_table (col1, col2) VALUES ( ? )',
+    [ values.join(',') ]);
 });
 ```
 

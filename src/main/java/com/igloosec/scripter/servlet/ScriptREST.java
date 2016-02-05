@@ -26,6 +26,7 @@ import com.igloosec.scripter.exception.NotFoundException;
 import com.igloosec.scripter.exception.ScriptNotParsableException;
 import com.igloosec.scripter.exception.ScriptNotRunningException;
 import com.igloosec.scripter.exception.VersionException;
+import com.igloosec.scripter.script.generate.Db2DbScriptGenerator;
 import com.igloosec.scripter.script.generate.Db2FileScriptGenerator;
 import com.igloosec.scripter.script.parse.ScriptParamsParser;
 import com.igloosec.scripter.service.ScriptService;
@@ -50,8 +51,10 @@ public class ScriptREST extends HttpServlet {
 				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
 			} else if(new UriTemplate("/Titles/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getTitles(req, resp, pathParams));
-			} else if(new UriTemplate("/Generate/Db2File/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/generate/db2file").match(pathInfo, pathParams)){
 				resp.getWriter().print(generateDb2File(req, resp, pathParams));
+			} else if(new UriTemplate("/generate/db2db").match(pathInfo, pathParams)){
+				resp.getWriter().print(generateDb2Db(req, resp, pathParams));
 			} else if(new UriTemplate("/Load/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(loadScript(req, resp, pathParams));
 			} else if(new UriTemplate("/LoadParams/{title}/").match(pathInfo, pathParams)){
@@ -139,6 +142,66 @@ public class ScriptREST extends HttpServlet {
 			.generate(period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl, 
 					jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn, 
 					delimiter, charset, outputPath);
+		
+		return new JSONObject().put("success", 1).put("script", script).toString();
+	}
+	
+	private String generateDb2Db(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException, IOException, CryptoException {
+		String srcDbVendor = req.getParameter("srcDbVendor");
+		String srcDbIp = req.getParameter("srcDbIp");
+		String srcDbPort = req.getParameter("srcDbPort");
+		String srcDbSid = req.getParameter("srcDbSid");
+		String srcJdbcDriver = req.getParameter("srcJdbcDriver");
+		String srcJdbcConnUrl = req.getParameter("srcJdbcConnUrl");
+		String srcJdbcUsername = req.getParameter("srcJdbcUsername");
+		String srcJdbcPassword = req.getParameter("srcJdbcPassword");
+		String srcTable = req.getParameter("srcTable");
+		String srcColumns = req.getParameter("srcColumns");
+		String destDbVendor = req.getParameter("destDbVendor");
+		String destDbIp = req.getParameter("destDbIp");
+		String destDbPort = req.getParameter("destDbPort");
+		String destDbSid = req.getParameter("destDbSid");
+		String destJdbcDriver = req.getParameter("destJdbcDriver");
+		String destJdbcConnUrl = req.getParameter("destJdbcConnUrl");
+		String destJdbcUsername = req.getParameter("destJdbcUsername");
+		String destJdbcPassword = req.getParameter("destJdbcPassword");
+		String destTable = req.getParameter("destTable");
+		String destColumns = req.getParameter("destColumns");
+		String bindingType = req.getParameter("bindingType");
+		String srcBindingColumn = req.getParameter("srcBindingColumn");
+		String period = req.getParameter("period");
+		
+		Preconditions.checkArgument(srcDbVendor != null, "srcDbVendor is null");
+		Preconditions.checkArgument(srcDbIp != null, "srcDbPort is null");
+		Preconditions.checkArgument(srcDbSid != null, "srcDbSid is null");
+		Preconditions.checkArgument(srcJdbcDriver != null, "srcJdbcDriver is null");
+		Preconditions.checkArgument(srcJdbcConnUrl != null, "srcJdbcConnUrl is null");
+		Preconditions.checkArgument(srcJdbcUsername != null, "srcJdbcUsername is null");
+		Preconditions.checkArgument(srcJdbcPassword != null, "srcJdbcPassword is null");
+		Preconditions.checkArgument(srcTable != null, "srcTable is null");
+		Preconditions.checkArgument(srcColumns != null, "srcColumns is null");
+		Preconditions.checkArgument(destDbVendor != null, "destDbVendor is null");
+		Preconditions.checkArgument(destDbIp != null, "destDbIp is null");
+		Preconditions.checkArgument(destDbPort != null, "destDbPort is null");
+		Preconditions.checkArgument(destDbSid != null, "destDbSid is null");
+		Preconditions.checkArgument(destJdbcDriver != null, "destJdbcDriver is null");
+		Preconditions.checkArgument(destJdbcConnUrl != null, "destJdbcConnUrl is null");
+		Preconditions.checkArgument(destJdbcUsername != null, "destJdbcUsername is null");
+		Preconditions.checkArgument(destJdbcPassword != null, "destJdbcPassword is null");
+		Preconditions.checkArgument(destTable != null, "destTable is null");
+		Preconditions.checkArgument(destColumns != null, "destColumns is null");
+		Preconditions.checkArgument(bindingType != null, "bindingType is null");
+		if(bindingType.equals("simple") == false)
+			Preconditions.checkArgument(srcBindingColumn != null, "srcBindingColumn is null");
+		Preconditions.checkArgument(period != null, "period is null");
+	
+		String script = new Db2DbScriptGenerator()
+			.generate(srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, 
+					srcJdbcConnUrl, srcJdbcUsername, srcJdbcPassword, srcTable, 
+					srcColumns, destDbVendor, destDbIp, destDbPort, destDbSid, 
+					destJdbcDriver, destJdbcConnUrl, destJdbcUsername, 
+					destJdbcPassword, destTable, destColumns, bindingType, 
+					srcBindingColumn, period);
 		
 		return new JSONObject().put("success", 1).put("script", script).toString();
 	}
