@@ -138,7 +138,7 @@ exports.generateDb2FileScript = function(args) {
 // 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
 // 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
 // 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
-exports.generateDb2FileScript = function(args) {
+exports.generateDb2DbScript = function(args) {
 	return new Promise(function(resolve, reject) {
 		request
 			.get('/REST/Script/generate/db2db')

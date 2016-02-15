@@ -15,11 +15,7 @@ import {
 var EtcConfigCard = React.createClass({
 	PropTypes: {
 		handleStateChange: React.PropTypes.func.isRequired,
-
-		period: React.PropTypes.string.isRequired,
-		charset: React.PropTypes.string.isRequired,
-		delimiter: React.PropTypes.string.isRequired,
-		outputPath: React.PropTypes.string.isRequired
+		period: React.PropTypes.string.isRequired
 	},
 
 	getInitialState() {
@@ -83,13 +79,6 @@ var EtcConfigCard = React.createClass({
 				this.setState(newState);
 				this.updatePeriod(newState.simplePeriod, newState.timeUnit);
 				break;
-			case 'charset':
-			case 'delimiter':
-			case 'outputPath':
-				var newState = {};
-				newState[name] = evt.target.value;
-				this.props.handleStateChange(newState);
-				break;
 			}
 		} catch(err) {
 			console.error(err.stack);
@@ -145,21 +134,6 @@ var EtcConfigCard = React.createClass({
 								{ text: '일', payload: 'day' },
 								{ text: '일2', payload: 'day2' }
 							]} />
-						<TextField
-							fullWidth={true}
-							value={props.charset}
-							floatingLabelText="charset"
-							onChange={this.handleChange.bind(this, 'charset')} />
-						<TextField
-							fullWidth={true}
-							value={props.delimiter}
-							floatingLabelText="delimiter"
-							onChange={this.handleChange.bind(this, 'delimiter')} />
-						<TextField
-							fullWidth={true}
-							value={props.outputPath}
-							floatingLabelText="outputPath"
-							onChange={this.handleChange.bind(this, 'outputPath')} />
 					</CardText>
 				</Card>
 			);

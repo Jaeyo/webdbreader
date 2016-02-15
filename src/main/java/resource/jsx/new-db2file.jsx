@@ -90,8 +90,9 @@ var NewDb2FileView = React.createClass({
 		this.setState(state);
 	},
 
-	showScriptDialog() {
+	showScriptDialog(evt) {
 		try {
+			evt.stopPropagation();
 			precondition
 				.instance(this.state)
 				.stringNotByEmpty([ 'jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword' ], 'jdbc 연결 정보 미입력')
@@ -155,7 +156,6 @@ var NewDb2FileView = React.createClass({
 							this.refs.alertDialog.show('success', 'script registered');
 						}.bind(this))
 						.catch(function(err) {
-							if(typeof err === 'object') err = JSON.stringify(err);
 							this.refs.alertDialog.show('danger', err);
 						}.bind(this));
 				}.bind(this)

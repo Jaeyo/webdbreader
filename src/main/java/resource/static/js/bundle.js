@@ -66981,7 +66981,7 @@
 	// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
 	// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
 	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
-	exports.generateDb2FileScript = function (args) {
+	exports.generateDb2DbScript = function (args) {
 		return new Promise(function (resolve, reject) {
 			request.get('/REST/Script/generate/db2db').query({
 				srcDbVendor: args.srcDbVendor,
@@ -87067,26 +87067,28 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var PolymerIcon = __webpack_require__(741);
-	var MaterialWrapper = __webpack_require__(422);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var EtcConfigCard = React.createClass({
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var EtcConfigCard = _react2['default'].createClass({
 		displayName: 'EtcConfigCard',
 
 		PropTypes: {
-			handleStateChange: React.PropTypes.func.isRequired,
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
 
-			period: React.PropTypes.string.isRequired,
-			charset: React.PropTypes.string.isRequired,
-			delimiter: React.PropTypes.string.isRequired,
-			outputPath: React.PropTypes.string.isRequired
+			period: _react2['default'].PropTypes.string.isRequired,
+			charset: _react2['default'].PropTypes.string.isRequired,
+			delimiter: _react2['default'].PropTypes.string.isRequired,
+			outputPath: _react2['default'].PropTypes.string.isRequired
 		},
 
 		getInitialState: function getInitialState() {
@@ -87105,7 +87107,9 @@
 		},
 
 		initTimeUnitAndSimplePeriod: function initTimeUnitAndSimplePeriod() {
-			var period = this.props.period;
+			var props = this.props;
+
+			var period = props.period;
 			if (typeof period === 'string') period = eval(period);
 
 			if (period >= 24 * 60 * 60 * 1000 && period % (24 * 60 * 60 * 1000) === 0) {
@@ -87132,30 +87136,38 @@
 		},
 
 		handleChange: function handleChange(name, evt) {
-			evt.stopPropagation();
+			try {
+				evt.stopPropagation();
 
-			switch (name) {
-				case 'simplePeriod':
-				case 'timeUnit':
-					var state = {
-						simplePeriod: this.state.simplePeriod,
-						timeUnit: this.state.timeUnit
-					};
-					state[name] = evt.target.value;
-					this.setState(state);
-					this.updatePeriod(state.simplePeriod, state.timeUnit);
-					break;
-				case 'charset':
-				case 'delimiter':
-				case 'outputPath':
-					var state = {};
-					state[name] = evt.target.value;
-					this.props.handleStateChange(state);
-					break;
+				var state = this.state;
+
+				switch (name) {
+					case 'simplePeriod':
+					case 'timeUnit':
+						var newState = {
+							simplePeriod: state.simplePeriod,
+							timeUnit: state.timeUnit
+						};
+						newState[name] = evt.target.value;
+						this.setState(newState);
+						this.updatePeriod(newState.simplePeriod, newState.timeUnit);
+						break;
+					case 'charset':
+					case 'delimiter':
+					case 'outputPath':
+						var newState = {};
+						newState[name] = evt.target.value;
+						this.props.handleStateChange(newState);
+						break;
+				}
+			} catch (err) {
+				console.error(err.stack);
 			}
 		},
 
 		updatePeriod: function updatePeriod(simplePeriod, timeUnit) {
+			var props = this.props;
+
 			var period = simplePeriod;
 			switch (timeUnit) {
 				case 'sec':
@@ -87171,45 +87183,48 @@
 					period += ' * 24 * 60 * 60 * 1000';
 					break;
 			}
-			this.props.handleStateChange({ period: period });
+			props.handleStateChange({ period: period });
 		},
 
 		render: function render() {
+			var state = this.state;
+			var props = this.props;
+
 			try {
-				return React.createElement(
-					Card,
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Card,
 					{ style: { marginBottom: '10px' } },
-					React.createElement(CardHeader, {
+					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
 						title: '기타 설정',
 						subtitle: '기타 설정',
-						avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-					React.createElement(
-						CardText,
+						avatar: _react2['default'].createElement(_compsPolymerIconJsx2['default'], { icon: 'config' }) }),
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.CardText,
 						null,
-						React.createElement(TextField, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
 							style: { width: '100px', float: 'left' },
-							value: this.state.simplePeriod,
+							value: state.simplePeriod,
 							floatingLabelText: 'period',
 							onChange: this.handleChange.bind(this, 'simplePeriod') }),
-						React.createElement(SelectField, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.SelectField, {
 							style: { width: '100px', float: 'left' },
 							floatingLabelText: 'timeunit',
-							value: this.state.timeUnit,
+							value: state.timeUnit,
 							onChange: this.handleChange.bind(this, 'timeUnit'),
 							menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] }),
-						React.createElement(TextField, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
 							fullWidth: true,
-							value: this.props.charset,
+							value: props.charset,
 							floatingLabelText: 'charset',
 							onChange: this.handleChange.bind(this, 'charset') }),
-						React.createElement(TextField, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
 							fullWidth: true,
-							value: this.props.delimiter,
+							value: props.delimiter,
 							floatingLabelText: 'delimiter',
 							onChange: this.handleChange.bind(this, 'delimiter') }),
-						React.createElement(TextField, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
 							fullWidth: true,
-							value: this.props.outputPath,
+							value: props.outputPath,
 							floatingLabelText: 'outputPath',
 							onChange: this.handleChange.bind(this, 'outputPath') })
 					)
@@ -87492,8 +87507,9 @@
 			this.setState(state);
 		},
 
-		showScriptDialog: function showScriptDialog() {
+		showScriptDialog: function showScriptDialog(evt) {
 			try {
+				evt.stopPropagation();
 				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
 					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
 					return true;
@@ -87542,7 +87558,6 @@
 							this.refs.scriptDialog.hide();
 							this.refs.alertDialog.show('success', 'script registered');
 						}).bind(this))['catch']((function (err) {
-							if (typeof err === 'object') err = JSON.stringify(err);
 							this.refs.alertDialog.show('danger', err);
 						}).bind(this));
 					}).bind(this)
@@ -87622,13 +87637,53 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var _ = __webpack_require__(163);
-	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
-	var DatabaseConfigCard = __webpack_require__(740);
-	var TableColumnsMappingCard = __webpack_require__(762);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var NewDb2DbView = React.createClass({
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _underscore = __webpack_require__(163);
+
+	var _underscore2 = _interopRequireDefault(_underscore);
+
+	var _utilsUtilJs = __webpack_require__(161);
+
+	var _newDb2fileDatabaseConfigCardJsx = __webpack_require__(740);
+
+	var _newDb2fileDatabaseConfigCardJsx2 = _interopRequireDefault(_newDb2fileDatabaseConfigCardJsx);
+
+	var _newDb2dbTableColumnsMappingCardJsx = __webpack_require__(762);
+
+	var _newDb2dbTableColumnsMappingCardJsx2 = _interopRequireDefault(_newDb2dbTableColumnsMappingCardJsx);
+
+	var _newDb2fileBindingTypeCardJsx = __webpack_require__(746);
+
+	var _newDb2fileBindingTypeCardJsx2 = _interopRequireDefault(_newDb2fileBindingTypeCardJsx);
+
+	var _newDb2dbEtcConfigCardJsx = __webpack_require__(766);
+
+	var _newDb2dbEtcConfigCardJsx2 = _interopRequireDefault(_newDb2dbEtcConfigCardJsx);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var _compsDialogScriptDialogJsx = __webpack_require__(644);
+
+	var _compsDialogScriptDialogJsx2 = _interopRequireDefault(_compsDialogScriptDialogJsx);
+
+	var _compsDialogAlertDialogJsx = __webpack_require__(628);
+
+	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
+
+	var _utilsPreconditionJs = __webpack_require__(645);
+
+	var _utilsPreconditionJs2 = _interopRequireDefault(_utilsPreconditionJs);
+
+	var _utilsServerJs = __webpack_require__(612);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var NewDb2DbView = _react2['default'].createClass({
 		displayName: 'NewDb2DbView',
 
 		getInitialState: function getInitialState() {
@@ -87667,27 +87722,27 @@
 			if (state.dbVendor) {
 				Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
 				if (state.srcDbVendor != 'etc') {
-					state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
-					state.srcDbPort = jdbcTmpl[state.srcDbVendor].port;
-					state.srcJdbcConnUrl = jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+					state.srcJdbcDriver = _utilsUtilJs.jdbcTmpl[state.srcDbVendor].driver;
+					state.srcDbPort = _utilsUtilJs.jdbcTmpl[state.srcDbVendor].port;
+					state.srcJdbcConnUrl = _utilsUtilJs.jdbcTmpl[state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
 				}
 			}
 			if (state.dbIp) {
 				Object.renameProperty(state, 'dbIp', 'srcDbIp');
 				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
+					state.srcJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', this.state.srcDbSid);
 				}
 			}
 			if (state.dbPort) {
 				Object.renameProperty(state, 'dbPort', 'srcDbPort');
 				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
+					state.srcJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', state.srcDbPort).replace('{database}', this.state.srcDbSid);
 				}
 			}
 			if (state.dbSid) {
 				Object.renameProperty(state, 'dbSid', 'srcDbSid');
 				if (this.state.srcDbVendor != 'etc') {
-					state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
+					state.srcJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.srcDbVendor].connUrl.replace('{ip}', this.state.srcDbIp).replace('{port}', this.state.srcDbPort).replace('{database}', state.srcDbSid);
 				}
 			}
 
@@ -87698,101 +87753,125 @@
 			if (state.dbVendor) {
 				Object.renameProperty(state, 'dbVendor', 'destDbVendor');
 				if (state.destDbVendor != 'etc') {
-					state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
-					state.destDbPort = jdbcTmpl[state.destDbVendor].port;
-					state.destJdbcConnUrl = jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+					state.destJdbcDriver = _utilsUtilJs.jdbcTmpl[state.destDbVendor].driver;
+					state.destDbPort = _utilsUtilJs.jdbcTmpl[state.destDbVendor].port;
+					state.destJdbcConnUrl = _utilsUtilJs.jdbcTmpl[state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
 				}
 			}
 			if (state.dbIp) {
 				Object.renameProperty(state, 'dbIp', 'destDbIp');
 				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
+					state.destJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', this.state.destDbSid);
 				}
 			}
 			if (state.dbPort) {
 				Object.renameProperty(state, 'dbPort', 'destDbPort');
 				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
+					state.destJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', state.destDbPort).replace('{database}', this.state.destDbSid);
 				}
 			}
 			if (state.dbSid) {
 				Object.renameProperty(state, 'dbSid', 'destDbSid');
 				if (this.state.destDbVendor != 'etc') {
-					state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
+					state.destJdbcConnUrl = _utilsUtilJs.jdbcTmpl[this.state.destDbVendor].connUrl.replace('{ip}', this.state.destDbIp).replace('{port}', this.state.destDbPort).replace('{database}', state.destDbSid);
 				}
 			}
 
 			this.setState(state);
 		},
 
+		showScriptDialog: function showScriptDialog(evt) {
+			try {
+				evt.stopPropagation();
+
+				var refs = this.refs;
+				var state = this.state;
+
+				_utilsPreconditionJs2['default'].instance(this.state).stringNotByEmpty(['srcDbVendor', 'srcDbIp', 'srcDbPort', 'srcDbSid'], 'src db 정보 미입력').stringNotByEmpty(['destDbVendor', 'destDbIp', 'destDbPort', 'destDbSid'], 'dest db 정보 미입력').stringNotByEmpty(['srcJdbcDriver', 'srcJdbcConnUrl', 'srcJdbcUsername', 'srcJdbcPassword'], 'src jdbc 연결 정보 미입력').stringNotByEmpty(['destJdbcDriver', 'destJdbcConnUrl', 'destJdbcUsername', 'destJdbcPassword'], 'dest jdbc 연결 정보 미입력').stringNotByEmpty('srcTable', 'src table 정보 미입력').stringNotByEmpty('destTable', 'dest table 정보 미입력').stringNotByEmpty('srcColumns', 'src columns 정보 미입력').stringNotByEmpty('destColumns', 'dest columns 정보 미입력').stringNotByEmpty('bindingType', 'binding type 정보 미입력').check(function (data) {
+					if (data.bindingType !== 'simple') return data.srcBindingColumn != null && data.srcBindingColumn.trim().length !== 0;
+					return true;
+				}).stringNotByEmpty('period', 'period 정보 미입력');
+			} catch (errmsg) {
+				this.refs.alertDialog.show('danger', errmsg);
+				return;
+			}
+
+			_utilsServerJs2['default'].generateDb2DbScript({
+				srcDbVendor: state.srcDbVendor,
+				srcDbIp: state.srcDbIp,
+				srcDbPort: state.srcDbPort,
+				srcDbSid: state.srcDbSid,
+				srcJdbcDriver: state.srcJdbcDriver,
+				srcJdbcConnUrl: state.srcJdbcConnUrl,
+				srcJdbcUsername: state.srcJdbcUsername,
+				srcJdbcPassword: state.srcJdbcPassword,
+				srcTable: state.srcTable,
+				srcColumns: state.srcColumns,
+				destDbVendor: state.destDbVendor,
+				destDbIp: state.destDbIp,
+				destDbPort: state.destDbPort,
+				destDbSid: state.destDbSid,
+				destJdbcDriver: state.destJdbcDriver,
+				destJdbcConnUrl: state.destJdbcConnUrl,
+				destJdbcUsername: state.destJdbcUsername,
+				destJdbcPassword: state.destJdbcPassword,
+				destTable: state.destTable,
+				destColumns: state.destColumns,
+				bindingType: state.bindingType,
+				srcBindingColumn: state.srcBindingColumn,
+				period: state.period
+			}).then(function (script) {
+				refs.scriptDialog.show({
+					scriptName: '',
+					script: script,
+					onActionCallback: function onActionCallback(result, scriptName, script) {
+						if (result === false) {
+							refs.scriptDialog.hide();
+							return;
+						}
+
+						if (scriptName == null || scriptName.trim().length === 0) {
+							refs.alertDialog.show('danger', '스크립트 이름 미입력');
+							return;
+						}
+
+						_utilsServerJs2['default'].postScript({ title: scriptName, script: script }).then(function (success) {
+							refs.scriptDialog.hide();
+							refs.alertDialog.show('success', 'script registered');
+						})['catch'](function (err) {
+							refs.alertDialog.show('danger', err);
+						});
+					}
+				});
+			})['catch'](function (err) {
+				refs.alertDialog.show('danger', err);
+			});
+		},
+
 		render: function render() {
 			try {
 				var state = this.state;
 
-				var srcJdbc = {
-					jdbcDriver: state.srcJdbcDriver,
-					jdbcConnUrl: state.srcJdbcConnUrl,
-					jdbcUsername: state.srcJdbcUsername,
-					jdbcPassword: state.srcJdbcPassword
-				};
-
-				var destJdbc = {
-					jdbcDriver: state.destJdbcDriver,
-					jdbcConnUrl: state.destJdbcConnUrl,
-					jdbcUsername: state.destJdbcUsername,
-					jdbcPassword: state.destJdbcPassword
-				};
-
-				var srcDbInfo = {
-					dbVendor: state.srcDbVendor,
-					dbIp: state.dbIp,
-					dbPort: state.dbPort,
-					dbSid: state.dbSid
-				};
-
-				var destDbInfo = {
-					dbVendor: state.destDbVendor,
-					dbIp: state.destDbIp,
-					dbPort: state.destDbPort,
-					dbSid: state.destDbSid
-				};
-
-				var srcDatabaseConfigCardData = _.extend({}, srcJdbc, srcDbInfo, {
-					title: "source database 설정",
-					subtitle: "source database의 연결정보를 설정합니다.",
-					handleStateChange: this.handleSrcDbStateChange
+				var childProps = _underscore2['default'].extend({}, state, {
+					handleStateChange: this.handleStateChange,
+					handleSrcDbStateChange: this.handleSrcDbStateChange,
+					handleDestDbStateChange: this.handleDestDbStateChange
 				});
 
-				var destDatabaseConfigCardData = _.extend({}, destJdbc, destDbInfo, {
-					title: "destination database 설정",
-					subtitle: "destination database의 연결정보를 설정합니다.",
-					handleStateChange: this.handleDestDbStateChange
-				});
-
-				var tableColumnsMappingCardData = _.extend({}, {
-					srcJdbcDriver: state.srcJdbcDriver,
-					srcJdbcConnUrl: state.srcJdbcConnUrl,
-					srcJdbcUsername: state.srcJdbcUsername,
-					srcJdbcPassword: state.srcJdbcPassword,
-
-					destJdbcDriver: state.destJdbcDriver,
-					destJdbcConnUrl: state.destJdbcConnUrl,
-					destJdbcUsername: state.destJdbcUsername,
-					destJdbcPassword: state.destJdbcPassword,
-
-					srcTable: state.srcTable,
-					destTable: state.destTable,
-					srcColumns: state.srcColumns,
-					destColumns: state.destColumns,
-					handleStateChange: this.handleStateChange
-				});
-
-				return React.createElement(
+				return _react2['default'].createElement(
 					'div',
 					null,
-					React.createElement(DatabaseConfigCard, srcDatabaseConfigCardData),
-					React.createElement(DatabaseConfigCard, destDatabaseConfigCardData),
-					React.createElement(TableColumnsMappingCard, tableColumnsMappingCardData)
+					_react2['default'].createElement(SrcDatabaseConfigCardWithProps, childProps),
+					_react2['default'].createElement(DestDatabaseConfigCardWithProps, childProps),
+					_react2['default'].createElement(TableColumnsMappingCardWithProps, childProps),
+					_react2['default'].createElement(BindingTypeCardWithProps, childProps),
+					_react2['default'].createElement(EtcConfigCardWithProps, childProps),
+					_react2['default'].createElement(_compsMaterialWrapperJsx.Button, {
+						label: '생성',
+						primary: true,
+						onClick: this.showScriptDialog }),
+					_react2['default'].createElement(_compsDialogScriptDialogJsx2['default'], { ref: 'scriptDialog' }),
+					_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
 				);
 			} catch (err) {
 				console.error(err.stack);
@@ -87800,6 +87879,71 @@
 		}
 	});
 	module.exports = NewDb2DbView;
+
+	var SrcDatabaseConfigCardWithProps = function SrcDatabaseConfigCardWithProps(props) {
+		return _react2['default'].createElement(_newDb2fileDatabaseConfigCardJsx2['default'], {
+			jdbcDriver: props.srcJdbcDriver,
+			jdbcConnUrl: props.srcJdbcConnUrl,
+			jdbcUsername: props.srcJdbcUsername,
+			jdbcPassword: props.srcJdbcPassword,
+			dbVendor: props.srcDbVendor,
+			dbIp: props.srcDbIp,
+			dbPort: props.srcDbPort,
+			dbSid: props.srcDbSid,
+			title: 'source database 설정',
+			subtitle: 'source database의 연결정보를 설정합니다.',
+			handleStateChange: props.handleSrcDbStateChange });
+	};
+
+	var DestDatabaseConfigCardWithProps = function DestDatabaseConfigCardWithProps(props) {
+		return _react2['default'].createElement(_newDb2fileDatabaseConfigCardJsx2['default'], {
+			jdbcDriver: props.destJdbcDriver,
+			jdbcConnUrl: props.destJdbcConnUrl,
+			jdbcUsername: props.destJdbcUsername,
+			jdbcPassword: props.destJdbcPassword,
+			dbVendor: props.destDbVendor,
+			dbIp: props.destDbIp,
+			dbPort: props.destDbPort,
+			dbSid: props.destDbSid,
+			title: 'destination database 설정',
+			subtitle: 'destination database의 연결정보를 설정합니다.',
+			handleStateChange: props.handleDestDbStateChange });
+	};
+
+	var TableColumnsMappingCardWithProps = function TableColumnsMappingCardWithProps(props) {
+		return _react2['default'].createElement(_newDb2dbTableColumnsMappingCardJsx2['default'], {
+			srcJdbcDriver: props.srcJdbcDriver,
+			srcJdbcConnUrl: props.srcJdbcConnUrl,
+			srcJdbcUsername: props.srcJdbcUsername,
+			srcJdbcPassword: props.srcJdbcPassword,
+			destJdbcDriver: props.destJdbcDriver,
+			destJdbcConnUrl: props.destJdbcConnUrl,
+			destJdbcUsername: props.destJdbcUsername,
+			destJdbcPassword: props.destJdbcPassword,
+			srcTable: props.srcTable,
+			destTable: props.destTable,
+			srcColumns: props.srcColumns,
+			destColumns: props.destColumns,
+			handleStateChange: props.handleStateChange });
+	};
+
+	var BindingTypeCardWithProps = function BindingTypeCardWithProps(props) {
+		return _react2['default'].createElement(_newDb2fileBindingTypeCardJsx2['default'], {
+			jdbcDriver: props.srcJdbcDriver,
+			jdbcConnUrl: props.srcJdbcConnUrl,
+			jdbcUsername: props.srcJdbcUsername,
+			jdbcPassword: props.srcJdbcPassword,
+			handleStateChange: props.handleStateChange,
+			table: props.srcTable,
+			bindingType: props.bindingType,
+			bindingColumn: props.srcBindingColumn });
+	};
+
+	var EtcConfigCardWithProps = function EtcConfigCardWithProps(props) {
+		return _react2['default'].createElement(_newDb2dbEtcConfigCardJsx2['default'], {
+			handleStateChange: props.handleStateChange,
+			peroid: props.period });
+	};
 
 /***/ },
 /* 752 */
@@ -89439,6 +89583,156 @@
 		}
 	});
 	module.exports = LoadedColumns;
+
+/***/ },
+/* 766 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var EtcConfigCard = _react2['default'].createClass({
+		displayName: 'EtcConfigCard',
+
+		PropTypes: {
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
+			period: _react2['default'].PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				timeUnit: 'min',
+				simplePeriod: '1'
+			};
+		},
+
+		componentWillMount: function componentWillMount() {
+			try {
+				this.initTimeUnitAndSimplePeriod();
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		initTimeUnitAndSimplePeriod: function initTimeUnitAndSimplePeriod() {
+			var props = this.props;
+
+			var period = props.period;
+			if (typeof period === 'string') period = eval(period);
+
+			if (period >= 24 * 60 * 60 * 1000 && period % (24 * 60 * 60 * 1000) === 0) {
+				this.setState({
+					timeUnit: 'day',
+					simplePeriod: period / (24 * 60 * 60 * 1000)
+				});
+			} else if (period >= 60 * 60 * 1000 && period % (60 * 60 * 1000) === 0) {
+				this.setState({
+					timeUnit: 'hour',
+					simplePeriod: period / (60 * 60 * 1000)
+				});
+			} else if (period >= 60 * 1000 && period % (60 * 1000) === 0) {
+				this.setState({
+					timeUnit: 'min',
+					simplePeriod: period / (60 * 1000)
+				});
+			} else {
+				this.setState({
+					timeUnit: 'sec',
+					simplePeriod: Math.floor(period / 1000)
+				});
+			}
+		},
+
+		handleChange: function handleChange(name, evt) {
+			try {
+				evt.stopPropagation();
+
+				var state = this.state;
+
+				switch (name) {
+					case 'simplePeriod':
+					case 'timeUnit':
+						var newState = {
+							simplePeriod: state.simplePeriod,
+							timeUnit: state.timeUnit
+						};
+						newState[name] = evt.target.value;
+						this.setState(newState);
+						this.updatePeriod(newState.simplePeriod, newState.timeUnit);
+						break;
+				}
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		updatePeriod: function updatePeriod(simplePeriod, timeUnit) {
+			var props = this.props;
+
+			var period = simplePeriod;
+			switch (timeUnit) {
+				case 'sec':
+					period += ' * 1000';
+					break;
+				case 'min':
+					period += ' * 60 * 1000';
+					break;
+				case 'hour':
+					period += ' * 60 * 60 * 1000';
+					break;
+				case 'day':
+					period += ' * 24 * 60 * 60 * 1000';
+					break;
+			}
+			props.handleStateChange({ period: period });
+		},
+
+		render: function render() {
+			var state = this.state;
+			var props = this.props;
+
+			try {
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Card,
+					{ style: { marginBottom: '10px' } },
+					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
+						title: '기타 설정',
+						subtitle: '기타 설정',
+						avatar: _react2['default'].createElement(_compsPolymerIconJsx2['default'], { icon: 'config' }) }),
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.CardText,
+						null,
+						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
+							style: { width: '100px', float: 'left' },
+							value: state.simplePeriod,
+							floatingLabelText: 'period',
+							onChange: this.handleChange.bind(this, 'simplePeriod') }),
+						_react2['default'].createElement(_compsMaterialWrapperJsx.SelectField, {
+							style: { width: '100px', float: 'left' },
+							floatingLabelText: 'timeunit',
+							value: state.timeUnit,
+							onChange: this.handleChange.bind(this, 'timeUnit'),
+							menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+
+	module.exports = EtcConfigCard;
 
 /***/ }
 /******/ ]);
