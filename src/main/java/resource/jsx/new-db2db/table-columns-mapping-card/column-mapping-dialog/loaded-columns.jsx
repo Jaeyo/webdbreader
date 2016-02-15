@@ -48,7 +48,7 @@ var LoadedColumns = React.createClass({
 
 		server
 			.loadColumns({
-				table: srcTable,
+				table: props.srcTable,
 				jdbc: {
 					driver: props.srcJdbcDriver,
 					connUrl: props.srcJdbcConnUrl,
@@ -63,7 +63,7 @@ var LoadedColumns = React.createClass({
 
 		server
 			.loadColumns({
-				table: destTable,
+				table: props.destTable,
 				jdbc: {
 					driver: props.destJdbcDriver,
 					connUrl: props.destJdbcConnUrl,

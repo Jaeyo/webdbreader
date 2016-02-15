@@ -58,16 +58,16 @@ var TableColumnsMappingCard = React.createClass({
 
 	handleFocus(name, evt) {
 		try {
-			var { refs } = this;
+			var { refs, props } = this;
 			evt.stopPropagation();
-			if(refs.autoloadToggle.isToggle() === false) return;
+			if(refs.autoloadToggle.isToggled() === false) return;
 
 			switch(name) {
 				case 'srcTable':
 					refs.srcTableConfigDialog.show();
 					break;
 				case 'destTable':
-					refs.srcTableConfigDialog.show();
+					refs.destTableConfigDialog.show();
 					break;
 			}
 		} catch(err) {
@@ -134,7 +134,7 @@ var TableColumnsMappingCard = React.createClass({
 								<TableConfigDialog
 									ref="destTableConfigDialog"
 									handleStateChange={(state) => {
-										state.desetTable = state.table;
+										state.destTable = state.table;
 										delete state.table;
 										props.handleStateChange(state);
 									}}
@@ -145,13 +145,13 @@ var TableColumnsMappingCard = React.createClass({
 									jdbcPassword={props.destJdbcPassword} />
 							</Col>
 						</Row>
+						<Button
+							label="컬럼 선택"
+							onClick={this.onColumnMappingBtnClick} />
 						<MappedColumns
 							handleStateChange={props.handleStateChange}
 							srcColumns={props.srcColumns}
 							destColumns={props.destColumns} />
-						<Button
-							label="컬럼 매핑"
-							onClick={this.onColumnMappingBtnClick} />
 						<ColumnMappingDialog
 							ref="columnMappingDialog"
 							handleStateChange={props.handleStateChange}

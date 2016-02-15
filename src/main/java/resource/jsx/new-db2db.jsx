@@ -2,7 +2,7 @@ var React = require('react');
 var _ = require('underscore');
 var jdbcTmpl = require('./utils/util.js').jdbcTmpl;
 var DatabaseConfigCard = require('./new-db2file/database-config-card.jsx');
-var BindingTypeCard = require('./new-db2file/binding-type-card.jsx');
+var TableColumnsMappingCard = require('./new-db2db/table-columns-mapping-card.jsx');
 
 var NewDb2DbView = React.createClass({
 	getInitialState() {
@@ -167,7 +167,17 @@ var NewDb2DbView = React.createClass({
 				handleStateChange: this.handleDestDbStateChange
 			});
 
-			var tableColumnsMappingCardData = _.extend({}, srcJdbc, destJdbc, {
+			var tableColumnsMappingCardData = _.extend({}, {
+				srcJdbcDriver: state.srcJdbcDriver,
+				srcJdbcConnUrl: state.srcJdbcConnUrl,
+				srcJdbcUsername: state.srcJdbcUsername,
+				srcJdbcPassword: state.srcJdbcPassword,
+
+				destJdbcDriver: state.destJdbcDriver,
+				destJdbcConnUrl: state.destJdbcConnUrl,
+				destJdbcUsername: state.destJdbcUsername,
+				destJdbcPassword: state.destJdbcPassword,
+
 				srcTable: state.srcTable,
 				destTable: state.destTable,
 				srcColumns: state.srcColumns,

@@ -56,9 +56,9 @@
 	var ScriptInfoView = __webpack_require__(647);
 	var NewDb2FileView = __webpack_require__(750);
 	var NewDb2DbView = __webpack_require__(751);
-	var ConfigView = __webpack_require__(753);
-	var NewCustom = __webpack_require__(758);
-	__webpack_require__(761);
+	var ConfigView = __webpack_require__(752);
+	var NewCustom = __webpack_require__(757);
+	__webpack_require__(760);
 
 	jsUtil.initPrototypeFunctions();
 
@@ -73173,6 +73173,11 @@
 			window.location.href = '/Script/NewDb2File';
 		},
 
+		goDb2Db: function goDb2Db(evt) {
+			evt.stopPropagation();
+			window.location.href = '/Script/NewDb2Db';
+		},
+
 		goImportVer1Script: function goImportVer1Script(evt) {
 			evt.stopPropagation();
 			this.hide(function () {
@@ -73232,6 +73237,10 @@
 							label: '>> database to file',
 							style: { width: '100%', textAlign: 'left' },
 							onClick: this.goDb2File }),
+						React.createElement(FlatButton, {
+							label: '>> database to database',
+							style: { width: '100%', textAlign: 'left' },
+							onClick: this.goDb2Db }),
 						React.createElement(FlatButton, {
 							label: '>> import version 1 script',
 							style: { width: '100%', textAlign: 'left' },
@@ -87617,7 +87626,7 @@
 	var _ = __webpack_require__(163);
 	var jdbcTmpl = __webpack_require__(161).jdbcTmpl;
 	var DatabaseConfigCard = __webpack_require__(740);
-	var BindingTypeCard = __webpack_require__(746);
+	var TableColumnsMappingCard = __webpack_require__(762);
 
 	var NewDb2DbView = React.createClass({
 		displayName: 'NewDb2DbView',
@@ -87760,7 +87769,17 @@
 					handleStateChange: this.handleDestDbStateChange
 				});
 
-				var tableColumnsMappingCardData = _.extend({}, srcJdbc, destJdbc, {
+				var tableColumnsMappingCardData = _.extend({}, {
+					srcJdbcDriver: state.srcJdbcDriver,
+					srcJdbcConnUrl: state.srcJdbcConnUrl,
+					srcJdbcUsername: state.srcJdbcUsername,
+					srcJdbcPassword: state.srcJdbcPassword,
+
+					destJdbcDriver: state.destJdbcDriver,
+					destJdbcConnUrl: state.destJdbcConnUrl,
+					destJdbcUsername: state.destJdbcUsername,
+					destJdbcPassword: state.destJdbcPassword,
+
 					srcTable: state.srcTable,
 					destTable: state.destTable,
 					srcColumns: state.srcColumns,
@@ -87783,8 +87802,7 @@
 	module.exports = NewDb2DbView;
 
 /***/ },
-/* 752 */,
-/* 753 */
+/* 752 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87799,15 +87817,15 @@
 
 	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
 
-	var _configSimpleRepoCardJsx = __webpack_require__(754);
+	var _configSimpleRepoCardJsx = __webpack_require__(753);
 
 	var _configSimpleRepoCardJsx2 = _interopRequireDefault(_configSimpleRepoCardJsx);
 
-	var _configLog4jConfigCardJsx = __webpack_require__(756);
+	var _configLog4jConfigCardJsx = __webpack_require__(755);
 
 	var _configLog4jConfigCardJsx2 = _interopRequireDefault(_configLog4jConfigCardJsx);
 
-	var _configEmbedDbQueryCardJsx = __webpack_require__(757);
+	var _configEmbedDbQueryCardJsx = __webpack_require__(756);
 
 	var _configEmbedDbQueryCardJsx2 = _interopRequireDefault(_configEmbedDbQueryCardJsx);
 
@@ -87846,7 +87864,7 @@
 	module.exports = ConfigView;
 
 /***/ },
-/* 754 */
+/* 753 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -87859,7 +87877,7 @@
 	var CardHeader = MaterialWrapper.CardHeader;
 	var CardText = MaterialWrapper.CardText;
 	var Table = __webpack_require__(169).Table;
-	var SimpleRepoDialog = __webpack_require__(755);
+	var SimpleRepoDialog = __webpack_require__(754);
 	var AlertDialog = __webpack_require__(628);
 	var ConfirmDialog = __webpack_require__(640);
 	var server = __webpack_require__(612);
@@ -88099,7 +88117,7 @@
 	};
 
 /***/ },
-/* 755 */
+/* 754 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88203,7 +88221,7 @@
 	module.exports = SimpleRepoDialog;
 
 /***/ },
-/* 756 */
+/* 755 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88226,7 +88244,7 @@
 
 	var _reactBootstrap = __webpack_require__(169);
 
-	var _simpleRepoCardSimpleRepoDialogJsx = __webpack_require__(755);
+	var _simpleRepoCardSimpleRepoDialogJsx = __webpack_require__(754);
 
 	var _simpleRepoCardSimpleRepoDialogJsx2 = _interopRequireDefault(_simpleRepoCardSimpleRepoDialogJsx);
 
@@ -88331,7 +88349,7 @@
 	module.exports = Log4jConfigCard;
 
 /***/ },
-/* 757 */
+/* 756 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88437,7 +88455,7 @@
 	module.exports = EmbedDbQueryCard;
 
 /***/ },
-/* 758 */
+/* 757 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88451,7 +88469,7 @@
 	var Paper = MaterialWrapper.Paper;
 	var Button = MaterialWrapper.Button;
 	var AlertDialog = __webpack_require__(628);
-	var AddScriptBlockDialog = __webpack_require__(759);
+	var AddScriptBlockDialog = __webpack_require__(758);
 
 	//scriptBlock type: databaseSourceScriptBlock
 	var NewCustom = React.createClass({
@@ -88517,7 +88535,7 @@
 	};
 
 /***/ },
-/* 759 */
+/* 758 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88528,7 +88546,7 @@
 	var FlatButton = MaterialWrapper.FlatButton;
 	var Dialog = MaterialWrapper.Dialog;
 	var Paper = MaterialWrapper.Paper;
-	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(760);
+	var AddDatabaseSourceScriptBlockDialog = __webpack_require__(759);
 
 	var AddScriptBlockDialog = React.createClass({
 		displayName: 'AddScriptBlockDialog',
@@ -88635,7 +88653,7 @@
 	};
 
 /***/ },
-/* 760 */
+/* 759 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -88758,13 +88776,13 @@
 	module.exports = AddDatabaseSourceScriptBlockDialog;
 
 /***/ },
-/* 761 */
+/* 760 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(762);
+	var content = __webpack_require__(761);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(610)(content, {});
@@ -88784,7 +88802,7 @@
 	}
 
 /***/ },
-/* 762 */
+/* 761 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(609)();
@@ -88796,6 +88814,631 @@
 
 	// exports
 
+
+/***/ },
+/* 762 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _underscore = __webpack_require__(163);
+
+	var _underscore2 = _interopRequireDefault(_underscore);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _reactBootstrap = __webpack_require__(169);
+
+	var _util = __webpack_require__(166);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _tableColumnsMappingCardMappedColumnsJsx = __webpack_require__(763);
+
+	var _tableColumnsMappingCardMappedColumnsJsx2 = _interopRequireDefault(_tableColumnsMappingCardMappedColumnsJsx);
+
+	var _tableColumnsMappingCardColumnMappingDialogJsx = __webpack_require__(764);
+
+	var _tableColumnsMappingCardColumnMappingDialogJsx2 = _interopRequireDefault(_tableColumnsMappingCardColumnMappingDialogJsx);
+
+	var _newDb2fileTableColumnConfigCardTableConfigDialogJsx = __webpack_require__(744);
+
+	var _newDb2fileTableColumnConfigCardTableConfigDialogJsx2 = _interopRequireDefault(_newDb2fileTableColumnConfigCardTableConfigDialogJsx);
+
+	var TableColumnsMappingCard = _react2['default'].createClass({
+		displayName: 'TableColumnsMappingCard',
+
+		PropTypes: {
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
+
+			srcJdbcDriver: _react2['default'].PropTypes.string.required,
+			srcJdbcConnUrl: _react2['default'].PropTypes.string.required,
+			srcJdbcUsername: _react2['default'].PropTypes.string.required,
+			srcJdbcPassword: _react2['default'].PropTypes.string.required,
+			srcTable: _react2['default'].PropTypes.string.required,
+			srcColumns: _react2['default'].PropTypes.string.required,
+
+			destJdbcDriver: _react2['default'].PropTypes.string.required,
+			destJdbcConnUrl: _react2['default'].PropTypes.string.required,
+			destJdbcUsername: _react2['default'].PropTypes.string.required,
+			destJdbcPassword: _react2['default'].PropTypes.string.required,
+			destTable: _react2['default'].PropTypes.string.required,
+			destColumns: _react2['default'].PropTypes.string.required
+		},
+
+		handleChange: function handleChange(name, evt) {
+			try {
+				evt.stopPropagation();
+				var props = this.props;
+				var state = this.state;
+
+				var state = {};
+				state[name] = evt.target.value;
+				props.handleStateChange(state);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		handleFocus: function handleFocus(name, evt) {
+			try {
+				var refs = this.refs;
+				var props = this.props;
+
+				evt.stopPropagation();
+				if (refs.autoloadToggle.isToggled() === false) return;
+
+				switch (name) {
+					case 'srcTable':
+						refs.srcTableConfigDialog.show();
+						break;
+					case 'destTable':
+						refs.destTableConfigDialog.show();
+						break;
+				}
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		onColumnMappingBtnClick: function onColumnMappingBtnClick(evt) {
+			try {
+				var refs = this.refs;
+
+				evt.stopPropagation();
+				refs.columnMappingDialog.show();
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		render: function render() {
+			try {
+				var props = this.props;
+				var state = this.state;
+
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Card,
+					{ style: { marginBottom: '10px' } },
+					_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
+						title: 'mapping table/columns',
+						subtitle: '매핑시킬 테이블과 컬럼들을 설정합니다.',
+						avatar: _react2['default'].createElement(_compsPolymerIconJsx2['default'], { icon: 'config' }) }),
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.CardText,
+						null,
+						_react2['default'].createElement(_compsMaterialWrapperJsx.Toggle, {
+							name: 'autoload',
+							value: 'autoload',
+							label: 'autoload',
+							ref: 'autoloadToggle',
+							style: { width: '150px' },
+							defaultToggled: true }),
+						_react2['default'].createElement(
+							_reactBootstrap.Row,
+							null,
+							_react2['default'].createElement(
+								_reactBootstrap.Col,
+								{ xs: 6 },
+								_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
+									floatingLabelText: 'srcTable',
+									value: props.srcTable,
+									fullWidth: true,
+									onChange: this.handleChange.bind(this, 'srcTable'),
+									onFocus: this.handleFocus.bind(this, 'srcTable') }),
+								_react2['default'].createElement(_newDb2fileTableColumnConfigCardTableConfigDialogJsx2['default'], {
+									ref: 'srcTableConfigDialog',
+									handleStateChange: function (state) {
+										state.srcTable = state.table;
+										delete state.table;
+										props.handleStateChange(state);
+									},
+									table: props.srcTable,
+									jdbcDriver: props.srcJdbcDriver,
+									jdbcConnUrl: props.srcJdbcConnUrl,
+									jdbcUsername: props.srcJdbcUsername,
+									jdbcPassword: props.srcJdbcPassword })
+							),
+							_react2['default'].createElement(
+								_reactBootstrap.Col,
+								{ xs: 6 },
+								_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
+									floatingLabelText: 'destTable',
+									value: props.destTable,
+									fullWidth: true,
+									onChange: this.handleChange.bind(this, 'destTable'),
+									onFocus: this.handleFocus.bind(this, 'destTable') }),
+								_react2['default'].createElement(_newDb2fileTableColumnConfigCardTableConfigDialogJsx2['default'], {
+									ref: 'destTableConfigDialog',
+									handleStateChange: function (state) {
+										state.destTable = state.table;
+										delete state.table;
+										props.handleStateChange(state);
+									},
+									table: props.destTable,
+									jdbcDriver: props.destJdbcDriver,
+									jdbcConnUrl: props.destJdbcConnUrl,
+									jdbcUsername: props.destJdbcUsername,
+									jdbcPassword: props.destJdbcPassword })
+							)
+						),
+						_react2['default'].createElement(_compsMaterialWrapperJsx.Button, {
+							label: '컬럼 선택',
+							onClick: this.onColumnMappingBtnClick }),
+						_react2['default'].createElement(_tableColumnsMappingCardMappedColumnsJsx2['default'], {
+							handleStateChange: props.handleStateChange,
+							srcColumns: props.srcColumns,
+							destColumns: props.destColumns }),
+						_react2['default'].createElement(_tableColumnsMappingCardColumnMappingDialogJsx2['default'], {
+							ref: 'columnMappingDialog',
+							handleStateChange: props.handleStateChange,
+							srcTable: props.srcTable,
+							srcJdbcDriver: props.srcJdbcDriver,
+							srcJdbcConnUrl: props.srcJdbcConnUrl,
+							srcJdbcUsername: props.srcJdbcUsername,
+							srcJdbcPassword: props.srcJdbcPassword,
+							srcColumns: props.srcColumns,
+							destTable: props.destTable,
+							destJdbcDriver: props.destJdbcDriver,
+							destJdbcConnUrl: props.destJdbcConnUrl,
+							destJdbcUsername: props.destJdbcUsername,
+							destJdbcPassword: props.destJdbcPassword,
+							destColumns: props.destColumns })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = TableColumnsMappingCard;
+
+/***/ },
+/* 763 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _util = __webpack_require__(166);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var MappedColumns = _react2['default'].createClass({
+		displayName: 'MappedColumns',
+
+		PropTypes: {
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
+			srcColumns: _react2['default'].PropTypes.string.isRequired,
+			destColumns: _react2['default'].PropTypes.string.isRequired
+		},
+
+		render: function render() {
+			try {
+				var props = this.props;
+
+				if (props.srcColumns.trim().length === 0 || props.destColumns.trim().length === 0) return null;
+
+				var srcColumns = props.srcColumns.split(',');
+				var destColumns = props.destColumns.split(',');
+
+				var mappedColumns = [];
+				for (var i = 0; i < srcColumns.length; i++) {
+					mappedColumns.push(_react2['default'].createElement(MappedColumn, {
+						srcColumns: props.srcColumns,
+						srcColumn: srcColumns[i],
+						destColumns: props.destColumns,
+						destColumn: destColumns[i],
+						handleStateChange: props.handleStateChange,
+						key: _util2['default'].format('%s-%s', srcColumns[i], destColumns[i]) }));
+				}
+				return _react2['default'].createElement(
+					'div',
+					null,
+					mappedColumns
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = MappedColumns;
+
+	//props: srcColumns, srcColumn, destColumns, destColumn, handleStateChange
+	var MappedColumn = function MappedColumn(props) {
+		var onDeleteBtnClick = function onDeleteBtnClick() {
+			var newSrcColumns = props.srcColumns.split(',').filter(function (col) {
+				return col !== props.srcColumn;
+			});
+			var newDestColumns = props.destColumns.split(',').filter(function (col) {
+				return col !== props.destColumn;
+			});
+			props.handleStateChange({
+				srcColumns: newSrcColumns.join(','),
+				destColumns: newDestColumns.join(',')
+			});
+		};
+
+		return _react2['default'].createElement(
+			'div',
+			{
+				style: {
+					padding: '10px',
+					border: '1px dashed gray'
+				} },
+			_react2['default'].createElement(
+				'span',
+				null,
+				_util2['default'].format('%s => %s', props.srcColumn, props.destColumn)
+			),
+			_react2['default'].createElement(_compsMaterialWrapperJsx.FlatButton, { label: 'x', onClick: onDeleteBtnClick })
+		);
+	};
+
+/***/ },
+/* 764 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _promise = __webpack_require__(613);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _utilsServerJs = __webpack_require__(612);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var _util = __webpack_require__(166);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _columnMappingDialogLoadedColumnsJsx = __webpack_require__(765);
+
+	var _columnMappingDialogLoadedColumnsJsx2 = _interopRequireDefault(_columnMappingDialogLoadedColumnsJsx);
+
+	var ColumnMappingDialog = _react2['default'].createClass({
+		displayName: 'ColumnMappingDialog',
+
+		PropTypes: {
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
+
+			srcTable: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcDriver: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcConnUrl: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcUsername: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcPassword: _react2['default'].PropTypes.string.isRequired,
+			srcColumns: _react2['default'].PropTypes.string.isRequired,
+
+			destTable: _react2['default'].PropTypes.string.isRequired,
+			destJdbcDriver: _react2['default'].PropTypes.string.isRequired,
+			destJdbcConnUrl: _react2['default'].PropTypes.string.isRequired,
+			destJdbcUsername: _react2['default'].PropTypes.string.isRequired,
+			destJdbcPassword: _react2['default'].PropTypes.string.isRequired,
+			destColumns: _react2['default'].PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				loadedSrcColumns: [],
+				loadedDestColumns: [],
+				visible: false
+			};
+		},
+
+		show: function show() {
+			var _this = this;
+
+			var props = this.props;
+			var state = this.state;
+
+			this.setState({
+				loadedColumns: [],
+				visible: true
+			}, function () {
+				var refs = _this.refs;
+
+				refs.loadedColumns.loadColumns();
+			});
+		},
+
+		hide: function hide() {
+			this.setState({ visible: false });
+		},
+
+		onAddMappingBtnClick: function onAddMappingBtnClick(evt) {
+			try {
+				var props = this.props;
+				var state = this.state;
+				var refs = this.refs;
+
+				evt.stopPropagation();
+
+				var _refs$loadedColumns$getSelectedColumns = refs.loadedColumns.getSelectedColumns();
+
+				var srcColumn = _refs$loadedColumns$getSelectedColumns.srcColumn;
+				var destColumn = _refs$loadedColumns$getSelectedColumns.destColumn;
+
+				var selectedSrcColumnsArr = props.srcColumns.split(',').map(function (col) {
+					return col.trim();
+				}).filter(function (col) {
+					return col !== '';
+				});
+				var selectedDestColumnsArr = props.destColumns.split(',').map(function (col) {
+					return col.trim();
+				}).filter(function (col) {
+					return col !== '';
+				});
+
+				if (selectedDestColumnsArr.indexOf(destColumn) !== -1) return;
+				//TODO alert dialog
+
+				props.handleStateChange({
+					srcColumns: selectedSrcColumnsArr.concat([srcColumn.trim()]).join(','),
+					destColumns: selectedDestColumnsArr.concat([destColumn.trim()]).join(',')
+				});
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		onClose: function onClose(evt) {
+			evt.stopPropagation();
+			this.hide();
+		},
+
+		render: function render() {
+			try {
+				var props = this.props;
+				var state = this.state;
+
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Dialog,
+					{
+						title: 'column mapping',
+						actions: [{ text: 'close', onClick: this.onClose }, { text: 'add mapping', onClick: this.onAddMappingBtnClick }],
+						actionFocus: 'close',
+						autoDetectWindowHeight: true,
+						autoScrollBodyContent: true,
+						open: state.visible },
+					_react2['default'].createElement(
+						'div',
+						{ style: {
+								height: '250px',
+								maxHeight: '250px',
+								overflowX: 'hidden'
+							} },
+						_react2['default'].createElement(_columnMappingDialogLoadedColumnsJsx2['default'], {
+							ref: 'loadedColumns',
+							srcTable: props.srcTable,
+							srcJdbcDriver: props.srcJdbcDriver,
+							srcJdbcConnUrl: props.srcJdbcConnUrl,
+							srcJdbcUsername: props.srcJdbcUsername,
+							srcJdbcPassword: props.srcJdbcPassword,
+							destTable: props.destTable,
+							destJdbcDriver: props.destJdbcDriver,
+							destJdbcConnUrl: props.destJdbcConnUrl,
+							destJdbcUsername: props.destJdbcUsername,
+							destJdbcPassword: props.destJdbcPassword })
+					)
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = ColumnMappingDialog;
+
+/***/ },
+/* 765 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _util = __webpack_require__(166);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _utilsServerJs = __webpack_require__(612);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var _compsDialogAlertDialogJsx = __webpack_require__(628);
+
+	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
+
+	var _reactBootstrap = __webpack_require__(169);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(422);
+
+	var LoadedColumns = _react2['default'].createClass({
+		displayName: 'LoadedColumns',
+
+		PropTypes: {
+			srcTable: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcDriver: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcConnUrl: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcUsername: _react2['default'].PropTypes.string.isRequired,
+			srcJdbcPassword: _react2['default'].PropTypes.string.isRequired,
+
+			destTable: _react2['default'].PropTypes.string.isRequired,
+			destJdbcDriver: _react2['default'].PropTypes.string.isRequired,
+			destJdbcConnUrl: _react2['default'].PropTypes.string.isRequired,
+			destJdbcUsername: _react2['default'].PropTypes.string.isRequired,
+			destJdbcPassword: _react2['default'].PropTypes.string.isRequired
+		},
+
+		getInitialState: function getInitialState() {
+			return {
+				loadedSrcColumns: [],
+				loadedDestColumns: [],
+				selectedSrcColumnName: null,
+				selectedDestColumnName: null
+			};
+		},
+
+		loadColumns: function loadColumns() {
+			var _this = this;
+
+			var props = this.props;
+			var refs = this.refs;
+
+			if (props.srcTable == null || props.srcTable.trim().length === 0 || props.destTable == null || props.destTable.trim().length === 0) return;
+
+			_utilsServerJs2['default'].loadColumns({
+				table: props.srcTable,
+				jdbc: {
+					driver: props.srcJdbcDriver,
+					connUrl: props.srcJdbcConnUrl,
+					username: props.srcJdbcUsername,
+					password: props.srcJdbcPassword
+				}
+			}).then(function (columns) {
+				_this.setState({ loadedSrcColumns: columns });
+			})['catch'](function (err) {
+				refs.alertDialog.show('danger', err);
+			});
+
+			_utilsServerJs2['default'].loadColumns({
+				table: props.destTable,
+				jdbc: {
+					driver: props.destJdbcDriver,
+					connUrl: props.destJdbcConnUrl,
+					username: props.destJdbcUsername,
+					password: props.destJdbcPassword
+				}
+			}).then(function (columns) {
+				_this.setState({ loadedDestColumns: columns });
+			})['catch'](function (err) {
+				refs.alertDialog.show('danger', err);
+			});
+		},
+
+		getSelectedColumns: function getSelectedColumns() {
+			var state = this.state;
+
+			return {
+				srcColumn: state.selectedSrcColumnName,
+				destColumn: state.selectedDestColumnName
+			};
+		},
+
+		handleRadioButtonSelected: function handleRadioButtonSelected(name, evt) {
+			try {
+				evt.stopPropagation();
+				var state = {};
+				state[name] = evt.target.value;
+				this.setState(state);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		render: function render() {
+			try {
+				var props = this.props;
+				var state = this.state;
+
+				if (state.loadedSrcColumns.length === 0 || state.loadedDestColumns.length === 0) return null;
+
+				return _react2['default'].createElement(
+					_reactBootstrap.Row,
+					null,
+					_react2['default'].createElement(
+						_reactBootstrap.Col,
+						{ md: '6' },
+						_react2['default'].createElement(
+							_compsMaterialWrapperJsx.RadioButtonGroup,
+							{
+								name: 'srcColumns',
+								onChange: this.handleRadioButtonSelected.bind(this, 'selectedSrcColumnName') },
+							state.loadedSrcColumns.map(function (column) {
+								var columnName = column.columnName;
+								var columnType = column.columnType;
+
+								return _react2['default'].createElement(_compsMaterialWrapperJsx.RadioButton, {
+									value: columnName,
+									label: _util2['default'].format('%s (%s)', columnName, columnType) });
+							})
+						)
+					),
+					_react2['default'].createElement(
+						_reactBootstrap.Col,
+						{ md: '6' },
+						_react2['default'].createElement(
+							_compsMaterialWrapperJsx.RadioButtonGroup,
+							{
+								name: 'destColumns',
+								onChange: this.handleRadioButtonSelected.bind(this, 'selectedDestColumnName') },
+							state.loadedDestColumns.map(function (column) {
+								var columnName = column.columnName;
+								var columnType = column.columnType;
+
+								return _react2['default'].createElement(_compsMaterialWrapperJsx.RadioButton, {
+									value: columnName,
+									label: _util2['default'].format('%s (%s)', columnName, columnType) });
+							})
+						)
+					),
+					_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { refs: 'alertDialog' })
+				);
+			} catch (err) {
+				console.error(err.stack);
+			}
+		}
+	});
+	module.exports = LoadedColumns;
 
 /***/ }
 /******/ ]);

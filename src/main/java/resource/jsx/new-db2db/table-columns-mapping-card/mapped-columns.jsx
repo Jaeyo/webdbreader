@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import util from 'util';
 import {
 	FlatButton
 } from '../../comps/material-wrapper.jsx';
@@ -16,33 +17,25 @@ var MappedColumns = React.createClass({
 	render() {
 		try {
 			var { props } = this;
+
+			if(props.srcColumns.trim().length === 0 || props.destColumns.trim().length === 0) return null;
+
 			var srcColumns = props.srcColumns.split(',');
 			var destColumns = props.destColumns.split(',');
 
 			var mappedColumns = [];
-			for(var i=0; i<srcColumns.length; i++)
-				var onDeleteClick = () => {
-					var newSrcColumns = props.srcColumns.split(',').filter((col) => {
-						return col !== srcColumns[i];
-					});
-					var newDestColumns = props.destColumns.split(',').filter((col) => {
-						return col !== destColumns[i];
-					});
-					props.handleStateChange({
-						srcColumns: newSrcColumns.join(','),
-						destColumns: newDestColumns.join(',')
-					});
-				};
-
+			for(var i=0; i<srcColumns.length; i++) {
 				mappedColumns.push( 
 					<MappedColumn 
+						srcColumns={props.srcColumns}
 						srcColumn={srcColumns[i]} 
+						destColumns={props.destColumns}
 						destColumn={destColumns[i]}
-						onDeleteClick={onDeleteClick}
-						key={util.format('%s-%s', srcColumns[i], destColumns[i])} /> 
+						handleStateChange={props.handleStateChange}
+						key={ util.format('%s-%s', srcColumns[i], destColumns[i]) } />
 				);
-
-			return mappedColumns;
+			}
+			return ( <div>{mappedColumns}</div> );
 		} catch(err) {
 			console.error(err.stack);
 		}
@@ -50,15 +43,29 @@ var MappedColumns = React.createClass({
 });
 module.exports = MappedColumns;
 
-//props: srcColumn, destColumn, onDeleteClick
-var Mapped = (props) => {
+//props: srcColumns, srcColumn, destColumns, destColumn, handleStateChange
+var MappedColumn = (props) => {
+	var onDeleteBtnClick = () => {
+		var newSrcColumns = props.srcColumns.split(',').filter((col) => {
+			return col !== props.srcColumn;
+		});
+		var newDestColumns = props.destColumns.split(',').filter((col) => {
+			return col !== props.destColumn;
+		});
+		props.handleStateChange({
+			srcColumns: newSrcColumns.join(','),
+			destColumns: newDestColumns.join(',')
+		});
+	};
+
 	return (
-		<div style={{
-			padding: '10px',
-			border: '1px dashed gray'
-		}}>
+		<div 
+			style={{
+				padding: '10px',
+				border: '1px dashed gray'
+			}}>
 			<span>{ util.format('%s => %s', props.srcColumn, props.destColumn) }</span>
-			<FlatButton label="x" onClick={props.onDeleteClick} />
+			<FlatButton label="x" onClick={onDeleteBtnClick} />
 		</div>
 	);
 };

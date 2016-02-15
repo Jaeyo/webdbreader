@@ -28,6 +28,11 @@ var NewScriptDialog = React.createClass({
 		window.location.href = '/Script/NewDb2File';
 	},
 
+	goDb2Db(evt) {
+		evt.stopPropagation();
+		window.location.href = '/Script/NewDb2Db';
+	},
+
 	goImportVer1Script(evt) {
 		evt.stopPropagation();
 		this.hide(function() {
@@ -86,6 +91,10 @@ var NewScriptDialog = React.createClass({
 							label=">> database to file"
 							style={{ width: '100%', textAlign: 'left' }}
 							onClick={this.goDb2File} />
+						<FlatButton 
+							label=">> database to database"
+							style={{ width: '100%', textAlign: 'left' }}
+							onClick={this.goDb2Db} />
 						<FlatButton 
 							label=">> import version 1 script"
 							style={{ width: '100%', textAlign: 'left' }}

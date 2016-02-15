@@ -41,12 +41,13 @@ var ColumnMappingDialog = React.createClass({
 	},
 
 	show() {
-		var { props, state, refs } = this;
+		var { props, state } = this;
 
 		this.setState({ 
 			loadedColumns: [],
 			visible: true
 		}, () => {
+			var { refs } = this;
 			refs.loadedColumns.loadColumns();
 		});
 	},
@@ -63,13 +64,17 @@ var ColumnMappingDialog = React.createClass({
 			var {
 				srcColumn,
 				destColumn
-			} = refs.getSelectedColumns();
+			} = refs.loadedColumns.getSelectedColumns();
 
-			if(props.destColumns.split(',').indexOf(destColumn) !== -1) return;
+			var selectedSrcColumnsArr = props.srcColumns.split(',').map((col) => { return col.trim(); }).filter((col) => { return col !== ''; });
+			var selectedDestColumnsArr = props.destColumns.split(',').map((col) => { return col.trim(); }).filter((col) => { return col !== ''; });
+
+			if(selectedDestColumnsArr.indexOf(destColumn) !== -1) return;
+			//TODO alert dialog
 
 			props.handleStateChange({
-				srcColumns: props.srcColumns.split(',').concat([ srcColumns ]),
-				destColumns: props.destColumns.split(',').concat([ destColumns ])
+				srcColumns: selectedSrcColumnsArr.concat([ srcColumn.trim() ]).join(','),
+				destColumns: selectedDestColumnsArr.concat([ destColumn.trim() ]).join(',')
 			});
 		} catch(err) {
 			console.error(err.stack);
@@ -83,33 +88,35 @@ var ColumnMappingDialog = React.createClass({
 
 	render() {
 		try {
-			var { props, state } = table;
+			var { props, state } = this;
 			return (
 				<Dialog
 					title="column mapping"
-					action={[
-						{ text: 'close', onClick: this.onClose }
+					actions={[
+						{ text: 'close', onClick: this.onClose },
+						{ text: 'add mapping', onClick: this.onAddMappingBtnClick }
 					]}
 					actionFocus="close"
 					autoDetectWindowHeight={true}
 					autoScrollBodyContent={true}
 					open={state.visible}>
-					<LoadedColumns 
-						refs="loadedColumns"
-						srcTable={props.srcTable}
-						srcJdbcDriver={props.srcJdbcDriver}
-						srcJdbcConnUrl={props.srcJdbcConnUrl}
-						srcJdbcUsername={props.srcJdbcUsername}
-						srcJdbcPassword={props.srcJdbcPassword}
-						destTable={props.destTable}
-						destJdbcDriver={props.destJdbcDriver}
-						destJdbcConnUrl={props.destJdbcConnUrl}
-						destJdbcUsername={props.destJdbcUsername}
-						destJdbcPassword={props.destJdbcPassword} />
-					<div style={{ textAlign: 'right' }}>
-						<Button 
-							label="add mapping"
-							onClick={this.onAddMappingBtnClick} />
+					<div style={{
+						height: '250px',
+						maxHeight: '250px',
+						overflowX: 'hidden'
+					}}>
+						<LoadedColumns 
+							ref="loadedColumns"
+							srcTable={props.srcTable}
+							srcJdbcDriver={props.srcJdbcDriver}
+							srcJdbcConnUrl={props.srcJdbcConnUrl}
+							srcJdbcUsername={props.srcJdbcUsername}
+							srcJdbcPassword={props.srcJdbcPassword}
+							destTable={props.destTable}
+							destJdbcDriver={props.destJdbcDriver}
+							destJdbcConnUrl={props.destJdbcConnUrl}
+							destJdbcUsername={props.destJdbcUsername}
+							destJdbcPassword={props.destJdbcPassword} />
 					</div>
 				</Dialog>
 			);
