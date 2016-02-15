@@ -105,7 +105,7 @@ var LoadedColumns = React.createClass({
 
 			return (
 				<Row>
-					<Col md="6">
+					<Col md={6}>
 						<RadioButtonGroup 
 							name="srcColumns"
 							onChange={this.handleRadioButtonSelected.bind(this, 'selectedSrcColumnName')}>
@@ -121,7 +121,7 @@ var LoadedColumns = React.createClass({
 						}
 						</RadioButtonGroup>
 					</Col>
-					<Col md="6">
+					<Col md={6}>
 						<RadioButtonGroup 
 							name="destColumns"
 							onChange={this.handleRadioButtonSelected.bind(this, 'selectedDestColumnName')}>

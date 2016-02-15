@@ -41,7 +41,7 @@ var NewDb2DbView = React.createClass({
 			destColumns: '',
 			bindingType: 'simple',
 			srcBindingColumn: '',
-			period: '6 * 1000'
+			period: '60 * 1000'
 		};
 	},
 
@@ -303,13 +303,21 @@ var TableColumnsMappingCardWithProps = (props) => {
 };
 
 var BindingTypeCardWithProps = (props) => {
+	var handleStateChange = function(state) {
+		if(state.bindingColumn) {
+			state.srcBindingColumn = state.bindingColumn;
+			delete state.bindingColumn;
+		}
+		props.handleStateChange(state);
+	};
+
 	return (
 		<BindingTypeCard
 			jdbcDriver={props.srcJdbcDriver}
 			jdbcConnUrl={props.srcJdbcConnUrl}
 			jdbcUsername={props.srcJdbcUsername}
 			jdbcPassword={props.srcJdbcPassword}
-			handleStateChange={props.handleStateChange}
+			handleStateChange={handleStateChange}
 			table={props.srcTable}
 			bindingType={props.bindingType}
 			bindingColumn={props.srcBindingColumn} />
@@ -320,6 +328,6 @@ var EtcConfigCardWithProps = (props) => {
 	return (
 		<EtcConfigCard
 			handleStateChange={props.handleStateChange}
-			peroid={props.period} />
+			period={props.period} />
 	);
 };
