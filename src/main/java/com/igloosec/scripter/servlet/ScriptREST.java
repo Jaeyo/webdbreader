@@ -63,14 +63,10 @@ public class ScriptREST extends HttpServlet {
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 			}
 			resp.getWriter().flush();
-		} catch(IllegalArgumentException e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
-			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg, e);
+			if(e.getClass().equals(IllegalArgumentException.class)) logger.error(errmsg);
+			else logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
 		}
@@ -251,7 +247,8 @@ public class ScriptREST extends HttpServlet {
 			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg, e);
+			if(e.getClass().equals(IllegalArgumentException.class)) logger.error(errmsg);
+			else logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
 		}

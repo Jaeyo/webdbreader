@@ -26,8 +26,6 @@ public class Index extends HttpServlet {
 		
 		try{
 			req.getRequestDispatcher("/html/index.html").forward(req, resp);
-		} catch(IllegalArgumentException e){
-			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		} 

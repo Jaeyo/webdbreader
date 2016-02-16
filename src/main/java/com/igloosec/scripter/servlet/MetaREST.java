@@ -46,18 +46,14 @@ public class MetaREST extends HttpServlet {
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
 			} //if
-		} catch(IllegalArgumentException e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
-			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg, e);
+			if(e.getClass().equals(IllegalArgumentException.class)) logger.error(errmsg);
+			else logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
-		} //catch
-	} //doGet
+		}
+	}
 	
 	private String getEncrypt(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, CryptoException {
 		String value = req.getParameter("value");
@@ -66,7 +62,7 @@ public class MetaREST extends HttpServlet {
 		Preconditions.checkArgument(value.trim().length() != 0, "value shouldn't be zero length");
 		
 		return new JSONObject().put("success", 1).put("value", SimpleCrypto.encrypt(value)).toString();
-	} //getEncrypt
+	}
 	
 	private String getDecrypt(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, CryptoException {
 		String value = req.getParameter("value");
@@ -75,5 +71,5 @@ public class MetaREST extends HttpServlet {
 		Preconditions.checkArgument(value.trim().length() != 0, "value shouldn't be zero length");
 		
 		return new JSONObject().put("success", 1).put("value", SimpleCrypto.decrypt(value)).toString();
-	} //getDecrypt
-} //class
+	}
+}

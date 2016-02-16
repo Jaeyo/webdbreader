@@ -35,23 +35,18 @@ public class EmbedDbREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/query").match(pathInfo, pathParams)){
 				resp.getWriter().print(query(req, resp, pathParams));
-				resp.getWriter().flush();
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
-				resp.getWriter().flush();
-			} //if
-		} catch(IllegalArgumentException e){
-			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg);
-			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
+			}
 			resp.getWriter().flush();
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
-			logger.error(errmsg, e);
+			if(e.getClass().equals(IllegalArgumentException.class)) logger.error(errmsg);
+			else logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
-		} //catch
-	} //doGet
+		}
+	}
 
 	private String query(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
 		String query = req.getParameter("query");
@@ -60,5 +55,5 @@ public class EmbedDbREST extends HttpServlet {
 
 		JSONArray queryResult = embedDbSerivce.runQuery(query);
 		return new JSONObject().put("success", 1).put("result", queryResult.toString(4)).toString();
-	} //query
-} //class
+	}
+}

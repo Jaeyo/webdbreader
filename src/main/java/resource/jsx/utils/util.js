@@ -149,26 +149,26 @@ exports.jdbcTmpl = {
 	oracle: {
 		driver: 'oracle.jdbc.driver.OracleDriver',
 		connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
-		port: 1521
+		port: '1521'
 	},
 	mysql: {
 		driver: 'com.mysql.jdbc.Driver',
 		connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
-		port: 3306
+		port: '3306'
 	},
 	mssql: {
 		driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
 		connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
-		port: 1433
+		port: '1433'
 	},
 	db2: {
 		driver: 'com.ibm.db2.jcc.DB2Driver',
 		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-		port: 50000
+		port: '50000'
 	},
 	tibero: {
 		driver: 'com.ibm.db2.jcc.DB2Driver',
 		connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-		port: 8629
+		port: '8629'
 	}
 };

@@ -27,8 +27,8 @@ var NewDb2DbView = React.createClass({
 			srcJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
 			srcJdbcUsername: 'admin_test',
 			srcJdbcPassword: 'admin_test',
-			srcTable: '',
-			srcColumns: '',
+			srcTable: 'AGENT_INFO_LIST',
+			srcColumns: 'col1,col2',
 			destDbVendor: 'oracle',
 			destDbIp: '192.168.10.101',
 			destDbPort: '1521',
@@ -37,8 +37,8 @@ var NewDb2DbView = React.createClass({
 			destJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
 			destJdbcUsername: 'admin_test',
 			destJdbcPassword: 'admin_test',
-			destTable: '',
-			destColumns: '',
+			destTable: 'AGENT_INFO_LIST',
+			destColumns: 'col1,col2',
 			bindingType: 'simple',
 			srcBindingColumn: '',
 			period: '60 * 1000',
@@ -157,7 +157,7 @@ var NewDb2DbView = React.createClass({
 					if(data.bindingType !== 'simple')
 						return ( data.srcBindingColumn != null && data.srcBindingColumn.trim().length !== 0);
 					return true;
-				})
+				}, 'binding column 정보 미입력')
 				.stringNotByEmpty('period', 'period 정보 미입력')
 		} catch(errmsg) {
 			this.refs.alertDialog.show('danger', errmsg);

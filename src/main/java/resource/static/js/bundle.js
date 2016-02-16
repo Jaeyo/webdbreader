@@ -19947,27 +19947,27 @@
 		oracle: {
 			driver: 'oracle.jdbc.driver.OracleDriver',
 			connUrl: 'jdbc:oracle:thin:@{ip}:{port}:{database}',
-			port: 1521
+			port: '1521'
 		},
 		mysql: {
 			driver: 'com.mysql.jdbc.Driver',
 			connUrl: 'jdbc:mysql://{ip}:{port}/{database}',
-			port: 3306
+			port: '3306'
 		},
 		mssql: {
 			driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
 			connUrl: 'jdbc:sqlserver://{ip}:{port};databaseName={database}',
-			port: 1433
+			port: '1433'
 		},
 		db2: {
 			driver: 'com.ibm.db2.jcc.DB2Driver',
 			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 50000
+			port: '50000'
 		},
 		tibero: {
 			driver: 'com.ibm.db2.jcc.DB2Driver',
 			connUrl: 'jdbc:db2://{ip}:{port}/{database}',
-			port: 8629
+			port: '8629'
 		}
 	};
 
@@ -87514,7 +87514,7 @@
 				precondition.instance(this.state).stringNotByEmpty(['jdbcDriver', 'jdbcConnUrl', 'jdbcUsername', 'jdbcPassword'], 'jdbc 연결 정보 미입력').stringNotByEmpty('table', 'table 정보 미입력').stringNotByEmpty('columns', 'columns정보 미입력').stringNotByEmpty('bindingType', 'bindingType 정보 미입력').check(function (data) {
 					if (data.bindingType !== 'simple') return data.bindingColumn != null && data.bindingColumn.trim().length !== 0;
 					return true;
-				}).stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
+				}, 'binding column 정보 미입력').stringNotByEmpty('period', 'period 정보 미입력').stringNotByEmpty('charset', 'charset 정보 미입력').stringNotByEmpty('delimiter', 'delimiter 정보 미입력').stringNotByEmpty('outputPath', 'outputPath 정보 미입력');
 			} catch (errmsg) {
 				this.refs.alertDialog.show('danger', errmsg);
 				return;
@@ -87697,8 +87697,8 @@
 				srcJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
 				srcJdbcUsername: 'admin_test',
 				srcJdbcPassword: 'admin_test',
-				srcTable: '',
-				srcColumns: '',
+				srcTable: 'AGENT_INFO_LIST',
+				srcColumns: 'col1,col2',
 				destDbVendor: 'oracle',
 				destDbIp: '192.168.10.101',
 				destDbPort: '1521',
@@ -87707,8 +87707,8 @@
 				destJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
 				destJdbcUsername: 'admin_test',
 				destJdbcPassword: 'admin_test',
-				destTable: '',
-				destColumns: '',
+				destTable: 'AGENT_INFO_LIST',
+				destColumns: 'col1,col2',
 				bindingType: 'simple',
 				srcBindingColumn: '',
 				period: '60 * 1000',
@@ -87792,7 +87792,7 @@
 				_utilsPreconditionJs2['default'].instance(this.state).stringNotByEmpty(['srcDbVendor', 'srcDbIp', 'srcDbPort', 'srcDbSid'], 'src db 정보 미입력').stringNotByEmpty(['destDbVendor', 'destDbIp', 'destDbPort', 'destDbSid'], 'dest db 정보 미입력').stringNotByEmpty(['srcJdbcDriver', 'srcJdbcConnUrl', 'srcJdbcUsername', 'srcJdbcPassword'], 'src jdbc 연결 정보 미입력').stringNotByEmpty(['destJdbcDriver', 'destJdbcConnUrl', 'destJdbcUsername', 'destJdbcPassword'], 'dest jdbc 연결 정보 미입력').stringNotByEmpty('srcTable', 'src table 정보 미입력').stringNotByEmpty('destTable', 'dest table 정보 미입력').stringNotByEmpty('srcColumns', 'src columns 정보 미입력').stringNotByEmpty('destColumns', 'dest columns 정보 미입력').stringNotByEmpty('bindingType', 'binding type 정보 미입력').check(function (data) {
 					if (data.bindingType !== 'simple') return data.srcBindingColumn != null && data.srcBindingColumn.trim().length !== 0;
 					return true;
-				}).stringNotByEmpty('period', 'period 정보 미입력');
+				}, 'binding column 정보 미입력').stringNotByEmpty('period', 'period 정보 미입력');
 			} catch (errmsg) {
 				this.refs.alertDialog.show('danger', errmsg);
 				return;

@@ -4,7 +4,8 @@ public class ScriptBuilder {
 	private StringBuilder stringBuilder = new StringBuilder();
 	
 	public ScriptBuilder append(String str, Object... args) {
-		stringBuilder.append(String.format(str, args));
+		if(args != null && args.length > 0) str = String.format(str, args);
+		stringBuilder.append(str);
 		return this;
 	}
 	

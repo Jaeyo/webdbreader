@@ -103,7 +103,7 @@ var NewDb2FileView = React.createClass({
 					if(data.bindingType !== 'simple')
 						return ( data.bindingColumn != null && data.bindingColumn.trim().length !== 0 );
 					return true;
-				})
+				}, 'binding column 정보 미입력')
 				.stringNotByEmpty('period', 'period 정보 미입력')
 				.stringNotByEmpty('charset', 'charset 정보 미입력')
 				.stringNotByEmpty('delimiter', 'delimiter 정보 미입력')

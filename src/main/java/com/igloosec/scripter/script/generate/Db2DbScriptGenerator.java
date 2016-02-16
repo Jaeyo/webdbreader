@@ -29,27 +29,27 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 		ScriptBuilder script = new ScriptBuilder();
 		
 		script.appendLine(super.getTypeVarExp(this.getClass(), bindingType))
-			.appendLine("var srcDbVendor = %s;", srcDbVendor)
-			.appendLine("var srcDbIp = %s;", srcDbIp)
-			.appendLine("var srcDbPort = %s;", srcDbPort)
-			.appendLine("var srcDbSid = %s;", srcDbSid)
-			.appendLine("var srcJdbcDriver = %s;", srcJdbcDriver)
-			.appendLine("var srcJdbcConnUrl = %s;", srcJdbcConnUrl)
-			.appendLine("var srcJdbcUsername = %s;", srcJdbcUsername)
-			.appendLine("var srcJdbcPassword = %s;", srcJdbcPassword)
-			.appendLine("var srcTable = %s;", srcTable)
-			.appendLine("var srcColumns = %s;", srcColumns)
-			.appendLine("var destDbVendor = %s;", destDbVendor)
-			.appendLine("var destDbIp = %s;", destDbIp)
-			.appendLine("var destDbPort = %s;", destDbPort)
-			.appendLine("var destDbSid = %s;", destDbSid)
-			.appendLine("var destJdbcDriver = %s;", destJdbcDriver)
-			.appendLine("var destJdbcConnUrl = %s;", destJdbcConnUrl)
-			.appendLine("var destJdbcUsername = %s;", destJdbcUsername)
-			.appendLine("var destJdbcPassword = %s;", destJdbcPassword)
-			.appendLine("var destTable = %s;", destTable)
-			.appendLine("var destColumns = %s;", destColumns)
-			.appendLine("var srcBindingColumn = %s;", srcBindingColumn)
+			.appendLine("var srcDbVendor = '%s';", srcDbVendor)
+			.appendLine("var srcDbIp = '%s';", srcDbIp)
+			.appendLine("var srcDbPort = '%s';", srcDbPort)
+			.appendLine("var srcDbSid = '%s';", srcDbSid)
+			.appendLine("var srcJdbcDriver = '%s';", srcJdbcDriver)
+			.appendLine("var srcJdbcConnUrl = '%s';", srcJdbcConnUrl)
+			.appendLine("var srcJdbcUsername = '%s';", srcJdbcUsername)
+			.appendLine("var srcJdbcPassword = '%s';", srcJdbcPassword)
+			.appendLine("var srcTable = '%s';", srcTable)
+			.appendLine("var srcColumns = '%s';", srcColumns)
+			.appendLine("var destDbVendor = '%s';", destDbVendor)
+			.appendLine("var destDbIp = '%s';", destDbIp)
+			.appendLine("var destDbPort = '%s';", destDbPort)
+			.appendLine("var destDbSid = '%s';", destDbSid)
+			.appendLine("var destJdbcDriver = '%s';", destJdbcDriver)
+			.appendLine("var destJdbcConnUrl = '%s';", destJdbcConnUrl)
+			.appendLine("var destJdbcUsername = '%s';", destJdbcUsername)
+			.appendLine("var destJdbcPassword = '%s';", destJdbcPassword)
+			.appendLine("var destTable = '%s';", destTable)
+			.appendLine("var destColumns = '%s';", destColumns)
+			.appendLine("var srcBindingColumn = '%s';", srcBindingColumn)
 			.appendLine("var period = %s;", period);
 		
 		if(bindingType.equals("simple") == true) {
@@ -77,7 +77,8 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("	connUrl: destJdbcConnUrl,")
 			.appendLine("	username: destJdbcUsername,")
 			.appendLine("	password: destJdbcPassword")
-			.appendLine("});");
+			.appendLine("});")
+			.appendLine();
 		
 		script.appendLine("repeat.run(function() {");
 		script.appendLine("	try {");
@@ -125,7 +126,7 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("				var values = [];")
 			.appendLine("				row.eachColumn(function(column) {")
 			.appendLine("					if(typeof column === 'number') values.push(column);")
-			.appendLine("					else values.push(\"'\"column\"'\");")
+			.appendLine("					else values.push(\"'\" + column + \"'\");")
 			.appendLine("				});")
 			.appendLine("				destDb.update('insert into ? (?) values(?)', [ destTable, destColumns, values.join(',') ]);")
 			.appendLine("			});");
@@ -135,10 +136,12 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 				.appendLine("		repo.set('min', max);");
 		}
 		
-		script.appendLine("} catch(err) {");
-		script.appendLine("	logger.error(err);");
-		script.appendLine("	logger.error(err.rhinoException);");
-		script.appendLine("}");
+		script.appendLine("	} catch(err) {");
+		script.appendLine("		logger.error(err);");
+		script.appendLine("		logger.error(err.rhinoException);");
+		script.appendLine("	}");
+		
+		script.appendLine("});");
 		
 		return script.toString();
 	}
