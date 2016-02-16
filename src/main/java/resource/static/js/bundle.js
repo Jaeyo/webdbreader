@@ -66980,7 +66980,7 @@
 	//args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
 	// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
 	// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
-	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
+	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period, deleteAllBeforeInsert
 	exports.generateDb2DbScript = function (args) {
 		return new Promise(function (resolve, reject) {
 			request.get('/REST/Script/generate/db2db').query({
@@ -67006,7 +67006,8 @@
 				destColumns: args.destColumns,
 				bindingType: args.bindingType,
 				srcBindingColumn: args.srcBindingColumn,
-				period: args.period
+				period: args.period,
+				deleteAllBeforeInsert: args.deleteAllBeforeInsert
 			}).end(function (err, resp) {
 				checkResponse(err, resp).fail(function (err) {
 					console.error(err);
@@ -87710,7 +87711,8 @@
 				destColumns: '',
 				bindingType: 'simple',
 				srcBindingColumn: '',
-				period: '60 * 1000'
+				period: '60 * 1000',
+				deleteAllBeforeInsert: 'false'
 			};
 		},
 
@@ -87819,7 +87821,8 @@
 				destColumns: state.destColumns,
 				bindingType: state.bindingType,
 				srcBindingColumn: state.srcBindingColumn,
-				period: state.period
+				period: state.period,
+				deleteAllBeforeInsert: state.deleteAllBeforeInsert
 			}).then(function (script) {
 				refs.scriptDialog.show({
 					scriptName: '',
@@ -87933,6 +87936,13 @@
 				state.srcBindingColumn = state.bindingColumn;
 				delete state.bindingColumn;
 			}
+			if (state.bindingType) {
+				if (state.bindingType === 'simple') {
+					state.srcBindingColumn = '';
+				} else {
+					state.deleteAllBeforeInsert = 'false';
+				}
+			}
 			props.handleStateChange(state);
 		};
 
@@ -87950,6 +87960,8 @@
 	var EtcConfigCardWithProps = function EtcConfigCardWithProps(props) {
 		return _react2['default'].createElement(_newDb2dbEtcConfigCardJsx2['default'], {
 			handleStateChange: props.handleStateChange,
+			deleteAllBeforeInsert: props.deleteAllBeforeInsert,
+			bindingType: props.bindingType,
 			period: props.period });
 	};
 
@@ -88596,12 +88608,16 @@
 
 	var _compsMaterialWrapperJsx = __webpack_require__(422);
 
+	var _compsClearfixJsx = __webpack_require__(639);
+
 	var EtcConfigCard = _react2['default'].createClass({
 		displayName: 'EtcConfigCard',
 
 		PropTypes: {
 			handleStateChange: _react2['default'].PropTypes.func.isRequired,
-			period: _react2['default'].PropTypes.string.isRequired
+			period: _react2['default'].PropTypes.string.isRequired,
+			deleteAllBeforeInsert: _react2['default'].PropTypes.string.isRequired,
+			bindingType: _react2['default'].PropTypes.string.isRequired
 		},
 
 		getInitialState: function getInitialState() {
@@ -88692,6 +88708,33 @@
 			props.handleStateChange({ period: period });
 		},
 
+		onClickDeleteAllBeforeInsertCheckBox: function onClickDeleteAllBeforeInsertCheckBox(evt, result) {
+			try {
+				evt.stopPropagation();
+				var props = this.props;
+
+				props.handleStateChange({
+					deleteAllBeforeInsert: result === true ? 'true' : 'false'
+				});
+			} catch (err) {
+				console.error(err.stack);
+			}
+		},
+
+		renderDeleteAllBeforeInsertCheckBox: function renderDeleteAllBeforeInsertCheckBox() {
+			var props = this.props;
+
+			if (props.bindingType !== 'simple') return null;
+			return _react2['default'].createElement(
+				'div',
+				null,
+				_react2['default'].createElement(_compsMaterialWrapperJsx.CheckBox, {
+					label: 'insert 쿼리 실행 전에 테이블 비우기',
+					checked: props.deleteAllBeforeInsert === 'true',
+					onCheck: this.onClickDeleteAllBeforeInsertCheckBox })
+			);
+		},
+
 		render: function render() {
 			var state = this.state;
 			var props = this.props;
@@ -88707,17 +88750,23 @@
 					_react2['default'].createElement(
 						_compsMaterialWrapperJsx.CardText,
 						null,
-						_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
-							style: { width: '100px', float: 'left' },
-							value: state.simplePeriod,
-							floatingLabelText: 'period',
-							onChange: this.handleChange.bind(this, 'simplePeriod') }),
-						_react2['default'].createElement(_compsMaterialWrapperJsx.SelectField, {
-							style: { width: '100px', float: 'left' },
-							floatingLabelText: 'timeunit',
-							value: state.timeUnit,
-							onChange: this.handleChange.bind(this, 'timeUnit'),
-							menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] })
+						_react2['default'].createElement(
+							'div',
+							null,
+							_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
+								style: { width: '100px', float: 'left' },
+								value: state.simplePeriod,
+								floatingLabelText: 'period',
+								onChange: this.handleChange.bind(this, 'simplePeriod') }),
+							_react2['default'].createElement(_compsMaterialWrapperJsx.SelectField, {
+								style: { width: '100px', float: 'left' },
+								floatingLabelText: 'timeunit',
+								value: state.timeUnit,
+								onChange: this.handleChange.bind(this, 'timeUnit'),
+								menuItems: [{ text: '초', payload: 'sec' }, { text: '분', payload: 'min' }, { text: '시간', payload: 'hour' }, { text: '일', payload: 'day' }, { text: '일2', payload: 'day2' }] }),
+							_react2['default'].createElement(_compsClearfixJsx.Clearfix, null)
+						),
+						this.renderDeleteAllBeforeInsertCheckBox()
 					)
 				);
 			} catch (err) {

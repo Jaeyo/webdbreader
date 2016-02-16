@@ -41,7 +41,8 @@ var NewDb2DbView = React.createClass({
 			destColumns: '',
 			bindingType: 'simple',
 			srcBindingColumn: '',
-			period: '60 * 1000'
+			period: '60 * 1000',
+			deleteAllBeforeInsert: 'false'
 		};
 	},
 
@@ -186,7 +187,8 @@ var NewDb2DbView = React.createClass({
 			destColumns: state.destColumns,
 			bindingType: state.bindingType,
 			srcBindingColumn: state.srcBindingColumn,
-			period: state.period
+			period: state.period,
+			deleteAllBeforeInsert: state.deleteAllBeforeInsert
 		}).then((script) => {
 			refs.scriptDialog.show({
 				scriptName: '',
@@ -308,6 +310,13 @@ var BindingTypeCardWithProps = (props) => {
 			state.srcBindingColumn = state.bindingColumn;
 			delete state.bindingColumn;
 		}
+		if(state.bindingType) {
+			if(state.bindingType === 'simple') {
+				state.srcBindingColumn = '';
+			} else {
+				state.deleteAllBeforeInsert = 'false';
+			}
+		}
 		props.handleStateChange(state);
 	};
 
@@ -328,6 +337,8 @@ var EtcConfigCardWithProps = (props) => {
 	return (
 		<EtcConfigCard
 			handleStateChange={props.handleStateChange}
+			deleteAllBeforeInsert={props.deleteAllBeforeInsert}
+			bindingType={props.bindingType}
 			period={props.period} />
 	);
 };

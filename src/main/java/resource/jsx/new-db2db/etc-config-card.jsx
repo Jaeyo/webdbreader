@@ -8,14 +8,18 @@ import {
 	SelectField,
 	Card,
 	CardHeader,
-	CardText
+	CardText,
+	CheckBox
 } from '../comps/material-wrapper.jsx';
+import { Clearfix } from '../comps/clearfix.jsx';
 
 
 var EtcConfigCard = React.createClass({
 	PropTypes: {
 		handleStateChange: React.PropTypes.func.isRequired,
-		period: React.PropTypes.string.isRequired
+		period: React.PropTypes.string.isRequired,
+		deleteAllBeforeInsert: React.PropTypes.string.isRequired,
+		bindingType: React.PropTypes.string.isRequired
 	},
 
 	getInitialState() {
@@ -106,6 +110,31 @@ var EtcConfigCard = React.createClass({
 		props.handleStateChange({ period: period });
 	},
 
+	onClickDeleteAllBeforeInsertCheckBox(evt, result) {
+		try {
+			evt.stopPropagation();
+			var { props } = this;
+			props.handleStateChange({
+				deleteAllBeforeInsert: result === true ? 'true' : 'false'
+			});
+		} catch(err) {
+			console.error(err.stack);
+		}
+	},
+
+	renderDeleteAllBeforeInsertCheckBox() {
+		var { props } = this;
+		if(props.bindingType !== 'simple') return null;
+		return (
+			<div>
+				<CheckBox
+					label="insert 쿼리 실행 전에 테이블 비우기"
+					checked={props.deleteAllBeforeInsert === 'true'}
+					onCheck={this.onClickDeleteAllBeforeInsertCheckBox} />
+			</div>
+		);
+	},
+
 	render() {
 		var { state, props } = this;
 
@@ -117,23 +146,27 @@ var EtcConfigCard = React.createClass({
 						subtitle="기타 설정"
 						avatar={ <PolymerIcon icon="config" /> } />
 					<CardText>
-						<TextField
-							style={{ width: '100px', float: 'left' }}
-							value={state.simplePeriod}
-							floatingLabelText="period"
-							onChange={this.handleChange.bind(this, 'simplePeriod')} />
-						<SelectField
-							style={{ width: '100px', float: 'left' }}
-							floatingLabelText="timeunit"
-							value={state.timeUnit}
-							onChange={this.handleChange.bind(this, 'timeUnit')}
-							menuItems={[
-								{ text: '초', payload: 'sec' },
-								{ text: '분', payload: 'min' },
-								{ text: '시간', payload: 'hour' },
-								{ text: '일', payload: 'day' },
-								{ text: '일2', payload: 'day2' }
-							]} />
+						<div>
+							<TextField
+								style={{ width: '100px', float: 'left' }}
+								value={state.simplePeriod}
+								floatingLabelText="period"
+								onChange={this.handleChange.bind(this, 'simplePeriod')} />
+							<SelectField
+								style={{ width: '100px', float: 'left' }}
+								floatingLabelText="timeunit"
+								value={state.timeUnit}
+								onChange={this.handleChange.bind(this, 'timeUnit')}
+								menuItems={[
+									{ text: '초', payload: 'sec' },
+									{ text: '분', payload: 'min' },
+									{ text: '시간', payload: 'hour' },
+									{ text: '일', payload: 'day' },
+									{ text: '일2', payload: 'day2' }
+								]} />
+							<Clearfix />
+						</div>
+						{ this.renderDeleteAllBeforeInsertCheckBox() }
 					</CardText>
 				</Card>
 			);

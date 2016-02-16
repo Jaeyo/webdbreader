@@ -170,6 +170,7 @@ public class ScriptREST extends HttpServlet {
 		String bindingType = req.getParameter("bindingType");
 		String srcBindingColumn = req.getParameter("srcBindingColumn");
 		String period = req.getParameter("period");
+		String deleteAllBeforeInsert = req.getParameter("deleteAllBeforeInsert");
 		
 		Preconditions.checkArgument(srcDbVendor != null, "srcDbVendor is null");
 		Preconditions.checkArgument(srcDbIp != null, "srcDbPort is null");
@@ -191,8 +192,11 @@ public class ScriptREST extends HttpServlet {
 		Preconditions.checkArgument(destTable != null, "destTable is null");
 		Preconditions.checkArgument(destColumns != null, "destColumns is null");
 		Preconditions.checkArgument(bindingType != null, "bindingType is null");
-		if(bindingType.equals("simple") == false)
+		if(bindingType.equals("simple") == true) {
+			Preconditions.checkArgument(deleteAllBeforeInsert != null, "deleteAllBeforeInsert is null");
+		} else {
 			Preconditions.checkArgument(srcBindingColumn != null, "srcBindingColumn is null");
+		}
 		Preconditions.checkArgument(period != null, "period is null");
 	
 		String script = new Db2DbScriptGenerator()
@@ -201,7 +205,7 @@ public class ScriptREST extends HttpServlet {
 					srcColumns, destDbVendor, destDbIp, destDbPort, destDbSid, 
 					destJdbcDriver, destJdbcConnUrl, destJdbcUsername, 
 					destJdbcPassword, destTable, destColumns, bindingType, 
-					srcBindingColumn, period);
+					srcBindingColumn, period, deleteAllBeforeInsert);
 		
 		return new JSONObject().put("success", 1).put("script", script).toString();
 	}

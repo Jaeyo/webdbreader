@@ -14,16 +14,17 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			String srcTable, String srcColumns, String destDbVendor, String destDbIp, String destDbPort,
 			String destDbSid, String destJdbcDriver, String destJdbcConnUrl, String destJdbcUsername,
 			String destJdbcPassword, String destTable, String destColumns, String bindingType,
-			String srcBindingColumn, String period) {
+			String srcBindingColumn, String period, String deleteAllBeforeInsert) {
 		logger.debug("srcDbVendor: {}, srcDbIp: {}, srcDbPort: {}, srcDbSid: {}, srcJdbcDriver: {}, "
 				+ "srcJdbcConnUrl: {}, srcJdbcUsername: {}, srcJdbcPassword: {}, srcTable: {}, "
 				+ "srcColumns: {}, destDbVendor: {}, destDbIp: {}, destDbPort: {}, destDbSid: {}, "
 				+ "destJdbcDriver: {}, destJdbcConnUrl: {}, destJdbcUsername: {}, destJdbcPassword: {}, "
-				+ "destTable: {}, destColumns: {}, bindingType: {}, srcBindingColumn: {}, period: {}",
+				+ "destTable: {}, destColumns: {}, bindingType: {}, srcBindingColumn: {}, period: {}, "
+				+ "deleteAllBeforeInsert: {}",
 				srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl, srcJdbcUsername, 
 				srcJdbcPassword, srcTable, srcColumns, destDbVendor, destDbIp, destDbPort, destDbSid, 
 				destJdbcDriver, destJdbcConnUrl, destJdbcUsername, destJdbcPassword, destTable, destColumns, 
-				bindingType, srcBindingColumn, period);
+				bindingType, srcBindingColumn, period, deleteAllBeforeInsert);
 		
 		ScriptBuilder script = new ScriptBuilder();
 		
@@ -51,9 +52,16 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("var srcBindingColumn = %s;", srcBindingColumn)
 			.appendLine("var period = %s;", period);
 		
-		if(bindingType.equals("simple") == false)
+		if(bindingType.equals("simple") == true) {
+			script.appendLine("var deleteAllBeforeInsert = %s;", deleteAllBeforeInsert);
+		} else {
 			script.appendLine("var bindingType = %s;", bindingType);
-	
+		}
+		
+		script
+			.appendLine()
+			.appendLine();
+		
 		script.appendLine("var repeat = newRepeat({ period: period });")
 			.appendLine("var repo = newRepo();")
 			.appendLine("var logger = newLogger();")
@@ -105,15 +113,21 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			}
 		}
 		
+		if(bindingType.equals("simple")) {
+			script.appendLine("		if(deleteAllBeforeInsert === true)")
+				.appendLine("			destDb.update('delete from ?', [ destTable ]);")
+				.appendLine();
+		}
+		
 		script.appendLine("		srcDb")
 			.appendLine(queryLine)
-			.appendLine("			eachRow(function(row) {")
+			.appendLine("			.eachRow(function(row) {")
 			.appendLine("				var values = [];")
 			.appendLine("				row.eachColumn(function(column) {")
 			.appendLine("					if(typeof column === 'number') values.push(column);")
 			.appendLine("					else values.push(\"'\"column\"'\");")
 			.appendLine("				});")
-			.appendLine("				destDb.update('insert tino")
+			.appendLine("				destDb.update('insert into ? (?) values(?)', [ destTable, destColumns, values.join(',') ]);")
 			.appendLine("			});");
 			
 		if(bindingType.equals("simple") == false) {

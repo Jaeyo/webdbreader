@@ -137,7 +137,7 @@ exports.generateDb2FileScript = function(args) {
 //args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
 // 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
 // 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
-// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period
+// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period, deleteAllBeforeInsert
 exports.generateDb2DbScript = function(args) {
 	return new Promise(function(resolve, reject) {
 		request
@@ -165,7 +165,8 @@ exports.generateDb2DbScript = function(args) {
 				destColumns: args.destColumns,
 				bindingType: args.bindingType,
 				srcBindingColumn: args.srcBindingColumn,
-				period: args.period
+				period: args.period,
+				deleteAllBeforeInsert: args.deleteAllBeforeInsert
 			})
 			.end(function(err, resp) {
 				checkResponse(err, resp)
