@@ -4,6 +4,7 @@ var _ = require('underscore');
 var color = require('../utils/util.js').color;
 var Glyphicon = require('react-bootstrap').Glyphicon;
 var RealtimeNoti = require('./realtime-noti.jsx');
+var server = require('../utils/server.js');
 
 var PAGE_WIDTH = '1024px';
 var NAV_WIDTH = '100px';
@@ -40,6 +41,7 @@ var Layout = React.createClass({
 					<Nav active={this.props.active} />
 					<Container>{this.props.children}</Container>
 				</div>
+				<Version />
 				<RealtimeNoti />
 			</div>	
 		);
@@ -177,6 +179,42 @@ var Container = React.createClass({
 					{this.props.children}
 				</div>
 			</div>
+		);
+	}
+});
+
+
+var Version = React.createClass({
+	getInitialState() {
+	    return { version: null };
+	},
+
+	componentDidMount() {
+		server
+			.getVersion()
+			.then((version) => {
+				this.setState({ version: version });
+			}).catch((err) => {
+				console.error(err.stack);
+			});
+	},
+
+	render() {
+		var { state } = this;
+
+		if(state.version == null) return (<div />);
+
+		return (
+			<div 
+				style={{
+					position: 'absolute',
+					bottom: '10px',
+					right: '10px',
+					color: 'white',
+					fontSize: '12px'
+				}}>
+				<span>{state.version}</span>
+			</div>	
 		);
 	}
 });

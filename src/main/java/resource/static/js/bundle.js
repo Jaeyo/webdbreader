@@ -21602,6 +21602,7 @@
 	var color = __webpack_require__(161).color;
 	var Glyphicon = __webpack_require__(169).Glyphicon;
 	var RealtimeNoti = __webpack_require__(413);
+	var server = __webpack_require__(612);
 
 	var PAGE_WIDTH = '1024px';
 	var NAV_WIDTH = '100px';
@@ -21647,6 +21648,7 @@
 						this.props.children
 					)
 				),
+				React.createElement(Version, null),
 				React.createElement(RealtimeNoti, null)
 			);
 		}
@@ -21796,6 +21798,47 @@
 					'div',
 					{ style: style.innerDiv },
 					this.props.children
+				)
+			);
+		}
+	});
+
+	var Version = React.createClass({
+		displayName: 'Version',
+
+		getInitialState: function getInitialState() {
+			return { version: null };
+		},
+
+		componentDidMount: function componentDidMount() {
+			var _this = this;
+
+			server.getVersion().then(function (version) {
+				_this.setState({ version: version });
+			})['catch'](function (err) {
+				console.error(err.stack);
+			});
+		},
+
+		render: function render() {
+			var state = this.state;
+
+			if (state.version == null) return React.createElement('div', null);
+
+			return React.createElement(
+				'div',
+				{
+					style: {
+						position: 'absolute',
+						bottom: '10px',
+						right: '10px',
+						color: 'white',
+						fontSize: '12px'
+					} },
+				React.createElement(
+					'span',
+					null,
+					state.version
 				)
 			);
 		}
@@ -40476,103 +40519,6 @@
 		}
 	});
 	module.exports = ApiView;
-
-	// var CssAvenirWhite = (props) => {
-	// 	return (
-	// 		<InlineCss stylesheet={`
-	// 			& body {
-	// 				font-family: "Avenir Next", Helvetica, Arial, sans-serif;
-	// 				padding:1em;
-	// 				margin:auto;
-	// 				max-width:42em;
-	// 				background:#fefefe;
-	// 			}
-	// 			& h1, h2, h3, h4, h5, h6 {
-	// 				font-weight: bold;
-	// 			}
-	// 			& h1 {
-	// 				color: #000000;
-	// 				font-size: 28pt;
-	// 			}
-	// 			& h2 {
-	// 				border-bottom: 1px solid #CCCCCC;
-	// 				color: #000000;
-	// 				font-size: 24px;
-	// 			}
-	// 			& h3 {
-	// 				font-size: 18px;
-	// 			}
-	// 			& h4 {
-	// 				font-size: 16px;
-	// 			}
-	// 			& h5 {
-	// 				font-size: 14px;
-	// 			}
-	// 			& h6 {
-	// 				color: #777777;
-	// 				background-color: inherit;
-	// 				font-size: 14px;
-	// 			}
-	// 			& hr {
-	// 				height: 0.2em;
-	// 				border: 0;
-	// 				color: #CCCCCC;
-	// 				background-color: #CCCCCC;
-	// 			}
-	// 			& p, blockquote, ul, ol, dl, li, table, pre {
-	// 				margin: 15px 0;
-	// 			}
-	// 			& a, a:visited {
-	// 				color: #4183C4;
-	// 				background-color: inherit;
-	// 				text-decoration: none;
-	// 			}
-	// 			& #message {
-	// 				border-radius: 6px;
-	// 				border: 1px solid #ccc;
-	// 				display:block;
-	// 				width:100%;
-	// 				height:60px;
-	// 				margin:6px 0px;
-	// 			}
-	// 			& button, #ws {
-	// 				font-size: 10pt;
-	// 				padding: 4px 6px;
-	// 				border-radius: 5px;
-	// 				border: 1px solid #bbb;
-	// 				background-color: #eee;
-	// 			}
-	// 			& code, pre, #ws, #message {
-	// 				font-family: Monaco;
-	// 				font-size: 10pt;
-	// 				border-radius: 3px;
-	// 				background-color: #F8F8F8;
-	// 				color: inherit;
-	// 			}
-	// 			& code {
-	// 				border: 1px solid #EAEAEA;
-	// 				margin: 0 2px;
-	// 				padding: 0 5px;
-	// 			}
-	// 			& pre {
-	// 				border: 1px solid #CCCCCC;
-	// 				overflow: auto;
-	// 				padding: 4px 8px;
-	// 			}
-	// 			& pre > code {
-	// 				border: 0;
-	// 				margin: 0;
-	// 				padding: 0;
-	// 			}
-	// 			& #ws { background-color: #f8f8f8; }
-	// 			& .send { color:#77bb77; }
-	// 			& .server { color:#7799bb; }
-	// 			& .error { color:#AA0000; }
-	// 			`}>
-	// 			{props.children}
-	// 		</InlineCss>
-	// 	);
-	// };
 
 /***/ },
 /* 422 */
@@ -66867,520 +66813,298 @@
 	    request = __webpack_require__(622),
 	    util = __webpack_require__(166);
 
-	var checkResponse = function checkResponse(err, resp) {
-		var rejectTarget = null;
-		if (err) rejectTarget = err;else if (!resp.ok) rejectTarget = resp.error;else if (resp.body.success !== 1) rejectTarget = resp.body.errmsg;
-
-		return {
-			fail: function fail(callback) {
-				if (rejectTarget != null) callback(rejectTarget);
-				return this;
-			},
-			then: function then(callback) {
-				if (rejectTarget == null) callback(resp.body);
-				return this;
-			}
-		};
+	var handleResp = function handleResp(err, resp, resolve, reject, callback) {
+		if (err) {
+			console.error(err.stack);
+			reject(err);
+			return;
+		}
+		if (!resp.ok) {
+			reject(resp.error);
+			return;
+		}
+		if (resp.body.success !== 1) {
+			reject(resp.body.errmsg);
+			return;
+		}
+		var resolveData = callback(resp.body);
+		resolve(resolveData);
+		return;
 	};
 
-	//args: jdbc, table
-	exports.loadColumns = function (args) {
-		args.title = encodeURI(args.title);
-
+	var get = function get(url, args, callback) {
 		return new Promise(function (resolve, reject) {
-			request.get(util.format('/REST/Database/Columns/%s/', args.table)).query(args.jdbc).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.columns);
-				});
+			var req = request.get(url);
+			if (args != null) req.query(args);
+			req.end(function (err, resp) {
+				handleResp(err, resp, resolve, reject, callback);
 			});
 		});
 	};
 
-	//args: jdbc
-	exports.loadTables = function (args) {
+	var post = function post(url, args, callback) {
 		return new Promise(function (resolve, reject) {
-			request.get('/REST/Database/Tables/').query(args.jdbc).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.tables);
-				});
+			var req = request.post(url);
+			req.type('form');
+			if (args != null) req.send(args);
+			req.end(function (err, resp) {
+				handleResp(err, resp, resolve, reject, callback);
 			});
 		});
 	};
 
-	exports.querySampleData = function (params) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Database/QuerySampleData/').query(params).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.sampleData);
-				});
+	module.exports = {
+		// ### chart
+		chartTotal: function chartTotal() {
+			return get('/REST/Chart/total-chart',
+			// '/REST/Chart/ScriptScoreStatistics/Total/',
+			null, function (body) {
+				return body.data;
 			});
-		});
-	};
-
-	//args: title, script
-	exports.postScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/New/%s/', args.title)).type('form').send({
-				script: args.script
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: scriptName
+		chartScript: function chartScript(args) {
+			return get('/REST/Chart/script-chart/script-name/{scriptName}',
+			// '/REST/Chart/ScriptScoreStatistics/script/',
+			args, function (body) {
+				return body.data;
 			});
-		});
-	};
-
-	//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl,
-	// 			jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn,
-	//			delimiter, charset, outputPath
-	exports.generateDb2FileScript = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Script/generate/db2file').query({
-				period: args.period,
-				dbVendor: args.dbVendor,
-				dbIp: args.dbIp,
-				dbPort: args.dbPort,
-				dbSid: args.dbSid,
-				jdbcDriver: args.jdbcDriver,
-				jdbcConnUrl: args.jdbcConnUrl,
-				jdbcUsername: args.jdbcUsername,
-				jdbcPassword: args.jdbcPassword,
-				columns: args.columns,
-				table: args.table,
-				bindingType: args.bindingType,
-				bindingColumn: args.bindingColumn,
-				delimiter: args.delimiter,
-				charset: args.charset,
-				outputPath: args.outputPath
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.script);
-				});
+		},
+		//args: scriptName, period
+		lastStatistics: function lastStatistics(args) {
+			return get(util.format('/REST/Chart/last-statistics/script-name/%s', encodeURI(args.scriptName)),
+			// util.format('/REST/Chart/ScriptScoreStatistics/LastStatistics/%s/', encodeURI(args.scriptName)),
+			{ period: args.period }, function (body) {
+				return body.data;
 			});
-		});
-	};
+		},
+		// ### chart end
 
-	//args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
-	// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
-	// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
-	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period, deleteAllBeforeInsert
-	exports.generateDb2DbScript = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Script/generate/db2db').query({
-				srcDbVendor: args.srcDbVendor,
-				srcDbIp: args.srcDbIp,
-				srcDbPort: args.srcDbPort,
-				srcDbSid: args.srcDbSid,
-				srcJdbcDriver: args.srcJdbcDriver,
-				srcJdbcConnUrl: args.srcJdbcConnUrl,
-				srcJdbcUsername: args.srcJdbcUsername,
-				srcJdbcPassword: args.srcJdbcPassword,
-				srcTable: args.srcTable,
-				srcColumns: args.srcColumns,
-				destDbVendor: args.destDbVendor,
-				destDbIp: args.destDbIp,
-				destDbPort: args.destDbPort,
-				destDbSid: args.destDbSid,
-				destJdbcDriver: args.destJdbcDriver,
-				destJdbcConnUrl: args.destJdbcConnUrl,
-				destJdbcUsername: args.destJdbcUsername,
-				destJdbcPassword: args.destJdbcPassword,
-				destTable: args.destTable,
-				destColumns: args.destColumns,
-				bindingType: args.bindingType,
-				srcBindingColumn: args.srcBindingColumn,
-				period: args.period,
-				deleteAllBeforeInsert: args.deleteAllBeforeInsert
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.script);
-				});
+		// ### database
+		//args: jdbc, table
+		loadColumns: function loadColumns(args) {
+			return get(util.format('/REST/Database/table/%s/columns', encodeURI(args.table)),
+			// util.format('/REST/Database/Columns/%s/', encodeURI(args.scriptName)),
+			args.jdbc, function (body) {
+				return body.columns;
 			});
-		});
-	};
+		},
+		//args: jdbc
+		loadTables: function loadTables(args) {
+			return get('/REST/Database/tables',
+			// '/REST/Database/Tables/',
+			args.jdbc, function (body) {
+				return body.tables;
+			});
+		},
+		// args: jdbc, query, rowCount
+		querySampleData: function querySampleData(args) {
+			return get('/REST/Database/query',
+			// '/REST/Database/QuerySampleData/',
+			args, function (body) {
+				return body.sampleData;
+			});
+		},
+		// ### database end
 
-	//args: title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword
-	exports.importVer1Script = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/ImportVer1Script/%s/', args.title)).type('form').send({
+		// ### script
+		//args: title, script
+		postScript: function postScript(args) {
+			return post(util.format('/REST/Script/script/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/New/%s/', encodeURI(args.title)),
+			{ script: args.script }, function (body) {
+				return body.success;
+			});
+		},
+		//args: period, dbVendor, dbIp, dbPort, dbSid, jdbcDriver, jdbcConnUrl,
+		// 		jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn,
+		//		delimiter, charset, outputPath
+		generateDb2FileScript: function generateDb2FileScript(args) {
+			return get('/REST/Script/db2file',
+			// '/REST/Script/generate/db2file',
+			args, function (body) {
+				return body.script;
+			});
+		},
+		//args: srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl
+		// 			srcJdbcUsername, srcJdbcPassword, srcTable, srcColumns, destDbVendor
+		// 			destDbIp, destDbPort, destDbSid, destJdbcDriver, destJdbcConnUrl, destJdbcUsername
+		// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period, deleteAllBeforeInsert
+		generateDb2DbScript: function generateDb2DbScript(args) {
+			return get('/REST/Script/db2db',
+			// '/REST/Script/generate/db2db',
+			args, function (body) {
+				return body.script;
+			});
+		},
+		//args: title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword
+		importVer1Script: function importVer1Script(args) {
+			return post(util.format('/REST/Script/ver1-script/script-name/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/ImportVer1Script/%s/', encodeURI(args.title)),
+			{
 				script: args.script,
 				dbName: args.dbName,
 				jdbcDriver: args.jdbcDriver,
 				jdbcConnUrl: args.jdbcConnUrl,
 				jdbcUsername: args.jdbcUsername,
 				jdbcPassword: args.jdbcPassword
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+			}, function (body) {
+				return body.success;
 			});
-		});
-	};
-
-	//args: title, script
-	exports.editScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/Edit/%s/', args.title)).type('form').send({
-				script: args.script
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: title, script
+		editScript: function editScript(args) {
+			return post(util.format('/REST/Script/script/%s/edit', encodeURI(args.title)),
+			// util.format('/REST/Script/Edit/%s/', encodeURI(args.title)),
+			{ script: args.script }, function (body) {
+				return body.success;
 			});
-		});
-	};
-
-	//return { SCRIPT_NAME, REGDATE, IS_RUNNING }
-	exports.loadScripts = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Script/Info/').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.scriptInfos);
-				});
+		},
+		//return { SCRIPT_NAME, REGDATE, IS_RUNNING }
+		loadScripts: function loadScripts() {
+			return get('/REST/Script/scripts/info',
+			// '/REST/Script/Info/'
+			null, function (body) {
+				return body.scriptInfos;
 			});
-		});
-	};
-
-	//args: title
-	exports.loadScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.get(util.format('/REST/Script/Load/%s/', args.title)).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.script);
-				});
+		},
+		//args: title
+		loadScript: function loadScript(args) {
+			return get(util.format('/REST/Script/script/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/Load/%s/', encodeURI(args.title)),
+			null, function (body) {
+				return body.script;
 			});
-		});
-	};
-
-	//args: title
-	exports.loadScriptParams = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.get(util.format('/REST/Script/LoadParams/%s/', args.title)).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					if (body.parsable === 1) {
-						resolve({
-							parsable: 1,
-							params: body.params
-						});
-					} else {
-						resolve({
-							parsable: 0,
-							msg: body.msg
-						});
-					}
-				});
+		},
+		//args: title
+		loadScriptParams: function loadScriptParams(args) {
+			return get(util.format('/REST/Script/script/%s/params', encodeURI(args.title)),
+			// util.format('/REST/Script/LoadParams/%s/', encodeURI(args.title)),
+			null, function (body) {
+				if (body.parsable === 1) return { parsable: 1, params: body.params };else return { parsable: 0, msg: body.msg };
 			});
-		});
-	};
-
-	exports.loadScriptTitles = function () {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Script/Titles/').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.titles);
-				});
+		},
+		loadScriptTitles: function loadScriptTitles() {
+			return get('/REST/Script/script-titles',
+			// '/REST/Script/Titles/',
+			null, function (body) {
+				return body.titles;
 			});
-		});
-	};
-
-	//args: title, newTitle
-	exports.renameScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/Rename/%s/', args.title)).type('form').send({
-				newTitle: args.newTitle
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: title, newTitle
+		renameScript: function renameScript(args) {
+			return post(util.format('/REST/Script/script/%s/rename', encodeURI(args.title)),
+			// util.format('/REST/Script/Rename/%s/', encodeURI(args.title)),
+			{ newTitle: args.newTitle }, function (body) {
+				return body.success;
 			});
-		});
-	};
-
-	//args: title
-	exports.startScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/Start/%s/', args.title)).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: title
+		startScript: function startScript(args) {
+			return post(util.format('/REST/Script/script/%s/start', encodeURI(args.title)),
+			// util.format('/REST/Script/Start/%s/', encodeURI(args.title)),
+			null, function (body) {
+				return body.success;
 			});
-		});
-	};
-
-	//args: title
-	exports.stopScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/Stop/%s/', args.title)).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: title
+		stopScript: function stopScript(args) {
+			return post(util.format('/REST/Script/script/%s/stop', encodeURI(args.title)),
+			// util.format('/REST/Script/Stop/%s/', encodeURI(args.title)),
+			null, function (body) {
+				return body.success;
 			});
-		});
-	};
-
-	//args: title
-	exports.removeScript = function (args) {
-		args.title = encodeURI(args.title);
-
-		return new Promise(function (resolve, reject) {
-			request.post(util.format('/REST/Script/Remove/%s/', args.title)).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.success);
-				});
+		},
+		//args: title
+		removeScript: function removeScript(args) {
+			return post(util.format('/REST/Script/script/%s/remove', encodeURI(args.title)),
+			// util.format('/REST/Script/Remove/%s/', encodeURI(args.title)),
+			null, function (body) {
+				return body.success;
 			});
-		});
-	};
+		},
+		// ### script end
 
-	exports.chartTotal = function () {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Chart/ScriptScoreStatistics/Total/').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.data);
-				});
+		// ### config
+		getHomePath: function getHomePath() {
+			return get('/REST/Config/homepath',
+			// '/REST/Config/homepath',
+			null, function (body) {
+				return body.homepath;
 			});
-		});
-	};
-
-	//args: scriptName
-	exports.chartScript = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Chart/ScriptScoreStatistics/script/').query({
-				scriptName: args.scriptName
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.data);
-				});
+		},
+		getSimpleRepoAll: function getSimpleRepoAll() {
+			return get('/REST/Config/simple-repos',
+			// '/REST/Config/SimpleRepo/',
+			null, function (body) {
+				return body.data;
 			});
-		});
-	};
-
-	// args: scriptName, period
-	exports.lastStatistics = function (args) {
-		args.scriptName = encodeURI(args.scriptName);
-
-		return new Promise(function (resolve, reject) {
-			request.get(util.format('/REST/Chart/ScriptScoreStatistics/LastStatistics/%s/', args.scriptName)).query({
-				period: args.period
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.data);
-				});
+		},
+		//args: scriptName, key
+		getSimpleRepo: function getSimpleRepo(args) {
+			return get('/REST/Config/simple-repos/script/{scriptName}/key/%s',
+			// '/REST/Config/SimpleRepo/',
+			{ scriptName: args.scriptName, key: args.key }, function (body) {
+				return body.value;
 			});
-		});
-	};
-
-	exports.getHomePath = function () {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Config/homepath').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.homepath);
-				});
+		},
+		//args: scriptName, key, value
+		addSimpleRepo: function addSimpleRepo(args) {
+			return post(util.format('/REST/Config/simple-repo/script/%s/key/%s', encodeURI(args.scriptName), encodeURI(args.key)),
+			// '/REST/Config/AddSimpleRepo/',
+			{ value: args.value }, function (body) {
+				return true;
 			});
-		});
-	};
-
-	exports.getSimpleRepoAll = function () {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Config/SimpleRepo/').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.data);
-				});
+		},
+		//args: scriptName, key, newKey, newValue
+		updateSimpleRepo: function updateSimpleRepo(args) {
+			return post(util.format('/REST/Config/simple-repo/script/%s/key/%s/update', encodeURI(args.scriptName), encodeURI(args.key)),
+			// '/REST/Config/UpdateSimpleRepo/',
+			{ newKey: args.newKey, newValue: args.newValue }, function (body) {
+				return true;
 			});
-		});
-	};
-
-	// args: scriptName, key
-	exports.getSimpleRepo = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Config/SimpleRepo/').query({
-				scriptName: args.scriptName,
-				key: args.key
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.value);
-				});
+		},
+		//args: scriptName, key
+		removeSimpleRepo: function removeSimpleRepo(args) {
+			return post(util.format('/REST/Config/simple-repo/script/%s/key/%s/remove', encodeURI(args.scriptName), encodeURI(args.key)),
+			// '/REST/Config/RemoveSimpleRepo/'
+			args, function (body) {
+				return true;
 			});
-		});
-	};
-
-	//args: scriptName, key, value
-	exports.addSimpleRepo = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.post('/REST/Config/AddSimpleRepo/').type('form').send({
-				scriptName: args.scriptName,
-				key: args.key,
-				value: args.value
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(true);
-				});
+		},
+		//args: threshold
+		updateLog4jThreshold: function updateLog4jThreshold(args) {
+			return post('/REST/Config/log4j/threshold/update',
+			// '/REST/Config/update/log4j/threshold',
+			args, function (body) {
+				return true;
 			});
-		});
-	};
-
-	//args: scriptName, key, newKey, newValue
-	exports.updateSimpleRepo = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.post('/REST/Config/UpdateSimpleRepo/').type('form').send({
-				scriptName: args.scriptName,
-				key: args.key,
-				newKey: args.newKey,
-				newValue: args.newValue
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(true);
-				});
+		},
+		loadLog4jThreshold: function loadLog4jThreshold() {
+			return get('/REST/Config/log4j/threshold',
+			// '/REST/Config/log4j/threshold',
+			null, function (body) {
+				return body.threshold;
 			});
-		});
-	};
+		},
+		// ### config end
 
-	//args: scriptName, key
-	exports.removeSimpleRepo = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.post('/REST/Config/RemoveSimpleRepo/').type('form').send({
-				scriptName: args.scriptName,
-				key: args.key
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(true);
-				});
+		// ### embed
+		//args: query
+		embedDbQuery: function embedDbQuery(args) {
+			return get('/REST/EmbedDb/query',
+			// '/REST/EmbedDb/query',
+			args, function (body) {
+				return body.result;
 			});
-		});
-	};
+		},
 
-	//args: threshold
-	exports.updateLog4jThreshold = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.post('/REST/Config/update/log4j/threshold').type('form').send({
-				threshold: args.threshold
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(true);
-				});
+		//### meta
+		getVersion: function getVersion() {
+			return get('/REST/Meta/version', null, function (body) {
+				return body.version;
 			});
-		});
-	};
-
-	exports.loadLog4jThreshold = function () {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/Config/log4j/threshold').end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.threshold);
-				});
-			});
-		});
-	};
-
-	exports.embedDbQuery = function (args) {
-		return new Promise(function (resolve, reject) {
-			request.get('/REST/EmbedDb/query').query({
-				query: args.query
-			}).end(function (err, resp) {
-				checkResponse(err, resp).fail(function (err) {
-					console.error(err);
-					reject(err);
-				}).then(function (body) {
-					resolve(body.result);
-				});
-			});
-		});
+		}
 	};
 
 /***/ },

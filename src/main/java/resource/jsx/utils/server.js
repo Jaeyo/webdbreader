@@ -25,7 +25,7 @@ var get = function(url, args, callback) {
 	return new Promise((resolve, reject) => {
 		var req = request.get(url);
 		if(args != null) req.query(args);
-		req.end((err, resp) {
+		req.end((err, resp) => {
 			handleResp(err, resp, resolve, reject, callback);
 		});
 	});
@@ -48,8 +48,8 @@ module.exports = {
 	// ### chart
 	chartTotal: () => { 
 		return get(
-			'/REST/Chart/ScriptScoreStatistics/Total/', 
-			// /REST/Chart/total-chart
+			'/REST/Chart/total-chart',
+			// '/REST/Chart/ScriptScoreStatistics/Total/', 
 			null, 
 			(body) => { return body.data; }
 		);
@@ -57,8 +57,8 @@ module.exports = {
 	//args: scriptName
 	chartScript: (args) => { 
 		return get(
-			'/REST/Chart/ScriptScoreStatistics/script/', 
-			// /REST/Chart/script-chart/script-name/{scriptName}
+			'/REST/Chart/script-chart/script-name/{scriptName}',
+			// '/REST/Chart/ScriptScoreStatistics/script/', 
 			args, 
 			(body) => { return body.data; }
 		);
@@ -66,9 +66,9 @@ module.exports = {
 	//args: scriptName, period
 	lastStatistics: (args) => { 
 		return get(
-			util.format('/REST/Chart/ScriptScoreStatistics/LastStatistics/%s/', args.scriptName), 
-			// /REST/Chart/last-statistics/script-name/{scriptName}
-			args, 
+			util.format('/REST/Chart/last-statistics/script-name/%s', encodeURI(args.scriptName)),
+			// util.format('/REST/Chart/ScriptScoreStatistics/LastStatistics/%s/', encodeURI(args.scriptName)),
+			{ period: args.period }, 
 			(body) => { return body.data; }
 		);
 	},
@@ -79,8 +79,8 @@ module.exports = {
 	//args: jdbc, table
 	loadColumns: (args) => { 
 		return get(
-			util.format('/REST/Database/Columns/%s/', encodeURI(args.scriptName)),
-			// /REST/Database/table/{table}/columns
+			util.format('/REST/Database/table/%s/columns', encodeURI(args.table)),
+			// util.format('/REST/Database/Columns/%s/', encodeURI(args.scriptName)),
 			args.jdbc,
 			(body) => { return body.columns; }
 		);
@@ -88,8 +88,8 @@ module.exports = {
 	//args: jdbc
 	loadTables: (args) => {
 		return get(
-			'/REST/Database/Tables/',
-			// /REST/Database/tables
+			'/REST/Database/tables',
+			// '/REST/Database/Tables/',
 			args.jdbc,
 			(body) => { return body.tables; }
 		);
@@ -97,8 +97,8 @@ module.exports = {
 	// args: jdbc, query, rowCount
 	querySampleData: (args) => {
 		return get(
-			'/REST/Database/QuerySampleData/', 
-			// /REST/Database/table/{table}/datas
+			'/REST/Database/query',
+			// '/REST/Database/QuerySampleData/', 
 			args, 
 			(body) => { return body.sampleData; }
 		);
@@ -110,8 +110,8 @@ module.exports = {
 	//args: title, script
 	postScript: (args) => {
 		return post(
-			util.format('/REST/Script/New/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}
+			util.format('/REST/Script/script/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/New/%s/', encodeURI(args.title)),
 			{ script: args.script },
 			(body) => { return body.success; }
 		);
@@ -121,8 +121,8 @@ module.exports = {
 	//		delimiter, charset, outputPath
 	generateDb2FileScript: (args) => {
 		return get(
-			'/REST/Script/generate/db2file', 
-			// /REST/Script/db2file
+			'/REST/Script/db2file',
+			// '/REST/Script/generate/db2file', 
 			args,
 			(body) => { return body.script }
 		);
@@ -133,8 +133,8 @@ module.exports = {
 	// 			destJdbcPassword, destTable, destColumns, bindingType, srcBindingColumn, period, deleteAllBeforeInsert
 	generateDb2DbScript: (args) => {
 		return get(
-			'/REST/Script/generate/db2db',
-			// /REST/Script/db2db
+			'/REST/Script/db2db',
+			// '/REST/Script/generate/db2db',
 			args, 
 			(body) => { return body.script; }
 		);
@@ -142,8 +142,8 @@ module.exports = {
 	//args: title, script, dbName, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword
 	importVer1Script: (args) => {
 		return post(
-			util.format('/REST/Script/ImportVer1Script/%s/', encodeURI(args.title)),
-			// /REST/Script/ver1-script/script-name/{title}
+			util.format('/REST/Script/ver1-script/script-name/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/ImportVer1Script/%s/', encodeURI(args.title)),
 			{
 				script: args.script,
 				dbName: args.dbName,
@@ -158,17 +158,26 @@ module.exports = {
 	//args: title, script
 	editScript: (args) => {
 		return post(
-			util.format('/REST/Script/Edit/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/edit
+			util.format('/REST/Script/script/%s/edit', encodeURI(args.title)),
+			// util.format('/REST/Script/Edit/%s/', encodeURI(args.title)),
 			{ script: args.script },
 			(body) => { return body.success; }
+		);
+	},
+	//return { SCRIPT_NAME, REGDATE, IS_RUNNING }
+	loadScripts: () => {
+		return get(
+			'/REST/Script/scripts/info',
+			// '/REST/Script/Info/'
+			null,
+			(body) => { return body.scriptInfos; }
 		);
 	},
 	//args: title
 	loadScript: (args) => {
 		return get(
-			util.format('/REST/Script/Load/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}
+			util.format('/REST/Script/script/%s', encodeURI(args.title)),
+			// util.format('/REST/Script/Load/%s/', encodeURI(args.title)),
 			null,
 			(body) => { return body.script; }
 		);
@@ -176,19 +185,19 @@ module.exports = {
 	//args: title
 	loadScriptParams: (args) => {
 		return get(
-			util.format('/REST/Script/LoadParams/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/params
+			util.format('/REST/Script/script/%s/params', encodeURI(args.title)),
+			// util.format('/REST/Script/LoadParams/%s/', encodeURI(args.title)),
 			null,
 			(body) => {
 				if(body.parsable === 1) return { parsable: 1, params: body.params };
 				else return { parsable: 0, msg: body.msg };
 			}
 		);
-	}
+	},
 	loadScriptTitles: () => {
 		return get(
-			'/REST/Script/Titles/',
-			// /REST/Script/script-titles
+			'/REST/Script/script-titles',
+			// '/REST/Script/Titles/',
 			null,
 			(body) => { return body.titles; }
 		);
@@ -196,8 +205,8 @@ module.exports = {
 	//args: title, newTitle
 	renameScript: (args) => {
 		return post(
-			util.format('/REST/Script/Rename/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/rename
+			util.format('/REST/Script/script/%s/rename', encodeURI(args.title)),
+			// util.format('/REST/Script/Rename/%s/', encodeURI(args.title)),
 			{ newTitle: args.newTitle },
 			(body) => { return body.success; }
 		);
@@ -205,8 +214,8 @@ module.exports = {
 	//args: title
 	startScript: (args) => {
 		return post(
-			util.format('/REST/Script/Start/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/start
+			util.format('/REST/Script/script/%s/start', encodeURI(args.title)),
+			// util.format('/REST/Script/Start/%s/', encodeURI(args.title)),
 			null,
 			(body) => {
 				return body.success;
@@ -216,8 +225,8 @@ module.exports = {
 	//args: title
 	stopScript: (args) => {
 		return post(
-			util.format('/REST/Script/Stop/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/stop
+			util.format('/REST/Script/script/%s/stop', encodeURI(args.title)),
+			// util.format('/REST/Script/Stop/%s/', encodeURI(args.title)),
 			null,
 			(body) => { return body.success; }
 		);
@@ -225,8 +234,8 @@ module.exports = {
 	//args: title
 	removeScript: (args) => {
 		return post(
-			util.format('/REST/Script/Remove/%s/', encodeURI(args.title)),
-			// /REST/Script/script/{title}/remove
+			util.format('/REST/Script/script/%s/remove', encodeURI(args.title)),
+			// util.format('/REST/Script/Remove/%s/', encodeURI(args.title)),
 			null,
 			(body) => { return body.success; }
 		);
@@ -238,24 +247,24 @@ module.exports = {
 	getHomePath: () => {
 		return get(
 			'/REST/Config/homepath',
-			// /REST/Config/homepath
+			// '/REST/Config/homepath',
 			null,
 			(body) => { return body.homepath; }
 		);
 	},
 	getSimpleRepoAll: () => {
 		return get(
-			'/REST/Config/SimpleRepo/',
-			// /REST/Config/simple-repos
+			'/REST/Config/simple-repos',
+			// '/REST/Config/SimpleRepo/',
 			null,
-			(body) = > { return body.data; }
+			(body) => { return body.data; }
 		);
 	},
 	//args: scriptName, key
 	getSimpleRepo: (args) => {
 		return get(
-			'/REST/Config/SimpleRepo/',
-			// /REST/Config/simple-repos/script/{scriptName}/key/{key}
+			'/REST/Config/simple-repos/script/{scriptName}/key/%s',
+			// '/REST/Config/SimpleRepo/',
 			{ scriptName: args.scriptName, key: args.key },
 			(body) => { return body.value; }
 		);
@@ -263,26 +272,32 @@ module.exports = {
 	//args: scriptName, key, value
 	addSimpleRepo: (args) => {
 		return post(
-			'/REST/Config/AddSimpleRepo/',
-			// /REST/Config/simple-repo/script/{scriptName}/key/{key}
-			args,
+			util.format('/REST/Config/simple-repo/script/%s/key/%s', 
+				encodeURI(args.scriptName),
+				encodeURI(args.key)),
+			// '/REST/Config/AddSimpleRepo/',
+			{ value: args.value },
 			(body) => { return true; }
 		);
 	},
 	//args: scriptName, key, newKey, newValue
 	updateSimpleRepo: (args) => {
 		return post(
-			'/REST/Config/UpdateSimpleRepo/',
-			// /REST/Config/simple-repo/script/{scriptName}/key/{key}/update
-			args,
+			util.format('/REST/Config/simple-repo/script/%s/key/%s/update',
+				encodeURI(args.scriptName),
+				encodeURI(args.key)),
+			// '/REST/Config/UpdateSimpleRepo/',
+			{ newKey: args.newKey, newValue: args.newValue },
 			(body) => { return true; }
 		);
 	},
 	//args: scriptName, key
 	removeSimpleRepo: (args) => {
 		return post(
-			'/REST/Config/RemoveSimpleRepo/'
-			// /REST/Config/simple-repo/script/{scriptName}/key/{key}/remove
+			util.format('/REST/Config/simple-repo/script/%s/key/%s/remove',
+				encodeURI(args.scriptName),
+				encodeURI(args.key)),
+			// '/REST/Config/RemoveSimpleRepo/'
 			args,
 			(body) => { return true; }
 		);
@@ -290,8 +305,8 @@ module.exports = {
 	//args: threshold
 	updateLog4jThreshold: (args) => {
 		return post(
-			'/REST/Config/update/log4j/threshold',
-			// /REST/Config/log4j/threshold/update
+			'/REST/Config/log4j/threshold/update',
+			// '/REST/Config/update/log4j/threshold',
 			args, 
 			(body) => { return true; }
 		);
@@ -299,7 +314,7 @@ module.exports = {
 	loadLog4jThreshold: () => {
 		return get(
 			'/REST/Config/log4j/threshold',
-			// /REST/Config/log4j/threshold
+			// '/REST/Config/log4j/threshold',
 			null,
 			(body) => { return body.threshold; }
 		);
@@ -312,9 +327,19 @@ module.exports = {
 	embedDbQuery: (args) => {
 		return get(
 			'/REST/EmbedDb/query',
-			// /RESET/EmbedDB/datas
+			// '/REST/EmbedDb/query',
 			args, 
 			(body) => { return body.result; }
+		);
+	},
+
+
+	//### meta
+	getVersion: () => {
+		return get(
+			'/REST/Meta/version',
+			null,
+			(body) => { return body.version; }
 		);
 	}
 };

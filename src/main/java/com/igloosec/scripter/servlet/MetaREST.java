@@ -33,13 +33,13 @@ public class MetaREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/Version/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/version").match(pathInfo, pathParams)){
 				resp.getWriter().print(new JSONObject().put("success", 1).put("version", Version.getCurrentVersion()).toString());
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/Encrypt/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/encrypt").match(pathInfo, pathParams)){
 				resp.getWriter().print(getEncrypt(req, resp, pathParams));
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/Decrypt/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/decrypt").match(pathInfo, pathParams)){
 				resp.getWriter().print(getDecrypt(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{

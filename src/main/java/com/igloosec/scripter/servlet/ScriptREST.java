@@ -47,17 +47,17 @@ public class ScriptREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/Info/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/scripts/info").match(pathInfo, pathParams)){
 				resp.getWriter().print(getScriptInfo(req, resp, pathParams));
-			} else if(new UriTemplate("/Titles/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script-titles").match(pathInfo, pathParams)){
 				resp.getWriter().print(getTitles(req, resp, pathParams));
-			} else if(new UriTemplate("/generate/db2file").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/db2file").match(pathInfo, pathParams)){
 				resp.getWriter().print(generateDb2File(req, resp, pathParams));
-			} else if(new UriTemplate("/generate/db2db").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/db2db").match(pathInfo, pathParams)){
 				resp.getWriter().print(generateDb2Db(req, resp, pathParams));
-			} else if(new UriTemplate("/Load/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}").match(pathInfo, pathParams)){
 				resp.getWriter().print(loadScript(req, resp, pathParams));
-			} else if(new UriTemplate("/LoadParams/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/params").match(pathInfo, pathParams)){
 				resp.getWriter().print(loadScriptParams(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
@@ -226,20 +226,19 @@ public class ScriptREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/New/{title}/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/script/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
-			
-			} else if(new UriTemplate("/ImportVer1Script/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/ver1-script/script-name/{title}/").match(pathInfo, pathParams)){
 				resp.getWriter().print(importVer1Script(req, resp, pathParams));
-			} else if(new UriTemplate("/Edit/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/edit").match(pathInfo, pathParams)){
 				resp.getWriter().print(postEditScript(req, resp, pathParams));
-			} else if(new UriTemplate("/Start/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/start").match(pathInfo, pathParams)){
 				resp.getWriter().print(postStartScript(req, resp, pathParams));
-			} else if(new UriTemplate("/Stop/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/stop").match(pathInfo, pathParams)){
 				resp.getWriter().print(postStopScript(req, resp, pathParams));
-			} else if(new UriTemplate("/Rename/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/rename").match(pathInfo, pathParams)){
 				resp.getWriter().print(postRename(req, resp, pathParams));
-			} else if(new UriTemplate("/Remove/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script/{title}/remove").match(pathInfo, pathParams)){
 				resp.getWriter().print(postRemove(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());

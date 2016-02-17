@@ -40,7 +40,9 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getConfig(req, resp, pathParams));
-			} else if(new UriTemplate("/SimpleRepo/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/simple-repos").match(pathInfo, pathParams)){
+				resp.getWriter().print(getSimpleRepoAll(req, resp, pathParams));
+			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}").match(pathInfo, pathParams)){
 				resp.getWriter().print(getSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/log4j/threshold").match(pathInfo, pathParams)){
 				resp.getWriter().print(getLog4jThreshold(req, resp, pathParams));
@@ -63,19 +65,20 @@ public class ConfigREST extends HttpServlet {
 		return new JSONObject().put("success", 1).put("configs", configService.load()).toString();
 	} 
 	
+	private String getSimpleRepoAll(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		JSONArray simpleRepoData = simpleRepoDAO.selectAll();
+		return new JSONObject().put("success", 1).put("data", simpleRepoData).toString();
+	}
+	
 	private String getSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
-		String scriptName = req.getParameter("scriptName");
-		String key = req.getParameter("key");
+		String scriptName = pathParams.get("scriptName");
+		String key = pathParams.get("key");
 		
-		if(scriptName != null && key != null) {
-			String value = simpleRepoDAO.select(scriptName, key);
-			return new JSONObject().put("success", 1).put("value", value).toString();
-		} else if(scriptName == null && key == null) {
-			JSONArray simpleRepoData = simpleRepoDAO.selectAll();
-			return new JSONObject().put("success", 1).put("data", simpleRepoData).toString();
-		} else {
-			throw new IllegalArgumentException(String.format("scriptName: %s, key: %s", scriptName, key));
-		}
+		Preconditions.checkArgument(scriptName != null && scriptName.trim().length() > 0, "invalid scriptName");
+		Preconditions.checkArgument(key != null && key.trim().length() > 0, "invalid key");
+		
+		String value = simpleRepoDAO.select(scriptName, key);
+		return new JSONObject().put("success", 1).put("value", value).toString();
 	}
 	
 	private String getLog4jThreshold(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
@@ -98,11 +101,11 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(postConfig(req, resp, pathParams));
-			} else if(new UriTemplate("/AddSimpleRepo/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}").match(pathInfo, pathParams)){
 				resp.getWriter().print(addSimpleRepo(req, resp, pathParams));
-			} else if(new UriTemplate("/UpdateSimpleRepo/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/update").match(pathInfo, pathParams)){
 				resp.getWriter().print(updateSimpleRepo(req, resp, pathParams));
-			} else if(new UriTemplate("/RemoveSimpleRepo/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/remove/").match(pathInfo, pathParams)){
 				resp.getWriter().print(removeSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/update/log4j/threshold").match(pathInfo, pathParams)){
 				resp.getWriter().print(updateLog4jThreshold(req, resp, pathParams));
@@ -141,8 +144,8 @@ public class ConfigREST extends HttpServlet {
 	}
 	
 	private String addSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String scriptName = req.getParameter("scriptName");
-		String key = req.getParameter("key");
+		String scriptName = pathParams.get("scriptName");
+		String key = pathParams.get("key");
 		String value = req.getParameter("value");
 		
 		Preconditions.checkArgument(scriptName != null, "scriptName is null");
@@ -155,8 +158,8 @@ public class ConfigREST extends HttpServlet {
 	}
 	
 	private String updateSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String scriptName = req.getParameter("scriptName");
-		String key = req.getParameter("key");
+		String scriptName = pathParams.get("scriptName");
+		String key = pathParams.get("key");
 		
 		String newKey = req.getParameter("newKey");
 		String newValue = req.getParameter("newValue");
@@ -172,8 +175,8 @@ public class ConfigREST extends HttpServlet {
 	}
 	
 	private String removeSimpleRepo(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String scriptName = req.getParameter("scriptName");
-		String key = req.getParameter("key");
+		String scriptName = pathParams.get("scriptName");
+		String key = pathParams.get("key");
 		
 		Preconditions.checkArgument(scriptName != null, "scriptName is null");
 		Preconditions.checkArgument(key != null, "key is null");

@@ -33,11 +33,11 @@ public class ChartREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/ScriptScoreStatistics/Total/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/total-chart").match(pathInfo, pathParams)){
 				resp.getWriter().print(getTotalChartData(req, resp, pathParams));
-			} else if(new UriTemplate("/ScriptScoreStatistics/script/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/script-chart/script-name/{scriptName}").match(pathInfo, pathParams)){
 				resp.getWriter().print(getScriptChartData(req, resp, pathParams));
-			} else if(new UriTemplate("/ScriptScoreStatistics/LastStatistics/{scriptName}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/last-statistics/script-name/{scriptName}").match(pathInfo, pathParams)){
 				resp.getWriter().print(getLastStatistics(req, resp, pathParams));
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());

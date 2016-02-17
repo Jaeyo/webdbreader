@@ -38,13 +38,13 @@ public class DatabaseREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/Tables/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/tables").match(pathInfo, pathParams)){
 				resp.getWriter().print(tables(req, resp, pathParams));
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/Columns/{tableName}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/table/{tableName}/columns").match(pathInfo, pathParams)){
 				resp.getWriter().print(columns(req, resp, pathParams));
 				resp.getWriter().flush();
-			} else if(new UriTemplate("/QuerySampleData/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/query").match(pathInfo, pathParams)){
 				resp.getWriter().print(querySampleData(req, resp, pathParams));
 				resp.getWriter().flush();
 			} else{
