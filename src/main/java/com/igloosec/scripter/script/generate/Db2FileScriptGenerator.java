@@ -76,7 +76,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 			script.appendLine("		var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
 				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
-				.appendLine("		else max = dateFormat(max, '$yyyy-$mm-$dd $hh:$mi:$ss');")
+				.appendLine("		else max = dateFormat(max.getTime(), '$yyyy-$mm-$dd $hh:$mi:$ss');")
 				.appendLine();
 		}
 		

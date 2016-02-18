@@ -55,7 +55,7 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 		if(bindingType.equals("simple") == true) {
 			script.appendLine("var deleteAllBeforeInsert = %s;", deleteAllBeforeInsert);
 		} else {
-			script.appendLine("var bindingType = %s;", bindingType);
+			script.appendLine("var bindingType = '%s';", bindingType);
 		}
 		
 		script
@@ -92,7 +92,7 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			script.appendLine("		var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
 				.appendLine("		var max = srcDb.query('SELECT MAX(?) FROM ?', [ srcBindingColumn, srcTable ]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
-				.appendLine("		else max = dateFormat(max, '$yyyy-$mm-$dd $hh:$mi:$ss');")
+				.appendLine("		else max = dateFormat(max.getTime(), '$yyyy-$mm-$dd $hh:$mi:$ss');")
 				.appendLine();
 		}
 		
@@ -126,7 +126,16 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("				var values = [];")
 			.appendLine("				row.eachColumn(function(column) {")
 			.appendLine("					if(isNumber(column) === true) values.push(column);")
-			.appendLine("					else values.push(\"'\" + column + \"'\");")
+			.appendLine("					else if(isDate(column) === true) {")
+			.appendLine("						column = dateFormat(column.getTime(), '$yyyy-$mm-$dd $hh:$mi:$ss'); ");
+		if(srcDbVendor.equals("oracle") || srcDbVendor.equals("db2") || srcDbVendor.equals("tibero") || srcDbVendor.equals("etc")) {
+			script.appendLine("						values.push('TO_DATE(\\'' + column + '\\', \\'YYYY-MM-DD HH24:MI:SS\\')');");
+		} else if(srcDbVendor.equals("mysql")) {
+			script.appendLine("						values.push('STR_TO_DATE(\\'' + column + '\\', \\'%Y-%m-%d %H:%i:%s\\')');");
+		} else if(srcDbVendor.equals("mssql")) {
+			script.appendLine("						values.push('\\'column\\'');");
+		}
+		script.appendLine("					} else values.push(\"'\" + column + \"'\");")
 			.appendLine("				});")
 			.appendLine("				destDb.update('insert into ? (?) values(?)', [ destTable, destColumns, values.join(',') ]);")
 			.appendLine("			});");

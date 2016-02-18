@@ -105,7 +105,7 @@ public class ConfigREST extends HttpServlet {
 				resp.getWriter().print(addSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/update").match(pathInfo, pathParams)){
 				resp.getWriter().print(updateSimpleRepo(req, resp, pathParams));
-			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/remove/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/remove").match(pathInfo, pathParams)){
 				resp.getWriter().print(removeSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/update/log4j/threshold").match(pathInfo, pathParams)){
 				resp.getWriter().print(updateLog4jThreshold(req, resp, pathParams));

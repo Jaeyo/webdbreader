@@ -24,7 +24,7 @@ public class SimpleRepoDAO {
 	}
 	
 	public boolean isExists(String scriptName, String key) {
-		return 1 == ds.getJdbcTmpl().queryForObject("SELECT COUNT(*) "
+		return 1 <= ds.getJdbcTmpl().queryForObject("SELECT COUNT(*) "
 				+ "FROM simple_repo WHERE script_name = ? AND simple_repo_key = ?", 
 				new Object[]{ scriptName, key}, Integer.class);
 	}

@@ -12,7 +12,7 @@ import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class Database {
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
-	private static final ScriptLogger logger = ScriptThread.currentLogger();
+	private ScriptLogger logger = ScriptThread.currentLogger();
 	
 	private String driver;
 	private String connUrl;

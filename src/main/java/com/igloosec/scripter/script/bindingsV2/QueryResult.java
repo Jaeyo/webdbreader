@@ -13,7 +13,7 @@ import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 import com.igloosec.scripter.util.Util;
 
 public class QueryResult {
-	private static final ScriptLogger logger = ScriptThread.currentLogger();
+	private ScriptLogger logger = ScriptThread.currentLogger();
 	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private SqlRowSet sqlRowSet;
 	

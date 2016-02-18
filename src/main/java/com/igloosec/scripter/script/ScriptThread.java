@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 
 public abstract class ScriptThread extends Thread {
-	private static ScriptLogger logger = null;
+	private ScriptLogger logger = null;
 	private boolean isRunMethodRunning = false;
 	private String scriptName;
 	private List<Timer> timers = Lists.newArrayList();

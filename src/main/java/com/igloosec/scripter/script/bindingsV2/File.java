@@ -15,7 +15,7 @@ import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 import com.sun.xml.internal.ws.Closeable;
 
 public class File implements Closeable {
-	private static final ScriptLogger logger = ScriptThread.currentLogger();
+	private ScriptLogger logger = ScriptThread.currentLogger();
 	private static ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 			
