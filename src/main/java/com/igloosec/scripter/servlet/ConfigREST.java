@@ -17,16 +17,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
-import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.UnknownThresholdException;
 import com.igloosec.scripter.service.ConfigService;
+import com.igloosec.scripter.service.SimpleRepoService;
 import com.igloosec.scripter.util.Log4jConfig;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ConfigREST extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigREST.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
-	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
+	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -66,7 +66,7 @@ public class ConfigREST extends HttpServlet {
 	} 
 	
 	private String getSimpleRepoAll(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
-		JSONArray simpleRepoData = simpleRepoDAO.selectAll();
+		JSONArray simpleRepoData = simpleRepoService.get();
 		return new JSONObject().put("success", 1).put("data", simpleRepoData).toString();
 	}
 	
@@ -77,7 +77,7 @@ public class ConfigREST extends HttpServlet {
 		Preconditions.checkArgument(scriptName != null && scriptName.trim().length() > 0, "invalid scriptName");
 		Preconditions.checkArgument(key != null && key.trim().length() > 0, "invalid key");
 		
-		String value = simpleRepoDAO.select(scriptName, key);
+		String value = simpleRepoService.get(scriptName, key);
 		return new JSONObject().put("success", 1).put("value", value).toString();
 	}
 	
@@ -152,7 +152,7 @@ public class ConfigREST extends HttpServlet {
 		Preconditions.checkArgument(key != null, "key is null");
 		Preconditions.checkArgument(value != null, "value is null");
 		
-		simpleRepoDAO.insert(scriptName, key, value);
+		simpleRepoService.set(scriptName, key, value);
 		
 		return new JSONObject().put("success", 1).toString();
 	}
@@ -169,7 +169,7 @@ public class ConfigREST extends HttpServlet {
 		Preconditions.checkArgument(newKey != null, "newKey is null");
 		Preconditions.checkArgument(newValue != null, "newValue is null");
 		
-		simpleRepoDAO.update(scriptName, key, newKey, newValue);
+		simpleRepoService.set(scriptName, key, newKey, newValue);
 		
 		return new JSONObject().put("success", 1).toString();
 	}
@@ -181,7 +181,7 @@ public class ConfigREST extends HttpServlet {
 		Preconditions.checkArgument(scriptName != null, "scriptName is null");
 		Preconditions.checkArgument(key != null, "key is null");
 		
-		simpleRepoDAO.delete(scriptName);
+		simpleRepoService.delete(scriptName);
 		
 		return new JSONObject().put("success", 1).toString();
 	}

@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -12,7 +13,7 @@ import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.NotExistsException;
 
 public class SimpleRepoService {
-	SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
+	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	
 	public void set(String scriptName, String key, String value) {
 		if(simpleRepoDAO.isExists(scriptName, key)) {
@@ -21,7 +22,19 @@ public class SimpleRepoService {
 			simpleRepoDAO.insert(scriptName, key, value);
 		}
 	}
-		
+	
+	public void set(String scriptName, String key, String newKey, String value) {
+		if(simpleRepoDAO.isExists(scriptName, newKey)) {
+			simpleRepoDAO.update(scriptName, key, newKey, value);
+		} else {
+			simpleRepoDAO.insert(scriptName, newKey, value);
+		}
+	}
+	
+	public JSONArray get() {
+		return simpleRepoDAO.selectAll();
+	}
+	
 	public String get(String scriptName, String key) {
 		return simpleRepoDAO.select(scriptName, key);
 	}
