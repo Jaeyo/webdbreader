@@ -51,6 +51,11 @@ var NewDb2DbView = React.createClass({
 	},
 
 	handleSrcDbStateChange(state) {
+		if(state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'srcJdbcDriver');
+		if(state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'srcJdbcConnUrl');
+		if(state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'srcJdbcUsername');
+		if(state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'srcJdbcPassword');
+
 		if(state.dbVendor) {
 			Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
 			if(state.srcDbVendor != 'etc') {
@@ -94,6 +99,11 @@ var NewDb2DbView = React.createClass({
 	},
 
 	handleDestDbStateChange(state) {
+		if(state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'destJdbcDriver');
+		if(state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'destJdbcConnUrl');
+		if(state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'destJdbcUsername');
+		if(state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'destJdbcPassword');
+
 		if(state.dbVendor) {
 			Object.renameProperty(state, 'dbVendor', 'destDbVendor');
 			if(state.destDbVendor != 'etc') {
@@ -306,10 +316,8 @@ var TableColumnsMappingCardWithProps = (props) => {
 
 var BindingTypeCardWithProps = (props) => {
 	var handleStateChange = function(state) {
-		if(state.bindingColumn) {
-			state.srcBindingColumn = state.bindingColumn;
-			delete state.bindingColumn;
-		}
+		if(state.bindingColumn)
+			Object.renameProperty(state, 'bindingColumn', 'srcBindingColumn');
 		if(state.bindingType) {
 			if(state.bindingType === 'simple') {
 				state.srcBindingColumn = '';
