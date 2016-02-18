@@ -101,6 +101,16 @@ print(isNumber(123)); // true
 print(isNumber('asdf')); // false
 ```
 
+### isDate(arg)
+* arg의 타입이 Date 타입인지 확인한다.
+* arguments:
+    - arg: 확인할 대상 object
+* example
+```javascript
+print(isDate(new java.util.Date())); //true
+print(isDate(new java.sql.Date())); //true
+```
+
 ----
 
 ## 바인딩 객체

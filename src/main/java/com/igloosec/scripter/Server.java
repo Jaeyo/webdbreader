@@ -51,7 +51,7 @@ public class Server {
 		org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
 		server.setThreadPool(threadPool);
 		server.setStopAtShutdown(true);
-
+		
 		SelectChannelConnector connector = new SelectChannelConnector();
 		connector.setPort(Conf.getAs(Conf.PORT, 8098));
 		server.setConnectors(new SelectChannelConnector[] { connector });

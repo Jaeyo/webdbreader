@@ -12,4 +12,10 @@ public class Util {
 		else if(arg instanceof Double) return true;
 		return false;
 	}
+	
+	public static boolean isDate(Object arg) {
+		if(arg instanceof java.sql.Date) return true; 
+		else if(arg instanceof java.util.Date) return true; 
+		return false;
+	}
 }
