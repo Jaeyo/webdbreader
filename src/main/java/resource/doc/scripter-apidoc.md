@@ -82,6 +82,25 @@ var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
 dateFormat(1453954857204, '$yyyy-$mm-$dd $hh:$mi:$ss');
 ```
 
+### getType(arg)
+* arg의 타입을 Java 객체 기준으로 확인하여 반환한다.
+* arguments:
+    - arg: 확인할 대상 object
+* example
+```javascript
+print(getType('str') === 'String'); // true
+```
+
+### isNumber(arg)
+* arg의 타입이 number 타입인지 확인한다.
+* arguments: 
+    - arg: 확인할 대상 object
+* example
+```javascript
+print(isNumber(123)); // true
+print(isNumber('asdf')); // false
+```
+
 ----
 
 ## 바인딩 객체

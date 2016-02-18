@@ -125,7 +125,7 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("			.eachRow(function(row) {")
 			.appendLine("				var values = [];")
 			.appendLine("				row.eachColumn(function(column) {")
-			.appendLine("					if(typeof column === 'number') values.push(column);")
+			.appendLine("					if(isNumber(column) === true) values.push(column);")
 			.appendLine("					else values.push(\"'\" + column + \"'\");")
 			.appendLine("				});")
 			.appendLine("				destDb.update('insert into ? (?) values(?)', [ destTable, destColumns, values.join(',') ]);")
