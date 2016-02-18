@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.org.mozilla.javascript.internal.WrapFactory;
+
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.ScriptDAO;
@@ -226,9 +228,9 @@ public class ScriptREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/script/{title}/").match(pathInfo, pathParams)){
+			if(new UriTemplate("/script/{title}").match(pathInfo, pathParams)){
 				resp.getWriter().print(postScript(req, resp, pathParams));
-			} else if(new UriTemplate("/ver1-script/script-name/{title}/").match(pathInfo, pathParams)){
+			} else if(new UriTemplate("/ver1-script/script-name/{title}").match(pathInfo, pathParams)){
 				resp.getWriter().print(importVer1Script(req, resp, pathParams));
 			} else if(new UriTemplate("/script/{title}/edit").match(pathInfo, pathParams)){
 				resp.getWriter().print(postEditScript(req, resp, pathParams));
