@@ -73,6 +73,9 @@ var isNumber = function(arg) {
 	return com.igloosec.scripter.script.bindingsV2.Util.isNumber(arg);
 };
 
+var isDate = function(arg) {
+	return com.igloosec.scripter.script.bindingsV2.Util.isDate(arg);
+};
 
 
 
