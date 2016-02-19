@@ -112,7 +112,7 @@ public class DerbySchemaCreator {
 		for (int i = 0; i < result.length(); i++)
 			existingConfigKeys.add(result.getJSONObject(i).getString("CONFIG_KEY"));
 		
-		if(existingConfigKeys.contains("version.check") == false)
-			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('version.check', 'true')");
+		if(existingConfigKeys.contains("enable.tail") == false)
+			ds.getJdbcTmpl().update("INSERT INTO config (config_key, config_value) VALUES('enable.tail', 'true')");
 	}
 }

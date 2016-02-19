@@ -22,6 +22,7 @@ import com.igloosec.scripter.service.ConfigService;
 import com.igloosec.scripter.service.SimpleRepoService;
 import com.igloosec.scripter.util.Log4jConfig;
 import com.sun.jersey.api.uri.UriTemplate;
+import com.sun.xml.internal.bind.v2.TODO;
 
 public class ConfigREST extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigREST.class);
@@ -40,6 +41,8 @@ public class ConfigREST extends HttpServlet {
 		try{
 			if(new UriTemplate("/").match(pathInfo, pathParams)){
 				resp.getWriter().print(getConfig(req, resp, pathParams));
+			} else if(new UriTemplate("/enable-tail").match(pathInfo, pathParams)){
+				resp.getWriter().print(getEnableTail(req, resp, pathParams));
 			} else if(new UriTemplate("/simple-repos").match(pathInfo, pathParams)){
 				resp.getWriter().print(getSimpleRepoAll(req, resp, pathParams));
 			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}").match(pathInfo, pathParams)){
@@ -64,6 +67,10 @@ public class ConfigREST extends HttpServlet {
 	private String getConfig(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
 		return new JSONObject().put("success", 1).put("configs", configService.load()).toString();
 	} 
+	
+	private String getEnableTail(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+		return new JSONObject().put("success", 1).put("enable-tail", configService.isTailEnable()).toString();
+	}
 	
 	private String getSimpleRepoAll(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
 		JSONArray simpleRepoData = simpleRepoService.get();
@@ -99,8 +106,8 @@ public class ConfigREST extends HttpServlet {
 		Map<String, String> pathParams = new HashMap<String, String>();
 		
 		try{
-			if(new UriTemplate("/").match(pathInfo, pathParams)){
-				resp.getWriter().print(postConfig(req, resp, pathParams));
+			if(new UriTemplate("/enable-tail/{value}").match(pathInfo, pathParams)){
+				resp.getWriter().print(postEnableTail(req, resp, pathParams));
 			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}").match(pathInfo, pathParams)){
 				resp.getWriter().print(addSimpleRepo(req, resp, pathParams));
 			} else if(new UriTemplate("/simple-repo/script/{scriptName}/key/{key}/update").match(pathInfo, pathParams)){
@@ -122,23 +129,13 @@ public class ConfigREST extends HttpServlet {
 		} 
 	} 
 	
-	private String postConfig(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
-		String jsonParamStr = req.getParameter("jsonParam");
+	private String postEnableTail(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+		String value = pathParams.get("value");
 		
-		Preconditions.checkArgument(jsonParamStr != null, "jsonParam is null");
+		Preconditions.checkArgument(value != null, "value is null");
+		Preconditions.checkArgument(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"), "invalid value: " + value);
 		
-		JSONArray jsonParams = new JSONArray(jsonParamStr);
-		
-		for (int i = 0; i < jsonParams.length(); i++) {
-			JSONObject jsonParam = jsonParams.getJSONObject(i);
-			String configKey = jsonParam.getString("configKey");
-			String configValue = jsonParam.getString("configValue");
-			
-			Preconditions.checkArgument(configKey != null, "configKey is null");
-			Preconditions.checkArgument(configValue != null, "configValue is null");
-			
-			configService.save(configKey, configValue);
-		} 
+		configService.enableTail(Boolean.parseBoolean(value));
 		
 		return new JSONObject().put("success", 1).toString();
 	}

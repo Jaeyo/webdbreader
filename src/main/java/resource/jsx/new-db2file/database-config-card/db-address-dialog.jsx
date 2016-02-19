@@ -38,7 +38,7 @@ var DbAddressDialog = React.createClass({
 
 	handleChange(name, evt) {
 		evt.stopPropagation();
-		
+
 		var state = {};
 		state[name] = evt.target.value;
 		this.props.handleStateChange(state);

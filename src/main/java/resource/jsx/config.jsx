@@ -5,6 +5,7 @@ import PolymerIcon from './comps/polymer-icon.jsx';
 import SimpleRepoCard from './config/simple-repo-card.jsx';
 import Log4jConfigCard from './config/log4j-config-card.jsx';
 import EmbedDbQueryCard from './config/embed-db-query-card.jsx';
+import GeneralConfigCard from './config/general-config-card.jsx';
 import {
 	Button,
 	Card,
@@ -17,6 +18,9 @@ var ConfigView = React.createClass({
 		try {
 			return (
 				<div>
+					<div style={{ marginBottom: '10px' }}>
+						<GeneralConfigCard />
+					</div>
 					<div style={{ marginBottom: '10px' }}>
 						<SimpleRepoCard />
 					</div>

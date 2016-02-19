@@ -126,9 +126,21 @@ var ScriptPanelItem = React.createClass({
 						display: 'inline-block',
 						minWidth: '58px',
 						textAlign: 'center',
-						lineHeight: '1.1',
 						marginRight: '3px'
-					}}>{props.value}</span>
+					}}>
+						<div style={{
+							lineHeight: '0.9',
+							fontSize: '70%'
+						}}>
+							{props.label}
+						</div>
+						<div style={{ 
+								lineHeight: '1.1',
+								fontSize: '150%'
+							}}>
+							{props.value}
+						</div>
+					</span>
 				);
 			};
 
@@ -177,10 +189,10 @@ var ScriptPanelItem = React.createClass({
 							<label>{this.props.regdate}</label>
 						</div>
 					</div>
-					<div style={{ float: 'right', fontSize: '150%' }}>
-						<StatisticsValue bg="rgb(22, 160, 133)" value={this.state.statistics_input} />
-						<StatisticsValue bg="rgb(41, 128, 185)" value={this.state.statistics_output} />
-						<StatisticsValue bg="rgb(186, 41, 56)" value={this.state.statistics_errorLog} />
+					<div style={{ float: 'right' }}>
+						<StatisticsValue label="in" bg="rgb(22, 160, 133)" value={this.state.statistics_input} />
+						<StatisticsValue label="out" bg="rgb(41, 128, 185)" value={this.state.statistics_output} />
+						<StatisticsValue label="err" bg="rgb(186, 41, 56)" value={this.state.statistics_errorLog} />
 					</div>
 					<Clearfix />
 					<PromptDialog ref="promptDialog" />

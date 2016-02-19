@@ -153,7 +153,7 @@ newDatabase({
     connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',
     username: 'admin',
     password: 'admin'
-}).query('SELECT * FROM ?', 'test_table');
+}).query('SELECT * FROM ?', [ 'test_table' ]);
 ```
 
 #### update(sql)
@@ -182,8 +182,27 @@ newDatabase({
     connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',
     username: 'admin',
     password: 'admin'
-}).query('insert into test_table(v1, v2) values(\'?\')', 'value1');
+}).update('insert into test_table(v1, v2) values(\'?\')', [ 'value1' ]);
 ```
+
+### batchUpdate(sqls)
+* 연결된 데이터베이스로 INSERT/UPDATE/DELETE 및 DDL 쿼리를 batch로 실행한다.
+* arguments: 
+    - sqls: 실행할 쿼리들
+* example
+```javascript
+newDatabase({
+    driver: 'com.mysql.jdbc.Driver',
+    connUrl: 'jdbc:mysql://127.0.0.1:3306/spider',
+    username: 'admin',
+    password: 'admin'
+}).batchUpdate([
+    'insert into test_table(v1, v2) values(1, 2)',
+    'insert into test_table(v1, v2) values(2, 3)',
+    'insert into test_table(v1, v2) values(3, 4)'
+]);
+```
+
 
 ### QueryResult
 #### get(args)

@@ -73,7 +73,7 @@ public class File implements Closeable {
 		}
 		
 		private void switchIfPossible() throws IOException {
-			if(this.currentFilename != formatter.format(this.originalFilename, new Date()))
+			if(this.currentFilename.equals(formatter.format(this.originalFilename, new Date())) == false)
 				switching();
 		}
 		
@@ -115,12 +115,12 @@ public class File implements Closeable {
 		private SimpleDateFormat ss  = new SimpleDateFormat("ss");
 		
 		public String format(String str, Date date) {
-			str = str.replace("yyyy", yyyy.format(date));
-			str = str.replace("MM", MM.format(date));
-			str = str.replace("dd", dd.format(date));
-			str = str.replace("HH", HH.format(date));
-			str = str.replace("mm", mm.format(date));
-			str = str.replace("ss", ss.format(date));
+			str = str.replace("$yyyy", yyyy.format(date));
+			str = str.replace("$mm", MM.format(date));
+			str = str.replace("$dd", dd.format(date));
+			str = str.replace("$hh", HH.format(date));
+			str = str.replace("$mi", mm.format(date));
+			str = str.replace("$ss", ss.format(date));
 			return str;
 		}
 	}

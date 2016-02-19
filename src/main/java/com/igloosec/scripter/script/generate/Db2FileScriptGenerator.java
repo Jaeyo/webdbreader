@@ -44,11 +44,12 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		script.appendLine("var delimiter = '%s';", delimiter)
 			.appendLine("var charset = '%s';", charset)
 			.appendLine("var outputPath = '%s';", outputPath)
+			.appendLine("var outputFilename = '$yyyy$mm$dd$hh$mi.log';")
 			.appendLine();
 		
 		
 		script.appendLine("var repeat = newRepeat({ period: period });")
-			.appendLine("var file = newFile({ filename: outputPath + '$yyyy$mm$dd$hh$mi.log', charset: charset });")
+			.appendLine("var file = newFile({ filename: outputPath + outputFilename, charset: charset });")
 			.appendLine("var repo = newRepo();")
 			.appendLine("var logger = newLogger();")
 			.appendLine("var crypto = newCrypto();")

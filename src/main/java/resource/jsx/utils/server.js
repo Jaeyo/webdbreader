@@ -319,6 +319,21 @@ module.exports = {
 			(body) => { return body.threshold; }
 		);
 	},
+	isEnableTail: () => {
+		return get(
+			'/REST/Config/enable-tail', 
+			null,
+			(body) => { return body['enable-tail']; }
+		);
+	},
+	//args: enableTail(boolean)
+	setEnableTail: (args) => {
+		return post(
+			util.format('/REST/Config/enable-tail/%s', encodeURI(args.enableTail)),
+			null,
+			(body) => { return true; }
+		);
+	},
 	// ### config end
 
 

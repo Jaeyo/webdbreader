@@ -12,7 +12,6 @@ import com.igloosec.scripter.dao.ScriptDAO;
 public class ConfigService {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
 	private ConfigDAO configDAO = SingletonInstanceRepo.getInstance(ConfigDAO.class);
-	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	
 	public JSONObject load(){
 		JSONArray configArr = configDAO.load();
@@ -24,11 +23,17 @@ public class ConfigService {
 		return configs;
 	} 
 	
-	public String load(String configKey){
-		return configDAO.load(configKey);
-	} 
+	public boolean isTailEnable() {
+		String result = configDAO.load("enable.tail");
+		if(result == null) {
+			configDAO.save("enable.tail", "true");
+			return true;
+		} else {
+			return Boolean.parseBoolean(result);
+		}
+	}
 	
-	public void save(String configKey, String configValue){
-		configDAO.save(configKey, configValue);
-	} 
+	public void enableTail(boolean enable) {
+		configDAO.save("enable.tail", enable + "");
+	}
 }

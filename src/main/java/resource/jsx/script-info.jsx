@@ -30,33 +30,50 @@ var ScriptInfoView = React.createClass({
 			regdate: '',
 			script: '',
 			scriptParams: null,
-			isRunning: false
+			isRunning: false,
+			isTailEnable: false
 		};
 	},
 
 	componentDidMount() {
-		this.loadScript(function(arg) {
+		this.loadScript((arg) => {
 			this.setState({
 				script: arg.script.SCRIPT,
 				regdate: arg.script.REGDATE,
 				isRunning: arg.script.IS_RUNNING
 			});
-		}.bind(this));
+		});
 
-		this.loadScriptParams(function(arg) {
+		this.loadScriptParams((arg) => {
 			if(arg.parsable === true)
 				this.setState({ scriptParams: arg.scriptParams });
-		}.bind(this));
+		});
+
+		this.isTailEnable((result) => {
+			this.setState({ isTailEnable: result });
+		});
 	},
 
 	loadScript(callback) {
+		var { refs } = this;
 		server
 			.loadScript({ title: this.props.title })
-			.then(function(script) {
+			.then((script) => {
 				callback({ script: script });
-			}).catch(function(err) {
-				this.refs.alertDialog.show('danger', err);
-			}.bind(this));
+			}).catch((err) => {
+				refs.alertDialog.show('danger', err);
+			});
+	},
+
+	isTailEnable(callback) {
+		var { refs } = this;
+		server
+			.isEnableTail()
+			.then((result) => {
+				callback(result)
+			}).catch((err) => {
+				refs.alertDialog.show('danger', err);
+			});
 	},
 
 	loadScriptParams(callback) {
@@ -134,13 +151,15 @@ var ScriptInfoView = React.createClass({
 
 	render() {
 		try {
+			var { state } = this;
+
 			var tabs = [];
 			tabs.push(
 				<Tab label="infomation" key="information">
 					<InfoTab title={this.props.title} script={this.state.script} />
 				</Tab>
 			);
-			if(this.state.scriptParams != null) {
+			if(state.scriptParams != null) {
 				tabs.push(
 					<Tab label="configuration" key="configuration">
 						<ScriptConfigTab 
@@ -149,11 +168,13 @@ var ScriptInfoView = React.createClass({
 					</Tab>
 				);
 			}
-			tabs.push(
-				<Tab label="tail" key="tail">
-					<TailTab title={this.props.title} />
-				</Tab>
-			);
+			if(state.isTailEnable === true) {
+				tabs.push(
+					<Tab label="tail" key="tail">
+						<TailTab title={this.props.title} />
+					</Tab>
+				);
+			}
 
 			return (
 				<Card>

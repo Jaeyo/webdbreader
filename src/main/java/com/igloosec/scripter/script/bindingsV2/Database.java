@@ -68,6 +68,25 @@ public class Database {
 		}
 	}
 	
+	public void batchUpdate(String[] queries) {
+		logger.info(String.format("query count: %s, startQuery: %s, endQuery: %s", 
+				queries.length, 
+				queries.length > 0 ? queries[0] : "null",
+				queries.length > 0 ? queries[queries.length-1] : "null"));
+		
+		Connection conn = null;
+		try {
+			Class.forName(this.driver);
+			conn = DriverManager.getConnection(this.connUrl, this.username, this.password);
+			JsonJdbcTemplate jdbcTmpl = new JsonJdbcTemplate(new SingleConnectionDataSource(conn));
+			
+			jdbcTmpl.batchUpdate(queries);
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.OUTPUT, queries.length);
+		} catch(Exception e) {
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
+	}
+	
 	private static String convertQuestionMark2RealValue(String query, Object... args) {
 		if(args == null) return query;
 		

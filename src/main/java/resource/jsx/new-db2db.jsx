@@ -51,12 +51,12 @@ var NewDb2DbView = React.createClass({
 	},
 
 	handleSrcDbStateChange(state) {
-		if(state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'srcJdbcDriver');
-		if(state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'srcJdbcConnUrl');
-		if(state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'srcJdbcUsername');
-		if(state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'srcJdbcPassword');
+		if(state.jdbcDriver != null) Object.renameProperty(state, 'jdbcDriver', 'srcJdbcDriver');
+		if(state.jdbcConnUrl != null) Object.renameProperty(state, 'jdbcConnUrl', 'srcJdbcConnUrl');
+		if(state.jdbcUsername != null) Object.renameProperty(state, 'jdbcUsername', 'srcJdbcUsername');
+		if(state.jdbcPassword != null) Object.renameProperty(state, 'jdbcPassword', 'srcJdbcPassword');
 
-		if(state.dbVendor) {
+		if(state.dbVendor != null) {
 			Object.renameProperty(state, 'dbVendor', 'srcDbVendor');
 			if(state.srcDbVendor != 'etc') {
 				state.srcJdbcDriver = jdbcTmpl[state.srcDbVendor].driver;
@@ -67,7 +67,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.srcDbSid);
 			}
 		}
-		if(state.dbIp) {
+		if(state.dbIp != null) {
 			Object.renameProperty(state, 'dbIp', 'srcDbIp');
 			if(this.state.srcDbVendor != 'etc') {
 				state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl
@@ -76,7 +76,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.srcDbSid);
 			}
 		}
-		if(state.dbPort) {
+		if(state.dbPort != null) {
 			Object.renameProperty(state, 'dbPort', 'srcDbPort');
 			if(this.state.srcDbVendor != 'etc') {
 				state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl
@@ -85,7 +85,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.srcDbSid);
 			}
 		}
-		if(state.dbSid) {
+		if(state.dbSid != null) {
 			Object.renameProperty(state, 'dbSid', 'srcDbSid');
 			if(this.state.srcDbVendor != 'etc') {
 				state.srcJdbcConnUrl = jdbcTmpl[this.state.srcDbVendor].connUrl
@@ -99,12 +99,12 @@ var NewDb2DbView = React.createClass({
 	},
 
 	handleDestDbStateChange(state) {
-		if(state.jdbcDriver) Object.renameProperty(state, 'jdbcDriver', 'destJdbcDriver');
-		if(state.jdbcConnUrl) Object.renameProperty(state, 'jdbcConnUrl', 'destJdbcConnUrl');
-		if(state.jdbcUsername) Object.renameProperty(state, 'jdbcUsername', 'destJdbcUsername');
-		if(state.jdbcPassword) Object.renameProperty(state, 'jdbcPassword', 'destJdbcPassword');
+		if(state.jdbcDriver != null) Object.renameProperty(state, 'jdbcDriver', 'destJdbcDriver');
+		if(state.jdbcConnUrl != null) Object.renameProperty(state, 'jdbcConnUrl', 'destJdbcConnUrl');
+		if(state.jdbcUsername != null) Object.renameProperty(state, 'jdbcUsername', 'destJdbcUsername');
+		if(state.jdbcPassword != null) Object.renameProperty(state, 'jdbcPassword', 'destJdbcPassword');
 
-		if(state.dbVendor) {
+		if(state.dbVendor != null) {
 			Object.renameProperty(state, 'dbVendor', 'destDbVendor');
 			if(state.destDbVendor != 'etc') {
 				state.destJdbcDriver = jdbcTmpl[state.destDbVendor].driver;
@@ -115,7 +115,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.destDbSid);
 			}
 		}
-		if(state.dbIp) {
+		if(state.dbIp != null) {
 			Object.renameProperty(state, 'dbIp', 'destDbIp');
 			if(this.state.destDbVendor != 'etc') {
 				state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl
@@ -124,7 +124,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.destDbSid);
 			}
 		}
-		if(state.dbPort) {
+		if(state.dbPort != null) {
 			Object.renameProperty(state, 'dbPort', 'destDbPort');
 			if(this.state.destDbVendor != 'etc') {
 				state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl
@@ -133,7 +133,7 @@ var NewDb2DbView = React.createClass({
 											.replace('{database}', this.state.destDbSid);
 			}
 		}
-		if(state.dbSid) {
+		if(state.dbSid != null) {
 			Object.renameProperty(state, 'dbSid', 'destDbSid');
 			if(this.state.destDbVendor != 'etc') {
 				state.destJdbcConnUrl = jdbcTmpl[this.state.destDbVendor].connUrl

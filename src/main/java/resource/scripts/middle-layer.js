@@ -21,14 +21,7 @@ var newFile = function(args) {
 	else if(args.filename == null) throw new Error('missing argument: filename');
 
 	if(args.charset == null) args.charset = 'UTF-8';
-
-	args.filename = args.filename.replace('$yyyy', 'yyyy')
-																.replace('$mm', 'MM')
-																.replace('$dd', 'dd')
-																.replace('$hh', 'HH')
-																.replace('$mi', 'mm')
-																.replace('$ss', 'ss');
-
+	
 	return new File(args.filename, args.charset);
 };
 
