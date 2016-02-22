@@ -37,24 +37,8 @@ public class DatabaseService {
 			conn = DriverManager.getConnection(jdbcParams.getString("connUrl"), username, password);
 			DatabaseMetaData meta = conn.getMetaData();
 			
-			rs = meta.getTables(null, username, "%", new String[]{ "TABLE" });
+			rs = meta.getTables(conn.getCatalog(), null, "%", new String[]{ "TABLE" });
 			JSONArray result = new JSONArray();
-			while(rs.next())
-				result.put(rs.getString(3));
-			
-			if(result.length() != 0)
-				return result;
-			
-			rs.close();
-			rs = meta.getTables(null, username.toLowerCase(), "%", new String[]{ "TABLE" });
-			while(rs.next())
-				result.put(rs.getString(3));
-	
-			if(result.length() != 0)
-				return result;
-			
-			rs.close();
-			rs = meta.getTables(null, username.toUpperCase(), "%", new String[]{ "TABLE" });
 			while(rs.next())
 				result.put(rs.getString(3));
 			
@@ -100,21 +84,7 @@ public class DatabaseService {
 			
 			JSONArray result = null;
 			
-			rs = meta.getColumns(null, username, tableName, null);
-			result = handleResultSetFunction.apply(rs);
-			
-			if(result.length() != 0) 
-				return result;
-			
-			rs.close();
-			rs = meta.getColumns(null, username.toLowerCase(), tableName.toLowerCase(), null);
-			result = handleResultSetFunction.apply(rs);
-	
-			if(result.length() != 0)
-				return result;
-			
-			rs.close();
-			rs = meta.getColumns(null, username.toUpperCase(), tableName.toUpperCase(), null);
+			rs = meta.getColumns(conn.getCatalog(), null, tableName, null);
 			result = handleResultSetFunction.apply(rs);
 			return result;
 		} finally{
