@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.exception.CryptoException;
 import com.igloosec.scripter.service.DatabaseService;
@@ -75,6 +77,15 @@ public class DatabaseREST extends HttpServlet {
 		
 		logger.debug(String.format("jdbcParams: %s", jdbcParams.toString()));
 		JSONArray tables = databaseService.getTables(jdbcParams);
+		
+		//DEBUG
+		Set<String> dupls = Sets.newHashSet();
+		for (int i = 0; i < tables.length(); i++) {
+			String table = tables.getString(i);
+			if(dupls.contains(table)) System.out.println("###DEBUG, duplication: " + table);
+			else dupls.add(table);
+		}
+		
 		return new JSONObject().put("success", 1).put("tables", tables).toString();
 	}
 

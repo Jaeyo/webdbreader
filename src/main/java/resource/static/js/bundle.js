@@ -86210,35 +86210,37 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var server = __webpack_require__(421);
-	var MaterialWrapper = __webpack_require__(435);
-	var Button = MaterialWrapper.Button;
-	var TextField = MaterialWrapper.TextField;
-	var SelectField = MaterialWrapper.SelectField;
-	var Card = MaterialWrapper.Card;
-	var CardHeader = MaterialWrapper.CardHeader;
-	var CardText = MaterialWrapper.CardText;
-	var CircularProgress = MaterialWrapper.CircularProgress;
-	var List = MaterialWrapper.List;
-	var ListItem = MaterialWrapper.ListItem;
-	var ListDivider = MaterialWrapper.ListDivider;
-	var Dialog = MaterialWrapper.Dialog;
-	var Toggle = MaterialWrapper.Toggle;
-	var PolymerIcon = __webpack_require__(741);
-	var AlertDialog = __webpack_require__(628);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var TableConfigDialog = React.createClass({
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _utilsServerJs = __webpack_require__(421);
+
+	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
+
+	var _compsMaterialWrapperJsx = __webpack_require__(435);
+
+	var _compsPolymerIconJsx = __webpack_require__(741);
+
+	var _compsPolymerIconJsx2 = _interopRequireDefault(_compsPolymerIconJsx);
+
+	var _compsDialogAlertDialogJsx = __webpack_require__(628);
+
+	var _compsDialogAlertDialogJsx2 = _interopRequireDefault(_compsDialogAlertDialogJsx);
+
+	var TableConfigDialog = _react2['default'].createClass({
 		displayName: 'TableConfigDialog',
 
 		PropTypes: {
-			handleStateChange: React.PropTypes.func.isRequired,
+			handleStateChange: _react2['default'].PropTypes.func.isRequired,
 
-			table: React.PropTypes.string.isRequired,
-			jdbcDriver: React.PropTypes.string.isRequired,
-			jdbcConnUrl: React.PropTypes.string.isRequired,
-			jdbcUsername: React.PropTypes.string.isRequired,
-			jdbcPassword: React.PropTypes.string.isRequired
+			table: _react2['default'].PropTypes.string.isRequired,
+			jdbcDriver: _react2['default'].PropTypes.string.isRequired,
+			jdbcConnUrl: _react2['default'].PropTypes.string.isRequired,
+			jdbcUsername: _react2['default'].PropTypes.string.isRequired,
+			jdbcPassword: _react2['default'].PropTypes.string.isRequired
 		},
 
 		getInitialState: function getInitialState() {
@@ -86250,9 +86252,13 @@
 		},
 
 		show: function show() {
-			this.setState({ visible: true }, (function () {
-				this.loadTables();
-			}).bind(this));
+			var _this = this;
+
+			this.setState({
+				visible: true
+			}, function () {
+				_this.loadTables();
+			});
 		},
 
 		hide: function hide() {
@@ -86261,54 +86267,64 @@
 
 		handleChange: function handleChange(name, evt) {
 			evt.stopPropagation();
+			var props = this.props;
 
 			switch (name) {
 				case 'table':
-					this.props.handleStateChange({ table: evt.target.value });
+					props.handleStateChange({ table: evt.target.value });
 					break;
 			}
 		},
 
 		loadTables: function loadTables() {
-			server.loadTables({
+			var _this2 = this;
+
+			var props = this.props;
+			var state = this.state;
+			var refs = this.refs;
+
+			_utilsServerJs2['default'].loadTables({
 				jdbc: {
-					driver: this.props.jdbcDriver,
-					connUrl: this.props.jdbcConnUrl,
-					username: this.props.jdbcUsername,
-					password: this.props.jdbcPassword
+					driver: props.jdbcDriver,
+					connUrl: props.jdbcConnUrl,
+					username: props.jdbcUsername,
+					password: props.jdbcPassword
 				}
-			}).then((function (tables) {
-				this.setState({
+			}).then(function (tables) {
+				_this2.setState({
 					isTablesLoaded: true,
 					loadedTables: tables
 				});
-			}).bind(this))['catch']((function (err) {
-				this.setState({ isTablesLoaded: true });
-				this.refs.alertDialog.show('danger', err);
-			}).bind(this));
+			})['catch'](function (err) {
+				_this2.setState({ isTablesLoaded: true });
+				refs.alertDialog.show('danger', err);
+			});
 		},
 
 		renderTableList: function renderTableList() {
-			if (this.state.isTablesLoaded === false) return React.createElement(CircularProgress, { mode: 'indeterminate', size: 0.5 });
+			var props = this.props;
+			var state = this.state;
 
-			var isShouldFilter = this.props.table != null && this.props.table.trim().length !== 0;
+			if (state.isTablesLoaded === false) return _react2['default'].createElement(_compsMaterialWrapperJsx.CircularProgress, { mode: 'indeterminate', size: 0.5 });
 
-			return React.createElement(
-				List,
+			var isListShouldFilter = props.table != null && props.table.trim().length !== 0;
+
+			return _react2['default'].createElement(
+				_compsMaterialWrapperJsx.List,
 				null,
-				this.state.loadedTables.filter((function (table) {
-					if (isShouldFilter === false) return true;
-					return String.containsIgnoreCase(table, this.props.table);
-				}).bind(this)).map((function (table) {
-					var onClick = (function (evt) {
-						evt.stopPropagation();
-						this.props.handleStateChange({ table: table });
-					}).bind(this);
-					return React.createElement(ListItem, {
-						key: table,
+				state.loadedTables.map(function (table) {
+					var isDisplay = String.containsIgnoreCase(table, props.table);
+					return _react2['default'].createElement(_compsMaterialWrapperJsx.ListItem, {
+						key: 'loadedTable-' + table,
 						primaryText: table,
-						onClick: onClick });
-				}).bind(this))
+						onClick: function (evt) {
+							evt.stopPropagation();
+							props.handleStateChange({ table: table });
+						},
+						style: {
+							display: isDisplay === true ? 'block' : 'none'
+						} });
+				})
 			);
 		},
 
@@ -86319,37 +86335,37 @@
 
 		render: function render() {
 			try {
-				return React.createElement(
-					Dialog,
+				return _react2['default'].createElement(
+					_compsMaterialWrapperJsx.Dialog,
 					{
 						actions: [{ text: 'close', onClick: this.onClose }],
 						actionFocus: 'ok',
 						autoDetectWindowHeight: true,
 						autoScrollBodyContent: true,
 						open: this.state.visible },
-					React.createElement(
-						Card,
+					_react2['default'].createElement(
+						_compsMaterialWrapperJsx.Card,
 						null,
-						React.createElement(CardHeader, {
+						_react2['default'].createElement(_compsMaterialWrapperJsx.CardHeader, {
 							title: 'table 설정',
 							subtitle: 'source database의 table 정보를 설정합니다.',
-							avatar: React.createElement(PolymerIcon, { icon: 'config' }) }),
-						React.createElement(
-							CardText,
+							avatar: _react2['default'].createElement(_compsPolymerIconJsx2['default'], { icon: 'config' }) }),
+						_react2['default'].createElement(
+							_compsMaterialWrapperJsx.CardText,
 							null,
-							React.createElement(TextField, {
+							_react2['default'].createElement(_compsMaterialWrapperJsx.TextField, {
 								floatingLabelText: 'table',
 								value: this.props.table,
 								onChange: this.handleChange.bind(this, 'table'),
 								fullWidth: true }),
-							React.createElement(
+							_react2['default'].createElement(
 								'div',
 								{ style: { width: '100%', height: '300px', overflow: 'auto' } },
 								this.renderTableList()
 							)
 						)
 					),
-					React.createElement(AlertDialog, { ref: 'alertDialog' })
+					_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
 				);
 			} catch (err) {
 				console.error(err.stack);
@@ -87268,11 +87284,11 @@
 				dbSid: 'spiderx',
 				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
 				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				jdbcUsername: 'admin_test',
-				jdbcPassword: 'admin_test',
+				jdbcUsername: 'admin',
+				jdbcPassword: 'admin',
 				table: '',
 				columns: '',
-				bindingType: 'simple',
+				bindingType: '',
 				bindingColumn: '',
 				period: '60 * 1000',
 				charset: 'utf8',
@@ -87502,27 +87518,27 @@
 
 		getInitialState: function getInitialState() {
 			return {
-				srcDbVendor: 'oracle',
-				srcDbIp: '192.168.10.101',
-				srcDbPort: '1521',
-				srcDbSid: 'spiderx',
-				srcJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				srcJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				srcJdbcUsername: 'admin_test',
-				srcJdbcPassword: 'admin_test',
-				srcTable: 'AGENT_INFO_LIST',
-				srcColumns: 'col1,col2',
-				destDbVendor: 'oracle',
-				destDbIp: '192.168.10.101',
-				destDbPort: '1521',
-				destDbSid: 'spiderx',
-				destJdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				destJdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				destJdbcUsername: 'admin_test',
-				destJdbcPassword: 'admin_test',
-				destTable: 'AGENT_INFO_LIST',
-				destColumns: 'col1,col2',
-				bindingType: 'simple',
+				srcDbVendor: '',
+				srcDbIp: '',
+				srcDbPort: '',
+				srcDbSid: '',
+				srcJdbcDriver: '',
+				srcJdbcConnUrl: '',
+				srcJdbcUsername: '',
+				srcJdbcPassword: '',
+				srcTable: '',
+				srcColumns: '',
+				destDbVendor: '',
+				destDbIp: '',
+				destDbPort: '',
+				destDbSid: '',
+				destJdbcDriver: '',
+				destJdbcConnUrl: '',
+				destJdbcUsername: '',
+				destJdbcPassword: '',
+				destTable: '',
+				destColumns: '',
+				bindingType: '',
 				srcBindingColumn: '',
 				period: '60 * 1000',
 				deleteAllBeforeInsert: 'false'
