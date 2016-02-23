@@ -28,11 +28,19 @@
 			<param name="ConversionPattern" value="%d [%t] %p - %C{1}.%M(%L) | %m%n" />
 		</layout>
 	</appender>
+	
+	<appender name="scriptAppender" class="com.igloosec.scripter.script.ScriptLogAppender">
+	</appender>
 
 	<logger name="com.igloosec">
 		<level value="TRACE" />
 		<appender-ref ref="consoleout" />
 		<appender-ref ref="fileout" />
 		<appender-ref ref="errfileout" />
+	</logger>
+	
+	<logger name="scriptLogger">
+		<level value="TRACE" />
+		<appender-ref ref="scriptAppender" />
 	</logger>
 </log4j:configuration>

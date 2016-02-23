@@ -40,6 +40,7 @@ public class ScriptExecutor {
 			}
 		};
 		
+		thread.setName(scriptName);
 		thread.start();
 		logger.info(String.format("%s start to running", scriptName));
 		runningScripts.put(scriptName, thread);

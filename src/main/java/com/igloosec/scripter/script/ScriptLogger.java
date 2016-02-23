@@ -1,21 +1,17 @@
 package com.igloosec.scripter.script;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 
-import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.service.LoggerService;
 import com.igloosec.scripter.service.NotiService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 
 public class ScriptLogger {
-	private Logger logger = Logger.getLogger("com.igloosec");
+	private Logger logger = Logger.getLogger("scriptLogger");
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	private NotiService notiService = SingletonInstanceRepo.getInstance(NotiService.class);
 	private LoggerService loggerService = SingletonInstanceRepo.getInstance(LoggerService.class);
@@ -23,20 +19,6 @@ public class ScriptLogger {
 
 	public ScriptLogger(String scriptName) throws IOException {
 		this.scriptName = scriptName;
-		initLog4jLogger();
-	}
-	
-	private void initLog4jLogger() throws IOException {
-		String logFilePath = new File(Path.getPackagePath(), "logs/" + this.scriptName + ".log").getAbsolutePath();
-		String errLogFilePath = new File(Path.getPackagePath(), "logs/" + this.scriptName + "-err.log").getAbsolutePath();
-	
-		FileAppender fileoutAppender = (FileAppender) logger.getAppender("fileout");
-		fileoutAppender.setFile(logFilePath);
-		fileoutAppender.activateOptions();
-		
-		FileAppender errfileoutAppender = (FileAppender) logger.getAppender("errfileout");
-		errfileoutAppender.setFile(errLogFilePath);
-		errfileoutAppender.activateOptions();
 	}
 	
 	public void info(String msg) {
