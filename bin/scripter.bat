@@ -4,6 +4,7 @@ rem JAVA_HOME=
 rem ###########################
 set PORT=8098
 set JETTY_THREAD_POOL_SIZE=20
+set SCRIPT_AUTO_START=true
 rem ###########################
 
 

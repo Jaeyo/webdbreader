@@ -2,11 +2,8 @@ package com.igloosec.scripter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -14,9 +11,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.igloosec.scripter.common.Conf;
 import com.igloosec.scripter.common.Path;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
-import com.igloosec.scripter.dao.AutoStartScriptDAO;
+import com.igloosec.scripter.dao.ScriptRunningDAO;
 import com.igloosec.scripter.rdb.DerbySchemaCreator;
-import com.igloosec.scripter.script.ScriptExecutor;
 import com.igloosec.scripter.service.ScriptService;
 import com.igloosec.scripter.servlet.ChartREST;
 import com.igloosec.scripter.servlet.ConfigREST;
@@ -36,15 +32,17 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		Log4jConfig.initLog4j();
 		
-		registerShutdownHook();
-		
 		//jetty debug log to stdout
 		System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
 		System.setProperty("com.igloosec.scripter.LEVEL", "DEBUG");
 		
 		new DerbySchemaCreator().check();
 		
-		SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScript();
+		if(Conf.getAs(Conf.SCRIPT_AUTO_START, Boolean.class) == true)
+			SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScripts();
+		else
+			SingletonInstanceRepo.getInstance(ScriptRunningDAO.class).deleteAll();
+			
 		
 		SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 		
@@ -96,19 +94,5 @@ public class Server {
 		FileUtils.deleteDirectory(workDir);
 		context.setTempDirectory(workDir);
 		return context;
-	}
-	
-	private static void registerShutdownHook(){
-		Runtime.getRuntime().addShutdownHook(new Thread(){
-			@Override
-			public void run() {
-				ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
-				Set<String> runningScripts = scriptExecutor.getRunningScripts();
-				
-				AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
-				autoStartScriptDAO.removeAll();
-				autoStartScriptDAO.save(runningScripts);
-			}
-		});
 	}
 }

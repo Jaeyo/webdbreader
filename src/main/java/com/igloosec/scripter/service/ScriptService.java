@@ -12,11 +12,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
-import com.igloosec.scripter.dao.AutoStartScriptDAO;
-import com.igloosec.scripter.dao.OperationHistoryDAO;
 import com.igloosec.scripter.dao.ScriptDAO;
+import com.igloosec.scripter.dao.ScriptRunningDAO;
 import com.igloosec.scripter.dao.ScriptScoreStatisticsDAO;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.AlreadyExistsException;
@@ -29,12 +29,11 @@ import com.igloosec.scripter.script.ScriptExecutor;
 public class ScriptService {
 	private static final Logger logger = Logger.getLogger(ScriptService.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
-	private AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
-	private OperationHistoryDAO operationHistoryDAO = SingletonInstanceRepo.getInstance(OperationHistoryDAO.class);
 	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
 	private ScriptExecutor scriptExecutor = SingletonInstanceRepo.getInstance(ScriptExecutor.class);
+	private ScriptRunningDAO scriptRunningDAO = SingletonInstanceRepo.getInstance(ScriptRunningDAO.class);
 	
 	public JSONArray getScriptInfo(){
 		JSONArray scripts = scriptDAO.selectScriptInfo();
@@ -51,9 +50,21 @@ public class ScriptService {
 		return scripts;
 	} 
 	
-	public boolean isExists(String scriptName){
+	public boolean isExists(String scriptName) {
 		return scriptDAO.isExists(scriptName);
 	} 
+	
+	public void startAutoStartScripts() {
+		String[] scriptNames = scriptRunningDAO.getRunningScriptNames();
+		if(scriptNames == null || scriptNames.length == 0) return;
+		for(String scriptName: scriptNames) {
+			try {
+				startScript(scriptName);
+			} catch (Exception e) {
+				logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+			}
+		}
+	}
 	
 	public void save(String scriptName, String script) throws AlreadyExistsException{
 		if(scriptDAO.isExists(scriptName)){
@@ -99,25 +110,19 @@ public class ScriptService {
 		return scriptJson;
 	} 
 
-	public void startAutoStartScript() throws JSONException, NotFoundException, AlreadyStartedException, ScriptException, VersionException, IOException {
-		JSONArray autoStartScripts = autoStartScriptDAO.load();
-		for (int i = 0; i < autoStartScripts.length(); i++) {
-			JSONObject autoStartScript = autoStartScripts.getJSONObject(i);
-			String scriptName = autoStartScript.getString("SCRIPT_NAME");
-			String script = load(scriptName).getString("SCRIPT");
-			scriptExecutor.execute(scriptName, script);
-		}
-	}
-	
 	public void startScript(String scriptName) throws AlreadyStartedException, ScriptException, VersionException, IOException, JSONException, NotFoundException  {
 		logger.info(String.format("scriptName: %s", scriptName));
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);
+		try { 
+			scriptRunningDAO.insert(scriptName); 
+		} catch(DuplicateKeyException e) {}
 	} 
 	
 	public void stopScript(String scriptName) throws ScriptNotRunningException {
 		logger.info(String.format("scriptName: %s", scriptName));
 		scriptExecutor.stop(scriptName);
+		scriptRunningDAO.delete(scriptName);
 	} 
 	
 	public void rename(String scriptName, String newScriptName) throws AlreadyExistsException, NotFoundException, AlreadyStartedException {
@@ -131,9 +136,8 @@ public class ScriptService {
 		
 		scriptDAO.rename(scriptName, newScriptName);
 		scriptScoreStatisticsDAO.renameScript(scriptName, newScriptName);
-		operationHistoryDAO.renameScript(scriptName, newScriptName);
 		simpleRepoDAO.renameScript(scriptName, newScriptName);
-		autoStartScriptDAO.rename(scriptName, newScriptName);
+		scriptRunningDAO.rename(scriptName, newScriptName);
 	} 
 	
 	public void remove(String scriptName) throws NotFoundException, AlreadyStartedException{
@@ -144,8 +148,7 @@ public class ScriptService {
 		
 		scriptDAO.remove(scriptName);
 		scriptScoreStatisticsDAO.remove(scriptName);
-		operationHistoryDAO.remove(scriptName);
 		simpleRepoDAO.delete(scriptName);
-		autoStartScriptDAO.remove(scriptName);
+		scriptRunningDAO.delete(scriptName);
 	} 
 } 

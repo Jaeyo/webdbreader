@@ -11,6 +11,7 @@ public class Conf{
 	public static final String PORT = "port";
 	public static final String DERBY_PATH= "derby.path";
 	public static final String JETTY_THREAD_POOL_SIZE = "jetty.thread.pool.size";
+	public static final String SCRIPT_AUTO_START = "script.auto.start";
 	
 	private static final Logger logger = Logger.getLogger(Conf.class);
 	private static Map<String, Object> props = Maps.newHashMap();
@@ -34,10 +35,13 @@ public class Conf{
 			String derbyDefaultPath = new File(Path.getPackagePath(), "derby").getAbsolutePath();
 			props.put(DERBY_PATH, System.getProperty(DERBY_PATH, derbyDefaultPath));
 			
+			props.put(SCRIPT_AUTO_START, Boolean.parseBoolean(System.getProperty(SCRIPT_AUTO_START, "true")));
+			
 			logger.info("--------------------------------------------");
 			logger.info(String.format("%s: %s", PORT, props.get(PORT)));
 			logger.info(String.format("%s: %s", DERBY_PATH, props.get(DERBY_PATH)));
 			logger.info(String.format("%s: %s", JETTY_THREAD_POOL_SIZE, props.get(JETTY_THREAD_POOL_SIZE)));
+			logger.info(String.format("%s: %s", SCRIPT_AUTO_START, props.get(SCRIPT_AUTO_START)));
 			logger.info("--------------------------------------------");
 		} catch(Exception e) {
 			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()));

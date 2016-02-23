@@ -4,6 +4,7 @@
 ###########################
 PORT=8098
 JETTY_THREAD_POOL_SIZE=20
+SCRIPT_AUTO_START=true
 ###########################
 
 if [ "$JAVA_HOME" = "" ]

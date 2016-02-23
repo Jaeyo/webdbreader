@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 
 import com.google.common.collect.Maps;
@@ -17,6 +19,12 @@ import com.igloosec.scripter.common.Path;
 
 public class ScriptLogAppender extends AppenderSkeleton implements Appender {
 	private Map<String, DailyRollingFileAppender> appenders = Maps.newHashMap();
+	private ConsoleAppender consoleAppender = null;
+	
+	public ScriptLogAppender() {
+		PatternLayout layout = new PatternLayout("%d %p - | %m%n");
+		this.consoleAppender = new ConsoleAppender(layout);
+	}
 
 	@Override
 	protected void append(LoggingEvent event) {
@@ -42,6 +50,7 @@ public class ScriptLogAppender extends AppenderSkeleton implements Appender {
 			logAppender.append(event);
 			if(event.getLevel().equals(Level.ERROR))
 				errlogAppender.append(event);
+			consoleAppender.append(event);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

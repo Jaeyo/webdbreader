@@ -75,11 +75,6 @@ public class DerbySchemaCreator {
 					+ "count_timestamp TIMESTAMP NOT NULL, "
 					+ "count_value INTEGER NOT NULL )");
 		
-		if(existingTableNames.contains("AUTO_START_SCRIPT") == false)
-			ds.getJdbcTmpl().execute("CREATE TABLE auto_start_script ( "
-					+ "script_name VARCHAR(100) PRIMARY KEY, "
-					+ "regdate TIMESTAMP NOT NULL )");
-		
 		if(existingTableNames.contains("CONFIG") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE config ( "
 					+ "config_key VARCHAR(50) NOT NULL PRIMARY KEY, "
@@ -91,16 +86,14 @@ public class DerbySchemaCreator {
 					+ "simple_repo_key VARCHAR(255) NOT NULL , "
 					+ "simple_repo_value VARCHAR(255) NOT NULL )");
 		
-		if(existingTableNames.contains("OPERATION_HISTORY") == false)
-			ds.getJdbcTmpl().execute("CREATE TABLE operation_history ( "
-					+ "regdate TIMESTAMP NOT NULL, "
-					+ "script_name VARCHAR(100) NOT NULL, "
-					+ "is_startup BOOLEAN NOT NULL )");
-		
 		if(existingTableNames.contains("VERSION") == false)
 			ds.getJdbcTmpl().execute("CREATE TABLE version ( "
 					+ "version VARCHAR(30) NOT NULL, "
 					+ "regdate TIMESTAMP NOT NULL ) ");
+		
+		if(existingTableNames.contains("SCRIPT_RUNNING") == false)
+			ds.getJdbcTmpl().execute("CREATE TABLE script_running ( "
+					+ "script_name VARCHAR(100) NOT NULL PRIMARY KEY ) ");
 	}
 	
 	private void checkConfig() {
