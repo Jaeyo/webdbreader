@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * 시간에 따라 switching 되는 파일을 읽기 위한 클래스
@@ -19,14 +18,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ContinuousFile implements Closeable{
-	private static final Logger logger=LoggerFactory.getLogger(ContinuousFile.class);
-	private String filenameWithDateFormat=null;
-	private String currentFilename=null;
+	private static final Logger logger = Logger.getLogger(ContinuousFile.class);
+	private String filenameWithDateFormat = null;
+	private String currentFilename = null;
 	private String charset = null;
-	private File currentFile=null;
-	private BufferedReader input=null;
-	private boolean deleteExpiredFile=false;
-	private int timeAdjustSec=0;
+	private File currentFile = null;
+	private BufferedReader input = null;
+	private boolean deleteExpiredFile = false;
+	private int timeAdjustSec = 0;
 	
 	public ContinuousFile(String filenameWithDateFormat, boolean deleteExpiredFile, String charset, int timeAdjustSec) throws IOException{
 		this.filenameWithDateFormat=filenameWithDateFormat;
@@ -34,7 +33,7 @@ public class ContinuousFile implements Closeable{
 		this.charset=charset;
 		this.timeAdjustSec=timeAdjustSec;
 		
-		logger.info("filename : {}, deleteExpiredFile : {}, encoding : {}", filenameWithDateFormat, deleteExpiredFile, charset);
+		logger.info(String.format("filename : %s, deleteExpiredFile : %s, encoding : %s", filenameWithDateFormat, deleteExpiredFile, charset));
 		
 		init();
 	}
@@ -47,7 +46,7 @@ public class ContinuousFile implements Closeable{
 		try{
 			input=new BufferedReader(new FileReader(currentFile));
 		} catch(FileNotFoundException e){
-			logger.warn("file not exists, {}", currentFilename);
+			logger.warn(String.format("file not exists, %s", currentFilename));
 		}
 	}
 	
@@ -62,13 +61,13 @@ public class ContinuousFile implements Closeable{
 				return false;
 			
 			if(deleteExpiredFile){
-				logger.info("switched file delete : {}", currentFile.getAbsolutePath());
+				logger.info(String.format("switched file delete : %s", currentFile.getAbsolutePath()));
 				close();
 				oldFile.delete();
 			}
 			
 			init();
-			logger.info("file switched {} -> {}", oldFilename, currentFilename);
+			logger.info(String.format("file switched %s -> %s", oldFilename, currentFilename));
 			return true;
 		}
 		

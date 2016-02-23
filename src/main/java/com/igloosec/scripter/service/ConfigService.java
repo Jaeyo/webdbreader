@@ -1,16 +1,14 @@
 package com.igloosec.scripter.service;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.ConfigDAO;
-import com.igloosec.scripter.dao.ScriptDAO;
 
 public class ConfigService {
-	private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
+	private static final Logger logger = Logger.getLogger(ConfigService.class);
 	private ConfigDAO configDAO = SingletonInstanceRepo.getInstance(ConfigDAO.class);
 	
 	public JSONObject load(){

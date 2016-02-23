@@ -5,11 +5,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -18,7 +17,7 @@ import com.igloosec.scripter.service.NotiService.ErrLogListener;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class NotiWebSocketServlet extends WebSocketServlet {
-	private static final Logger logger = LoggerFactory.getLogger(NotiWebSocketServlet.class);
+	private static final Logger logger = Logger.getLogger(NotiWebSocketServlet.class);
 	private NotiService notiService = SingletonInstanceRepo.getInstance(NotiService.class);
 	
 	@Override

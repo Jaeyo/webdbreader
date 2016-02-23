@@ -149,50 +149,68 @@ var ScriptInfoView = React.createClass({
 		}.bind(this)).show('delete script: ' + this.props.title);
 	},
 
-	render() {
-		try {
-			var { state } = this;
+	renderBtns() {
+		var { state } = this;
+		if(state.isRunning === true) {
+			return (<Button label="stop" onClick={this.stop} primary={true} />);
+		} else {
+			return (
+				<div>
+					<Button label="start" onClick={this.start} primary={true} />
+					<Button label="rename" onClick={this.rename} />
+					<Button label="delete" onClick={this.delete} />
+				</div>
+			);
+		}
+	},
 
-			var tabs = [];
+	renderTabs() {
+		var { state, props } = this;
+
+		var tabs = [];
+		tabs.push(
+			<Tab label="infomation" key="information">
+				<InfoTab 
+					title={props.title} 
+					script={state.script}
+					isRunning={state.isRunning} />
+			</Tab>
+		);
+		if(state.scriptParams != null) {
 			tabs.push(
-				<Tab label="infomation" key="information">
-					<InfoTab title={this.props.title} script={this.state.script} />
+				<Tab label="configuration" key="configuration">
+					<ScriptConfigTab 
+						title={props.title} 
+						scriptParams={state.scriptParams} />
 				</Tab>
 			);
-			if(state.scriptParams != null) {
-				tabs.push(
-					<Tab label="configuration" key="configuration">
-						<ScriptConfigTab 
-							title={this.props.title} 
-							scriptParams={this.state.scriptParams} />
-					</Tab>
-				);
-			}
-			if(state.isTailEnable === true) {
-				tabs.push(
-					<Tab label="tail" key="tail">
-						<TailTab title={this.props.title} />
-					</Tab>
-				);
-			}
+		}
+		if(state.isTailEnable === true) {
+			tabs.push(
+				<Tab label="tail" key="tail">
+					<TailTab title={props.title} />
+				</Tab>
+			);
+		}
+
+		return ( <Tabs>{tabs}</Tabs> );
+	},
+
+	render() {
+		try {
+			var { props, state } = this;
 
 			return (
 				<Card>
 					<CardHeader
-						title={this.props.title}
-						subtitle={this.state.regdate}
+						title={props.title}
+						subtitle={state.regdate}
 						avatar={ <Glyphicon glyph="file" /> } />
 					<CardText>
 						<div style={{ textAlign: 'right' }}>
-							{
-								this.state.isRunning === false  ?
-								(<Button label="start" onClick={this.start} primary={true} />) : 
-								(<Button label="stop" onClick={this.stop} primary={true} />) 
-							}
-							<Button label="rename" onClick={this.rename} />
-							<Button label="delete" onClick={this.delete} />
+						{ this.renderBtns() }
 						</div>
-						<Tabs>{tabs}</Tabs>
+						{ this.renderTabs() }
 						<hr />
 					</CardText>
 					<AlertDialog ref="alertDialog" />

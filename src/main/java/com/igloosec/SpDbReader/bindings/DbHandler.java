@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,8 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -27,15 +25,15 @@ import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.service.SimpleRepoService;
 
 public class DbHandler {
-	private static final Logger logger = LoggerFactory.getLogger(DbHandler.class);
+	private static final Logger logger = Logger.getLogger(DbHandler.class);
 	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	
 	public void executeQuery(String dbName, String query) throws NotExistsException, IOException{
-		logger.info("execute query : {}", query);
+		logger.info(String.format("execute query : %s", query));
 		
 		Properties dbProps = loadDbPropsFromSimpleRepo(dbName);
 		if (dbProps == null) {
-			logger.error("dbName {} not exists", dbName);
+			logger.error(String.format("dbName %s not exists", dbName));
 			System.exit(-1);
 		} // if
 		
@@ -59,11 +57,11 @@ public class DbHandler {
 	} //executeQuery
 	
 	public void executeBatch(String dbName, String[] queries) throws NotExistsException, IOException{
-		logger.info("execute batch, count : {}\nfirst[0] : {}\nlast[{}] : {}", queries.length, queries[0], queries.length-1, queries[queries.length-1]);
+		logger.info(String.format("execute batch, count : %s\nfirst[0] : %s\nlast[%s] : %s", queries.length, queries[0], queries.length-1, queries[queries.length-1]));
 		
 		Properties dbProps = loadDbPropsFromSimpleRepo(dbName);
 		if (dbProps == null) {
-			logger.error("dbName {} not exists", dbName);
+			logger.error(String.format("dbName %s not exists", dbName));
 			System.exit(-1);
 		} // if
 		
@@ -87,11 +85,11 @@ public class DbHandler {
 	} //executeQuery
 	
 	public void selectAndAppend(String dbName, String query, String delimiter, String filename, String charsetName) throws NotExistsException, IOException{
-		logger.info("select query : {}", query);
+		logger.info(String.format("select query : %s", query));
 		
 		Properties dbProps = loadDbPropsFromSimpleRepo(dbName);
 		if (dbProps == null) {
-			logger.error("dbName {} not exists", dbName);
+			logger.error(String.format("dbName %s not exists", dbName));
 			System.exit(-1);
 		} // if
 		
@@ -154,11 +152,11 @@ public class DbHandler {
 	} // selectQuery 
 
 	public String selectQuery(String dbName, String query, String delimiter) throws NotExistsException, IOException {
-		logger.info("select query : {}", query);
+		logger.info(String.format("select query : %s", query));
 
 		Properties dbProps = loadDbPropsFromSimpleRepo(dbName);
 		if (dbProps == null) {
-			logger.error("dbName {} not exists", dbName);
+			logger.error(String.format("dbName %s not exists", dbName));
 			System.exit(-1);
 		} // if
 
@@ -204,11 +202,11 @@ public class DbHandler {
 	} // selectQuery
 	
 	public DbRowIterator selectQueryIterator(String dbName, String query) throws NotExistsException, IOException {
-		logger.info("query : {}", query);
+		logger.info(String.format("query : %s", query));
 
 		Properties dbProps = loadDbPropsFromSimpleRepo(dbName);
 		if (dbProps == null) {
-			logger.error("dbName {} not exists", dbName);
+			logger.error(String.format("dbName %s not exists", dbName));
 			System.exit(-1);
 		} // if
 

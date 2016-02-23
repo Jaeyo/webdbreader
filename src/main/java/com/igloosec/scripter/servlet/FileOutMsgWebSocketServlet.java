@@ -5,11 +5,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -19,7 +18,7 @@ import com.igloosec.scripter.service.FileOutMsgService.FileOutListener;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class FileOutMsgWebSocketServlet extends WebSocketServlet {
-	private static final Logger logger = LoggerFactory.getLogger(FileOutMsgWebSocketServlet.class);
+	private static final Logger logger = Logger.getLogger(FileOutMsgWebSocketServlet.class);
 	private FileOutMsgService fileOutMsgService = SingletonInstanceRepo.getInstance(FileOutMsgService.class);
 	
 	@Override
@@ -42,7 +41,7 @@ public class FileOutMsgWebSocketServlet extends WebSocketServlet {
 		final String scriptName = pathParams.get("scriptName");
 		Preconditions.checkArgument(scriptName != null, "scriptName is null");
 		
-		logger.info("startTail, scriptName: {}", scriptName);
+		logger.info("startTail, scriptName: " + scriptName);
 		return new FileOutMsgWebSocket(scriptName);
 	}
 	

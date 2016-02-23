@@ -10,13 +10,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import sun.org.mozilla.javascript.internal.WrapFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -35,7 +32,7 @@ import com.igloosec.scripter.service.ScriptService;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ScriptREST extends HttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(ScriptREST.class);
+	private static final Logger logger = Logger.getLogger(ScriptREST.class);
 	private ScriptService scriptService = SingletonInstanceRepo.getInstance(ScriptService.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 
@@ -298,7 +295,7 @@ public class ScriptREST extends HttpServlet {
 		return new JSONObject().put("success", 1).toString();
 	}
 	
-	private String postEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams){
+	private String postEditScript(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, AlreadyStartedException{
 		String title = pathParams.get("title");
 		String script = req.getParameter("script");
 		
@@ -329,7 +326,7 @@ public class ScriptREST extends HttpServlet {
 		return new JSONObject().put("success", 1).toString();
 	}
 	
-	private String postRename(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException {
+	private String postRename(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws AlreadyExistsException, NotFoundException, AlreadyStartedException {
 		String title = pathParams.get("title");
 		String newTitle = req.getParameter("newTitle");
 		
@@ -350,7 +347,7 @@ public class ScriptREST extends HttpServlet {
 		return new JSONObject().put("success", 1).toString();
 	}
 	
-	private String postRemove(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) {
+	private String postRemove(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws NotFoundException, AlreadyStartedException {
 		String title = pathParams.get("title");
 		
 		Preconditions.checkArgument(title != null, "title is null");

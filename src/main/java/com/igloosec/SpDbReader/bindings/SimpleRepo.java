@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.igloosec.scripter.common.Path;
 
 public class SimpleRepo {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleRepo.class);
+	private static final Logger logger = Logger.getLogger(SimpleRepo.class);
 
 	private Properties props = new Properties();
 	private File repoFile = null;

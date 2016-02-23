@@ -7,12 +7,11 @@ import java.util.Set;
 
 import javax.script.ScriptException;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ocpsoft.prettytime.PrettyTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.AutoStartScriptDAO;
@@ -28,7 +27,7 @@ import com.igloosec.scripter.exception.VersionException;
 import com.igloosec.scripter.script.ScriptExecutor;
 
 public class ScriptService {
-	private static final Logger logger = LoggerFactory.getLogger(ScriptService.class);
+	private static final Logger logger = Logger.getLogger(ScriptService.class);
 	private ScriptDAO scriptDAO = SingletonInstanceRepo.getInstance(ScriptDAO.class);
 	private AutoStartScriptDAO autoStartScriptDAO = SingletonInstanceRepo.getInstance(AutoStartScriptDAO.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
@@ -76,7 +75,11 @@ public class ScriptService {
 		simpleRepoService.setVer1DbProps(scriptName, dbName, dbProps);
 	}
 	
-	public void edit(String scriptName, String script){
+	public void edit(String scriptName, String script) throws NotFoundException, AlreadyStartedException {
+		JSONObject scriptJson = load(scriptName);
+		if(scriptJson.getBoolean("IS_RUNNING") == true)
+			throw new AlreadyStartedException(scriptName);
+		
 		scriptDAO.edit(scriptName, script);
 	} 
 	
@@ -107,19 +110,22 @@ public class ScriptService {
 	}
 	
 	public void startScript(String scriptName) throws AlreadyStartedException, ScriptException, VersionException, IOException, JSONException, NotFoundException  {
-		logger.info("scriptName: {}", scriptName);
+		logger.info(String.format("scriptName: %s", scriptName));
 		String script = load(scriptName).getString("SCRIPT");
 		scriptExecutor.execute(scriptName, script);
 	} 
 	
 	public void stopScript(String scriptName) throws ScriptNotRunningException {
-		logger.info("scriptName: {}", scriptName);
+		logger.info(String.format("scriptName: %s", scriptName));
 		scriptExecutor.stop(scriptName);
 	} 
 	
-	public void rename(String scriptName, String newScriptName) throws AlreadyExistsException{
-		logger.info("scriptName: {}, newScriptName: {}", scriptName, newScriptName);
+	public void rename(String scriptName, String newScriptName) throws AlreadyExistsException, NotFoundException, AlreadyStartedException {
+		logger.info(String.format("scriptName: %s, newScriptName: %s", scriptName, newScriptName));
 	
+		if(load(scriptName).getBoolean("IS_RUNNING") == true) 
+			throw new AlreadyStartedException(scriptName);
+		
 		if(isExists(newScriptName))
 			throw new AlreadyExistsException(newScriptName);
 		
@@ -130,8 +136,11 @@ public class ScriptService {
 		autoStartScriptDAO.rename(scriptName, newScriptName);
 	} 
 	
-	public void remove(String scriptName){
-		logger.info("scriptName: {}", scriptName);
+	public void remove(String scriptName) throws NotFoundException, AlreadyStartedException{
+		logger.info(String.format("scriptName: %s", scriptName));
+		
+		if(load(scriptName).getBoolean("IS_RUNNING"))
+			throw new AlreadyStartedException(scriptName);
 		
 		scriptDAO.remove(scriptName);
 		scriptScoreStatisticsDAO.remove(scriptName);

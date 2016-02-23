@@ -3,8 +3,7 @@ package com.igloosec.scripter.common;
 import java.io.File;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Maps;
 
@@ -13,7 +12,7 @@ public class Conf{
 	public static final String DERBY_PATH= "derby.path";
 	public static final String JETTY_THREAD_POOL_SIZE = "jetty.thread.pool.size";
 	
-	private static final Logger logger = LoggerFactory.getLogger(Conf.class);
+	private static final Logger logger = Logger.getLogger(Conf.class);
 	private static Map<String, Object> props = Maps.newHashMap();
 
 	static {

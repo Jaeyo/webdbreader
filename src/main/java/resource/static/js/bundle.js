@@ -72545,55 +72545,25 @@
 			clearInterval(this.intervalId);
 		},
 
+		renderIconButtons: function renderIconButtons() {
+			return React.createElement(
+				IconMenu,
+				{
+					iconButtonElement: React.createElement(Glyphicon, { glyph: 'option-horizontal' }),
+					style: { cursor: 'pointer', fontSize: '120%' },
+					openDirection: 'top-left' },
+				this.props.isRunning === true ? React.createElement(MenuItem, { primaryText: 'stop', onClick: this.stop }) : React.createElement(
+					'div',
+					null,
+					React.createElement(MenuItem, { primaryText: 'start', onClick: this.start }),
+					React.createElement(MenuItem, { primaryText: 'rename', onClick: this.rename }),
+					React.createElement(MenuItem, { primaryText: 'delete', onClick: this['delete'] })
+				)
+			);
+		},
+
 		render: function render() {
 			try {
-				var StatisticsValue = function StatisticsValue(props) {
-					return React.createElement(
-						'span',
-						{ style: {
-								padding: '10px',
-								color: 'white',
-								backgroundColor: props.bg,
-								display: 'inline-block',
-								minWidth: '58px',
-								textAlign: 'center',
-								marginRight: '3px'
-							} },
-						React.createElement(
-							'div',
-							{ style: {
-									lineHeight: '0.9',
-									fontSize: '70%'
-								} },
-							props.label
-						),
-						React.createElement(
-							'div',
-							{ style: {
-									lineHeight: '1.1',
-									fontSize: '150%'
-								} },
-							props.value
-						)
-					);
-				};
-
-				var OnOffLabel = function OnOffLabel(props) {
-					return React.createElement(
-						'label',
-						{ style: {
-								backgroundColor: props.value === 'on' ? color.blue : color.red,
-								color: 'white',
-								minWidth: '33px',
-								textAlign: 'center',
-								lineHeight: 1.4,
-								borderRadius: '5px',
-								marginRight: '10px'
-							} },
-						props.value.toUpperCase()
-					);
-				};
-
 				return React.createElement(
 					ListItem,
 					{
@@ -72602,16 +72572,7 @@
 							borderLeft: '7px solid ' + color.lightBlue,
 							marginBottom: '3px'
 						},
-						rightIconButton: React.createElement(
-							IconMenu,
-							{
-								iconButtonElement: React.createElement(Glyphicon, { glyph: 'option-horizontal' }),
-								style: { cursor: 'pointer', fontSize: '120%' },
-								openDirection: 'top-left' },
-							this.props.isRunning === true ? React.createElement(MenuItem, { primaryText: 'stop', onClick: this.stop }) : React.createElement(MenuItem, { primaryText: 'start', onClick: this.start }),
-							React.createElement(MenuItem, { primaryText: 'rename', onClick: this.rename }),
-							React.createElement(MenuItem, { primaryText: 'delete', onClick: this['delete'] })
-						) },
+						rightIconButton: this.renderIconButtons() },
 					React.createElement(
 						'div',
 						{ style: { float: 'left' } },
@@ -72653,6 +72614,55 @@
 	});
 
 	module.exports = ScriptPanelItem;
+
+	//props: value(on/off as string)
+	var OnOffLabel = function OnOffLabel(props) {
+		return React.createElement(
+			'label',
+			{ style: {
+					backgroundColor: props.value === 'on' ? color.blue : color.red,
+					color: 'white',
+					minWidth: '33px',
+					textAlign: 'center',
+					lineHeight: 1.4,
+					borderRadius: '5px',
+					marginRight: '10px'
+				} },
+			props.value.toUpperCase()
+		);
+	};
+
+	//args: bg, label, value
+	var StatisticsValue = function StatisticsValue(props) {
+		return React.createElement(
+			'span',
+			{ style: {
+					padding: '10px',
+					color: 'white',
+					backgroundColor: props.bg,
+					display: 'inline-block',
+					minWidth: '58px',
+					textAlign: 'center',
+					marginRight: '3px'
+				} },
+			React.createElement(
+				'div',
+				{ style: {
+						lineHeight: '0.9',
+						fontSize: '70%'
+					} },
+				props.label
+			),
+			React.createElement(
+				'div',
+				{ style: {
+						lineHeight: '1.1',
+						fontSize: '150%'
+					} },
+				props.value
+			)
+		);
+	};
 
 /***/ },
 /* 639 */
@@ -73549,39 +73559,70 @@
 			}).bind(this)).show('delete script: ' + this.props.title);
 		},
 
-		render: function render() {
-			try {
-				var state = this.state;
+		renderBtns: function renderBtns() {
+			var state = this.state;
 
-				var tabs = [];
+			if (state.isRunning === true) {
+				return React.createElement(Button, { label: 'stop', onClick: this.stop, primary: true });
+			} else {
+				return React.createElement(
+					'div',
+					null,
+					React.createElement(Button, { label: 'start', onClick: this.start, primary: true }),
+					React.createElement(Button, { label: 'rename', onClick: this.rename }),
+					React.createElement(Button, { label: 'delete', onClick: this['delete'] })
+				);
+			}
+		},
+
+		renderTabs: function renderTabs() {
+			var state = this.state;
+			var props = this.props;
+
+			var tabs = [];
+			tabs.push(React.createElement(
+				Tab,
+				{ label: 'infomation', key: 'information' },
+				React.createElement(InfoTab, {
+					title: props.title,
+					script: state.script,
+					isRunning: state.isRunning })
+			));
+			if (state.scriptParams != null) {
 				tabs.push(React.createElement(
 					Tab,
-					{ label: 'infomation', key: 'information' },
-					React.createElement(InfoTab, { title: this.props.title, script: this.state.script })
+					{ label: 'configuration', key: 'configuration' },
+					React.createElement(ScriptConfigTab, {
+						title: props.title,
+						scriptParams: state.scriptParams })
 				));
-				if (state.scriptParams != null) {
-					tabs.push(React.createElement(
-						Tab,
-						{ label: 'configuration', key: 'configuration' },
-						React.createElement(ScriptConfigTab, {
-							title: this.props.title,
-							scriptParams: this.state.scriptParams })
-					));
-				}
-				if (state.isTailEnable === true) {
-					tabs.push(React.createElement(
-						Tab,
-						{ label: 'tail', key: 'tail' },
-						React.createElement(TailTab, { title: this.props.title })
-					));
-				}
+			}
+			if (state.isTailEnable === true) {
+				tabs.push(React.createElement(
+					Tab,
+					{ label: 'tail', key: 'tail' },
+					React.createElement(TailTab, { title: props.title })
+				));
+			}
+
+			return React.createElement(
+				Tabs,
+				null,
+				tabs
+			);
+		},
+
+		render: function render() {
+			try {
+				var props = this.props;
+				var state = this.state;
 
 				return React.createElement(
 					Card,
 					null,
 					React.createElement(CardHeader, {
-						title: this.props.title,
-						subtitle: this.state.regdate,
+						title: props.title,
+						subtitle: state.regdate,
 						avatar: React.createElement(Glyphicon, { glyph: 'file' }) }),
 					React.createElement(
 						CardText,
@@ -73589,15 +73630,9 @@
 						React.createElement(
 							'div',
 							{ style: { textAlign: 'right' } },
-							this.state.isRunning === false ? React.createElement(Button, { label: 'start', onClick: this.start, primary: true }) : React.createElement(Button, { label: 'stop', onClick: this.stop, primary: true }),
-							React.createElement(Button, { label: 'rename', onClick: this.rename }),
-							React.createElement(Button, { label: 'delete', onClick: this['delete'] })
+							this.renderBtns()
 						),
-						React.createElement(
-							Tabs,
-							null,
-							tabs
-						),
+						this.renderTabs(),
 						React.createElement('hr', null)
 					),
 					React.createElement(AlertDialog, { ref: 'alertDialog' }),
@@ -73661,7 +73696,8 @@
 
 		PropTypes: {
 			title: _react2['default'].PropTypes.string.isRequired,
-			script: _react2['default'].PropTypes.string.isRequired
+			script: _react2['default'].PropTypes.string.isRequired,
+			isRunning: _react2['default'].PropTypes.bool.isRequired
 		},
 
 		componentDidMount: function componentDidMount() {
@@ -73690,6 +73726,20 @@
 			})['catch'](function (err) {
 				refs.alertDialog.show('danger', err);
 			});
+		},
+
+		renderModifyBtn: function renderModifyBtn() {
+			var props = this.props;
+
+			if (props.isRunning === true) return null;
+			return _react2['default'].createElement(
+				'div',
+				{ style: { textAlign: 'right', marginTop: '10px' } },
+				_react2['default'].createElement(_compsMaterialWrapperJsx.Button, {
+					label: '수정',
+					primary: true,
+					onClick: this.edit })
+			);
 		},
 
 		render: function render() {
@@ -73728,14 +73778,7 @@
 											left: 0 } }),
 									'}'
 								),
-								_react2['default'].createElement(
-									'div',
-									{ style: { textAlign: 'right', marginTop: '10px' } },
-									_react2['default'].createElement(_compsMaterialWrapperJsx.Button, {
-										label: '수정',
-										primary: true,
-										onClick: this.edit })
-								),
+								this.renderModifyBtn(),
 								_react2['default'].createElement(_compsDialogAlertDialogJsx2['default'], { ref: 'alertDialog' })
 							)
 						)
@@ -85337,8 +85380,6 @@
 				});
 				return valueArr;
 			});
-
-			console.log('chartProps', chartProps);
 
 			return _react2['default'].createElement(_reactGoogleCharts.Chart, _extends({
 				chartType: 'LineChart'

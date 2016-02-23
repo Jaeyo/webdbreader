@@ -7,11 +7,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -23,7 +22,7 @@ import com.igloosec.scripter.util.JdbcUtil;
 import com.igloosec.scripter.util.SimpleCrypto;
 
 public class DatabaseService {
-	private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
+	private static final Logger logger = Logger.getLogger(DatabaseService.class);
 	
 	public JSONArray getTables(JSONObject jdbcParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException{
 		Connection conn = null;

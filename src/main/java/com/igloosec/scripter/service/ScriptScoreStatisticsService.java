@@ -2,10 +2,9 @@ package com.igloosec.scripter.service;
 
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.ScriptScoreStatisticsDAO;
@@ -13,7 +12,7 @@ import com.igloosec.scripter.statistics.ScriptScoreStatistics;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics.CounterValues;
 
 public class ScriptScoreStatisticsService {
-	private static final Logger logger = LoggerFactory.getLogger(ScriptScoreStatisticsService.class);
+	private static final Logger logger = Logger.getLogger(ScriptScoreStatisticsService.class);
 	private ScriptScoreStatisticsDAO scriptScoreStatisticsDAO = SingletonInstanceRepo.getInstance(ScriptScoreStatisticsDAO.class);
 	private ScriptScoreStatistics scriptScoreStatistics = SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 	

@@ -7,13 +7,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
 
 public class FileExporter {
-	private static final Logger logger = LoggerFactory.getLogger(FileExporter.class);
+	private static final Logger logger = Logger.getLogger(FileExporter.class);
 
 	public void write(String filename, String content) {
 		write(filename, content, null);

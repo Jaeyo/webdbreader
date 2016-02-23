@@ -95,8 +95,6 @@ var ScriptChartCard = React.createClass({
 			return valueArr;
 		});
 
-		console.log('chartProps', chartProps);
-
 		return (
 			<Chart
 				chartType="LineChart"

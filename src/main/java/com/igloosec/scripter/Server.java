@@ -2,9 +2,11 @@ package com.igloosec.scripter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;

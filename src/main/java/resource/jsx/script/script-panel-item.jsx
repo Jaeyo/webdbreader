@@ -115,49 +115,29 @@ var ScriptPanelItem = React.createClass({
 		clearInterval(this.intervalId);
 	},
 
+	renderIconButtons() {
+		return (
+			<IconMenu 
+				iconButtonElement={ <Glyphicon glyph="option-horizontal" /> }
+				style={{ cursor: 'pointer', fontSize: '120%' }}
+				openDirection="top-left">
+				{
+					this.props.isRunning === true ? 
+					( <MenuItem primaryText="stop" onClick={this.stop} /> ) : 
+					( 
+						<div>
+							<MenuItem primaryText="start" onClick={this.start} /> 
+							<MenuItem primaryText="rename" onClick={this.rename} />
+							<MenuItem primaryText="delete" onClick={this.delete} />
+						</div>
+					)
+				}
+			</IconMenu>
+		);
+	},
+
 	render() {
 		try {
-			var StatisticsValue = (props) => {
-				return (
-					<span style={{ 
-						padding: '10px', 
-						color: 'white', 
-						backgroundColor: props.bg,
-						display: 'inline-block',
-						minWidth: '58px',
-						textAlign: 'center',
-						marginRight: '3px'
-					}}>
-						<div style={{
-							lineHeight: '0.9',
-							fontSize: '70%'
-						}}>
-							{props.label}
-						</div>
-						<div style={{ 
-								lineHeight: '1.1',
-								fontSize: '150%'
-							}}>
-							{props.value}
-						</div>
-					</span>
-				);
-			};
-
-			var OnOffLabel = (props) => {
-				return ( 
-					<label style={{ 
-						backgroundColor: props.value === 'on' ? color.blue : color.red,
-						color: 'white',
-						minWidth: '33px',
-						textAlign: 'center',
-						lineHeight: 1.4,
-						borderRadius: '5px',
-						marginRight: '10px'
-					}}>{props.value.toUpperCase()}</label> 
-				);
-			};
-
 			return (
 				<ListItem 
 					onClick={this.goToInfoPage}
@@ -165,20 +145,7 @@ var ScriptPanelItem = React.createClass({
 						borderLeft: '7px solid ' + color.lightBlue,
 						marginBottom: '3px'
 					}}
-					rightIconButton={
-						<IconMenu 
-							iconButtonElement={ <Glyphicon glyph="option-horizontal" /> }
-							style={{ cursor: 'pointer', fontSize: '120%' }}
-							openDirection="top-left">
-							{
-								this.props.isRunning === true ? 
-								( <MenuItem primaryText="stop" onClick={this.stop} /> ) : 
-								( <MenuItem primaryText="start" onClick={this.start} /> )
-							}
-							<MenuItem primaryText="rename" onClick={this.rename} />
-							<MenuItem primaryText="delete" onClick={this.delete} />
-						</IconMenu>
-					}>
+					rightIconButton={this.renderIconButtons()}>
 					<div style={{ float: 'left' }}>
 						<h3 style={{ 
 							fontSize: '150%',
@@ -207,3 +174,46 @@ var ScriptPanelItem = React.createClass({
 });
 
 module.exports = ScriptPanelItem;
+
+//props: value(on/off as string)
+var OnOffLabel = (props) => {
+	return ( 
+		<label style={{ 
+			backgroundColor: props.value === 'on' ? color.blue : color.red,
+			color: 'white',
+			minWidth: '33px',
+			textAlign: 'center',
+			lineHeight: 1.4,
+			borderRadius: '5px',
+			marginRight: '10px'
+		}}>{props.value.toUpperCase()}</label> 
+	);
+};
+
+//args: bg, label, value
+var StatisticsValue = (props) => {
+	return (
+		<span style={{ 
+			padding: '10px', 
+			color: 'white', 
+			backgroundColor: props.bg,
+			display: 'inline-block',
+			minWidth: '58px',
+			textAlign: 'center',
+			marginRight: '3px'
+		}}>
+			<div style={{
+				lineHeight: '0.9',
+				fontSize: '70%'
+			}}>
+				{props.label}
+			</div>
+			<div style={{ 
+					lineHeight: '1.1',
+					fontSize: '150%'
+				}}>
+				{props.value}
+			</div>
+		</span>
+	);
+};

@@ -5,9 +5,8 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.google.common.collect.Sets;
@@ -16,7 +15,7 @@ import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.VersionDAO;
 
 public class DerbySchemaCreator {
-	private static final Logger logger = LoggerFactory.getLogger(DerbySchemaCreator.class);
+	private static final Logger logger = Logger.getLogger(DerbySchemaCreator.class);
 	  
 	private DerbyDataSource ds = SingletonInstanceRepo.getInstance(DerbyDataSource.class);
 	
@@ -50,7 +49,7 @@ public class DerbySchemaCreator {
 		
 		if(lastVersion == null || Version.isANewerThanB(currentVersion, lastVersion)) {
 			new VersionDAO().insertVersion(currentVersion);
-			logger.info("old version({}) replaced with new version({})", lastVersion, currentVersion);
+			logger.info(String.format("old version(%s) replaced with new version(%s)", lastVersion, currentVersion));
 		}
 	}
 	

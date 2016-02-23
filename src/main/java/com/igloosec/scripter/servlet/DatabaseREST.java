@@ -12,11 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -25,7 +24,7 @@ import com.igloosec.scripter.service.DatabaseService;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class DatabaseREST extends HttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(DatabaseREST.class);
+	private static final Logger logger = Logger.getLogger(DatabaseREST.class);
 	private DatabaseService databaseService = SingletonInstanceRepo.getInstance(DatabaseService.class);
 	
 	@Override
@@ -50,15 +49,15 @@ public class DatabaseREST extends HttpServlet {
 			} else{
 				resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", "invalid path uri").toString());
 				resp.getWriter().flush();
-			} //if
+			}
 		} catch(Exception e){
 			String errmsg = String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage());
 			if(e.getClass().equals(IllegalArgumentException.class)) logger.error(errmsg);
 			else logger.error(errmsg, e);
 			resp.getWriter().print(new JSONObject().put("success", 0).put("errmsg", errmsg).toString());
 			resp.getWriter().flush();
-		} //catch
-	} //doGet
+		}
+	}
 
 	private String tables(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException{
 		JSONObject jdbcParams = new JSONObject()
@@ -77,7 +76,7 @@ public class DatabaseREST extends HttpServlet {
 		logger.debug(String.format("jdbcParams: %s", jdbcParams.toString()));
 		JSONArray tables = databaseService.getTables(jdbcParams);
 		return new JSONObject().put("success", 1).put("tables", tables).toString();
-	} //tables
+	}
 
 	private String columns(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws ClassNotFoundException, JSONException, SQLException, CryptoException {
 		JSONObject jdbcParams = new JSONObject()
@@ -96,7 +95,7 @@ public class DatabaseREST extends HttpServlet {
 		logger.debug(String.format("jdbcParams: %s", jdbcParams.toString()));
 		JSONArray columns = databaseService.getColumns(jdbcParams, tableName);
 		return new JSONObject().put("success", 1).put("columns", columns).toString();
-	} //column
+	}
 
 	private String querySampleData(HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathParams) throws JSONException, ClassNotFoundException, SQLException, CryptoException {
 		JSONObject jdbcParams = new JSONObject()
@@ -121,5 +120,5 @@ public class DatabaseREST extends HttpServlet {
 		logger.debug(String.format("jdbcParams: %s, query: %s, rowCount: %s", jdbcParams.toString(), query, rowCount));
 		JSONArray sampleData = databaseService.querySampleData(jdbcParams, query, rowCount, isEncrypted);
 		return new JSONObject().put("success", 1).put("sampleData", sampleData).toString();
-	} //querySampleData
-} //class
+	}
+}

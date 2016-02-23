@@ -1,6 +1,7 @@
 package com.igloosec.scripter.script;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 
@@ -14,7 +15,7 @@ public abstract class ScriptThread extends Thread {
 	private List<Timer> timers = Lists.newArrayList();
 	private List<Closeable> closeables = Lists.newArrayList();
 	
-	public ScriptThread(String scriptName) {
+	public ScriptThread(String scriptName) throws IOException {
 		this.scriptName = scriptName;
 		this.logger = new ScriptLogger(scriptName);
 	}

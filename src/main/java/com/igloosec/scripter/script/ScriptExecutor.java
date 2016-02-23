@@ -12,8 +12,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Sets;
 import com.igloosec.scripter.exception.AlreadyStartedException;
@@ -21,7 +20,7 @@ import com.igloosec.scripter.exception.ScriptNotRunningException;
 import com.igloosec.scripter.exception.VersionException;
 
 public class ScriptExecutor {
-	private static final Logger logger = LoggerFactory.getLogger(ScriptExecutor.class);
+	private static final Logger logger = Logger.getLogger(ScriptExecutor.class);
 	private Map<String, ScriptThread> runningScripts = new HashMap<String, ScriptThread>();
 
 	public void execute(final String scriptName, final String script) throws AlreadyStartedException, ScriptException, VersionException, IOException {
@@ -42,12 +41,12 @@ public class ScriptExecutor {
 		};
 		
 		thread.start();
-		logger.info("{} start to running", scriptName);
+		logger.info(String.format("%s start to running", scriptName));
 		runningScripts.put(scriptName, thread);
 	} 
 	
 	public void stop(String scriptName) throws ScriptNotRunningException {
-		logger.info("{} stop to running", scriptName);
+		logger.info(String.format("%s stop to running", scriptName));
 		ScriptThread thread = runningScripts.remove(scriptName);
 		if(thread == null)
 			throw new ScriptNotRunningException(scriptName);

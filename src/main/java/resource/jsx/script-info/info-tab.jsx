@@ -29,7 +29,8 @@ var InfoTab = React.createClass({
 
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
-		script: React.PropTypes.string.isRequired
+		script: React.PropTypes.string.isRequired,
+		isRunning: React.PropTypes.bool.isRequired
 	},
 
 	componentDidMount() {
@@ -59,6 +60,19 @@ var InfoTab = React.createClass({
 			});
 	},
 
+	renderModifyBtn() {
+		var { props } = this;
+		if(props.isRunning === true) return null;
+		return (
+			<div style={{ textAlign: 'right', marginTop: '10px' }}>
+				<Button
+					label="수정"
+					primary={true}
+					onClick={this.edit} />
+			</div>
+		);
+	},
+
 	render() {
 		var { props } = this;
 
@@ -86,12 +100,7 @@ var InfoTab = React.createClass({
 											left: 0 }} />
 									}
 								</div>
-								<div style={{ textAlign: 'right', marginTop: '10px' }}>
-									<Button
-										label="수정"
-										primary={true}
-										onClick={this.edit} />
-								</div>
+								{ this.renderModifyBtn() }
 								<AlertDialog ref="alertDialog" />
 							</div>
 						</CardText>

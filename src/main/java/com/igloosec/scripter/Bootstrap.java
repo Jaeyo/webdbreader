@@ -6,15 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.Conf;
 import com.igloosec.scripter.common.Path;
 
 public class Bootstrap {
-	private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
+	private static final Logger logger = Logger.getLogger(Bootstrap.class);
 
 	public static void main(String[] args) {
 		try{

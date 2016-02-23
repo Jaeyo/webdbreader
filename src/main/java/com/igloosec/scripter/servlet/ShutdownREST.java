@@ -9,15 +9,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class ShutdownREST extends HttpServlet {
 	public static final String SHUTDOWN_KEY = "547c64cd-56a8-46e1-b269-e939acae354b";
-	private static final Logger logger = LoggerFactory.getLogger(ShutdownREST.class);
+	private static final Logger logger = Logger.getLogger(ShutdownREST.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -43,7 +42,7 @@ public class ShutdownREST extends HttpServlet {
 							} catch(Exception e) {
 								e.printStackTrace();
 							}
-							logger.info("WebDbReader shutdown");
+							logger.info("scripter shutdown");
 							System.exit(0);	
 						}
 					}.start();

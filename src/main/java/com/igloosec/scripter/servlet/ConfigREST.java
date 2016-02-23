@@ -9,10 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.common.Path;
@@ -22,10 +21,9 @@ import com.igloosec.scripter.service.ConfigService;
 import com.igloosec.scripter.service.SimpleRepoService;
 import com.igloosec.scripter.util.Log4jConfig;
 import com.sun.jersey.api.uri.UriTemplate;
-import com.sun.xml.internal.bind.v2.TODO;
 
 public class ConfigREST extends HttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(ConfigREST.class);
+	private static final Logger logger = Logger.getLogger(ConfigREST.class);
 	private ConfigService configService = SingletonInstanceRepo.getInstance(ConfigService.class);
 	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	

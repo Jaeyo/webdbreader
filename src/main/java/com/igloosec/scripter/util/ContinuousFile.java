@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * 시간에 따라 switching 되는 파일을 읽기 위한 클래스
@@ -19,14 +18,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ContinuousFile implements Closeable{
-	private static final Logger logger=LoggerFactory.getLogger(ContinuousFile.class);
-	private String filenameWithDateFormat=null;
-	private String currentFilename=null;
-	private String charset = null;
-	private File currentFile=null;
-	private BufferedReader input=null;
-	private boolean deleteExpiredFile=false;
-	private int timeAdjustSec=0;
+	private static final Logger logger = Logger.getLogger(ContinuousFile.class);
+	private String filenameWithDateFormat = null;
+	private String currentFilename = null;
+	private String charset  =  null;
+	private File currentFile = null;
+	private BufferedReader input = null;
+	private boolean deleteExpiredFile = false;
+	private int timeAdjustSec = 0;
 	
 	public ContinuousFile(String filenameWithDateFormat, boolean deleteExpiredFile, String charset, int timeAdjustSec) throws IOException{
 		this.filenameWithDateFormat=filenameWithDateFormat;
@@ -34,10 +33,10 @@ public class ContinuousFile implements Closeable{
 		this.charset=charset;
 		this.timeAdjustSec=timeAdjustSec;
 		
-		logger.info("filename : {}, deleteExpiredFile : {}, encoding : {}", filenameWithDateFormat, deleteExpiredFile, charset);
+		logger.info(String.format("filename : %s, deleteExpiredFile : %s encoding : %s", filenameWithDateFormat, deleteExpiredFile, charset));
 		
 		init();
-	} //INIT
+	}
 	
 	private void init() throws IOException{
 		close();
@@ -47,9 +46,9 @@ public class ContinuousFile implements Closeable{
 		try{
 			input=new BufferedReader(new FileReader(currentFile));
 		} catch(FileNotFoundException e){
-			logger.warn("file not exists, {}", currentFilename);
-		} //catch
-	} //init
+			logger.warn(String.format("file not exists, %s", currentFilename));
+		}
+	}
 	
 	private boolean switchIfPossible() throws IOException{
 		if(!currentFilename.equalsIgnoreCase(getFilenameWithDateFormat(filenameWithDateFormat))){
@@ -62,18 +61,18 @@ public class ContinuousFile implements Closeable{
 				return false;
 			
 			if(deleteExpiredFile){
-				logger.info("switched file delete : {}", currentFile.getAbsolutePath());
+				logger.info(String.format("switched file delete : %s", currentFile.getAbsolutePath()));
 				close();
 				oldFile.delete();
-			} //if
+			}
 			
 			init();
-			logger.info("file switched {} -> {}", oldFilename, currentFilename);
+			logger.info(String.format("file switched %s -> %s", oldFilename, currentFilename));
 			return true;
-		} //if
+		}
 		
 		return false;
-	} //switchIfPossible
+	}
 	
 	public String readLine() throws IOException{
 		if(currentFile.exists() && input!=null){
@@ -83,7 +82,7 @@ public class ContinuousFile implements Closeable{
 			
 			if(switchIfPossible())
 				return readLine();
-		} //if
+		}
 		
 		
 		if(currentFile.exists()==false){
@@ -91,7 +90,7 @@ public class ContinuousFile implements Closeable{
 				return readLine();
 			else
 				return null;
-		} //if
+		}
 		
 		if(input==null) 
 			input=new BufferedReader(new InputStreamReader(new FileInputStream(currentFile), charset));
@@ -101,7 +100,7 @@ public class ContinuousFile implements Closeable{
 			return line;
 		
 		return null;
-	} //readLine
+	}
 	
 	private String getFilenameWithDateFormat(String filenameWithDateFormat){
 		Calendar cal=Calendar.getInstance();
@@ -113,11 +112,11 @@ public class ContinuousFile implements Closeable{
 		filenameWithDateFormat=filenameWithDateFormat.replace("$mi", String.format("%02d", cal.get(Calendar.MINUTE)));
 		filenameWithDateFormat=filenameWithDateFormat.replace("$ss", String.format("%02d", cal.get(Calendar.SECOND)));
 		return filenameWithDateFormat;
-	} //getFilenameWithDateFormat
+	}
 
 	@Override
 	public void close() throws IOException {
 		if(input!=null)
 			input.close();
-	} //close
-} //class
+	}
+}

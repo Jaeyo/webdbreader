@@ -10,12 +10,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class OutputFileLastModified {
-	private static final Logger logger=LoggerFactory.getLogger(OutputFileLastModified.class);
-	private static final int LAST_MODIFIED_TIMES_MAX_SIZE=1000;
+	private static final Logger logger = Logger.getLogger(OutputFileLastModified.class);
+	private static final int LAST_MODIFIED_TIMES_MAX_SIZE = 1000;
 	private static OutputFileLastModified INSTANCE = null;
 
 	private Map<String, Long> lastModifiedTimes = new HashMap<String, Long>();

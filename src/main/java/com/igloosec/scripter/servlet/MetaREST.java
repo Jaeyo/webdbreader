@@ -9,10 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.igloosec.scripter.Version;
@@ -21,7 +20,7 @@ import com.igloosec.scripter.util.SimpleCrypto;
 import com.sun.jersey.api.uri.UriTemplate;
 
 public class MetaREST extends HttpServlet {
-	private static final Logger logger = LoggerFactory.getLogger(MetaREST.class);
+	private static final Logger logger = Logger.getLogger(MetaREST.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

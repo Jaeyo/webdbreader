@@ -3,24 +3,23 @@ package com.igloosec.scripter.script.generate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.igloosec.scripter.exception.CryptoException;
 import com.igloosec.scripter.util.SimpleCrypto;
 
 public class Db2FileScriptGenerator extends ScriptGenerator {
-	private static final Logger logger = LoggerFactory.getLogger(Db2FileScriptGenerator.class);
+	private static final Logger logger = Logger.getLogger(Db2FileScriptGenerator.class);
 	
 	public String generate(String period, String dbVendor, String dbIp, String dbPort, 
 			String dbSid, String jdbcDriver, String jdbcConnUrl, String jdbcUsername, 
 			String jdbcPassword, String columns, String table, String bindingType, 
 			String bindingColumn, String delimiter, String charset, String outputPath) throws CryptoException {
-		logger.debug("period: {}, dbVendor: {}, dbIp: {}, dbPort: {}, dbSid: {}, jdbcDriver: {}, " + 
-			"jdbdConnUrl: {}, jdbcUsername: {}, jdbcPassword: {}, columns: {}, table: {}, bindingType: {}, " +
-			"bindingColumn: {}, delimiter: {}, charset: {}, outputPath: {}", period, dbVendor, dbIp, dbPort,
+		logger.debug(String.format("period: %s, dbVendor: %s, dbIp: %s, dbPort: %s, dbSid: %s, jdbcDriver: %s, " + 
+			"jdbdConnUrl: %s, jdbcUsername: %s, jdbcPassword: %s, columns: %s, table: %s, bindingType: %s, " +
+			"bindingColumn: %s, delimiter: %s, charset: %s, outputPath: %s", period, dbVendor, dbIp, dbPort,
 			dbSid, jdbcDriver, jdbcConnUrl, jdbcUsername, jdbcPassword, columns, table, bindingType, bindingColumn,
-			delimiter, charset, outputPath);
+			delimiter, charset, outputPath));
 		
 		ScriptBuilder script = new ScriptBuilder();
 		

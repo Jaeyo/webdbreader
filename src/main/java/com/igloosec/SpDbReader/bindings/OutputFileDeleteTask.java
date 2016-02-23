@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
 
 public class OutputFileDeleteTask {
-	private static final Logger logger = LoggerFactory.getLogger(OutputFileDeleteTask.class);
+	private static final Logger logger = Logger.getLogger(OutputFileDeleteTask.class);
 	private boolean isStarted = false;
 	private Timer timer = new Timer();
 
@@ -25,10 +24,10 @@ public class OutputFileDeleteTask {
 			public void run() {
 				List<File> toDeleteFiles = OutputFileLastModified.getInstance().pollExpiredOutputFiles(expiredTime);
 				for (File toDeleteFile : toDeleteFiles) {
-					logger.info("{} will be deleted", toDeleteFile.getAbsolutePath());
+					logger.info(String.format("%s will be deleted", toDeleteFile.getAbsolutePath()));
 					boolean result = toDeleteFile.delete();
 					if (!result)
-						logger.error("failed to delete {}", toDeleteFile.getAbsoluteFile());
+						logger.error(String.format("failed to delete %s", toDeleteFile.getAbsoluteFile()));
 				} // for toDeleteFIle
 			} // run
 		}, 2 * 1000, period);

@@ -3,11 +3,10 @@ package com.igloosec.scripter.script.generate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class Db2DbScriptGenerator extends ScriptGenerator {
-	private static final Logger logger = LoggerFactory.getLogger(Db2DbScriptGenerator.class);
+	private static final Logger logger = Logger.getLogger(Db2DbScriptGenerator.class);
 	
 	public String generate(String srcDbVendor, String srcDbIp, String srcDbPort, String srcDbSid, 
 			String srcJdbcDriver, String srcJdbcConnUrl, String srcJdbcUsername, String srcJdbcPassword,
@@ -15,16 +14,16 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			String destDbSid, String destJdbcDriver, String destJdbcConnUrl, String destJdbcUsername,
 			String destJdbcPassword, String destTable, String destColumns, String bindingType,
 			String srcBindingColumn, String period, String deleteAllBeforeInsert) {
-		logger.debug("srcDbVendor: {}, srcDbIp: {}, srcDbPort: {}, srcDbSid: {}, srcJdbcDriver: {}, "
-				+ "srcJdbcConnUrl: {}, srcJdbcUsername: {}, srcJdbcPassword: {}, srcTable: {}, "
-				+ "srcColumns: {}, destDbVendor: {}, destDbIp: {}, destDbPort: {}, destDbSid: {}, "
-				+ "destJdbcDriver: {}, destJdbcConnUrl: {}, destJdbcUsername: {}, destJdbcPassword: {}, "
-				+ "destTable: {}, destColumns: {}, bindingType: {}, srcBindingColumn: {}, period: {}, "
-				+ "deleteAllBeforeInsert: {}",
+		logger.debug(String.format("srcDbVendor: %s, srcDbIp: %s, srcDbPort: %s, srcDbSid: %s, srcJdbcDriver: %s, "
+				+ "srcJdbcConnUrl: %s, srcJdbcUsername: %s, srcJdbcPassword: %s, srcTable: %s, "
+				+ "srcColumns: %s, destDbVendor: %s, destDbIp: %s, destDbPort: %s, destDbSid: %s, "
+				+ "destJdbcDriver: %s, destJdbcConnUrl: %s, destJdbcUsername: %s, destJdbcPassword: %s, "
+				+ "destTable: %s, destColumns: %s, bindingType: %s, srcBindingColumn: %s, period: %s, "
+				+ "deleteAllBeforeInsert: %s",
 				srcDbVendor, srcDbIp, srcDbPort, srcDbSid, srcJdbcDriver, srcJdbcConnUrl, srcJdbcUsername, 
 				srcJdbcPassword, srcTable, srcColumns, destDbVendor, destDbIp, destDbPort, destDbSid, 
 				destJdbcDriver, destJdbcConnUrl, destJdbcUsername, destJdbcPassword, destTable, destColumns, 
-				bindingType, srcBindingColumn, period, deleteAllBeforeInsert);
+				bindingType, srcBindingColumn, period, deleteAllBeforeInsert));
 		
 		ScriptBuilder script = new ScriptBuilder();
 		
