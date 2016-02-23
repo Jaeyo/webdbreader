@@ -2,7 +2,9 @@ package com.igloosec.scripter.script.bindingsV2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Arrays;
 
+import com.google.common.collect.Lists;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;
@@ -31,7 +33,7 @@ public class Database {
 	}
 	
 	public QueryResult query(String query, String... args) {
-		logger.info(String.format("query: %s, args: %s", query, args));
+		logger.info(String.format("query: %s, args: %s", query, Arrays.asList(args).toString()));
 		
 		Connection conn = null;
 		try {
@@ -52,7 +54,7 @@ public class Database {
 	}
 	
 	public void update(String query, Object... args) {
-		logger.info(String.format("query: %s, args: %s", query, args));
+		logger.info(String.format("query: %s, args: %s", query, Arrays.asList(args).toString()));
 		
 		Connection conn = null;
 		try {
