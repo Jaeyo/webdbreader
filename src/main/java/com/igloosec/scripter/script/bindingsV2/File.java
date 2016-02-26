@@ -1,6 +1,9 @@
 package com.igloosec.scripter.script.bindingsV2;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,6 +15,7 @@ import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.service.FileOutMsgService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
+import com.sun.xml.internal.bind.v2.TODO;
 import com.sun.xml.internal.ws.Closeable;
 
 public class File implements Closeable {
@@ -49,6 +53,10 @@ public class File implements Closeable {
 		append(line + "\n");
 	}
 	
+	public String readLine() throws IOException {
+		return this.switchedFile.readLine();
+	}
+	
 	@Override
 	public void close() throws WebServiceException {
 		try {
@@ -64,6 +72,7 @@ public class File implements Closeable {
 		private String charset;
 		private String currentFilename;
 		private PrintWriter output;
+		private BufferedReader input;
 		private Formatter formatter = new Formatter();
 		
 		public SwitchedFile(String filename, String charset) throws IOException {
@@ -72,9 +81,12 @@ public class File implements Closeable {
 			switching();
 		}
 		
-		private void switchIfPossible() throws IOException {
-			if(this.currentFilename.equals(formatter.format(this.originalFilename, new Date())) == false)
+		private boolean switchIfPossible() throws IOException {
+			if(this.currentFilename.equals(formatter.format(this.originalFilename, new Date())) == false) {
 				switching();
+				return true;
+			}
+			return false;
 		}
 		
 		private void switching() throws IOException {
@@ -87,6 +99,7 @@ public class File implements Closeable {
 			logger.debug(String.format("create file: %s", this.currentFilename));
 			file.createNewFile();
 			this.output = new PrintWriter(file, this.charset);
+			this.input = new BufferedReader(new InputStreamReader(new FileInputStream(file), this.charset));
 		}
 		
 		public String getCurrentFilename() {
@@ -99,6 +112,13 @@ public class File implements Closeable {
 			output.flush();
 		}
 
+		public String readLine() throws IOException {
+			String line = this.input.readLine();
+			if(line == null && switchIfPossible())
+				line = this.input.readLine();
+			return line;
+		}
+		
 		@Override
 		public void close() throws WebServiceException {
 			this.output.flush();

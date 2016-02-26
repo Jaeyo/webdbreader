@@ -33,7 +33,7 @@ newDatabase({
 ```
 
 ### newFile(args)
-* file에 연결하여 file 출력 실행할 수 있는 File 바인딩 객체를 생성한다.
+* file에 연결하여 file 출력 가능한 File 바인딩 객체를 생성한다.
 * arguments:
     - args:
         + filename: 경로를 포함한 파일 이름,
@@ -70,6 +70,13 @@ repo.get('key'); // => 'value'
 var crypto = newCrypto();
 var encrypted = crypto.encrypt('test plain string'); // => encrypted string
 var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
+```
+
+### newHttp()
+* HTTP 연결 관련 기능을 제공하는 Http 바인딩 객체를 생성한다.
+* example
+```javascript
+var http = newHttp();
 ```
 
 ### dateFormat(timestamp, format)
@@ -110,6 +117,14 @@ print(isNumber('asdf')); // false
 print(isDate(new java.util.Date())); //true
 print(isDate(new java.sql.Date())); //true
 ```
+
+### sleep(long ms)
+* 지정된 밀리초(ms)만큼 멈춘다.
+* Example
+```javascript
+sleep(1000); //1초 멈춤
+```
+
 
 ----
 
@@ -358,6 +373,16 @@ var crypto = newCrypto();
 var encrypted = crypto.encrypt('test plain string'); // => encrypted string
 var decrypted = crypto.decrypt(encrypted); // => 'test plain string'
 ```
+
+
+### Http
+#### String get()
+* Http 객체 생성시 파라미터로 전달된 URL에 대해 HTTP GET 요청을 보낸 뒤 돌아온 HTML을 반환한다. 
+* Example
+```javascript
+var html = newHttp('http://testurl.net/test').get();
+```
+
 
 ### Logger
 #### info(msg)

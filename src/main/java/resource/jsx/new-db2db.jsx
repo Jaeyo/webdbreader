@@ -39,7 +39,7 @@ var NewDb2DbView = React.createClass({
 			destJdbcPassword: '',
 			destTable: '',
 			destColumns: '',
-			bindingType: '',
+			bindingType: 'simple',
 			srcBindingColumn: '',
 			period: '60 * 1000',
 			deleteAllBeforeInsert: 'false'

@@ -92,10 +92,6 @@ var NewScriptDialog = React.createClass({
 							style={{ width: '100%', textAlign: 'left' }}
 							onClick={this.goDb2File} />
 						<FlatButton 
-							label=">> database to database"
-							style={{ width: '100%', textAlign: 'left' }}
-							onClick={this.goDb2Db} />
-						<FlatButton 
 							label=">> import version 1 script"
 							style={{ width: '100%', textAlign: 'left' }}
 							onClick={this.goImportVer1Script} />

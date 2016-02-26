@@ -181,7 +181,8 @@ var ScriptInfoView = React.createClass({
 				<Tab label="configuration" key="configuration">
 					<ScriptConfigTab 
 						title={props.title} 
-						scriptParams={state.scriptParams} />
+						scriptParams={state.scriptParams}
+						isRunning={state.isRunning} />
 				</Tab>
 			);
 		}

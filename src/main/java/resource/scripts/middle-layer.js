@@ -44,6 +44,10 @@ var newCrypto = function() {
 	};
 };
 
+var newHttp = function(url) {
+	return new Http();
+};
+
 var dateFormat = function(timestamp, format) {
 	if(typeof timestamp !== 'number') throw new Error('illegal timestamp type');
 	else if(typeof format !== 'string') throw new Error('illegal format type');
@@ -68,6 +72,10 @@ var isNumber = function(arg) {
 
 var isDate = function(arg) {
 	return com.igloosec.scripter.script.bindingsV2.Util.isDate(arg);
+};
+
+var sleep = funciton(ms) {
+	return com.igloosec.scripter.script.bindingsV2.Util.sleep(ms);
 };
 
 

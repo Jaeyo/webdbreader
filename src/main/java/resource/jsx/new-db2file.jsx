@@ -26,7 +26,7 @@ var NewDb2FileView = React.createClass({
 			jdbcPassword: 'admin',
 			table: '',
 			columns: '',
-			bindingType: '',
+			bindingType: 'simple',
 			bindingColumn: '',
 			period: '60 * 1000',
 			charset: 'utf8',

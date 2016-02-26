@@ -18,4 +18,11 @@ public class Util {
 		else if(arg instanceof java.util.Date) return true; 
 		return false;
 	}
+	
+	public static void sleep(long ms){
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+		}
+	}
 }

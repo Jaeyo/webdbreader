@@ -20,7 +20,8 @@ var Db2File = {
 var ScriptConfigTab = React.createClass({
 	PropTypes: {
 		title: React.PropTypes.string.isRequired,
-		scriptParams: React.PropTypes.object.isRequired
+		scriptParams: React.PropTypes.object.isRequired,
+		isRunning: React.PropTypes.bool.isRequired
 	},
 
 	getInitialState() {
@@ -202,16 +203,21 @@ var ScriptConfigTab = React.createClass({
 				outputPath: this.state.outputPath
 			});
 
+			console.log('isRunning: ' + this.props.isRunning); //DEBUG
+
 			return (
 				<div> 
 					<Db2File.DatabaseConfigCard {...databaseConfigCardData} />
 					<Db2File.TableColumnConfigCard {...tableColumnConfigCardData} />
 					<Db2File.BindingTypeCard {...bindingTypeCardData} />
 					<Db2File.EtcConfigCard {...etcConfigCardData} />
-					<Button
-						label="수정"
-						primary={true}
-						onClick={this.showScriptDialog} />
+					{
+						this.props.isRunning === true ? null : 
+						(<Button
+							label="수정"
+							primary={true}
+							onClick={this.showScriptDialog} />)
+					}
 					<ScriptDialog ref="scriptDialog" />
 					<AlertDialog ref="alertDialog" />
 				</div>
