@@ -64,30 +64,32 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 		script.appendLine("var db = newDatabase(jdbc);")
 			.appendLine();
 		
-		script.appendLine("repeat.run(function() { ");
-		script.appendLine("	try {");
+		script.appendLine("repeat.run(function() { ")
+			.appendLine("	try {")
+			.appendLine("		var currentTable = replaceWithCurrentDate(table);")
+			.appendLine();
 		
 		if(bindingType.equals("sequence")) {
 			script.appendLine("		var min = repo.get('min', { isNull: '0' });")
-				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 1, col: 1 });")
+				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, currentTable]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine();
 		} else if(bindingType.equals("date")) {
 			script.appendLine("		var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
-				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, table]).get({ row: 1, col: 1 });")
+				.appendLine("		var max = db.query('SELECT MAX(?) FROM ?', [bindingColumn, currentTable]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine("		else max = dateFormat(max.getTime(), '$yyyy-$mm-$dd $hh:$mi:$ss');")
 				.appendLine();
 		}
 		
 		if(bindingType.equals("simple")) {
-			script.appendLine("		db.query('SELECT ? FROM ?', [columns, table]).eachRow(function(row) {")
+			script.appendLine("		db.query('SELECT ? FROM ?', [columns, currentTable]).eachRow(function(row) {")
 				.appendLine("			var line = row.join(delimiter).split('\\n').join('');")
 				.appendLine("			file.appendLine(line);")
 				.appendLine("		});")
 				.appendLine();
 		} else if(bindingType.equals("sequence")) {
-			script.appendLine("		db.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', [columns, table, bindingColumn, min, bindingColumn, max])")
+			script.appendLine("		db.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', [columns, currentTable, bindingColumn, min, bindingColumn, max])")
 				.appendLine("			.eachRow(function(row) {")
 				.appendLine("				var line = row.join(delimiter).split('\\n').join('');")
 				.appendLine("				file.appendLine(line);")
@@ -98,7 +100,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 				script.appendLine("		db.query('SELECT ? FROM ? ' + ")
 					.appendLine("				'WHERE ? > TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\')' + ")
 					.appendLine("				'AND ? <= TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\')',")
-					.appendLine("			[columns, table, bindingColumn, min, bindingColumn, max])")
+					.appendLine("			[columns, currentTable, bindingColumn, min, bindingColumn, max])")
 					.appendLine("			.eachRow(function(row) {")
 					.appendLine("				var line = row.join(delimiter).split('\\n').join('');")
 					.appendLine("				file.appendLine(line);")
@@ -108,7 +110,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 				script.appendLine("		db.query('SELECT ? FROM ? ' + ")
 					.appendLine("				'WHERE ? > STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\')' + ")
 					.appendLine("				'AND ? <= STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\')',")
-					.appendLine("			[columns, table, bindingColumn, min, bindingColumn, max])")
+					.appendLine("			[columns, currentTable, bindingColumn, min, bindingColumn, max])")
 					.appendLine("			.eachRow(function(row) {")
 					.appendLine("				var line = row.join(delimiter).split('\\n').join('');")
 					.appendLine("				file.appendLine(line);")
@@ -118,7 +120,7 @@ public class Db2FileScriptGenerator extends ScriptGenerator {
 				script.appendLine("		db.query('SELECT ? FROM ? ' + ")
 					.appendLine("				'WHERE ? > \\'?\\'' + ")
 					.appendLine("				'AND ? <= \\'?\\'',")
-					.appendLine("			[columns, table, bindingColumn, min, bindingColumn, max])")
+					.appendLine("			[columns, currentTable, bindingColumn, min, bindingColumn, max])")
 					.appendLine("			.eachRow(function(row) {")
 					.appendLine("				var line = row.join(delimiter).split('\\n').join('');")
 					.appendLine("				file.appendLine(line);")

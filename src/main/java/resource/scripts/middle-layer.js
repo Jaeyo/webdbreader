@@ -62,6 +62,20 @@ var dateFormat = function(timestamp, format) {
 	return com.igloosec.scripter.util.Util.dateFormat(timestamp, format);
 };
 
+var replaceWithCurrentDate = function(str) {
+	var SimpleDateFormat = java.text.SimpleDateFormat.SimpleDateFormat;
+	var current = new java.util.Date();
+
+	if(str.indexOf('$yyyy')) str = str.split('$yyyy').join(new SimpleDateFormat('yyyy').format(current));
+	if(str.indexOf('$mm')) str = str.split('$mm').join(new SimpleDateFormat('MM').format(current));
+	if(str.indexOf('$dd')) str = str.split('$dd').join(new SimpleDateFormat('dd').format(current));
+	if(str.indexOf('$hh')) str = str.split('$hh').join(new SimpleDateFormat('HH').format(current));
+	if(str.indexOf('$mi')) str = str.split('$mi').join(new SimpleDateFormat('mm').format(current));
+	if(str.indexOf('$ss')) str = str.split('$ss').join(new SimpleDateFormat('ss').format(current));
+
+	return str;
+}
+
 var getType = function(arg) {
 	return com.igloosec.scripter.script.bindingsV2.Util.getType(arg);
 };

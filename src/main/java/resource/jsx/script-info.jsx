@@ -1,24 +1,27 @@
-var React = require('react');
-var Glyphicon = require('react-bootstrap').Glyphicon;
-var InfoTab = require('./script-info/info-tab.jsx');
-var ScriptConfigTab = require('./script-info/script-config-tab.jsx');
-var TailTab = require('./script-info/tail-tab.jsx');
-var server = require('./utils/server.js');
-var MaterialWrapper = require('./comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var FlatButton = MaterialWrapper.FlatButton;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var List = MaterialWrapper.List;
-var ListItem = MaterialWrapper.ListItem;
-var IconMenu = MaterialWrapper.IconMenu;
-var MenuItem = MaterialWrapper.MenuItem;
-var Tabs = MaterialWrapper.Tabs;
-var Tab = MaterialWrapper.Tab;
-var PromptDialog = require('./comps/dialog/prompt-dialog.jsx');
-var AlertDialog = require('./comps/dialog/alert-dialog.jsx');
-var ConfirmDialog = require('./comps/dialog/confirm-dialog.jsx');
+import React from 'react';
+import { Glyphicon } from 'react-bootstrap';
+import InfoTab from './script-info/info-tab.jsx';
+import ScriptConfigTab from './script-info/script-config-tab.jsx';
+import TailTab from './script-info/tail-tab.jsx';
+import server from './utils/server.js';
+import Filter from './comps/filter.jsx';
+import {
+	Button,
+	FlatButton,
+	Card,
+	CardHeader,
+	CardText,
+	List,
+	ListItem,
+	IconMenu,
+	MenuItem,
+	Tabs,
+	Tab
+} from './comps/material-wrapper.jsx';
+
+import PromptDialog from './comps/dialog/prompt-dialog.jsx';
+import AlertDialog from './comps/dialog/alert-dialog.jsx';
+import ConfirmDialog from './comps/dialog/confirm-dialog.jsx';
 
 var ScriptInfoView = React.createClass({
 	PropTypes: {
@@ -56,8 +59,8 @@ var ScriptInfoView = React.createClass({
 
 	loadScript(callback) {
 		var { refs } = this;
-		server
-			.loadScript({ title: this.props.title })
+
+		server.loadScript({ title: this.props.title })
 			.then((script) => {
 				callback({ script: script });
 			}).catch((err) => {
@@ -67,8 +70,8 @@ var ScriptInfoView = React.createClass({
 
 	isTailEnable(callback) {
 		var { refs } = this;
-		server
-			.isEnableTail()
+
+		server.isEnableTail()
 			.then((result) => {
 				callback(result)
 			}).catch((err) => {
@@ -77,9 +80,8 @@ var ScriptInfoView = React.createClass({
 	},
 
 	loadScriptParams(callback) {
-		server
-			.loadScriptParams({ title: this.props.title })
-			.then(function(resp) {
+		server.loadScriptParams({ title: this.props.title })
+			.then((resp) => {
 				if(resp.parsable === 1) {
 					callback({
 						parsable: true,
@@ -91,9 +93,9 @@ var ScriptInfoView = React.createClass({
 						msg: resp.msg
 					});
 				}
-			}.bind(this)).catch(function(err) {
+			}).catch((err) => {
 				this.refs.alertDialog.show('danger', err);
-			}.bind(this));
+			});
 	},
 
 	start(evt) {
@@ -167,34 +169,31 @@ var ScriptInfoView = React.createClass({
 	renderTabs() {
 		var { state, props } = this;
 
-		var tabs = [];
-		tabs.push(
-			<Tab label="infomation" key="information">
-				<InfoTab 
-					title={props.title} 
-					script={state.script}
-					isRunning={state.isRunning} />
-			</Tab>
-		);
-		if(state.scriptParams != null) {
-			tabs.push(
-				<Tab label="configuration" key="configuration">
-					<ScriptConfigTab 
+		return (
+			<Tabs>
+				<Tab label="infomation" key="information">
+					<InfoTab 
 						title={props.title} 
-						scriptParams={state.scriptParams}
+						script={state.script}
 						isRunning={state.isRunning} />
 				</Tab>
-			);
-		}
-		if(state.isTailEnable === true) {
-			tabs.push(
-				<Tab label="tail" key="tail">
-					<TailTab title={props.title} />
-				</Tab>
-			);
-		}
-
-		return ( <Tabs>{tabs}</Tabs> );
+				{
+					state.scriptParams != null ? 
+					(<Tab label="configuration" key="configuration">
+						<ScriptConfigTab 
+							title={props.title} 
+							scriptParams={state.scriptParams}
+							isRunning={state.isRunning} />
+					</Tab>) : []
+				}
+				{
+					state.isTailEnable === true ? 
+					(<Tab label="tail" key="tail">
+						<TailTab title={props.title} />
+					</Tab>) : []
+				}
+			</Tabs>
+		);
 	},
 
 	render() {

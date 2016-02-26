@@ -42,6 +42,7 @@ if "%1" == "start" (
 	-Dfile.encoding=utf8 ^
 	-Dpath.to.java="%JAVA_HOME%" ^
 	-Dport="%PORT%" ^
-	-Djetty_thread_pool_size="%JETTY_THREAD_POOL_SIZE%" ^
+	-Djetty.thread.pool.size="%JETTY_THREAD_POOL_SIZE%" ^
+	-Dscript.auto.start="%SCRIPT_AUTO_START%" ^
 	-cp "%CLASSPATH%" ^
 	"%MAIN_CLASS%"

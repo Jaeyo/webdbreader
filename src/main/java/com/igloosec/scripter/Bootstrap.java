@@ -53,7 +53,8 @@ public class Bootstrap {
 		cmd.add(javaExe);
 		cmd.add("-Dfile.encoding=UTF-8");
 		cmd.add("-Dport=" + Conf.get(Conf.PORT));
-		cmd.add("-Djetty_thread_pool_size=" + Conf.get(Conf.JETTY_THREAD_POOL_SIZE));
+		cmd.add("-Djetty.thread.pool.size=" + Conf.get(Conf.JETTY_THREAD_POOL_SIZE));
+		cmd.add("-Dscript.auto.start=" + Conf.get(Conf.SCRIPT_AUTO_START));
 		cmd.add("-cp");
 		cmd.add(classPath);
 		cmd.add(mainClass);

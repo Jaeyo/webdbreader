@@ -2,7 +2,10 @@ package com.igloosec.scripter.script.bindingsV2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import com.google.common.collect.Lists;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
@@ -38,7 +41,7 @@ public class Database {
 		Connection conn = null;
 		try {
 			Class.forName(this.driver);
-			conn = DriverManager.getConnection(this.connUrl, this.username, this.password);
+			conn = getConnection(this.connUrl, this.username, this.password);
 			JsonJdbcTemplate jdbcTmpl = new JsonJdbcTemplate(new SingleConnectionDataSource(conn));
 			
 			query = convertQuestionMark2RealValue(query, args);
@@ -59,7 +62,7 @@ public class Database {
 		Connection conn = null;
 		try {
 			Class.forName(this.driver);
-			conn = DriverManager.getConnection(this.connUrl, this.username, this.password);
+			conn = getConnection(this.connUrl, this.username, this.password);
 			JsonJdbcTemplate jdbcTmpl = new JsonJdbcTemplate(new SingleConnectionDataSource(conn));
 			
 			query = convertQuestionMark2RealValue(query, args);
@@ -79,7 +82,7 @@ public class Database {
 		Connection conn = null;
 		try {
 			Class.forName(this.driver);
-			conn = DriverManager.getConnection(this.connUrl, this.username, this.password);
+			conn = getConnection(this.connUrl, this.username, this.password);
 			JsonJdbcTemplate jdbcTmpl = new JsonJdbcTemplate(new SingleConnectionDataSource(conn));
 			
 			jdbcTmpl.batchUpdate(queries);
@@ -94,5 +97,16 @@ public class Database {
 		
 		query = query.replaceAll("\\?", "%s");
 		return String.format(query, args);
+	}
+	
+	private static Connection getConnection(String connUrl, String username, String password) throws SQLException {
+		if(connUrl.contains("$yyyy")) connUrl = new SimpleDateFormat("yyyy").format(new Date());
+		if(connUrl.contains("$mm")) connUrl = new SimpleDateFormat("MM").format(new Date());
+		if(connUrl.contains("$dd")) connUrl = new SimpleDateFormat("dd").format(new Date());
+		if(connUrl.contains("$hh")) connUrl = new SimpleDateFormat("HH").format(new Date());
+		if(connUrl.contains("$mi")) connUrl = new SimpleDateFormat("mm").format(new Date());
+		if(connUrl.contains("$ss")) connUrl = new SimpleDateFormat("ss").format(new Date());
+		
+		return DriverManager.getConnection(connUrl, username, password); 
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -31,36 +32,41 @@ import com.igloosec.scripter.util.Log4jConfig;
 public class Server {
 	public static void main(String[] args) throws Exception {
 		Log4jConfig.initLog4j();
-		
-		//jetty debug log to stdout
-		System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
-		System.setProperty("com.igloosec.scripter.LEVEL", "DEBUG");
-		
-		new DerbySchemaCreator().check();
-		
-		if(Conf.getAs(Conf.SCRIPT_AUTO_START, Boolean.class) == true)
-			SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScripts();
-		else
-			SingletonInstanceRepo.getInstance(ScriptRunningDAO.class).deleteAll();
-			
-		
-		SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
-		
-		QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
+		Logger logger = Logger.getLogger(Server.class);
 
-		org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
-		server.setThreadPool(threadPool);
-		server.setStopAtShutdown(true);
-		
-		SelectChannelConnector connector = new SelectChannelConnector();
-		connector.setPort(Conf.getAs(Conf.PORT, 8098));
-		server.setConnectors(new SelectChannelConnector[] { connector });
-		
-		WebAppContext context = getWebAppContext();
-		server.setHandler(context);
-		
-		server.start();
-		server.join();
+		try {
+			//jetty debug log to stdout
+			System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
+			System.setProperty("com.igloosec.scripter.LEVEL", "DEBUG");
+
+			new DerbySchemaCreator().check();
+
+			if(Conf.getAs(Conf.SCRIPT_AUTO_START, Boolean.class) == true)
+				SingletonInstanceRepo.getInstance(ScriptService.class).startAutoStartScripts();
+			else
+				SingletonInstanceRepo.getInstance(ScriptRunningDAO.class).deleteAll();
+
+
+			SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
+
+			QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));
+
+			org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
+			server.setThreadPool(threadPool);
+			server.setStopAtShutdown(true);
+
+			SelectChannelConnector connector = new SelectChannelConnector();
+			connector.setPort(Conf.getAs(Conf.PORT, 8098));
+			server.setConnectors(new SelectChannelConnector[] { connector });
+
+			WebAppContext context = getWebAppContext();
+			server.setHandler(context);
+
+			server.start();
+			server.join();
+		} catch(Exception e) {
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	}
 	
 	private static WebAppContext getWebAppContext() throws IOException{

@@ -125,6 +125,13 @@ print(isDate(new java.sql.Date())); //true
 sleep(1000); //1초 멈춤
 ```
 
+### replaceWithCurrentDate(str, timestamp)
+* 주어진 문자열에서 날짜 지정자에 해당하는 문자들을 현재 시간 기준의 문자열들로 치환한다.
+* Example
+```javascript
+replaceWithCurrentDate('table_$yyyy$mm$dd'); // table_20150101
+```
+
 
 ----
 

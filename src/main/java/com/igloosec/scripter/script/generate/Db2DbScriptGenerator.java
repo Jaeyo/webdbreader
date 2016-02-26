@@ -79,17 +79,20 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 			.appendLine("});")
 			.appendLine();
 		
-		script.appendLine("repeat.run(function() {");
-		script.appendLine("	try {");
+		script.appendLine("repeat.run(function() {")
+			.appendLine("	try {")
+			.appendLine("		var currentSrcTable = replaceWithCurrentDate(srcTable);")
+			.appendLine("		var currentDestTable = replaceWithCurrentDate(destTable);")
+			.appendLine();
 		
 		if(bindingType.equals("sequence")) {
 			script.appendLine("		var min = repo.get('min', { isNull: '0' });")
-				.appendLine("		var max = srcDb.query('SELECT MAX(?) FROM ?', [ srcBindingColumn, srcTable ]).get({ row: 1, col: 1 });")
+				.appendLine("		var max = srcDb.query('SELECT MAX(?) FROM ?', [ srcBindingColumn, currentSrcTable ]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine();
 		} else if(bindingType.equals("date")) {
 			script.appendLine("		var min = repo.get('min', { isNull: '%s' });", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
-				.appendLine("		var max = srcDb.query('SELECT MAX(?) FROM ?', [ srcBindingColumn, srcTable ]).get({ row: 1, col: 1 });")
+				.appendLine("		var max = srcDb.query('SELECT MAX(?) FROM ?', [ srcBindingColumn, currentSrcTable ]).get({ row: 1, col: 1 });")
 				.appendLine("		if(max == null) return;")
 				.appendLine("		else max = dateFormat(max.getTime(), '$yyyy-$mm-$dd $hh:$mi:$ss');")
 				.appendLine();
@@ -97,25 +100,25 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 		
 		String queryLine = null;
 		if(bindingType.equals("simple")) {
-			queryLine = "			.query('SELECT ? FROM ?', [ srcColumns, srcTable ])";
+			queryLine = "			.query('SELECT ? FROM ?', [ srcColumns, currentSrcTable ])";
 		} else if(bindingType.equals("sequence")) {
-			queryLine = "			.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', [ srcColumns, srcTable, srcBindingColumn, min, srcBindingColumn, max ])";
+			queryLine = "			.query('SELECT ? FROM ? WHERE ? > ? AND ? <= ?', [ srcColumns, currentSrcTable, srcBindingColumn, min, srcBindingColumn, max ])";
 		} else if(bindingType.equals("date")) {
 			if(srcDbVendor.equals("oracle") || srcDbVendor.equals("db2") || srcDbVendor.equals("tibero") || srcDbVendor.equals("etc")) {
 				queryLine = "			.query('SELECT ? FROM ? WHERE ? > TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\') AND ? <= TO_DATE(\\'?\\', \\'YYYY-MM-DD HH24:MI:SS\\')'," + 
-							"					[ srcColumns, srcTable, srcBindingColumn, min, srcBindingColumn, max ])";
+							"					[ srcColumns, currentSrcTable, srcBindingColumn, min, srcBindingColumn, max ])";
 			} else if(srcDbVendor.equals("mysql")) {
 				queryLine = "			.query('SELECT ? FROM ? WHERE ? > STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\') AND ? <= STR_TO_DATE(\\'?\\', \\'%Y-%m-%d %H:%i:%s\\')'," + 
-							"					[ srcColumns, srcTable, srcBindingColumn, min, srcBindingColumn, max ])";
+							"					[ srcColumns, currentSrcTable, srcBindingColumn, min, srcBindingColumn, max ])";
 			} else if(srcDbVendor.equals("mssql")) {
 				queryLine = "			.query('SELECT ? FROM ? WHERE ? > \\'?\\' AND ? <= \\'?\\''," + 
-							"					[ srcColumns, srcTable, srcBindingColumn, min, srcBindingColumn, max ])";
+							"					[ srcColumns, currentSrcTable, srcBindingColumn, min, srcBindingColumn, max ])";
 			}
 		}
 		
 		if(bindingType.equals("simple")) {
 			script.appendLine("		if(deleteAllBeforeInsert === true)")
-				.appendLine("			destDb.update('delete from ?', [ destTable ]);")
+				.appendLine("			destDb.update('delete from ?', [ currentDestTable ]);")
 				.appendLine();
 		}
 		
@@ -136,7 +139,7 @@ public class Db2DbScriptGenerator extends ScriptGenerator {
 		}
 		script.appendLine("					} else values.push(\"'\" + column + \"'\");")
 			.appendLine("				});")
-			.appendLine("				destDb.update('insert into ? (?) values(?)', [ destTable, destColumns, values.join(',') ]);")
+			.appendLine("				destDb.update('insert into ? (?) values(?)', [ currentDestTable, destColumns, values.join(',') ]);")
 			.appendLine("			});");
 			
 		if(bindingType.equals("simple") == false) {
