@@ -1,16 +1,18 @@
-var React = require('react');
-var server = require('./utils/server.js');
-var Glyphicon = require('react-bootstrap').Glyphicon;
-var MaterialWrapper = require('./comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var Card = MaterialWrapper.Card;
-var CardHeader = MaterialWrapper.CardHeader;
-var CardText = MaterialWrapper.CardText;
-var List = MaterialWrapper.List;
-var ListItem = MaterialWrapper.ListItem;
-var TotalChartCard = require('./script/total-chart-card.jsx');
-var ScriptPanelItem = require('./script/script-panel-item.jsx');
-var NewScriptDialog = require('./script/new-script-dialog.jsx');
+import React from 'react';
+import server from './utils/server.js';
+import Filter from './comps/filter.jsx';
+import { Glyphicon } from 'react-bootstrap';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardText,
+	List,
+	ListItem
+} from './comps/material-wrapper.jsx';
+import TotalChartCard from './script/total-chart-card.jsx';
+import ScriptPanelItem from './script/script-panel-item.jsx';
+import NewScriptDialog from './script/new-script-dialog.jsx';
 
 
 var ScriptsPanel = React.createClass({
@@ -21,20 +23,23 @@ var ScriptsPanel = React.createClass({
 	componentDidMount() {
 		server
 			.loadScripts()
-			.then(function(scripts) {
+			.then((scripts) => {
 				this.setState({ scripts: scripts });
-			}.bind(this)).catch(function(err) {
+			}).catch((err) => {
 				console.error(err.stack);
 			});
 	},
 
 	showNewScriptDialog(evt) {
+		var { refs } = this;
 		evt.stopPropagation();
-		this.refs.newScriptDialog.show();
+		refs.newScriptDialog.show();
 	},
 
 	render() {
 		try {
+			var { state } = this;
+
 			return (
 				<Card style={{ marginBottom: '10px', overflow: 'inherit' }}>
 					<CardHeader
@@ -43,19 +48,22 @@ var ScriptsPanel = React.createClass({
 						avatar={ <Glyphicon glyph="console" /> } />
 					<CardText>
 						<List>
-						{
-							this.state.scripts.length === 0 ? 
-							( <ListItem primaryText="no data" /> ) : 
-							this.state.scripts.map(function(script) {
-								return (
-									<ScriptPanelItem 
-										key={script.SCRIPT_NAME}
-										title={script.SCRIPT_NAME} 
-										isRunning={script.IS_RUNNING} 
-										regdate={script.REGDATE} />
-								);
-							})
-						}
+							<Filter test={state.scripts.length === 0}>
+								<ListItem primaryText="no data" />
+							</Filter>
+							<Filter test={state.scripts.length !== 0}>
+							{
+								state.scripts.map(function(script) {
+									return (
+										<ScriptPanelItem 
+											key={script.SCRIPT_NAME}
+											title={script.SCRIPT_NAME} 
+											isRunning={script.IS_RUNNING} 
+											regdate={script.REGDATE} />
+									);
+								})
+							}
+							</Filter>
 						</List>
 						<div style={{ padding: '10px', textAlign: 'right' }}>
 							<Button 

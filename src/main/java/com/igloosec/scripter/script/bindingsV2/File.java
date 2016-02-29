@@ -66,7 +66,7 @@ public class File implements Closeable {
 		}
 	}
 
-	class SwitchedFile implements Closeable{
+	class SwitchedFile implements Closeable {
 		private ScriptLogger logger = ScriptThread.currentLogger();
 		private String originalFilename;
 		private String charset;

@@ -1,12 +1,13 @@
-var React = require('react');
-var MaterialWrapper = require('../comps/material-wrapper.jsx');
-var Button = MaterialWrapper.Button;
-var FlatButton = MaterialWrapper.FlatButton;
-var Dialog = MaterialWrapper.Dialog;
-var ImportVer1ScriptDialog = require('./new-script-dialog/import-ver1-script-dialog.jsx');
-var ScriptDialog = require('../comps/dialog/script-dialog.jsx');
-var AlertDialog = require('../comps/dialog/alert-dialog.jsx');
-var server = require('../utils/server.js');
+import React from 'react';
+import {
+	Button,
+	FlatButton,
+	Dialog
+} from '../comps/material-wrapper.jsx';
+import ImportVer1ScriptDialog from './new-script-dialog/import-ver1-script-dialog.jsx';
+import ScriptDialog from '../comps/dialog/script-dialog.jsx';
+import AlertDialog from '../comps/dialog/alert-dialog.jsx';
+import server from '../utils/server.js';
 
 var NewScriptDialog = React.createClass({
 	getInitialState() {
@@ -34,39 +35,38 @@ var NewScriptDialog = React.createClass({
 	},
 
 	goImportVer1Script(evt) {
+		var { refs } = this;
 		evt.stopPropagation();
-		this.hide(function() {
-			this.refs.importVer1scriptDialog.show();
+		this.hide(() => {
+			refs.importVer1scriptDialog.show();
 		});
 	},
 
 	goNewScript(evt) {
 		evt.stopPropagation();
 
-		var scriptDialog = this.refs.scriptDialog;
-		var alertDialog = this.refs.alertDialog;
-
-		scriptDialog.show({
+		var { refs } = this;
+		refs.scriptDialog.show({
 			scriptName: '',
 			script: '',
 			options: {
 				isScriptNameEditable: true
 			},
-			onActionCallback: function(result, scriptName, script) {
+			onActionCallback: (result, scriptName, script) => {
 				if(result === false) {
-					scriptDialog.hide();
+					refs.scriptDialog.hide();
 					return;
 				}
 
 				server.postScript({
 					title: scriptName,
 					script: script
-				}).then(function(result) {
-					scriptDialog.hide();
-					alertDialog.show('success', '스크립트가 저장되었습니다.');
+				}).then((result) => {
+					refs.scriptDialog.hide();
+					refs.alertDialog.show('success', '스크립트가 저장되었습니다.');
 					window.location.href = '/';
-				}).catch(function(err) {
-					alertDialog.show('danger', err);
+				}).catch((err) => {
+					refs.alertDialog.show('danger', err);
 				});
 			}
 		});
