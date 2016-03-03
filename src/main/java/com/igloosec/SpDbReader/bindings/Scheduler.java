@@ -7,16 +7,20 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class Scheduler {
-	private static final Logger logger = Logger.getLogger(Scheduler.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	private Timer timer = new Timer();
 
 	public void schedule(long delay, long period, final Runnable task) {
+		final String scriptName = ScriptThread.currentScriptName();
+		
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName(scriptName);
 				task.run();
 			}
 		}, delay, period);

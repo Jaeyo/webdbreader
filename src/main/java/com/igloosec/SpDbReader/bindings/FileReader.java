@@ -11,9 +11,11 @@ import org.apache.log4j.Logger;
 import com.igloosec.SpDbReader.common.Function;
 import com.igloosec.SpDbReader.common.Util;
 import com.igloosec.SpDbReader.common.io.ContinuousFile;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class FileReader {
-	private static final Logger logger = Logger.getLogger(FileReader.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 
 	public void readFileNewLine(final String filename, final Function onLine, final Function onExit, final String charset){
 		logger.info(String.format("filename : %s", filename));

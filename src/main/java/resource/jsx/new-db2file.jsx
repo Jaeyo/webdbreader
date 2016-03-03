@@ -17,13 +17,13 @@ var NewDb2FileView = React.createClass({
 	getInitialState() {
 		return {
 			dbVendor: 'oracle',
-			dbIp: '192.168.10.101',
+			dbIp: 'localhost',
 			dbPort: '1521',
-			dbSid: 'spiderx',
+			dbSid: 'sid_here',
 			jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-			jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-			jdbcUsername: 'admin',
-			jdbcPassword: 'admin',
+			jdbcConnUrl: 'jdbc:oracle:thin:@localhost:1521:sid_here',
+			jdbcUsername: '',
+			jdbcPassword: '',
 			table: '',
 			columns: '',
 			bindingType: 'simple',

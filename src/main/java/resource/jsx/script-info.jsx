@@ -4,7 +4,6 @@ import InfoTab from './script-info/info-tab.jsx';
 import ScriptConfigTab from './script-info/script-config-tab.jsx';
 import TailTab from './script-info/tail-tab.jsx';
 import server from './utils/server.js';
-import Filter from './comps/filter.jsx';
 import {
 	Button,
 	FlatButton,

@@ -95,8 +95,9 @@ public class Database {
 	private static String convertQuestionMark2RealValue(String query, Object... args) {
 		if(args == null) return query;
 		
-		query = query.replaceAll("\\?", "%s");
-		return String.format(query, args);
+		query = query.replaceAll("%", "__PERCENT__")
+						.replaceAll("\\?", "%s");
+		return String.format(query, args).replaceAll("__PERCENT__", "%");
 	}
 	
 	private static Connection getConnection(String connUrl, String username, String password) throws SQLException {

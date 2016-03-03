@@ -75,7 +75,7 @@ public class ScriptService {
 	}
 	
 	public void importVer1Script(String scriptName, String script, String dbName, String jdbcDriver, String jdbcConnUrl, String jdbcUsername, String jdbcPassword) throws IOException {
-		scriptDAO.save(scriptName, String.format("apiV1(function(dateUtil, dbHandler, fileExporter, httpUtil, runtimeUtil, scheduler, simpleRepo, stringUtil) { \n\t%s\n });", script));
+		scriptDAO.save(scriptName, String.format("apiV1(function(dateUtil, dbHandler, fileExporter, httpUtil, runtimeUtil, scheduler, simpleRepo, stringUtil, logger) { \n\t%s\n });", script));
 		
 		Properties dbProps = new Properties();
 		dbProps.put("JDBC.Driver", jdbcDriver);

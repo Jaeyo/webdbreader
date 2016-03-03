@@ -6,8 +6,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import com.igloosec.scripter.script.ScriptThread;
+
 public class DateUtil{
-	private static final Logger logger = Logger.getLogger(DateUtil.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	
 	public String format(long date, String format){
 		return new SimpleDateFormat(format).format(new Date(date));

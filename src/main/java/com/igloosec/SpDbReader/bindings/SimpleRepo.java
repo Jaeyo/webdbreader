@@ -10,9 +10,11 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.igloosec.scripter.common.Path;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class SimpleRepo {
-	private static final Logger logger = Logger.getLogger(SimpleRepo.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 
 	private Properties props = new Properties();
 	private File repoFile = null;

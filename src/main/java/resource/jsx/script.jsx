@@ -1,6 +1,5 @@
 import React from 'react';
 import server from './utils/server.js';
-import Filter from './comps/filter.jsx';
 import { Glyphicon } from 'react-bootstrap';
 import {
 	Button,
@@ -48,22 +47,19 @@ var ScriptsPanel = React.createClass({
 						avatar={ <Glyphicon glyph="console" /> } />
 					<CardText>
 						<List>
-							<Filter test={state.scripts.length === 0}>
-								<ListItem primaryText="no data" />
-							</Filter>
-							<Filter test={state.scripts.length !== 0}>
-							{
-								state.scripts.map(function(script) {
-									return (
-										<ScriptPanelItem 
-											key={script.SCRIPT_NAME}
-											title={script.SCRIPT_NAME} 
-											isRunning={script.IS_RUNNING} 
-											regdate={script.REGDATE} />
-									);
-								})
-							}
-							</Filter>
+						{
+							state.scripts.length === 0 ? 
+							(<ListItem primaryText="no data" />) : 
+							state.scripts.map(function(script) {
+								return (
+									<ScriptPanelItem 
+										key={script.SCRIPT_NAME}
+										title={script.SCRIPT_NAME} 
+										isRunning={script.IS_RUNNING} 
+										regdate={script.REGDATE} />
+								)
+							})
+						}
 						</List>
 						<div style={{ padding: '10px', textAlign: 'right' }}>
 							<Button 

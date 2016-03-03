@@ -1,9 +1,10 @@
 package com.igloosec.SpDbReader.bindings;
 
-import org.apache.log4j.Logger;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class RuntimeUtil {
-	private static final Logger logger = Logger.getLogger(RuntimeUtil.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 
 	public void sleep(long timeMillis){
 		try {

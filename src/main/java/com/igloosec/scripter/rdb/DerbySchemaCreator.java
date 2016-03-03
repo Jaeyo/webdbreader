@@ -23,7 +23,9 @@ public class DerbySchemaCreator {
 		checkSequence();
 		checkTables();
 		checkConfig();
+		logger.info("cp1"); //DEBUG
 		checkVersion();
+		logger.info("cp2"); //DEBUG
 	}
 	
 	private void checkSequence(){

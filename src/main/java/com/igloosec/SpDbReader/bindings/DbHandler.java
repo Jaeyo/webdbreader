@@ -16,16 +16,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.igloosec.SpDbReader.OutputFileLastModified;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.exception.NotExistsException;
+import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.service.SimpleRepoService;
 
 public class DbHandler {
-	private static final Logger logger = Logger.getLogger(DbHandler.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	private SimpleRepoService simpleRepoService = SingletonInstanceRepo.getInstance(SimpleRepoService.class);
 	
 	public void executeQuery(String dbName, String query) throws NotExistsException, IOException{

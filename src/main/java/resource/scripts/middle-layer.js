@@ -63,7 +63,7 @@ var dateFormat = function(timestamp, format) {
 };
 
 var replaceWithCurrentDate = function(str) {
-	var SimpleDateFormat = java.text.SimpleDateFormat.SimpleDateFormat;
+	var SimpleDateFormat = java.text.SimpleDateFormat;
 	var current = new java.util.Date();
 
 	if(str.indexOf('$yyyy')) str = str.split('$yyyy').join(new SimpleDateFormat('yyyy').format(current));
@@ -74,7 +74,7 @@ var replaceWithCurrentDate = function(str) {
 	if(str.indexOf('$ss')) str = str.split('$ss').join(new SimpleDateFormat('ss').format(current));
 
 	return str;
-}
+};
 
 var getType = function(arg) {
 	return com.igloosec.scripter.script.bindingsV2.Util.getType(arg);
@@ -88,9 +88,11 @@ var isDate = function(arg) {
 	return com.igloosec.scripter.script.bindingsV2.Util.isDate(arg);
 };
 
-var sleep = funciton(ms) {
-	return com.igloosec.scripter.script.bindingsV2.Util.sleep(ms);
+var sleep = function(ms) {
+	com.igloosec.scripter.script.bindingsV2.Util.sleep(ms);
 };
+
+
 
 
 
@@ -98,13 +100,17 @@ var sleep = funciton(ms) {
 
 // old api --------------------------------------------------------
 var apiV1 = function(callback) {
-	var dateUtil = new DateUtil();
-	var dbHandler = new DbHandler();
-	var fileExporter = new FileExporter();
-	var httpUtil = new HttpUtil();
-	var runtimeUtil = new RuntimeUtil();
-	var scheduler = new Scheduler();
-	var simpleRepo = new SimpleRepo();
-	var stringUtil = new StringUtil();
-	return callback(dateUtil, dbHandler, fileExporter, httpUtil, runtimeUtil, scheduler, simpleRepo, stringUtil);
+	var scriptName = com.igloosec.scripter.script.ScriptThread.currentScriptName();
+
+	var dateUtil = new com.igloosec.SpDbReader.bindings.DateUtil();
+	var dbHandler = new com.igloosec.SpDbReader.bindings.DbHandler();
+	var fileExporter = new com.igloosec.SpDbReader.bindings.FileExporter();
+	var httpUtil = new com.igloosec.SpDbReader.bindings.HttpUtil();
+	var runtimeUtil = new com.igloosec.SpDbReader.bindings.RuntimeUtil();
+	var scheduler = new com.igloosec.SpDbReader.bindings.Scheduler();
+	var simpleRepo = new com.igloosec.SpDbReader.bindings.SimpleRepo(scriptName);
+	var stringUtil = new com.igloosec.SpDbReader.bindings.StringUtil();
+	var logger = newLogger();
+
+	return callback(dateUtil, dbHandler, fileExporter, httpUtil, runtimeUtil, scheduler, simpleRepo, stringUtil, logger);
 };

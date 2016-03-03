@@ -30,6 +30,12 @@ public class ScriptExecutor {
 		final String middleLayerJs = IOUtils.toString(ScriptExecutor.class.getClassLoader().getResourceAsStream("resource/scripts/middle-layer.js"));
 		final String stringFormatJs = IOUtils.toString(ScriptExecutor.class.getClassLoader().getResourceAsStream("resource/scripts/string-format.js"));
 		
+		//DEBUG
+		String[] arr = middleLayerJs.split("\n");
+		for (int i = 0; i < arr.length; i++) {
+			logger.info(String.format("%s) %s", i+1, arr[i]));
+		}
+		
 		ScriptThread thread = new ScriptThread(scriptName){
 			@Override
 			public void runScript() throws Exception {

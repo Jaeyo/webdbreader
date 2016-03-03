@@ -8,9 +8,11 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class OutputFileDeleteTask {
-	private static final Logger logger = Logger.getLogger(OutputFileDeleteTask.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 	private boolean isStarted = false;
 	private Timer timer = new Timer();
 

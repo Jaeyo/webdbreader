@@ -46,7 +46,6 @@ public class Server {
 			else
 				SingletonInstanceRepo.getInstance(ScriptRunningDAO.class).deleteAll();
 
-
 			SingletonInstanceRepo.getInstance(ScriptScoreStatistics.class);
 
 			QueuedThreadPool threadPool = new QueuedThreadPool(Conf.getAs(Conf.JETTY_THREAD_POOL_SIZE, 20));

@@ -8,6 +8,7 @@ public class VersionTest {
 
 	@Test
 	public void test() {
+		assertTrue(Version.isANewerThanB("2.0.0", "2.0.0") == false);
 		assertTrue(Version.isANewerThanB("4.0.2.4a", "4.0.2.4") == true);
 		assertTrue(Version.isANewerThanB("4.0.3.4a", "4.0.2.4") == true);
 		assertTrue(Version.isANewerThanB("4.0.2.4a", "4.0.3.4") == false);

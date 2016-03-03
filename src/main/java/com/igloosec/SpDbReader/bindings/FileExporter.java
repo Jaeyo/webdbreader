@@ -10,9 +10,11 @@ import java.nio.charset.Charset;
 import org.apache.log4j.Logger;
 
 import com.igloosec.SpDbReader.OutputFileLastModified;
+import com.igloosec.scripter.script.ScriptLogger;
+import com.igloosec.scripter.script.ScriptThread;
 
 public class FileExporter {
-	private static final Logger logger = Logger.getLogger(FileExporter.class);
+	private static final ScriptLogger logger = ScriptThread.currentLogger();
 
 	public void write(String filename, String content) {
 		write(filename, content, null);

@@ -69140,10 +69140,6 @@
 
 	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
 
-	var _compsFilterJsx = __webpack_require__(625);
-
-	var _compsFilterJsx2 = _interopRequireDefault(_compsFilterJsx);
-
 	var _reactBootstrap = __webpack_require__(169);
 
 	var _compsMaterialWrapperJsx = __webpack_require__(435);
@@ -69201,22 +69197,13 @@
 						_react2['default'].createElement(
 							_compsMaterialWrapperJsx.List,
 							null,
-							_react2['default'].createElement(
-								_compsFilterJsx2['default'],
-								{ test: state.scripts.length === 0 },
-								_react2['default'].createElement(_compsMaterialWrapperJsx.ListItem, { primaryText: 'no data' })
-							),
-							_react2['default'].createElement(
-								_compsFilterJsx2['default'],
-								{ test: state.scripts.length !== 0 },
-								state.scripts.map(function (script) {
-									return _react2['default'].createElement(_scriptScriptPanelItemJsx2['default'], {
-										key: script.SCRIPT_NAME,
-										title: script.SCRIPT_NAME,
-										isRunning: script.IS_RUNNING,
-										regdate: script.REGDATE });
-								})
-							)
+							state.scripts.length === 0 ? _react2['default'].createElement(_compsMaterialWrapperJsx.ListItem, { primaryText: 'no data' }) : state.scripts.map(function (script) {
+								return _react2['default'].createElement(_scriptScriptPanelItemJsx2['default'], {
+									key: script.SCRIPT_NAME,
+									title: script.SCRIPT_NAME,
+									isRunning: script.IS_RUNNING,
+									regdate: script.REGDATE });
+							})
 						),
 						_react2['default'].createElement(
 							'div',
@@ -69254,37 +69241,7 @@
 	module.exports = ScriptView;
 
 /***/ },
-/* 625 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var Filter = _react2['default'].createClass({
-		displayName: 'Filter',
-
-		PropTypes: {
-			test: _react2['default'].PropTypes.bool.isRequired
-		},
-
-		render: function render() {
-			try {
-				var props = this.props;
-
-				if (props.test === true) return props.children;else return [];
-			} catch (err) {
-				console.error(err.stack);
-			}
-		}
-	});
-	module.exports = Filter;
-
-/***/ },
+/* 625 */,
 /* 626 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -73505,10 +73462,6 @@
 	var _utilsServerJs = __webpack_require__(421);
 
 	var _utilsServerJs2 = _interopRequireDefault(_utilsServerJs);
-
-	var _compsFilterJsx = __webpack_require__(625);
-
-	var _compsFilterJsx2 = _interopRequireDefault(_compsFilterJsx);
 
 	var _compsMaterialWrapperJsx = __webpack_require__(435);
 
@@ -87371,13 +87324,13 @@
 		getInitialState: function getInitialState() {
 			return {
 				dbVendor: 'oracle',
-				dbIp: '192.168.10.101',
+				dbIp: 'localhost',
 				dbPort: '1521',
-				dbSid: 'spiderx',
+				dbSid: 'sid_here',
 				jdbcDriver: 'oracle.jdbc.driver.OracleDriver',
-				jdbcConnUrl: 'jdbc:oracle:thin:@192.168.10.101:1521:spiderx',
-				jdbcUsername: 'admin',
-				jdbcPassword: 'admin',
+				jdbcConnUrl: 'jdbc:oracle:thin:@localhost:1521:sid_here',
+				jdbcUsername: '',
+				jdbcPassword: '',
 				table: '',
 				columns: '',
 				bindingType: 'simple',
