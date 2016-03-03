@@ -4,8 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
+import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
 
 public class DateUtil{
