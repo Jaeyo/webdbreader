@@ -12,16 +12,21 @@ import com.igloosec.scripter.script.ScriptThread;
 
 public class Scheduler {
 	private static final ScriptLogger logger = ScriptThread.currentLogger();
-	private Timer timer = new Timer();
+	private Timer timer;
 
 	public void schedule(long delay, long period, final Runnable task) {
+		if(this.timer == null) this.timer = ScriptThread.currentThread().newTimer();
 		final String scriptName = ScriptThread.currentScriptName();
 		
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				Thread.currentThread().setName(scriptName);
-				task.run();
+				try {
+					Thread.currentThread().setName(scriptName);
+					task.run();
+				} catch(Exception e) {
+					logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+				}
 			}
 		}, delay, period);
 	}

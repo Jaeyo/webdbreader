@@ -2,15 +2,14 @@ package com.igloosec.scripter.service;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Properties;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.dao.SimpleRepoDAO;
 import com.igloosec.scripter.exception.NotExistsException;
+import com.igloosec.scripter.util.PropertiesUtil;
 
 public class SimpleRepoService {
 	private SimpleRepoDAO simpleRepoDAO = SingletonInstanceRepo.getInstance(SimpleRepoDAO.class);
@@ -48,17 +47,14 @@ public class SimpleRepoService {
 	}
 	
 	public void setVer1DbProps(String scriptName, String dbName, Properties dbProps) throws IOException {
-		StringWriter strWriter = new StringWriter();
-		dbProps.store(strWriter, null);
-		simpleRepoDAO.insert(scriptName, "database_" + dbName, strWriter.toString());
+		simpleRepoDAO.insert(scriptName, "database_" + dbName, PropertiesUtil.toJSON(dbProps).toString());
 	}
 	
 	public Properties getVer1DbProps(String scriptName, String dbName) throws NotExistsException, IOException {
-		String dbPropsStr = simpleRepoDAO.select(scriptName, "database_" + dbName);
-		if(dbPropsStr == null || dbPropsStr.trim().length() == 0)
+		String dbPropsJSONStr = simpleRepoDAO.select(scriptName, "database_" + dbName);
+		if(dbPropsJSONStr == null || dbPropsJSONStr.trim().length() == 0)
 			throw new NotExistsException("dbName: " + dbName);
-		Properties dbProps = new Properties();
-		dbProps.load(new StringReader(dbPropsStr));
-		return dbProps;
+		
+		return PropertiesUtil.fromJSON(dbPropsJSONStr);
 	}
 }

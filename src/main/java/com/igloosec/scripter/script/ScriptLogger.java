@@ -22,38 +22,64 @@ public class ScriptLogger {
 	}
 	
 	public void info(String msg) {
-		msg = String.format("[%s] %s", scriptName, msg);
-		logger.info(msg);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "info", msg);
+		try {
+			msg = String.format("[%s] %s", scriptName, msg);
+			logger.info(msg);
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "info", msg);
+		} catch(Exception e) {
+			error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	} 
 	
 	public void debug(String msg) {
-		msg = String.format("[%s] %s", scriptName, msg);
-		logger.debug(msg);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "debug", msg);
+		try {
+			msg = String.format("[%s] %s", scriptName, msg);
+			logger.debug(msg);
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "debug", msg);
+		} catch(Exception e) {
+			error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	} 
 	
 	public void warn(String msg) {
-		msg = String.format("[%s] %s", scriptName, msg);
-		logger.warn(msg);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "warn", msg);
+		try {
+			msg = String.format("[%s] %s", scriptName, msg);
+			logger.warn(msg);
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "warn", msg);
+		} catch(Exception e) {
+			error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
 	} 
 	
 	public void error(String msg) {
-		msg = String.format("[%s] %s", scriptName, msg);
-		logger.error(msg);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
-		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
-		scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
-	} 
+		try {
+			msg = String.format("[%s] %s", scriptName, msg);
+			logger.error(msg);
+		} catch(Exception e) {}
+
+		try {
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
+			notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
+		} catch(Exception e) {
+			logger.error(String.format("%s, errmsg: %s", e.getClass().getSimpleName(), e.getMessage()), e);
+		}
+	}
 	
 	public void error(String msg, Throwable e) {
-		msg = String.format("[%s] %s", scriptName, msg);
-		logger.error(msg, e);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
-		loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", ExceptionUtils.getStackTrace(e));
-		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
-		notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), ExceptionUtils.getStackTrace(e));
-		scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
-	} 
-} 
+		try {
+			msg = String.format("[%s] %s", scriptName, msg);
+			logger.error(msg, e);
+		} catch(Exception ex) {}
+		
+		try {
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", msg);
+			loggerService.dispatchMsg(scriptName, System.currentTimeMillis(), "error", ExceptionUtils.getStackTrace(e));
+			notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), msg);
+			notiService.dispatchErrLog(scriptName, System.currentTimeMillis(), ExceptionUtils.getStackTrace(e));
+			scriptScoreStatistics.incrementCount(ScriptScoreStatistics.ERROR_LOG);
+		} catch(Exception ex) {
+			logger.error(String.format("%s, errmsg: %s", ex.getClass().getSimpleName(), ex.getMessage()), ex);
+		}
+	}
+}
