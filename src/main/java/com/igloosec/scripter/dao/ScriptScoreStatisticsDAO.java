@@ -20,12 +20,12 @@ public class ScriptScoreStatisticsDAO {
 	}
 	
 	public JSONArray getTotal(){
-		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics";
+		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics ORDER BY count_timestamp";
 		return ds.getJdbcTmpl().queryForJsonArray(query);
 	}
 	
 	public JSONArray getStatistics(String scriptName) {
-		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics WHERE script_name = ?";
+		String query = "SELECT count_timestamp, category, script_name, count_value FROM script_score_statistics WHERE script_name = ? ORDER BY count_timestamp";
 		return ds.getJdbcTmpl().queryForJsonArray(query, scriptName);
 	}
 	
