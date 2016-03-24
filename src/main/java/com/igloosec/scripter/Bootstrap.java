@@ -19,25 +19,29 @@ public class Bootstrap {
 		try{
 			// check jdk type
 			if (com.igloosec.scripter.common.Conf.isOpenJdk()) {
-				System.err.println("OpenJDK not allowed, use another jdk");
+				System.err.println("ERR: OpenJDK not allowed, use another jdk");
 				System.exit(-1);
 			} 
-			
-			String classPathSeparator = SystemUtils.IS_OS_WINDOWS ? ";" : ":";
 
-			String classPath = new File(Path.getPackagePath(), "scripter.jar").getAbsolutePath();
-			classPath += classPathSeparator;
-			classPath += Path.getPackagePath().getAbsolutePath() + File.separator + "libs" + File.separator + "*";
-
-			String mainClass = Server.class.getName();
-
-			bootstrapJar(classPath, mainClass, args);
+			startup(args);
 		} catch(Exception e){
 			logger.error(String.format("%s, errmsg : %s", e.getClass().getSimpleName(), e.getMessage()), e);
 		} 
 	} 
 
-	public static void bootstrapJar(String classPath, String mainClass, String... args) throws IOException {
+	static void startup(String[] args) throws IOException {
+		String classPathSeparator = SystemUtils.IS_OS_WINDOWS ? ";" : ":";
+
+		String classPath = new File(Path.getPackagePath(), "scripter.jar").getAbsolutePath();
+		classPath += classPathSeparator;
+		classPath += Path.getPackagePath().getAbsolutePath() + File.separator + "libs" + File.separator + "*";
+
+		String mainClass = Server.class.getName();
+
+		bootstrapJar(classPath, mainClass, args);
+	}
+
+	static void bootstrapJar(String classPath, String mainClass, String... args) throws IOException {
 		logger.info("start to bootstrap jar " + mainClass);
 
 		String javaHome = System.getProperty("path.to.java");

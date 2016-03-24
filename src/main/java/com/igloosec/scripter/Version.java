@@ -21,7 +21,8 @@ public class Version {
 		
 		version="2.0.0";
 		historyNote="1. scripter ( SpDbReader for web ) (2015. 08. 24)\n" +
-					"2. chart 시간대가 꼬여서 표현되는 현상 관련 쿼리에서 order by 추가 (2016. 03. 07)\n";
+					"2. chart 시간대가 꼬여서 표현되는 현상 관련 쿼리에서 order by 추가 (2016. 03. 07)\n" +
+					"3. interactive shell 추가 (2016. 03. 24)\n";
 		histories.add(new History(version, historyNote));
 		
 		version="1.0.5";

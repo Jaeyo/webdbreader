@@ -384,3 +384,17 @@ var result = stringUtil.stringAt("aaa,bbb,ccc,ddd", ",", 2); // ccc 반환
 ```javascript
 var html = httpUtil.requestGet('http://testurl.net/test');
 ```
+
+----
+
+### ThreadPoolUtil
+#### ThreadPool newFixedThreadPool(int threadCount)
+* 고정된 수의 thread들을 가지는 thread pool을 생성하여 반환한다.
+* added Version: 1.2.0
+* Example
+```javascript
+var threadPool = threadPoolUtil.newFixedThreadPool(10);
+threadPool.submit(function() {
+  logger.info('this is another thread in thread pool');
+});
+```

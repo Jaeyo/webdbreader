@@ -98,6 +98,11 @@ exports.initPrototypeFunctions = function() {
 		return src.indexOf(word, src.length - word.length) !== -1;
 	};
 
+	String.isEmpty = function(str) {
+		if(str == null || str.length === 0) return true;
+		return false;
+	}
+
 	Array.contains = function(arr, item) {
 		return arr.indexOf(item) !== -1;
 	};
@@ -142,6 +147,37 @@ exports.initPrototypeFunctions = function() {
 			return true;
 		}
 		return false;
+	};
+
+	Object.deepCopy = function(obj) {
+		if(obj == nul || typeof(obj) !== 'object')
+			return obj;
+
+		var copy = obj.constructor();
+		for(var attr in obj) {
+			if(obj.hasOwnProperty(attr)) {
+				copy[attr] = Object.deepCopy(obj[attr]);
+			}
+		}
+
+		return copy;
+	};
+
+	Object.equals = function( x, y ) {
+		if ( x === y ) return true;
+		if ( ! ( x instanceof Object ) || ! ( y instanceof Object ) ) return false;
+		if ( x.constructor !== y.constructor ) return false;
+		for ( var p in x ) {
+			if ( ! x.hasOwnProperty( p ) ) continue;
+			if ( ! y.hasOwnProperty( p ) ) return false;
+			if ( x[ p ] === y[ p ] ) continue;
+			if ( typeof( x[ p ] ) !== "object" ) return false;
+			if ( ! Object.equals( x[ p ],  y[ p ] ) ) return false;
+		}
+		for ( p in y ) {
+			if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
+		}
+		return true;
 	};
 };
 

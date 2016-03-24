@@ -18,6 +18,7 @@ set CURRENT_PATH=%~dp0
 
 set BOOTSTRAP_MAIN_CLASS=com.igloosec.scripter.Bootstrap
 set SHUTDOWN_MAIN_CLASS=com.igloosec.scripter.Shutdown
+set SHELL_MAIN_CLASS=com.igloosec.scripter.InteractiveShell
 set VERSION_MAIN_CLASS=com.igloosec.scripter.Version
 set CLASSPATH=%CURRENT_PATH%scripter.jar;%CURRENT_PATH%\lib\*
 
@@ -26,6 +27,8 @@ if "%1" == "start" (
 	set MAIN_CLASS=%BOOTSTRAP_MAIN_CLASS%
 ) else if "%1" == "shutdown" (
 	set MAIN_CLASS=%SHUTDOWN_MAIN_CLASS%
+) else if "%1" == "shell" (
+	set MAIN_CLASS=%SHELL_MAIN_CLASS%
 ) else if "%1" == "version" (
 	set MAIN_CLASS=%VERSION_MAIN_CLASS%
 ) else (
@@ -33,6 +36,7 @@ if "%1" == "start" (
 	echo ---------------------------------------
 	echo start server    : scripter.bat start
 	echo shutdown server : scripter.bat shutdown
+	echo shell           : scripter.bat shell
 	echo version         : scripter.bat version
 	echo ---------------------------------------
 	goto :eof

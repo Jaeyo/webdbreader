@@ -19,6 +19,7 @@ CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 BOOTSTRAP_MAIN_CLASS=com.igloosec.scripter.Bootstrap
 SHUTDOWN_MAIN_CLASS=com.igloosec.scripter.Shutdown
+SHELL_MAIN_CLASS=com.igloosec.scripter.InteractiveShell
 VERSION_MAIN_CLASS=com.igloosec.scripter.Version
 CLASSPATH=$CURRENT_PATH/scripter.jar:$CURRENT_PATH/lib/*
 
@@ -29,6 +30,9 @@ then
 elif [ "$1" = "shutdown" ] 
 then
 	MAIN_CLASS=$SHUTDOWN_MAIN_CLASS
+elif [ "$1" = "shutdown" ] 
+then
+	MAIN_CLASS=$SHELL_MAIN_CLASS
 elif [ "$1" = "version" ] 
 then
 	MAIN_CLASS=$VERSION_MAIN_CLASS
@@ -37,6 +41,7 @@ else
 	echo "-------------------------------------------"
 	echo "start server    : sh scripter.sh start"
 	echo "shutdown server : sh scripter.sh shutdown"
+	echo "shell           : sh scripter.sh shell"
 	echo "version         : sh scripter.sh version"
 	echo "-------------------------------------------"
 	exit 0
