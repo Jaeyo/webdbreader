@@ -2,9 +2,6 @@ package com.igloosec.scripter.util;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.junit.Test;
 
 public class UtilTest {

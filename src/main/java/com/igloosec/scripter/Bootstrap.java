@@ -1,7 +1,9 @@
 package com.igloosec.scripter;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +72,20 @@ public class Bootstrap {
 		logger.info("cmd : " + cmd.toString());
 
 		ProcessBuilder builder = new ProcessBuilder(cmd);
-		Process processor = builder.start();
+		final Process p = builder.start();
+		Thread processInputConsumerThread = new Thread() {
+			@Override
+			public void run() {
+				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line = null;
+				try {
+					while((line = input.readLine()) != null) {}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		processInputConsumerThread.start();
 
 		logger.info(mainClass + " success to bootstrap");
 	} 

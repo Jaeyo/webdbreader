@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import com.google.common.collect.Lists;
 import com.igloosec.scripter.common.SingletonInstanceRepo;
 import com.igloosec.scripter.rdb.JsonJdbcTemplate;
 import com.igloosec.scripter.rdb.SingleConnectionDataSource;

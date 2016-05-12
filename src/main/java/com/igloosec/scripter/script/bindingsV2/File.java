@@ -1,6 +1,7 @@
 package com.igloosec.scripter.script.bindingsV2;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,8 +16,6 @@ import com.igloosec.scripter.script.ScriptLogger;
 import com.igloosec.scripter.script.ScriptThread;
 import com.igloosec.scripter.service.FileOutMsgService;
 import com.igloosec.scripter.statistics.ScriptScoreStatistics;
-import com.sun.xml.internal.bind.v2.TODO;
-import com.sun.xml.internal.ws.Closeable;
 
 public class File implements Closeable {
 	private ScriptLogger logger = ScriptThread.currentLogger();

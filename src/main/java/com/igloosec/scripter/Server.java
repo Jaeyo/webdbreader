@@ -39,6 +39,8 @@ public class Server {
 			System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
 			System.setProperty("com.igloosec.scripter.LEVEL", "DEBUG");
 
+			Conf.printProps();
+			
 			new DerbySchemaCreator().check();
 
 			if(Conf.getAs(Conf.SCRIPT_AUTO_START, Boolean.class) == true)
